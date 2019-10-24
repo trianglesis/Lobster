@@ -802,27 +802,28 @@ function RESTGetTask(caseFullData, testButtonDataset) {
 }
 
 
-
-function RESTGetCaseByTestPyPath(testPyPath) {
+function RESTGetCaseByTestPyPath(caseData, modal, event, callThen) {
     // console.log(`GET user test task by id: ${testButtonDataset.task_id}`);
+    let caseItem = {};
     $.ajax({
         "type": "GET",
         "dataType": "json",
         contentType: "application/json; charset=utf-8",
-        "url": "/octo_tku_patterns/octo_test_cases/",
-        data: {test_py_path: testPyPath},
+        "url": "/api/v1/cases/octo_test_cases/",
+        data: {test_py_path: caseData.test_py_path},
         "beforeSend": function (xhr, settings) {$.ajaxSettings.beforeSend(xhr, settings)},
         "success": function (result) {
-            let caseItem = result[0];
+            let caseItem = result.results[0];
             if (caseItem && caseItem.id) {
-                return caseItem
+                callThen(caseItem, caseData, modal, event);
             } else {
-                console.log("Task GET failed, no task found or no status");
+                console.log("Get Case failed: " + data);
             }
         },
         "error": function () {
-            console.log("GET TASK ERROR, something goes wrong...");
+            console.log("GET Case ERROR, something goes wrong...");
         },
     });
-    return [];
+    return caseItem;
 }
+
