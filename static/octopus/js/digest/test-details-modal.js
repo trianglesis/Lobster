@@ -12,12 +12,16 @@ $(document).ready(function () {
 $(document).ready(function () {
     //Opening of modal action
     $('#actionsModal').on('show.bs.modal', function (event) {
+        console.log("Showing modal!");
         // let modal_ = $(this);
         let modal = document.getElementById("actionsModal");
+        // console.log("Parsing table for CaseData");
         let tableRow = getTableRowFromEvent(event);
         let caseData = parseTableRowForCaseData(tableRow);
+        // console.table(caseData);
 
         // Run REST get to obtain related case for this test:
+        // console.log("GET REST for full case info!");
         RESTGetCaseByTestPyPath(caseData, modal, event, fillModalBodyHyperlinksButtons);
     });
 });
@@ -31,6 +35,8 @@ function fillModalBodyHyperlinksButtons(caseItem, caseData, modal, event) {
     caseData.change_review = caseItem.change_review;
     caseData.change_user = caseItem.change_user;
     caseData.change = caseItem.change;
+    // console.log("FINISH GET REST for full case info!");
+    // console.table(caseItem);
 
     let button = getButtonFromEvent(event);
     let addm_name_url = detectADDMSelectorFromContext(button, caseData);
@@ -48,6 +54,7 @@ function fillModalBodyHyperlinksButtons(caseItem, caseData, modal, event) {
 
     composeCaseHyperlinks(caseData);
     // Fill modal body with divs:
+    // console.log("Now filling modal body with caseData");
     fillModalBody(modal, caseData);
-    console.log('Modal body is ready now!')
+    // console.log('Modal body is ready now!')
 }

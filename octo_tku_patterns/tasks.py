@@ -836,7 +836,7 @@ class TaskPrepare:
         log.warning("TASK PSEUDO RUNNING in TaskPrepare.run_tku_patterns")
 
         # 0. Init test mail?
-        self.mail_status(mail_opts=dict(mode='init', view_obj=self.view_obj))
+        # self.mail_status(mail_opts=dict(mode='init', view_obj=self.view_obj))
 
         # 1. Select cases for test
         cases_to_test = self.case_selection()

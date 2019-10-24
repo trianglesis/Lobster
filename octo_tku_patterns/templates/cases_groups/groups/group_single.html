@@ -115,12 +115,17 @@
         </ul>
         <span class="navbar-text">Octopus automation</span>
     </nav>
+
+    {# Actions button #}
+    {# Show test actions modal, make active buttons #}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
-    {% include 'digests/includes/modal_cases_multiple.html' %}
+    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
+    <script src="{% static 'octopus/js/cases_groups/group-details-modal.js' %}"></script>
+    <script src="{% static 'octopus/js/cases_groups/group-details-toast.js' %}"></script>
 
-    <script src="{% static 'octopus/js/test-actions-modal.js' %}"></script>
+    {# Run all Button #}
+    {% include 'digests/includes/modal_cases_multiple.html' %}
     <script src="{% static 'octopus/js/case-group-modal-multiple-tests.js' %}"></script>
-    <script src="{% static 'octopus/js/case-group-test-run-toast.js' %}"></script>
 
 {% endblock %}
