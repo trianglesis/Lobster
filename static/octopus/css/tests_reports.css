@@ -256,12 +256,14 @@ MODAL styles:
 #case_id {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
+    display: none;
 
 }
 
 #test_id {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
+    display: none;
 
 }
 
@@ -280,6 +282,7 @@ MODAL styles:
 #cases_ids {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
+    display: none;
 
 }
 
@@ -311,12 +314,14 @@ MODAL styles:
     font-size: .775em;
     font-family: 'Maven Pro', sans-serif;
     word-wrap: break-word;
+    display: none;
 
 }
 #test_function {
     font-size: .775em;
     font-family: 'Maven Pro', sans-serif;
     word-wrap: break-word;
+    display: none;
 }
 
 

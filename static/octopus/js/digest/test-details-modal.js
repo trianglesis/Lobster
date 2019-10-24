@@ -18,7 +18,7 @@ $(document).ready(function () {
         let caseData = parseTableRowForCaseData(tableRow);
 
         // Run REST get to obtain related case for this test:
-        let caseItem = new RESTGetCaseByTestPyPath(caseData, modal, event, fillModalBodyHyperlinksButtons);
+        RESTGetCaseByTestPyPath(caseData, modal, event, fillModalBodyHyperlinksButtons);
     });
 });
 
@@ -27,7 +27,6 @@ function fillModalBodyHyperlinksButtons(caseItem, caseData, modal, event) {
     console.table(caseData);
     // Update modal view and data with some of case item values:
     caseData.case_id = caseItem.id;
-    caseData.cases_ids = caseItem.id;
     caseData.change_ticket = caseItem.change_ticket;
     caseData.change_review = caseItem.change_review;
     caseData.change_user = caseItem.change_user;
@@ -41,7 +40,14 @@ function fillModalBodyHyperlinksButtons(caseItem, caseData, modal, event) {
     let tst_status_url = detectTestStatusSelectorFromContext(button, caseData);
 
     composeLogsHyperlinks(caseData, addm_name_url, tst_status_url);
-    assignTestCaseTestButtons(caseData);
-    assignTestCaseUnitTestButtons(caseData);
+
+    let buttonData = {
+        cases_ids: caseItem.id,
+        tst_class: caseData.tst_class,
+        tst_name: caseData.tst_name,
+    };
+    assignTestCaseTestButtons(buttonData);
+    assignTestCaseUnitTestButtons(buttonData);
+
     composeCaseHyperlinks(caseData);
 }

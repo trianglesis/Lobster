@@ -112,12 +112,12 @@ function parseTableRowForCaseData(tableRow) {
     }
 
     // Check if we're on single test item and user wanted to run only one unit case
-    let test_function;
-    if (caseData.tst_class && caseData.tst_name) {
-        caseData.test_function = `;test_function=${caseData.tst_class}+${caseData.tst_name}`;
-    } else {
-        // console.log("Current test run URL will execute test.py full");
-    }
+    // let test_function;
+    // if (caseData.tst_class && caseData.tst_name) {
+    //     caseData.test_function = `;test_function=${caseData.tst_class}+${caseData.tst_name}`;
+    // } else {
+    //     // console.log("Current test run URL will execute test.py full");
+    // }
     // console.log("Parsed case data: ");
     // console.table(caseData);
     return caseData
@@ -240,17 +240,22 @@ function detectTestStatusSelectorFromContext(button, caseData) {
  * @param caseData
  */
 function assignTestCaseTestButtons(caseData) {
-    let test_wipe_run = document.getElementById("wipe-run");
+    let test_wipe_run = document.getElementById(
+        "wipe-run");
     if (test_wipe_run) {
-        test_wipe_run.setAttribute('data-cases_ids', caseData.cases_ids);
+        test_wipe_run.setAttribute(
+            'data-cases_ids', caseData.cases_ids);
     }
     let test_p4_run = document.getElementById("p4-run");
     if (test_p4_run) {
-        test_p4_run.setAttribute('data-cases_ids', caseData.cases_ids);
+        test_p4_run.setAttribute(
+            'data-cases_ids', caseData.cases_ids);
     }
-    let test_instant_run = document.getElementById("instant-run");
+    let test_instant_run = document.getElementById(
+        "instant-run");
     if (test_instant_run) {
-        test_instant_run.setAttribute('data-cases_ids', caseData.cases_ids);
+        test_instant_run.setAttribute(
+            'data-cases_ids', caseData.cases_ids);
     }
 }
 
@@ -263,18 +268,27 @@ function assignTestCaseUnitTestButtons(caseData) {
     // Test case Unit test run:
     let unit_wipe_run = document.getElementById("unit-wipe-run");
     if (unit_wipe_run) {
-        unit_wipe_run.setAttribute('data-cases_ids', caseData.cases_ids);
-        unit_wipe_run.setAttribute('data-test_functions', caseData.test_function);
+        unit_wipe_run.setAttribute(
+            'data-cases_ids', caseData.cases_ids);
+        unit_wipe_run.setAttribute(
+            'data-test_functions',
+            `${caseData.tst_class}+${caseData.tst_name}`);
     }
     let unit_p4_run = document.getElementById("unit-p4-run");
     if (unit_p4_run) {
-        unit_p4_run.setAttribute('data-cases_ids', caseData.cases_ids);
-        unit_p4_run.setAttribute('data-test_functions', caseData.test_function);
+        unit_p4_run.setAttribute(
+            'data-cases_ids', caseData.cases_ids);
+        unit_p4_run.setAttribute(
+            'data-test_functions',
+            `${caseData.tst_class}+${caseData.tst_name}`);
     }
     let unit_instant_run = document.getElementById("unit-instant-run");
     if (unit_instant_run) {
-        unit_instant_run.setAttribute('data-cases_ids', caseData.cases_ids);
-        unit_instant_run.setAttribute('data-test_functions', caseData.test_function);
+        unit_instant_run.setAttribute(
+            'data-cases_ids', caseData.cases_ids);
+        unit_instant_run.setAttribute(
+            'data-test_functions',
+            `${caseData.tst_class}+${caseData.tst_name}`);
     }
 }
 
@@ -285,6 +299,7 @@ function assignTestCaseUnitTestButtons(caseData) {
  * @param tst_status_url
  */
 function composeLogsHyperlinks(caseData, addm_name_url, tst_status_url) {
+
     let seeLogs = document.getElementById('see-logs');
     if (seeLogs) {
         if (caseData.tkn_branch) {
