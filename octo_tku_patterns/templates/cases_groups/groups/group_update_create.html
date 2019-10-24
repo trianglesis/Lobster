@@ -1,0 +1,145 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        {% if form.instance.title %}
+            Group change - {{ form.instance.title }}
+        {% else %}
+            Create new group
+        {% endif %}
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}"/>
+
+    <link rel="stylesheet" href="{% static 'multiselect/multi.min.css' %}">
+    <script src="{% static 'multiselect/multi.min.js' %}"></script>
+    <div style="padding: 1% 0 0 2%;">
+        <a href="{% url 'test_cases_groups' %}" class="btn btn-sm btn-light">{% select_icon 'arrow-left' 34 'right' 0.2 %}Back to all</a>
+{#        <a href="{% url 'test_cases_group' pk=form.instance.id %}" class="btn btn-sm btn-light">{% select_icon 'arrow-left' 34 'right' 0.2 %}Back to view</a>#}
+    </div>
+    <div style="padding: 1% 2% 2% 2%;">
+        {#        <div style="display: flex;justify-content: space-between">#}
+        {#            <a class="btn btn-warning" href="{% url 'test_cases_group_update' pk=form.instance.id %}">Edit</a>#}
+        {#            <a class="btn btn-outline-warning" href="#">Run all</a>#}
+        {#            <a class="btn btn-danger disabled" href="#">Delete</a>#}
+        {#        </div>#}
+        <div class="card border-warning mb-10">
+            <div class="card-header">
+                {% if form.instance.title %}
+                    Update test case group: {{ form.instance.title }}
+                {% else %}
+                    Create a new group!
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{% select_icon 'briefcase' 34 'right' 0.2 %}
+                    {% if form.instance.title %}
+                        "{{ form.instance.title }}"
+                    {% else %}
+                        new_group_name
+                    {% endif %}
+                </h5>
+                <p class="card-text">You can change the tittle, assign another user, add or remove patterns from selector below. Multiple selection allowed.</p>
+                <form method="post">{% csrf_token %}
+                    {# {{ form.as_p }}#}
+                    {% if form.non_field_errors %}
+                        <div class="fieldWrapper">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Group title -->
+                    <div class="form-group row">
+                        <label for="title" class="col-sm-2 col-form-label">Group title:</label>
+                        <div class="col-sm-10">
+                            {{ form.title }}
+                            <small id="title" class="form-text text-muted">Short tittle without spaces. Max 25 chars.</small>
+                        </div>
+                        <div class="text-warning">{{ form.title.errors }}</div>
+                    </div>
+                    <!-- Author -->
+                    <div class="form-group row">
+                        <label for="id_author" class="col-sm-2 col-form-label">Group author:</label>
+                        <div class="col-sm-10">
+                            {#                         {{ form.author }}#}
+                            <select name="author" id="id_author" class="form-control">
+                                {% for author in form.author %}
+                                    {# <option value="1">octopus_super</option>#}
+                                    {{ author }}
+                                {% endfor %}
+                            </select>
+                            <small id="id_author" class="form-text text-muted">Who will maintain this group.</small>
+                        </div>
+                        <div class="text-warning">{{ form.author.errors }}</div>
+                    </div>
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        {{ form.description }}
+                        <div class="text-warning">{{ form.description.errors }}</div>
+                        <small id="description" class="form-text text-muted">Add important notes, description, relatest JIRA or Escalations. Describe the problems if any.</small>
+                    </div>
+                    <!-- Patterns in group -->
+                    <div class="form-group">
+                        <label for="id_test_cases">Patterns selected:</label>
+                        {#                     {{ form.test_cases }}#}
+                        <select name="test_cases" id="id_test_cases" required multiple class="form-control">
+                            {% for case in form.test_cases %}
+                                {{ case }}
+                            {% endfor %}
+                        </select>
+                        <small id="id_test_cases" class="form-text text-muted">Chosen test cases will be stored in this group. You could select multiple with 'Ctrl' key pressed.</small>
+                        <div class="text-warning">{{ form.test_cases.errors }}</div>
+                    </div>
+                    <!-- Dates -->
+
+                    <fieldset disabled>
+                        <div class="form-group row">
+                            <label for="pub_date" class="col-sm-2 col-form-label">Created</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="pub_date" class="form-control" placeholder="{{ form.instance.pub_date|timezone:"Europe/London"|date:'Y-m-d H:i' }}">
+                                <small id="pub_date" class="form-text text-muted">This is creation date, never change.</small>
+                            </div>
+                            <div class="text-warning">{{ form.instance.pub_date.errors }}</div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="changed_date" class="col-sm-2 col-form-label">Changed</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="changed_date" class="form-control" placeholder="{{ form.instance.changed_date|timezone:"Europe/London"|naturaltime }}">
+                                <small id="changed_date" class="form-text text-muted">This is last human update date, changed when user make update on this form.</small>
+                            </div>
+                            <div class="text-warning">{{ form.instance.changed_date.errors }}</div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Update -->
+                    <input class="btn btn-success" type="submit" value="Update">
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'cases_workbench' %}">Workbench Cases</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Group create new</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    <script src="{% static 'octopus/js/case-group-multi-choose.js' %}"></script>
+{% endblock %}

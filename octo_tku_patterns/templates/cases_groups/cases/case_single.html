@@ -1,0 +1,349 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Test Case view {{ case.test_case_depot_path }}
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}"/>
+    <div style="padding: 1% 0 0 2%;">
+        <a href="{% url 'test_cases' %}" class="btn btn-sm btn-light">{% select_icon 'arrow-left' 34 'right' 0.2 %}Back
+            to all</a>
+    </div>
+    <div class="single-case" style="padding: 1% 2% 2% 2%;">
+        <div class="card">
+            <div class="card-header">Case: {{ case.test_case_depot_path }}</div>
+            <div class="card-body">
+                <h5 class="card-title">
+                    {% if case.pattern_folder_name %}Pattern test: "{{ case.pattern_library }}
+                        {{ case.pattern_folder_name }}" {% else %}Standalone test: "{{ case.test_case_dir }}
+                        "{% endif %}
+                </h5>
+                <div class="case-table" style="padding: 0 5% 0 0">
+                    <table class="table table-sm table-striped table-borderless">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr >
+                        <td>
+                            {% if case.test_type == 'tku_patterns' %}
+                                <i class="fas fa-scroll"></i>
+                            {% else %}
+                                <i class="fab fa-python"></i>
+                            {% endif %}
+                        </td>
+                        <td>{{ case.test_type }}</td>
+                        <td><span class="badge badge-light case-hint">test type</span></td>
+                    </tr>
+                    <tr>
+                        {% if case.tkn_branch == 'tkn_main' %}
+                            <td>{% select_icon 'git-branch' 20 'right' 0.1 %}</td>
+                            <td>{{ case.tkn_branch }}</td>
+                        {% elif case.tkn_branch == 'tkn_ship' %}
+                            <td>{% select_icon 'git-merge' 20 'right' 0.1 %}</td>
+                            <td>{{ case.tkn_branch }}</td>
+                        {% else %}
+                            <td>{% select_icon 'git-commit' 20 'right' 0.1 %}</td>
+                            <td>{{ case.test_case_depot_path }}</td>
+                        {% endif %}
+                        <td><span class="badge badge-light case-hint">branch</span></td>
+                    </tr>
+                    {% if case.pattern_library %}
+                        <tr>
+                            <td>{% select_icon_patt_kw_library case.pattern_library %}</td>
+                            <td>{{ case.pattern_library }}</td>
+                            <td><span class="badge badge-light case-hint">pattern library</span></td>
+                        </tr>
+                    {% endif %}
+                    {% if case.pattern_folder_name %}
+                        <tr>
+                            <td><i class="far fa-folder"></i></td>
+                            <td>{{ case.pattern_folder_name }}</td>
+                            <td><span class="badge badge-light case-hint">pattern_folder_name</span></td>
+                        </tr>
+                    {% endif %}
+                    {% if case.pattern_folder_path %}
+                        <tr>
+                            <td><i class="far fa-folder-open"></i></td>
+                            <td>{{ case.pattern_folder_path }}</td>
+                            <td><span class="badge badge-light case-hint">pattern_folder_path</span></td>
+                        </tr>
+                    {% endif %}
+                    {% if case.pattern_library_path %}
+                        <tr>
+                            <td>{% select_icon 'repo' 18 'right' .2 %}</td>
+                            <td>{{ case.pattern_library_path }}</td>
+                            <td><span class="badge badge-light case-hint">pattern_library_path</span></td>
+                        </tr>
+                    {% endif %}
+                    {% if case.test_case_dir %}
+                        <tr>
+                            <td><i class="far fa-folder"></i></td>
+                            <td>{{ case.test_case_dir }}</td>
+                            <td><span class="badge badge-light case-hint">test_case_dir</span></td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td><i class="fas fa-pencil-ruler"></i></td>
+                        <td>{{ case.change }}</td>
+                        <td><span class="badge badge-light case-hint">change</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-comment-alt"></i></td>
+                        <td>{{ case.change_desc }}</td>
+                        <td><span class="badge badge-light case-hint">change_desc</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-user-tie"></i></td>
+                        <td>{{ case.change_user }}</td>
+                        <td><span class="badge badge-light case-hint">change_user</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="far fa-eye"></i></td>
+                        <td>{{ case.change_review }}</td>
+                        <td><span class="badge badge-light case-hint">change_review</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fab fa-jira"></i></td>
+                        <td>{{ case.change_ticket }}</td>
+                        <td><span class="badge badge-light case-hint">change_ticket</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-stopwatch"></i></td>
+                        <td>{{ case.change_time }}</td>
+                        <td><span class="badge badge-light case-hint">change_time</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-vials"></i></td>
+                        <td>{{ case.test_case_depot_path }}</td>
+                        <td><span class="badge badge-light case-hint">test_case_depot_path</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-anchor"></i></td>
+                        <td>{{ case.test_py_path }}</td>
+                        <td><span class="badge badge-light case-hint">test_py_path</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-vials"></i></td>
+                        <td>{{ case.test_py_path_template }}</td>
+                        <td><span class="badge badge-light case-hint">test_py_path_template</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-vials"></i></td>
+                        <td>{{ case.test_dir_path }}</td>
+                        <td><span class="badge badge-light case-hint">test_dir_path</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-vials"></i></td>
+                        <td>{{ case.test_dir_path_template }}</td>
+                        <td><span class="badge badge-light case-hint">test_dir_path_template</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-weight-hanging"></i></td>
+                        <td>{{ case.test_time_weight }}</td>
+                        <td><span class="badge badge-light case-hint">test_time_weight</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="far fa-calendar-alt"></i></td>
+                        <td>{{ case.created_time }}</td>
+                        <td><span class="badge badge-light case-hint">created_time</span></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-sitemap"></i></td>
+                        <td>{% if case.related_test_cases %}
+                            {% for group in case.related_test_cases.all %}
+                                <a class="badge badge-info"
+                                   href="{% url 'test_cases_group' pk=group.id %}">{{ group.title }}
+                                </a>,
+                            {% endfor %}
+                        {% endif %}</td>
+                        <td><span class="badge badge-light case-hint">related_test_cases</span></td>
+                    </tr>
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+                </div>
+
+                <div style="display: flex;justify-content: space-between">
+                    <a class="btn btn-warning" href="{% url 'test_case_update' pk=case.id %}">Edit</a>
+                    <div class="btn-group">
+                        <a class="btn btn-outline-info"
+                           href="{% url 'test_details' %}?tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
+                           title="Show all tests for this case from latest run">Latest tests</a>
+                        <a class="btn btn-outline-danger"
+                           href="{% url 'test_details' %}?tst_status=notpass;tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
+                           title="Show all tests for this case from latest run not passed">Latest tests</a>
+                    </div>
+                    <div class="btn-group">
+                    <a class="btn btn-outline-secondary"
+                       href="{% url 'test_item_history' %}?tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
+                       title="Show all tests for this case from history...(long)">History tests</a>
+                    <a class="btn btn-outline-danger"
+                       href="{% url 'test_item_history' %}?tst_status=notpass;tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
+                       title="Show all tests for this case from history...(long) not passed">History tests</a>
+                    </div>
+                    <a class="btn btn-outline-warning" href="#">Run test</a>
+                    <a class="btn btn-danger disabled" href="#">Delete(TBA?)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'cases_workbench' %}">Workbench Cases</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'test_cases' %}">Test Cases</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'test_case' pk=case.id %}">Test Case: {{ case.test_case_depot_path }}</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+
+    {% if DEBUG %}
+        {% comment %}
+                <ul>
+                    <li>
+                        {% if case.test_type == 'tku_patterns' %}
+                            <i class="fas fa-scroll"></i>
+                        {% else %}
+                            <i class="fab fa-python"></i>
+                        {% endif %}
+                        {{case.test_type}} <span class="badge badge-light case-hint">*test type</span>
+                    </li>
+                    <li>
+                        {% if case.tkn_branch == 'tkn_main' %}
+                            {% select_icon 'git-branch' 20 'right' 0.1 %}{{ case.tkn_branch }}
+                        {% elif case.tkn_branch == 'tkn_ship' %}
+                            {% select_icon 'git-merge' 20 'right' 0.1 %}{{ case.tkn_branch }}
+                        {% else %}
+                            {% select_icon 'git-commit' 20 'right' 0.1 %} {{ case.test_case_depot_path }}
+                        {% endif %}<span class="badge badge-light case-hint">*branch</span>
+                    </li>
+                    {% if case.pattern_library %}
+                        <li>
+                            {% select_icon_patt_kw_library case.pattern_library %} {{ case.pattern_library }} <span class="badge badge-light case-hint">*pattern library</span>
+                        </li>
+                    {% endif %}
+                    {% if case.pattern_folder_name %}
+                        <li>
+                             <i class="far fa-folder"></i> {{ case.pattern_folder_name }}<span class="badge badge-light case-hint">*pattern_folder_name</span>
+                        </li>
+                    {% endif %}
+                    {% if case.pattern_folder_path %}
+                        <li>
+                             <i class="far fa-folder-open"></i> {{ case.pattern_folder_path }}<span class="badge badge-light case-hint">*pattern_folder_path</span>
+                        </li>
+                    {% endif %}
+                    {% if case.pattern_library_path %}
+                        <li>
+                             {% select_icon 'repo' 18 'right' .2 %}{{ case.pattern_library_path }}<span class="badge badge-light case-hint">*pattern_library_path</span>
+                        </li>
+                    {% endif %}
+                    {% if case.test_case_dir %}
+                        <li>
+                            <i class="far fa-folder"></i> {{ case.test_case_dir }}<span class="badge badge-light case-hint">*test_case_dir</span>
+                        </li>
+                    {% endif %}
+                    <li>
+                        <i class="fas fa-pencil-ruler"></i>
+                        {{ case.change }}
+                        <span class="badge badge-light case-hint">*change</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-comment-alt"></i>
+                        {{ case.change_desc }}
+                        <span class="badge badge-light case-hint">*change_desc</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-user-tie"></i>
+                        {{ case.change_user }}
+                        <span class="badge badge-light case-hint">*change_user</span>
+                    </li>
+                    <li>
+                        <i class="far fa-eye"></i>
+                        {{ case.change_review }}
+                        <span class="badge badge-light case-hint">*change_review</span>
+                    </li>
+                    <li>
+                        <i class="fab fa-jira"></i>
+                        {{ case.change_ticket }}
+                        <span class="badge badge-light case-hint">*change_ticket</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-stopwatch"></i>
+                        {{ case.change_time }}
+                        <span class="badge badge-light case-hint">*change_time</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-vials"></i>
+                        {{ case.test_case_depot_path }}
+                        <span class="badge badge-light case-hint">*test_case_depot_path</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-anchor"></i>
+                        {{ case.test_py_path }}
+                        <span class="badge badge-light case-hint">*test_py_path</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-vials"></i>
+                        {{ case.test_py_path_template }}
+                        <span class="badge badge-light case-hint">*test_py_path_template</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-vials"></i>
+                        {{ case.test_dir_path }}
+                        <span class="badge badge-light case-hint">*test_dir_path</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-vials"></i>
+                        {{ case.test_dir_path_template }}
+                        <span class="badge badge-light case-hint">*test_dir_path_template</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-weight-hanging"></i>
+                        {{ case.test_time_weight }}
+                        <span class="badge badge-light case-hint">*test_time_weight</span>
+                    </li>
+                    <li>
+                        <i class="far fa-calendar-alt"></i>
+                        {{ case.created_time }}
+                        <span class="badge badge-light case-hint">*created_time</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-sitemap"></i>
+                        {% if case.related_test_cases %}{% for group in case.related_test_cases.all %}{{ group.title }}, {% endfor %}{% endif %}
+                        <span class="badge badge-light case-hint">*related_test_cases</span>
+                    </li>
+                </ul>
+{% endcomment %}
+        <p>TODO:</p>
+        <ul>
+            <li>Add buttons: run test</li>
+            <li>Add buttons: edit (no need to del?)</li>
+            <li>Add buttons: see latest results</li>
+            <li>Add buttons: see history results</li>
+            <li>Add buttons: see additional statistics?</li>
+            <li>Add buttons: add to group?</li>
+        </ul>
+    {% endif %}
+{% endblock %}

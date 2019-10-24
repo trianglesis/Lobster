@@ -1,0 +1,58 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        TKU Packages
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/upload-tests.css' %}"/>
+    <nav class="navbar navbar-light test-report-navbar">
+        <!-- Navbar content -->
+        <!-- Navbar left part content -->
+        <div class="nav-reports-left">
+            <!-- Digest levels breadcrumbs: -->
+            <div class="digest-breadcrumbs">
+                <nav class="nav nav-pills">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                        <a class="btn btn-sm btn-light" href="{% url 'tku_workbench' %}"><i class="fas fa-step-backward"></i> TKU Upload Workbench</a>
+                        <a class="btn btn-sm btn-light active" href="{% url 'tku_packages_index' %}"><i class="fas fa-play"></i> TKU Packages</a>
+                    </div>
+                </nav>
+            </div>
+            <!-- History browse: -->
+            <div class="digest-history"><!-- No History selection for ADDM Digest --></div>
+            <!-- Change branch here: -->
+            <div class="digest-branch"><!-- No branch selection for ADDM Digest, just tabs --></div>
+        </div>
+        <!-- Navbar right part content -->
+        <div class="nav-reports-right digest-test-log-levels"><!-- No Log levels sort for ADDM Digest: --></div>
+    </nav>
+    <div class="upload-packages-content">
+        {% include 'packages/packages_table.html' with tku_packages=tku_packages %}
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'tku_workbench' %}">TKU Upload Workbench</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'upload_test_index' %}">Upload Index</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+
+{% endblock %}
+

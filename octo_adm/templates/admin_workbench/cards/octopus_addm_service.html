@@ -1,0 +1,522 @@
+{% load i18n %}
+{% load static %}
+{% load template_simplify %}
+<div class="card" style="margin-right: 0.3em;margin-left: 0.3em">
+<div class="card-header text-muted"><h6>Octopus & ADDM service</h6></div>
+<div class="card-body">
+<h6>ADDM Cleanup</h6>
+<div role="toolbar" style="padding-top: 0.2em;">
+    <div role="toolbar">
+        <div class="card-text">Level of cleaning</div>
+        <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#ManualADDM_Clean_weekly">Weekly{% select_icon 'rocket' 24 'left' 0.4 %}</button>
+        <div class="modal fade" id="ManualADDM_Clean_weekly" tabindex="-1" role="dialog"
+             aria-labelledby="manual_addm_clean_weekly" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content border-warning">
+                    <div class="modal-header bg-warning">
+                        <h6 class="modal-title" id="manual_addm_clean_weekly">ADDM weekly Cleanups</h6>
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-label="Close"><span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="margin-left: 1em">
+                        {% if not staff_user_bool and not power_user_bool %}
+                            <p>For 'staff' and 'powerusers' users only.</p>
+                        {% endif %}
+                        <div class="text-info">Run usual weekly ADDM cleanup process.</div>
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe all tpl:</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">find /usr/tideway/SYNC/addm/tkn_main/tku_patterns/ -type d -name "tpl*[0-9]" -exec rm -rf {} +</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe 7d logs:</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">find /usr/tideway/SYNC/ (AND) /usr/tideway/ -name "*.log" -type f -mtime +7 -delete</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe logs .gz:</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">sudo find /usr/tideway/log/ -name "*.gz" -type f -delete </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe pool/record</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">find /usr/tideway/var/pool/ (AND) /record/ -maxdepth 1 -type d -not -name 'pool' -exec rm -rf {} +</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe all patterns</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">/usr/tideway/bin/<a href="https://docs.bmc.com/docs/display/DISCO110/tw_pattern_management">tw_pattern_management</a> -p system --remove-all -f</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe model.db</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">/usr/tideway/bin/<a href="https://docs.bmc.com/docs/display/DISCO110/tw_model_wipe">tw_model_wipe</a>-p system --force</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Update taxonomy using</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">/usr/tideway/bin/<a href="https://docs.bmc.com/docs/display/DISCO110/tw_tax_import">tw_tax_import</a>-p system --clear --verbose../addm/tkn_main/product_content/r1_0/code/data/installed/taxonomy/00taxonomy.xml</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Restart tideway service</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">sudo service tideway restart </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">List cmd keys</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">'tw_scan_control', 'test_kill', 'wipe_tpl', 'wipe_log', 'wipe_sync_log', 'wipe_syslog', 'tw_pattern_management', 'wipe_pool', 'wipe_record', 'tw_model_wipe', 'tw_tax_import', 'tideway_restart'</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="text-warning">Model wiping will reset all custom taxonomy and patterns...
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        {% if power_user_bool %}
+                            <a role="button" class="btn btn-sm btn-outline-warning disabled" href="{% url 'addm_cleanup' %}?mode=weekly">Cleanup Weekly All {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group=alpha">Alpha {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group=beta">Beta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group=charlie">charlie {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group=delta">Delta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group=echo">Echo {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group=foxtrot">Foxtrot {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                        {% else %}
+                            <p>You can execute this only as power user.</p>
+                        {% endif %}
+                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#ManualADDM_Clean_daily">Usual {% select_icon 'rocket' 24 'left' 0.4 %}</button>
+        <div class="modal fade" id="ManualADDM_Clean_daily" tabindex="-1" role="dialog"
+             aria-labelledby="addm_cleanup_daily" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content border-info">
+                    <div class="modal-header bg-info">
+                        <h6 class="modal-title" id="addm_cleanup_daily">ADDM usual or daily Cleanups</h6>
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-label="Close"><span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="margin-left: 1em">
+                        {% if not staff_user_bool and not power_user_bool %}
+                            <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                        <div class="text-info">Run usual daily ADDM cleanup process.</div>
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe all tpl:</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">find /usr/tideway/SYNC/addm/tkn_main/tku_patterns/ -type d -name "tpl*[0-9]" -exec rm -rf {} + </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe pool/record</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">find /usr/tideway/var/pool/ (AND) /record/ -maxdepth 1 -type d -not -name 'pool' -exec rm -rf {} + </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe all patterns</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">/usr/tideway/bin/<a href="https://docs.bmc.com/docs/display/DISCO110/tw_pattern_management">tw_pattern_management</a> -p system --remove-all -f </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Update taxonomy using</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">/usr/tideway/bin/<a href="https://docs.bmc.com/docs/display/DISCO110/tw_tax_import">tw_tax_import</a> -p system --clear --verbose ../addm/tkn_main/product_content/r1_0/code/data/installed/taxonomy/00taxonomy.xml </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Restart tideway service</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">sudo service tideway restart </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">List cmd keys</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">'tw_scan_control', 'test_kill', 'wipe_tpl', 'wipe_log', 'wipe_sync_log', 'wipe_syslog', 'tw_pattern_management', 'wipe_pool', 'wipe_record', 'tw_tax_import', 'tideway_restart'</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        {% if power_user_bool %}
+                            <a role="button" class="btn btn-sm btn-outline-warning disabled" href="{% url 'addm_cleanup' %}?mode=daily">Cleanup Daily All {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=daily;addm_group=alpha">Alpha {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=daily;addm_group=beta">Beta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=daily;addm_group=charlie">Charlie {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=daily;addm_group=delta">Delta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=daily;addm_group=echo">Echo {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=daily;addm_group=foxtrot">Foxtrot {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                        {% else %}
+                            <p>You can execute this only as power user.</p>
+                        {% endif %}
+                        <button type="button" class="btn btn-sm btn-secondary"
+                                data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#ADDM_Clean_test">Tests {% select_icon 'rocket' 24 'left' 0.4 %}</button>
+        <div class="modal fade" id="ADDM_Clean_test" tabindex="-1" role="dialog"
+             aria-labelledby="addm_clean_test" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content border-info">
+                    <div class="modal-header bg-info">
+                        <h6 class="modal-title" id="addm_clean_test">Clean tests</h6>
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="margin-left: 1em">
+                        {% if not staff_user_bool and not power_user_bool %}
+                            <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                        <div class="text-info">This will run bunch of tasks to clean ADDM VMs from running or
+                            hanged tests and scans
+                        </div>
+                        <div class="text-info">Run this when you need to clean after cancelling task,
+                            routine...
+                        </div>
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td style="font-size: 0.9em">Kill test proc:</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">kill $(ps aux |
+                                    grep '/usr/tideway/bin/python -u .*/tests/test.py --verbose$' | awk '{print
+                                    $2}')
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Clear scan:</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">
+                                    /usr/tideway/bin/<a
+                                        href="https://docs.bmc.com/docs/display/DISCO110/tw_scan_control">tw_scan_control</a>
+                                    -p system --clear
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe all tpl:</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">find
+                                    /usr/tideway/SYNC/addm/tkn_main/tku_patterns/ -type d -name "tpl*[0-9]"
+                                    -exec rm -rf {} +
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe pool/record</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">find
+                                    /usr/tideway/var/pool/ (AND) /record/ -maxdepth 1 -type d -not -name 'pool'
+                                    -exec rm -rf {} +
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe all patterns</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">/usr/tideway/bin/<a href="https://docs.bmc.com/docs/display/DISCO110/tw_pattern_management">tw_pattern_management</a>-p system --remove-all -f</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">List cmd keys</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">'tw_scan_control', 'test_kill', 'wipe_tpl', 'wipe_log', 'wipe_sync_log', 'wipe_syslog', 'tw_pattern_management', 'wipe_pool', 'wipe_record'</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        {% if power_user_bool %}
+                            <a role="button" class="btn btn-sm btn-outline-warning disabled" href="{% url 'addm_cleanup' %}?mode=tests">Clear test All {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=tests;addm_group=alpha">Alpha {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=tests;addm_group=beta">Beta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=tests;addm_group=charlie">Charlie {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=tests;addm_group=delta">Delta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=tests;addm_group=echo">Echo {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_cleanup' %}?mode=tests;addm_group=foxtrot">Foxtrot {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                        {% else %}
+                            <p>You can execute this only as power user.</p>
+                        {% endif %}
+                        <button type="button" class="btn btn-sm btn-secondary"
+                                data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div role="toolbar">
+        <div class="card-text">Wipe old logs, wipe model</div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#ADDMSyslogWipe">Syslog{% select_icon 'trashcan' 24 'left' 0.4 %}</button>
+        <div class="modal fade" id="ADDMSyslogWipe" tabindex="-1" role="dialog" aria-labelledby="addmsyslogwipe" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content border-secondary">
+                    <div class="modal-header bg-dark">
+                        <h6 class="modal-title" id="addmsyslogwipe">Syslog wipe</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="margin-left: 1em">
+                        {% if not staff_user_bool and not power_user_bool %}
+                            <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                        <div class="text-info">Wipe all old system logs on selected ADDM group.</div>
+                        <li>Be sure you know what are you doing.</li>
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe syslogs</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">sudo find /usr/tideway/log/ -name "*.gz" -type f -delete</td>
+                            </tr>
+                            <tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        {% if power_user_bool %}
+                            <a role="button" class="btn btn-sm btn-outline-secondary disabled" href="{% url 'addm_custom_cmd' %}?cmd_k=wipe_syslog">Run wipe All {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=wipe_syslog;addm_group=alpha">Alpha {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=wipe_syslog;addm_group=beta">Beta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=wipe_syslog;addm_group=charlie">Charlie {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=wipe_syslog;addm_group=delta">Delta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=wipe_syslog;addm_group=echo">Echo {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=wipe_syslog;addm_group=foxtrot">Foxtrot {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                        {% else %}
+                            <p>You can execute this only as power user.</p>
+                        {% endif %}
+                        <button type="button" class="btn btn-sm btn-secondary"
+                                data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#ADDM_Model_wipe">Model{% select_icon 'trashcan' 24 'left' 0.4 %}</button>
+        <div class="modal fade" id="ADDM_Model_wipe" tabindex="-1" role="dialog"
+             aria-labelledby="addm_model_wipe" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content border-danger">
+                    <div class="modal-header bg-danger">
+                        <h6 class="modal-title" id="addm_model_wipe">ADDM Model wipe</h6>
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="margin-left: 1em">
+                        {% if not staff_user_bool and not power_user_bool %}
+                            <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                        <div class="text-warning">This executes automatically in weekly routine. But if you want
+                            to wipe model manually - run this.
+                        </div>
+                        <li>Be sure you know what are you doing.</li>
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td style="font-size: 0.9em">Wipe model.db</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">
+                                    /usr/tideway/bin/<a
+                                        href="https://docs.bmc.com/docs/display/DISCO110/tw_model_wipe">tw_model_wipe</a>
+                                    -p system --force
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 0.9em">Restart tideway service</td>
+                                <td style="font-size: 0.8em;font-family:monospace;">sudo service
+                                    tideway restart
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        {% if power_user_bool %}
+                            <a role="button" class="btn btn-sm btn-outline-warning disabled" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_model_wipe">Run model wipe All  {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_model_wipe;addm_group=alpha">Alpha {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_model_wipe;addm_group=beta">Beta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_model_wipe;addm_group=charlie">Charlie {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_model_wipe;addm_group=delta">Delta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_model_wipe;addm_group=echo">Echo {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_model_wipe;addm_group=foxtrot">Foxtrot {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                        {% else %}
+                            <p>You can execute this only as power user.</p>
+                        {% endif %}
+                        <button type="button" class="btn btn-sm btn-secondary"
+                                data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div role="toolbar" style="padding-top: 0.2em;">
+    <h6>ADDM Restart</h6>
+    <!-- Modal button for: "ADDM Tideway restart" -->
+    <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+            data-target="#ManualADDM_tideway_restart">Tideway restart <img alt=""
+            style="height:24px;width:24px;" src="{% static "octicons/svg/plug.svg" %}"></button>
+    <!-- Modal body "ADDM Tideway restart"-->
+    <div class="modal fade" id="ManualADDM_tideway_restart" tabindex="-1" role="dialog"
+         aria-labelledby="manual_addm_tideway_restart" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content border-info">
+                <div class="modal-header bg-info">
+                    <h6 class="modal-title" id="manual_addm_tideway_restart">Tideway restart
+                        ADDM</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="margin-left: 1em">
+                    {% if not staff_user_bool and not power_user_bool %}
+                        <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                    <p>Run usual usual ADDM tideway service restart.</p>
+                    <li>Restart tideway services.</li>
+                </div>
+                <div class="modal-footer">
+                    {% if power_user_bool %}
+                        <a role="button" class="btn btn-sm btn-outline-warning disabled" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart">Tideway restart All {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=alpha">Alpha {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=beta">Beta {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=charlie">Charlie {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=delta">Delta {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=echo">Echo {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=foxtrot">Foxtrot {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                    {% else %}
+                        <p>You can execute this only as power user.</p>
+                    {% endif %}
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Modal "ADDM Tideway restart" -->
+    <!-- Modal button for: "ADDM Kill tests" -->
+    <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal"
+            data-target="#ADDM_Kill_Test_proc">Kill test proc <img alt=""
+            style="height:24px;width:24px;"
+            src="{% static "octicons/svg/issue-reopened.svg" %}"></button>
+    <!-- Modal body "ADDM Kill tests"-->
+    <div class="modal fade" id="ADDM_Kill_Test_proc" tabindex="-1" role="dialog"
+         aria-labelledby="addm_kill_test_proc" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content border-warning">
+                <div class="modal-header bg-warning">
+                    <h6 class="modal-title" id="addm_kill_test_proc">Kill test proc</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="margin-left: 1em">
+                    {% if not staff_user_bool and not power_user_bool %}
+                        <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                    <p>Run cmd to kill all test.py processes on ADDM if any found.</p>
+                    <li>CMD - "kill $(ps aux | grep '/usr/tideway/bin/python -u .*/tests/test.py
+                        --verbose$' | awk '{print $2}')"
+                    </li>
+                </div>
+                <div class="modal-footer">
+                    {% if power_user_bool %}
+                        <a role="button" class="btn btn-sm btn-outline-warning disabled" href="{% url 'addm_custom_cmd' %}?cmd_k=test_kill">Kill test proc All {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group=alpha;cmd_k=test_kill">Alpha {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group=beta;cmd_k=test_kill">Beta {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group=charlie;cmd_k=test_kill">Charlie {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group=delta;cmd_k=test_kill">Delta {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group=echo;cmd_k=test_kill">Echo {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                        <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=test_kill">Foxtrot {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                    {% else %}
+                        <p>You can execute this only as power user.</p>
+                    {% endif %}
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Modal "ADDM Kill tests" -->
+</div>
+
+<div role="toolbar" style="padding-top: 0.2em;">
+    <h6>ADDM update\upgrade</h6>
+    <!-- Modal button for: "ADDM Update" -->
+    <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+            data-target="#addm_update_manual">ADDM VMs update options <img alt=""
+            style="height:24px;width:24px;" src="{% static "octicons/svg/cloud-upload.svg" %}">
+    </button>
+    <!-- Modal body "ADDM Update"-->
+    <div class="modal fade" id="addm_update_manual" tabindex="-1" role="dialog"
+         aria-labelledby="addm_update_manual_modal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content border-info">
+                <div class="modal-header bg-info">
+                    <h6 class="modal-title" id="addm_update_manual_modal">Update or upgrade
+                        ADDMs:</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body" style="margin-left: 1em">
+                    {% if not staff_user_bool and not power_user_bool %}
+                        <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                    <p>This will help you to update ADDM test scripts or upgrade taxonomy or
+                        platform scripts.</p>
+                    <li>Run this after tw_model_wipe!</li>
+                    <li>Run this when you see that tests fails because of old models.</li>
+                    <li>Run this when you need to upgrade ADDM with new platform scripts.</li>
+                    {% if power_user_bool %}
+                        <div style="padding-bottom: 1%">
+                            <h6>Taxonomy</h6> execute <a
+                                href="https://docs.bmc.com/docs/display/DISCO110/tw_tax_import">tw_tax_import</a>
+                            <div class="text-warning">** REMINDER: You should restart tideway
+                                services after tax update**
+                            </div>
+                            <a role="button" class="btn btn-sm btn-outline-info disabled" title="Run tw_tax_import" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import">Update taxonomy all</a>
+                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tw_tax_import" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group=alpha">alpha</a>
+                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tw_tax_import" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group=beta">beta</a>
+                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tw_tax_import" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group=charlie">charlie</a>
+                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tw_tax_import" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group=delta">delta</a>
+                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tw_tax_import" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group=echo">echo</a>
+                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tw_tax_import" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group=foxtrot">foxtrot</a>
+                        </div>
+                    {% else %}
+                        <p>You can execute this only as power user.</p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h6>ADDM Buttons</h6>
+    <a role="button" class="btn btn-sm btn-outline-info"
+       title="ADDM Buttons"
+       href="{% url 'addm_buttons_page' %}">ADDM Buttons</a>
+    <!-- END Modal "ADDM Update" -->
+</div>
+</div>
+</div>
+

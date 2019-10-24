@@ -1,0 +1,207 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Test Cases Workbench
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/workbench_cases.css' %}" />
+    {% load tz %}
+    {% load i18n %}
+    {% load template_simplify %}
+    {% get_current_timezone as TIME_ZONE %}
+    <nav class="navbar navbar-light test-report-navbar">
+        <!-- Navbar content -->
+        <!-- Navbar left part content -->
+        <div class="nav-reports-left">
+            <!-- Digest levels breadcrumbs: -->
+            <div class="digest-breadcrumbs">
+                <nav class="nav nav-pills">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                        <a class="btn btn-sm btn-light active" href="{% url 'cases_workbench' %}"><i class="fas fa-play"></i> Test Cases Workbench</a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <!-- Navbar right part content -->
+        <div class="nav-reports-right">
+        </div>
+    </nav>
+    <div class="workbench-content">
+        <div class="card-group">
+            <div class="card">
+                <div class="card-body card-body-sm">
+                    <span class="float-righ">{% select_icon 'issue-opened' 80 'left' 0.2 %}</span>
+                    <h5 class="card-title">Dynamical sets</h5>
+                    <p class="card-text card-txt-h">Sets of test cases related on non-static data. Show sets of most failed tests, last failed tests etc. You can re-run all tests related to selected group.</p>
+                    <div class="buttons-section">
+                        <div class="btn-support-text">Latest sets of test:</div>
+                        <div class="text-center evenly-flex interval">
+                            <a tabindex="0" role="button" class="btn btn-outline-dark"
+                               data-toggle="hover" data-placement="top" title="Failed last night" data-content="Set of test cases selected based on latest test logs. You can re-execute all tests at once! But be sure what you're doing - it could block all workers for other users!"
+                               href="#">{% select_icon 'issue-reopened' 20 'right' 0.2 %}Last
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-outline-dark"
+                               data-toggle="hover" data-placement="top" title="Most failed for a week | release month" data-content="Set of tests cases selected based on history test logs with time period for a week and release month. Can be re-executed at once!"
+                               href="#">{% select_icon 'flame' 20 'right' 0.2 %}Most failed
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-outline-dark"
+                               data-toggle="hover" data-placement="top" title="Most failed tests chart" data-content="Show TOP of most failed tests for cases from all history of test running on Octopus..."
+                               href="#">{% select_icon 'bug' 20 'right' 0.2 %}History
+                            </a>
+                        </div>
+                        <div class="btn-support-text">Tests depends:</div>
+                        <div class="text-center evenly-flex interval">
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark"
+                               data-toggle="hover" data-placement="top" title="Related to user adprod" data-content="Test cases assigned to selected user. Means it will sort user by its adprod name. Your adprod account will be used by default. Re-execute all user related tests"
+                               href="#">{% select_icon 'person' 20 'right' 0.2 %}User related
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark"
+                               data-toggle="hover" data-placement="top" title="Interesting" data-content="Interesting..."
+                               href="#">{% select_icon 'beaker' 20 'right' 0.2 %} Interesting
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+            <div class="card bg-light">
+                <div class="card-body card-body-sm">
+                    <span class="float-righ">{% select_icon 'project' 80 'left' 0.2 %}</span>
+                    <h5 class="card-title">Test Case Sets</h5>
+                    <p class="card-text card-txt-h">Test cases grouped by different purposes. For testing, for reporting.</p>
+                    <div class="buttons-section">
+                        <div class="btn-support-text">Test cases changes:</div>
+                        <div class="text-center evenly-flex interval">
+                            <a tabindex="0" role="button" class="btn btn-outline-dark" data-toggle="hover" data-placement="top" title="Today changes"
+                               data-content="Test cases with change date on today only."
+                               href="{% url 'test_cases' %}?last_days=1">
+                                <i class="fas fa-calendar-day"></i> Today
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-outline-dark" data-toggle="hover" data-placement="top" title="Last 30 days changes"
+                               data-content="All test cases with change date from last 30 days till today"
+                               href="{% url 'test_cases' %}?last_days=30;">
+                                <i class="fas fa-calendar-alt"></i> Month
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-outline-dark" data-toggle="hover" data-placement="top" title="Nightly tests set"
+                               data-content="All tests to run nightly. Include all changes for last 2 years"
+                               href="{% url 'test_cases' %}?last_days=730;">
+                                <i class="fas fa-moon"></i> Nightly
+                            </a>
+                        </div>
+                        <div class="btn-support-text">Test case types:</div>
+                        <div class="text-center evenly-flex interval">
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark" data-toggle="hover" data-placement="top" title="Pattern tests"
+                               data-content="Patterns related tests, only for patterns" href="{% url 'test_cases' %}?test_type=tku_patterns;">
+                                <i class="fas fa-scroll"></i> Pattern test
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark" data-toggle="hover" data-placement="top" title="Main Python"
+                               data-content="ADDM Python tests" href="{% url 'test_cases' %}?test_type=main_python;">
+                                <i class="fab fa-python"></i> Main test
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark"
+                               data-toggle="hover" data-placement="top" title="Octo cases"
+                               data-content="Test cases plugable into Octopus" href="{% url 'test_cases' %}?test_type=octo_tests;">
+                                <i class="fas fa-plug"></i> Octo test
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark" data-toggle="hover" data-placement="top" title="All cases listing"
+                               data-content="Every test case in Octopus" href="{% url 'test_cases' %}">
+                                <i class="far fa-file"></i> All
+                            </a>
+                        </div>
+                        <div class="btn-support-text">Test case groups:</div>
+                        <div class="text-center evenly-flex interval">
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark"
+                               data-toggle="hover" data-placement="top" title="Custom groups" data-content="Show all custom created groups of test sets and allow you to create another one. You can create your own group and add some patterns to it. Then, you can execute this set as you wish, or add some extra comments to verify broken tests or exclude them from nightly execution"
+                               href="{% url 'test_cases_groups' %}">{% select_icon 'briefcase' 20 'right' 0.2 %} Cases groups
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body card-body-sm">
+                    <span class="float-righ">{% select_icon 'package' 80 'left' 0.2 %}</span>
+                    <h5 class="card-title">TKN Packages on Octopus </h5>
+                    <p class="card-text card-txt-h">Store TKU - TKN Packages from <a href="ftp://buildhub.tideway.com">buildhub</a>
+                        used for upload test routines.
+                        You can download any package if you want. All packages separated on different groups based on its role. Continuous packages are downloading with overwriting.</p>
+                    <div class="buttons-section">
+                        <div class="btn-support-text">TKU Upload Packages:</div>
+                        <div class="text-center evenly-flex interval">
+                            <a tabindex="0" role="button" class="btn btn-outline-dark" data-toggle="hover" data-placement="top" title="TKU Packages parsed"
+                               data-content="All TKU packages from buildhub: released, GA, addm, and continuous for both branches"
+                               href="{% url 'tku_packages_index' %}">{% select_icon 'file-zip' 20 'right' 0.2 %}TKN all
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-outline-dark" data-toggle="hover" data-placement="top" title="Release candidate GA packages"
+                               data-content="Set of all TKN GA packages we build, include previous and failed too."
+                               href="{% url 'tku_packages_index' %}?tku_type=ga_candidate">
+                                {% select_icon 'file-symlink-directory' 20 'right' 0.2 %}GA pack
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-outline-dark" data-toggle="hover" data-placement="top" title="Released TKN"
+                               data-content="All TKN packages verified and published."
+                               href="{% url 'tku_packages_index' %}?tku_type=released_tkn">
+                                {% select_icon 'file-symlink-file' 20 'right' 0.2 %}Released TKN
+                            </a>
+                        </div>
+                        <div class="btn-support-text">TKU Upload workbench</div>
+                        <div class="text-center evenly-flex interval">
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark" data-toggle="hover" data-placement="top" title="Upload test admin page"
+                               data-content="See upload test information: results, used packages. Run WGET and parse, run different upload test cases..."
+                               href="{% url 'tku_workbench' %}">{% select_icon 'github-action' 20 'right' 0.2 %} Upload test workbench
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+        </div>
+        <div style="padding: 20px 0 20px 0;">
+            <div class="card text-center">
+                <div class="card-body card-body-sm">
+                    <h5 class="card-title">Collected and generated</h5>
+                    <div class="buttons-section">
+                        <p class="card-text">TOP long-running tests.</p>
+                        <div class="text-center evenly-flex interval">
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark" data-toggle="hover" data-placement="top" title="TOP 20 long-running test cases"
+                               data-content="Chart of most long running tests. It will be great - if somebody could optimize some of them to run faster..."
+                               href="{% url 'patterns_top_long' %}?;count=20">
+                                {% select_icon 'graph' 16 'right' 0.2 %}TOP 20
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark" data-toggle="hover" data-placement="top" title="TOP 100 long-running test cases"
+                               data-content="Chart of most long running tests. It will be great - if somebody could optimize some of them to run faster..."
+                               href="{% url 'patterns_top_long' %}?;count=100">
+                                {% select_icon 'graph' 20 'right' 0.2 %}TOP 100
+                            </a>
+                            <a tabindex="0" role="button" class="btn btn-sm btn-outline-dark" data-toggle="hover" data-placement="top" title="TOP 1000 long-running test cases"
+                               data-content="Chart of most long running tests. It will be great - if somebody could optimize some of them to run faster..."
+                               href="{% url 'patterns_top_long' %}?;count=1000">
+                                {% select_icon 'graph' 28 'right' 0.2 %}TOP 1000
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+            <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'cases_workbench' %}">Workbench Cases</a>
+                </li>
+            </ul>
+            <span class="navbar-text">Octopus automation</span>
+        </nav>
+{% endblock %}
+

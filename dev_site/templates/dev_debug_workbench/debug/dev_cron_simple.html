@@ -1,0 +1,108 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+Octopus administration
+{% endblock %}
+{% block content %}
+{% load static %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+<!-- Sub nav on child page P$ info Summary -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <!-- Content header block with navigation: -->
+    <div class="alert alert-secondary" role="alert">
+        <div aria-label="Branch icons" style="float: left;padding-right:1%;"><img style="height:36px;width:36px;" src="{% static "octicons/svg/check.svg" %}" alt="task_dashb" /></div>
+        <!-- Subject: -->{{SUBJECT}}
+        <button class="btn btn-sm disabled btn-success">Run today</button>
+        <a role="button" class="btn btn-sm btn-outline-info" href="{% url "reset_cron_last_run" %}">Cron reset last run</a>
+    </div>
+</div>
+
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    {% if planned_tasks %}
+      <table id="cmd_results" class="table table-condensed table-bordered table-hover table-sm">
+        <thead>
+            <th class="table-info" scope="col">Name</th>
+            <th class="table-info" scope="col">Task</th>
+            <th class="table-info" scope="col">Args/Kwargs</th>
+            <th class="table-info" scope="col">Planned at</th>
+            <th class="table-info" scope="col">Expires</th>
+            <th class="table-info" scope="col">Changed</th>
+            <th class="table-info" scope="col">Total</th>
+            <th class="table-info" scope="col">Last run</th>
+        </thead>
+        <tbody>
+        {% for DjangoCeleryBeatPeriodictask in planned_tasks %}
+            {% cron_today DjangoCeleryBeatPeriodictask as run_today %}
+            <tr>
+                <td class="table-{% if run_today %}success{% else %}light{% endif %}">
+                    <a href="{% url 'admin:index' %}django_celery_beat/periodictask/{{DjangoCeleryBeatPeriodictask.id}}/change/">{{ DjangoCeleryBeatPeriodictask.name }}</a></td>
+                <td class="table-{% if run_today %}success{% else %}light{% endif %}" style="font-size:8pt" title="Description: {{ DjangoCeleryBeatPeriodictask.description }}">{{ DjangoCeleryBeatPeriodictask.task }}</td>
+                <td class="table-{% if run_today %}success{% else %}light{% endif %}" style="font-size:8pt">
+                    <b>args:</b> {{ DjangoCeleryBeatPeriodictask.args }}<br>
+                    <b>kwargs:</b> {{ DjangoCeleryBeatPeriodictask.kwargs }}</td>
+                    {# <li>queue:  {{ DjangoCeleryBeatPeriodictask.queue }}</li>#}
+                    {# <li>exchange:  {{ DjangoCeleryBeatPeriodictask.exchange }}</li>#}
+                    {# <li>routing_key:  {{ DjangoCeleryBeatPeriodictask.routing_key }}</li>#}
+                    {# <li>enabled:  {{ DjangoCeleryBeatPeriodictask.enabled }}</li>#}
+                {% if DjangoCeleryBeatPeriodictask.crontab %}
+                    <td class="table-{% if run_today %}success{% else %}light{% endif %}" style="font-size:9pt" title="Hour/Minute/Weekday/Date/Month">
+                        {{ DjangoCeleryBeatPeriodictask.crontab.hour }}/
+                        {{ DjangoCeleryBeatPeriodictask.crontab.minute }}/
+                        {{ DjangoCeleryBeatPeriodictask.crontab.day_of_week }}/
+                        {{ DjangoCeleryBeatPeriodictask.crontab.day_of_month }}/
+                        {{ DjangoCeleryBeatPeriodictask.crontab.month_of_year }}
+                    </td>
+                {% endif %}
+                {% if DjangoCeleryBeatPeriodictask.interval %}
+                    <td class="table-{% if run_today %}success{% else %}light{% endif %}" style="font-size:9pt" title="every:">{{ DjangoCeleryBeatPeriodictask.interval.every }} {{ DjangoCeleryBeatPeriodictask.interval.period }}</td>
+                {% endif %}
+                <td class="table-{% if run_today %}success{% else %}light{% endif %}" style="font-size:10pt">{{ DjangoCeleryBeatPeriodictask.expires }}</td>
+                <td class="table-{% if run_today %}success{% else %}light{% endif %}" style="font-size:10pt">{{ DjangoCeleryBeatPeriodictask.date_changed | naturaltime }}</td>
+                <td class="table-{% if run_today %}success{% else %}light{% endif %}" style="font-size:10pt">{{ DjangoCeleryBeatPeriodictask.total_run_count }}</td>
+                <td class="table-{% if run_today %}success{% else %}light{% endif %}" style="font-size:10pt">{{ DjangoCeleryBeatPeriodictask.last_run_at | naturaltime }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+    <div class="alert alert-info" role="alert">
+        <div class="text-info"><b>Time:</b>
+            <ul>
+                <li><b>hour:</b>
+                    <ul>
+                    <li>A (list of) integers from 0-23 that represent the hours of a day of when execution should occur; or</li>
+                    <li>A string representing a Crontab pattern. This may get pretty advanced, like hour='*/3' (for every three hours) or hour='0,8-17/2' (at midnight, and every two hours during office hours).</li>
+                    </ul>
+                </li>
+                <li><b>minute:</b>
+                    <ul>
+                    <li>A (list of) integers from 0-59 that represent the minutes of an hour of when execution should occur; or</li>
+                    <li>A string representing a Crontab pattern. This may get pretty advanced, like minute='*/15' (for every quarter) or minute='1,13,30-45,50-59/2'.</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="text-info"><b>Weekdays (day_of_week):</b>
+            <ul>
+            <li>A (list of) integers from 0-6, where Sunday = 0 and Saturday = 6, that represent the days of a week that execution should occur.</li>
+            <li>A string representing a Crontab pattern. This may get pretty advanced, like day_of_week='mon-fri' (for weekdays only). (Beware that day_of_week='*/2' does not literally mean ‘every two days’, but ‘every day that is divisible by two’!)</li>
+            </ul>
+        </div>
+        <div class="text-info"><b>Day (day_of_month)</b>
+            <ul>
+            <li>A (list of) integers from 1-31 that represents the days of the month that execution should occur.</li>
+            <li>A string representing a Crontab pattern. This may get pretty advanced, such as day_of_month='2-30/3' (for every even numbered day) or day_of_month='1-7,15-21' (for the first and third weeks of the month).</li>
+            </ul>
+        </div>
+        <div class="text-info"><b>Month (month_of_year)</b>
+            <ul>
+            <li>A (list of) integers from 1-12 that represents the months of the year during which execution can occur.</li>
+            <li>A string representing a Crontab pattern. This may get pretty advanced, such as month_of_year='*/3' (for the first month of every quarter) or month_of_year='2-12/2' (for every even numbered month).</li>
+            </ul>
+        </div>
+        <div class="text-info"><a href="http://docs.celeryproject.org/en/latest/reference/celery.schedules.html">Celery schedules</a></div>
+        <div class="text-info"><a href="http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#available-fields">Celery Beat Cron</a></div>
+    </div>
+</div>
+{% endblock %}

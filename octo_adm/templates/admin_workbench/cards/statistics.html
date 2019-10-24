@@ -1,0 +1,14 @@
+{% load i18n %}
+{% load static %}
+<div class="card" style="margin-right: 0.5em;margin-left: 0.5em">
+    <div class="card-header text-muted"><h6>Statistics</h6></div>
+    <div class="card-body">
+        <div style="padding: 2em">
+            <a role="button" class="btn btn-outline-warning btn-block" href={% url 'patterns_top_long' %}>TOP 20 Long tests <img style="height:24px;width:24px;margin-right: 0.1em;" src="{% static "/octicons/svg/graph.svg" %}" alt="stat"/></a>
+            <a role="button" class="btn btn-outline-light btn-block disabled" href="#">Statistics <img style="height:24px;width:24px;margin-right: 0.1em;" src="{% static "/octicons/svg/graph.svg" %}" alt="stat"/></a>
+            <a role="button" class="btn btn-sm btn-outline-light btn-block disabled" href="/">History top fails<img style="height:24px;width:24px;margin-right: 0.1em;" src="{% static "/octicons/svg/history.svg" %}" alt="history"/></a>
+            <a role="button" class="btn btn-sm btn-outline-light btn-block disabled" href="/">Release stats <img style="height:24px;width:24px;margin-right: 0.1em;" src="{% static "/octicons/svg/pulse.svg" %}" alt="stat"/></a>
+            <div class="card-text text-muted text-sm-center font-weight-normal">Graphs and charts of fails and success.</div>
+        </div>
+    </div>
+</div>

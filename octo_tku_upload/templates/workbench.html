@@ -1,0 +1,317 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        TKU Packages
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/upload-tests.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
+    <nav class="navbar navbar-light test-report-navbar">
+        <!-- Navbar content -->
+        <!-- Navbar left part content -->
+        <div class="nav-reports-left">
+            <!-- Digest levels breadcrumbs: -->
+            <div class="digest-breadcrumbs">
+                <nav class="nav nav-pills">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                        <a class="btn btn-sm btn-light active" href="{% url 'tku_workbench' %}"><i class="fas fa-play"></i> TKU Upload Workbench</a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <!-- Navbar right part content -->
+        <div class="nav-reports-right">
+            <div class="upload-test-today">
+                <a class="btn btn-sm btn-outline-info" href="{% url 'upload_test_today' %}">Today</a>
+            </div>
+            <div class="upload-test-last-day">
+                <a class="btn btn-sm btn-outline-info"
+                   href="{% url 'upload_test_day' year=objects.latest_cont_main.test_date_time|date:'Y' month=objects.latest_cont_main.test_date_time|date:'b' day=objects.latest_cont_main.test_date_time|date:'d' %}">Last day</a>
+            </div>
+            <div class="upload-test-index">
+                <a class="btn btn-sm btn-outline-info" href="{% url 'upload_test_index' %}">Upload index</a>
+            </div>
+        </div>
+    </nav>
+    <div class="upload-workbench-content">
+        {% comment %}<div class="row tku-packages-excerpt">
+            <div class="col-sm-1 col-shrink2">
+                <div class="card">
+                    <div class="card-header txt-nice">TKU Workbench</div>
+                    <div class="card-body card-body-sm"></div>
+                </div>
+            </div>
+        </div>{% endcomment %}
+        <div class="row tku-upload-latest">
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">latest_cont_main</h5>
+                        <div>{{ objects.latest_cont_main.test_date_time }}</div>
+                        <div class="last-upload-test">
+                            {% regroup objects.upload_cont_main|dictsortreversed:'addm_name' by tku_type as upload_cont_main %}
+                            {% for test_type in upload_cont_main %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">latest_cont_ship</h5>
+                        <div>{{ objects.latest_cont_ship.test_date_time }}</div>
+                        <div class="last-upload-test">
+                            {% regroup objects.upload_cont_ship|dictsortreversed:'addm_name' by tku_type as upload_cont_ship %}
+                            {% for test_type in upload_cont_ship %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">latest_ga_upgrade</h5>
+                        <div>{{ objects.latest_ga_upgrade.test_date_time }}</div>
+                        <div class="last-upload-test step-2">
+                            <span class="txt-nice">{{ objects.upload_ga_upgrade.0.tku_type }}</span>
+                            <span class="txt-monospace">{{ objects.upload_ga_upgrade.0.package_type }}</span>
+                            <span class="badge badge-info txt-sm" >{{ objects.upload_ga_upgrade.0.mode_key }}</span>
+                            {% regroup objects.upload_ga_upgrade|dictsortreversed:'addm_name' by tku_type as upload_ga_upgrade %}
+                            {% for test_type in upload_ga_upgrade %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                        <div class="last-upload-test step-1">
+                            <span class="txt-nice">{{ objects.upload_ga_prep.0.tku_type }}</span>
+                            <span class="txt-monospace">{{ objects.upload_ga_prep.0.package_type }}</span>
+                            <span class="badge badge-info txt-sm" >{{ objects.upload_ga_prep.0.mode_key }}</span>
+                            {% regroup objects.upload_ga_prep|dictsortreversed:'addm_name' by tku_type as upload_ga_prep %}
+                            {% for test_type in upload_ga_prep %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">latest_ga_fresh</h5>
+                        <div>{{ objects.latest_ga_fresh.test_date_time }}</div>
+                        <div class="last-upload-test">
+                            <span class="txt-nice">{{ objects.upload_ga_fresh.0.tku_type }}</span>
+                            <span class="txt-monospace">{{ objects.upload_ga_fresh.0.package_type }}</span>
+                            <span class="badge badge-info txt-sm" >{{ objects.upload_ga_fresh.0.mode_key }}</span>
+                            {% regroup objects.upload_ga_fresh|dictsortreversed:'addm_name' by tku_type as upload_ga_fresh %}
+                            {% for test_type in upload_ga_fresh %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row tku-upload-buttons">
+            <div class="col-sm-6 col-shrink">
+                <!-- upload-test-buttons-card -->
+                <div class="card upload-test-buttons-card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">Run upload tests</h5>
+                        <div>
+                            <div class="list-group">
+                                <a href="#" class="list-group-item list-group-item-action" data-toggle="modal" data-target="#releaseUpload">
+                                    <div class="d-flex w-100 justify-content-between"><h5 class="mb-1 txt-nice">Release preparations</h5><small>Upload\Upgrade</small></div>
+                                    <p class="mb-1">Upload tests for release candidates. Use two modes: fresh and upgrade</p>
+                                    <small>Executed for RC and GA</small>
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action" data-toggle="modal" data-target="#dailyUpload">
+                                    <div class="d-flex w-100 justify-content-between"><h5 class="mb-1 txt-nice">Continuous upload</h5><small class="text-muted">daily routine</small></div>
+                                    <p class="mb-1">Upload tests for CONTINUOUS builds, just simple fresh installation</p>
+                                    <small class="text-muted">Usually run automatically</small>
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action" data-toggle="modal" data-target="#wgetRefresh">
+                                    <div class="d-flex w-100 justify-content-between"><h5 class="mb-1 txt-nice">Refresh TKU Packages</h5><small class="text-muted">WGET zips buildhub</small></div>
+                                    <p class="mb-1">Manually shot the task to refresh TKU packages on Octopus via WGET from buildhub</p>
+                                    <small class="text-muted">Usually run automatically</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modals for upload-test-buttons-card  -->
+                <!-- Modal 1 Run upload test for release-->
+                <div class="modal fade" id="releaseUpload" tabindex="-1" role="dialog"
+                     aria-labelledby="releaseUploadLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="releaseUploadLabel">Run upload test for release</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="max_released">max_released: {{ objects.max_released.tku_type }} - {{ objects.max_released.tku_build }}.{{ objects.max_released.tku_month }}.{{ objects.max_released.tku_date }}</div>
+                                <div class="max_released">max_ga: {{ objects.max_ga.tku_type }} - {{ objects.max_ga.tku_build }}.{{ objects.max_ga.tku_month }}.{{ objects.max_ga.tku_date }}</div>
+                                <p>Actions:</p>
+                                <div class="btn-rows">
+                                    <div class="flex-space-bw">
+                                        <a class="btn btn-sm btn-info">GA Fresh</a>
+                                        <span class="txt-sm">Install: {{ objects.max_ga.package_type }}</span>
+                                    </div>
+                                    <div class="flex-space-bw">
+                                        <a class="btn btn-sm btn-info">GA Upgrade</a>
+                                        <span class="txt-sm">Install: {{ objects.max_released.package_type }}, then {{ objects.max_ga.package_type }} </span>
+                                    </div>
+                                    <div class="flex-space-bw">
+                                        <a class="btn btn-sm btn-info">Released</a>
+                                        <span class="txt-sm">Install {{ objects.max_released.package_type }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal 2 Run upload test for daily - continuous -->
+                <div class="modal fade" id="dailyUpload" tabindex="-1" role="dialog"
+                     aria-labelledby="dailyUploadLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="dailyUploadLabel">Run upload test for daily - continuous</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="max_released">Max: {{ objects.max_cont_main.tku_type }} -
+                                    <span class="badge badge-info">{{ objects.max_cont_main.tku_build }}.{{ objects.max_cont_main.tku_month }}.{{ objects.max_cont_main.tku_date }}</span>
+                                    {{ objects.max_cont_main.updated_at|timezone:"Europe/London"|naturaltime }}
+                                </div>
+                                <div class="max_released">Max: {{ objects.max_cont_ship.tku_type }} -
+                                    <span class="badge badge-info">{{ objects.max_cont_ship.tku_build }}.{{ objects.max_cont_ship.tku_month }}.{{ objects.max_cont_ship.tku_date }}</span>
+                                    {{ objects.max_cont_ship.updated_at|timezone:"Europe/London"|naturaltime }}
+                                </div>
+                                <p>Actions:</p>
+                                <div class="btn-rows">
+                                    <div class="flex-space-bw">
+                                        <a class="btn btn-sm btn-info">TKN Main</a>
+                                        <span class="txt-sm">Install: {{ objects.max_cont_main.package_type }}</span>
+                                    </div>
+                                    <div class="flex-space-bw">
+                                        <a class="btn btn-sm btn-info">TKN Ship</a>
+                                        <span class="txt-sm">Install: {{ objects.max_cont_main.package_type }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal 3 Refresh TKU Packages in Octopus database -->
+                <div class="modal fade" id="wgetRefresh" tabindex="-1" role="dialog"
+                     aria-labelledby="wgetRefreshLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="wgetRefreshLabel">Refresh TKU Packages in Octopus database</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="max_released">max_released: {{ objects.max_released.tku_type }} -
+                                    {{ objects.max_released.tku_build }}.{{ objects.max_released.tku_month }}.{{ objects.max_released.tku_date }}</div>
+                                <div class="max_released">max_ga: {{ objects.max_ga.tku_type }} -
+                                    {{ objects.max_ga.tku_build }}.{{ objects.max_ga.tku_month }}.{{ objects.max_ga.tku_date }}</div>
+                                <div class="max_released">max_cont_main: {{ objects.max_cont_main.tku_type }} -
+                                    {{ objects.max_cont_main.tku_build }}.{{ objects.max_cont_main.tku_month }}.{{ objects.max_cont_main.tku_date }}</div>
+                                <div class="max_released">max_cont_ship: {{ objects.max_cont_ship.tku_type }} -
+                                    {{ objects.max_cont_ship.tku_build }}.{{ objects.max_cont_ship.tku_month }}.{{ objects.max_cont_ship.tku_date }}</div>
+                                <a class="btn btn-sm btn-info">Buttons</a>
+                                <a class="btn btn-sm btn-info">Buttons</a>
+                                <a class="btn btn-sm btn-info">Buttons</a>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-header txt-nice">TKU Latest packages</div>
+                    <div class="card-body card-body-sm">
+                        <div class="tku-packages-table">
+                            <div class="max_released">
+                                <span class="txt-nice">{{ objects.max_released.tku_type }}: </span>
+                                <span class="txt-monospace">{{ objects.max_released.package_type }}: </span>
+                                <span class="badge badge-info flt-right">{{ objects.max_released.tku_build }}.{{ objects.max_released.tku_month }}.{{ objects.max_released.tku_date }}</span>
+                                <span class="badge badge-light flt-right">{{ objects.max_released.updated_at|timezone:"Europe/London"|naturaltime }}</span>
+                            </div>
+                            <div class="max_ga">
+                                <span class="txt-nice">{{ objects.max_ga.tku_type }}: </span>
+                                <span class="txt-monospace">{{ objects.max_ga.package_type }}: </span>
+                                <span class="badge badge-info flt-right">{{ objects.max_ga.tku_build }}.{{ objects.max_ga.tku_month }}.{{ objects.max_ga.tku_date }}</span>
+                                <span class="badge badge-light flt-right">{{ objects.max_ga.updated_at|timezone:"Europe/London"|naturaltime }}</span>
+                            </div>
+                            <div class="max_cont_main">
+                                <span class="txt-nice">{{ objects.max_cont_main.tku_type }}: </span>
+                                <span class="txt-monospace">{{ objects.max_cont_main.package_type }}: </span>
+                                <span class="badge badge-info flt-right">{{ objects.max_cont_main.tku_build }}.{{ objects.max_cont_main.tku_month }}.{{ objects.max_cont_main.tku_date }}</span>
+                                <span class="badge badge-light flt-right">{{ objects.max_cont_main.updated_at|timezone:"Europe/London"|naturaltime }}</span>
+                            </div>
+                            <div class="max_cont_ship">
+                                <span class="txt-nice">{{ objects.max_cont_ship.tku_type }}: </span>
+                                <span class="txt-monospace">{{ objects.max_cont_ship.package_type }}: </span>
+                                <span class="badge badge-info flt-right">{{ objects.max_cont_ship.tku_build }}.{{ objects.max_cont_ship.tku_month }}.{{ objects.max_cont_ship.tku_date }}</span>
+                                <span class="badge badge-light flt-right">{{ objects.max_cont_ship.updated_at|timezone:"Europe/London"|naturaltime }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header txt-nice">TKU Upload test cases (TBA)</div>
+                    <div class="card-body card-body-sm">
+                        <div class="tku-upload-cases-table">
+                            <p>Upload cases PLUGABLE</p>
+                            <ul>
+                                <li>Show table with parsed octo_upload_test.py</li>
+                                <li>Each case is an upload test receipt.</li>
+                                <li>User can execute them from here.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'tku_workbench' %}">TKU Upload Workbench</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    <script src="{% static 'octopus/js/upload-test-table-color.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% load static %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+<div class="tku-packages-table">
+    <table class="table table-sm table-bordered table-hover table-shrink">
+        <thead>
+        <tr>
+        <tr>
+            <th>#</th>
+            <th>tku_type</th>
+            <th><i class="fas fa-upload"></i> addm_version</th>
+            <th><i class="fas fa-tags"></i> package_type</th>
+            <th><i class="fas fa-tags"></i> zip_type</th>
+            <th><i class="fab fa-jenkins"></i> tku_build</th>
+            <th><i class="fas fa-archive"></i> tku_name</th>
+            <th><i class="fas fa-file-archive"></i> zip_file_name</th>
+            <th><i class="far fa-clock"></i> updated_at</th>
+            <th><i class="far fa-calendar-alt"></i> Release</th>
+            {#            <th>zip_file_path</th>#}
+            {#            <th>tku_addm_version</th>#}
+            {#            <th>tku_date</th>#}
+            {#            <th>tku_month</th>#}
+            {#            <th>tku_pack</th>#}
+            {#            <th>zip_file_md5_digest</th>#}
+            {#            <th>created_at</th>#}
+            <th><i class="far fa-eye"></i></th>
+            <th><i class="fas fa-location-arrow"></i></th>
+        </tr>
+        </thead>
+        <tbody class="table-shrink">
+        {% for package in tku_packages %}
+            <tr>
+                <td id="num">{{ forloop.counter }}</td>
+                <td id="tku_type">
+                    <a title="Select by tku_type"
+                       href="{% url 'tku_packages_index' %}?tku_type={{ package.tku_type }}">{{ package.tku_type }}</a>
+                </td>
+                <td id="addm_version">
+                    <a title="Select by ADDM version"
+                       href="{% url 'tku_packages_index' %}?addm_version={{ package.addm_version }}">{{ package.addm_version }} / {{ package.tku_addm_version }}</a>
+                </td>
+                <td id="package_type" class="txt-left">
+                    <a title="Show upload test for this package if available"
+                       href="{% url 'upload_test_index' %}?package_type={{ package.package_type }}">{{ package.package_type }}</a>
+                </td>
+                <td id="zip_type">{{ package.zip_type }}</td>
+                <td id="tku_build">{{ package.tku_build }}.{{ package.tku_month }}.{{ package.tku_date }}</td>
+                <td id="tku_name" class="txt-left">
+                    <a title="Select by TKU name"
+                       href="{% url 'tku_packages_index' %}?tku_name={{ package.tku_name }}">{{ package.tku_name }}{% if package.tku_pack %}|{{ package.tku_pack }}{% endif %}</a>
+                </td>
+                <td id="zip_file_name" class="txt-left txt-sm">{{ package.zip_file_name }}</td>
+                <td id="updated_at" class="txt-left txt-sm">{{ package.updated_at|timezone:"Europe/London"|naturaltime }}</td>
+                <td id="release">{{ package.updated_at|date:"F" }}</td>
+                {#                <td id="zip_file_path">{{ package.zip_file_path }}</td>#}
+                {#                <td id="tku_addm_version">{{ package.tku_addm_version }}</td>#}
+                {#                <td id="tku_date">{{ package.tku_date }}</td>#}
+                {#                <td id="tku_month">{{ package.tku_month }}</td>#}
+                {#                <td id="tku_pack">{{ package.tku_pack }}</td>#}
+                {#                <td id="zip_file_md5_digest">{{ package.zip_file_md5_digest }}</td>#}
+                {#                <td id="created_at">{{ package.created_at }}</td>#}
+                <td {% tooltip_tku_package 'popover' 'right' package %} ><i class="far fa-eye"></i></td>
+                <td id="actions">
+                    <a class="btn btn-sm btn-outline-info">Actions</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

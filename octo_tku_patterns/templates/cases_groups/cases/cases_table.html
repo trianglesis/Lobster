@@ -1,0 +1,281 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Test cases table
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}" />
+    {% dynamical_selector_compose '' 'selector_str' %}
+    {% dynamical_selector_compose 'tkn_branch' 'selector_tkn_branch' %}
+    {% dynamical_selector_compose 'test_type' 'selector_test_type' %}
+    {% dynamical_selector_compose 'pattern_library' 'selector_pattern_library' %}
+    {% dynamical_selector_compose 'last_days' 'selector_last_days' %}
+    <div aria-live="polite" aria-atomic="true" style="position: relative">
+        <!-- Position it -->
+        <div style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 1"></div>
+        </div>
+    </div>
+    <div class="test-cases-content">
+        <div class="card-deck">
+            <div class="card border-light card-autosize">
+                <div class="card-header">{% select_icon 'git-commit' 20 'right' 1 %}Sort by: branch</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-light">{% select_icon 'git-commit' 20 'right' 0.4 %}<a class="badge {% is_active 'tkn_branch' None 'badge-light' 'badge-dark' %}" href="{% url 'test_cases' %}?{{ selector_tkn_branch }}">All</a></li>
+                    <li class="list-group-item border-light">{% select_icon 'git-branch' 20 'right' 0.4 %}<a class="badge {% is_active 'tkn_branch' 'tkn_main' 'badge-light' 'badge-dark' %}" href="{% url 'test_cases' %}?tkn_branch=tkn_main;{{ selector_tkn_branch }}">tkn_main</a></li>
+                    <li class="list-group-item border-light">{% select_icon 'git-merge' 20 'right' 0.4 %}<a class="badge {% is_active 'tkn_branch' 'tkn_ship' 'badge-light' 'badge-dark' %}" href="{% url 'test_cases' %}?tkn_branch=tkn_ship;{{ selector_tkn_branch }}">tkn_ship</a></li>
+                </ul>
+            </div>
+            <div class="card border-light card-autosize">
+                <div class="card-header">{% select_icon 'repo' 20 'right' 1 %}Sort by: library</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-light">
+                        <i class="fas fa-undo"></i>
+                        <a class="badge {% is_active 'pattern_library' None 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?{{ selector_pattern_library }}">All</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-tape"></i>
+                        <a class="badge {% is_active 'pattern_library' 'BLADE_ENCLOSURE' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?pattern_library=BLADE_ENCLOSURE;{{ selector_pattern_library }}">BLADE_ENCLOSURE</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-cloud"></i>
+                        <a class="badge {% is_active 'pattern_library' 'CLOUD' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?pattern_library=CLOUD;{{ selector_pattern_library }}">CLOUD</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-cube"></i>
+                        <a class="badge {% is_active 'pattern_library' 'CORE' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?pattern_library=CORE;{{ selector_pattern_library }}">CORE</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-balance-scale"></i>
+                        <a class="badge {% is_active 'pattern_library' 'LOAD_BALANCER' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?pattern_library=LOAD_BALANCER;{{ selector_pattern_library }}">LOAD_BALANCER</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-truck-loading"></i>
+                        <a class="badge {% is_active 'pattern_library' 'MANAGEMENT_CONTROLLERS' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?pattern_library=MANAGEMENT_CONTROLLERS;{{ selector_pattern_library }}">MANAGEMENT_CONTROLLERS</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-network-wired"></i>
+                        <a class="badge {% is_active 'pattern_library' 'NETWORK' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?pattern_library=NETWORK;{{ selector_pattern_library }}">NETWORK</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-hdd"></i>
+                        <a class="badge {% is_active 'pattern_library' 'STORAGE' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?pattern_library=STORAGE;{{ selector_pattern_library }}">STORAGE</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fab fa-centos"></i>
+                        <a class="badge {% is_active 'pattern_library' 'SYSTEM' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?pattern_library=SYSTEM;{{ selector_pattern_library }}">SYSTEM</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card border-light card-autosize">
+                <div class="card-header">{% select_icon 'calendar' 20 'right' 1 %}Sort by: date</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-light"><i class="fas fa-calendar-day"></i>
+                        <a class="badge {% is_active 'last_days' None 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?{{ selector_last_days }}">All</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-calendar-day"></i>
+                        <a class="badge {% is_active 'last_days' '1' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?last_days=1;{{ selector_last_days }}">Today</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-calendar-week"></i>
+                        <a class="badge {% is_active 'last_days' '7' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?last_days=7;{{ selector_last_days }}">Week</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-calendar-alt"></i>
+                        <a class="badge {% is_active 'last_days' '30' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?last_days=30;{{ selector_last_days }}">Release</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-calendar"></i>
+                        <a class="badge {% is_active 'last_days' '360' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?last_days=360;{{ selector_last_days }}">Last year</a>
+                    </li>
+                    <li class="list-group-item border-light"><i class="fas fa-moon"></i>
+                        <a class="badge {% is_active 'last_days' '730' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?last_days=730;{{ selector_last_days }}">Night routine (TBA)</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card border-light card-autosize">
+                <div class="card-header">{% select_icon 'file-code' 20 'right' 1 %}Sort by: test type</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-light">
+                        <i class="fas fa-undo"></i>
+                        <a class="badge {% is_active 'test_type' None 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?{{ selector_test_type }}">
+                            All
+                        </a>
+                    </li>
+                    <li class="list-group-item border-light">
+                        <i class="fas fa-scroll"></i>
+                        <a class="badge {% is_active 'test_type' 'tku_patterns' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?test_type=tku_patterns;{{ selector_test_type }}">
+                            tku_patterns
+                        </a>
+                    </li>
+                    <li class="list-group-item border-light">
+                        <i class="fab fa-python"></i>
+                        <a class="badge {% is_active 'test_type' 'main_python' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?test_type=main_python;{{ selector_test_type }}">
+                            main_python
+                        </a>
+                    </li>
+                    <li class="list-group-item border-light">
+                        <i class="fas fa-plug"></i>
+                        <a class="badge {% is_active 'test_type' 'octo_tests' 'badge-light' 'badge-dark' %}"
+                           href="{% url 'test_cases' %}?test_type=octo_tests;{{ selector_test_type }}">
+                            (TBA) octo_tests
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="overall-cases"><span class="badge badge-info">Overall: {{ paginator.count }}</span></div>
+        <div class="cases-table" style="padding-top: 2%;">
+            <table class="table table-hover table-sm">
+                <thead>
+                <tr>
+                    <th class="center_txt" scope="col">#</th>
+                    <th class="center_txt" scope="col">Branch</th>
+                    <th class="center_txt" scope="col">Library</th>
+                    <th class="center_txt" scope="col">Pattern dir</th>
+                    <th class="center_txt" scope="col">Change</th>
+                    <th class="center_txt" scope="col">User</th>
+                    <th class="center_txt" scope="col">Review</th>
+                    <th class="center_txt" scope="col">JIRA</th>
+                    <th class="center_txt" scope="col">Depot</th>
+                    <th class="center_txt" scope="col">t:</th>
+                    <th class="center_txt" scope="col">Changed</th>
+                    <th class="center_txt" scope="col">Groups:</th>
+                    <th class="center_txt" scope="col">Actions</th>
+                    <th class="center_txt" scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for case in test_cases %}
+                    {% with case as tooltip_txt %}
+                    <tr>
+                        <td class="row-txt-center-sm"><a class="btn btn-sm btn-light"
+                                href="{% url 'test_case_update' pk=case.id %}" {% popover 'hover' 'right' None 'Edit case...' %}>
+                            {{ forloop.counter0|add:page_obj.start_index }}
+                        </a>
+                        </td>
+    {#                    <td class="row-txt-center-sm">{{ pattern.test_type }}</td>#}
+                        <td id="tkn_branch" class="row-txt-center-sm">{% if case.tkn_branch %}{{ case.tkn_branch }}{% else %}{% endif %}</td>
+                        <td id="pattern_library" class="row-txt-right-sm">{% if case.pattern_library %}{{ case.pattern_library }}{% else %}{{ case.test_case_dir }}{% endif %}</td>
+                        <td id="pattern_folder_name" class="row-txt-left-sm">{% if case.pattern_folder_name %}{{ case.pattern_folder_name }}{% else %}{% endif %}</td>
+                        <td class="row-txt-center-sm">
+                            <a class="badge badge-info" href="{% url 'test_cases' %}?change={{ case.change }};" {% popover 'hover' 'bottom' None 'Sort only change' %}>
+                                {{ case.change }}
+                            </a>
+                        </td>
+                        <td class="row-txt-center-sm">
+                            <a class="badge badge-info" href="{% url 'test_cases' %}?change_user={{ case.change_user }};" {% popover 'hover' 'bottom' None 'Sort only user' %}>
+                                {{ case.change_user }}
+                            </a>
+                        </td>
+                        <td class="row-txt-center-sm">
+                            {% if case.change_review %}
+                                <a class="badge badge-info" href="{% url 'test_cases' %}?change_review={{ case.change_review|remove_dash }};" {% popover 'hover' 'bottom' None 'Sort only review' %}>
+                                    {{ case.change_review }}
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td class="row-txt-center-sm">
+                            {% if case.change_ticket %}
+                                <a class="badge badge-info" href="{% url 'test_cases' %}?change_ticket={{ case.change_ticket }};" {% popover 'hover' 'bottom' None 'Sort only JIRA' %}>
+                                    {{ case.change_ticket }}
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td class="small-font align-middle break-all">{{ case.test_case_depot_path }}</td>
+                        <td class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight }}{% else %}0{% endif %}</td>
+                        <td class="small-font center_txt">
+                            {{ case.change_time|timezone:"Europe/London"|naturaltime }}
+                            {% comment %}{{ pattern.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}{% endcomment %}
+                        </td>
+                        <td class="row-txt-center-sm">
+                            {% if case.related_test_cases %}
+                                {% for group in case.related_test_cases.all %}
+                                    <a class="badge badge-info" {% popover 'hover' 'bottom' None 'Go to group' %}
+                                       href="{% url 'test_cases_group' pk=group.id %}">{{ group.title }}
+                                    </a><br>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
+                        <td class="actions_button">
+                            <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                                    data-target="#actionsModal">Actions
+                            </button>
+                        </td>
+                        <td id="case_id" style="display:none">{{ case.id }}</td>
+                        <td id="test_py_path" style="display:none">{{ case.test_py_path }}</td>
+                        <td id="change" style="display:none">{{ case.change }}</td>
+                        <td id="change_user" style="display:none">{{ case.change_user }}</td>
+                        <td id="change_review" style="display:none">{{ case.change_review }}</td>
+                        <td id="change_ticket" style="display:none">{{ case.change_ticket }}</td>
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="overall-cases"><span class="badge badge-info">Overall: {{ paginator.count }}</span></div>
+        {% include 'small_blocks/pagination.html' %}
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'cases_workbench' %}">Workbench Cases</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'test_cases' %}">Test Cases</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    {% include 'digests/includes/toast_popup.html' %}
+    {% include 'digests/includes/test_actions_modal_dynamic.html' %}
+    <script src="{% static 'octopus/js/test-actions-modal.js' %}"></script>
+    <script src="{% static 'octopus/js/tests-digest-run-test-toast.js' %}"></script>
+    {% if debug %}
+        <p>TODO:</p>
+        <ul>
+            <li>Select by user</li>
+            <li>Select by related group?</li>
+            <li>Sort by?</li>
+        </ul>
+        <div class="debug">
+            <p>selector = {{ selector }}</p>
+            <p>selector_str = {{ selector_str }}</p>
+            <p>selector_tkn_branch = {{ selector_tkn_branch }}</p>
+            <p>selector_test_type = {{ selector_test_type }}</p>
+            <p>selector_pattern_library = {{ selector_pattern_library }}</p>
+        </div>
+
+        {% comment %}<div class="card border-light card-autosize">
+                <div class="card-header">{% select_icon 'squirrel' 20 'right' 1 %}Sort by: TBA</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-light">{% select_icon 'squirrel' 20 'right' 0.4 %}Something</li>
+                    <li class="list-group-item border-light">{% select_icon 'squirrel' 20 'right' 0.4 %}Something</li>
+                    <li class="list-group-item border-light">{% select_icon 'squirrel' 20 'right' 0.4 %}Something</li>
+                </ul>
+        </div>{% endcomment %}
+
+    {% endif %}
+{% endblock %}

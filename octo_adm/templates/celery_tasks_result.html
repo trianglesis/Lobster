@@ -1,0 +1,87 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    Octopus administration
+{% endblock %}
+{% block content %}
+{% load static %}
+{% load tz %}
+<!-- Sub nav on child page P$ info Summary -->
+<div style="padding-left:1%;padding-right:1%;margin-bottom:5px;margin-top:5px">
+    <!-- Content header block with navigation: -->
+
+    <div class="alert alert-secondary" role="alert">
+        <div style="padding-right:1%;"><img alt="" style="height:32px;width:32px;" src="{% static "octicons/svg/dashboard.svg" %}"/>All tasks with status {{ TASK_STATUS }} selected. Total count {{ ALL_TASKS_LEN }}
+
+            <div class="btn-group btn-group-sm" role="group" aria-label="Level" style="float: right">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Level" style="float: right">
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-danger" href="{% url "celery_tasks_result" %}?task_status=FAILURE" title="Sort failed tasks">FAILURE</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-warning" href="{% url "celery_tasks_result" %}?task_status=REVOKED" title="Sort revoked tasks">REVOKED</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-dark" href="{% url "celery_tasks_result" %}?task_status=RETRY" title="Sort tasks retried">RETRY</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-success" href="{% url "celery_tasks_result" %}?task_status=SUCCESS" title="Sort all successed tasks LONG!">SUCCESS</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-light" href="{% url "celery_tasks_result" %}?task_status=PENDING" title="Sort pending">PENDING</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-secondary" href="{% url "celery_tasks_result" %}?task_status=STARTED" title="Sort started">STARTED</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-info" href="{% url "celery_tasks_result" %}?task_status=RECIEVED" title="Sort recieved">RECIEVED</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    {% if not anon_bool %}
+        <!-- Celery TASKS result tables: -->
+        <div style="padding-left:1%;padding-right:1%;margin-bottom:5px;margin-top:5px">
+            <table id="failed_tasks_celery" class="table table-condensed table-bordered table-hover table-sm">
+                <thead>
+                <!-- tasks result table Head: -->
+                <th id="id" class="table-info" scope="col">id</th>
+                <th id="task_id" class="table-info" scope="col">task task_id</th>
+                <th id="status" class="table-info" scope="col">status</th>
+                <th id="date_done" class="table-info" scope="col">date_done</th>
+{#                <th id="result" class="table-info" scope="col">result</th>#}
+                <th id="traceback" class="table-info" scope="col">traceback</th>
+                </thead>
+                <tbody>
+                <!-- Tasks result table rows in cycle: -->
+{#                {{ ALL_TASKS }}#}
+                {% for task_row in ALL_TASKS %}
+                    {% for task in task_row %}
+                        {{task.id}}
+                        {{task.task_id}}
+                    {% endfor %}
+                    <tr>
+                        <td id="id" class="table-light text-dark">{{task_row.id}}</td>
+                        <td id="id" class="table-light text-dark">{{task_row.task_id}}</td>
+                        <td id="name" class="table-light text-dark">{{task_row.status}}</td>
+                        <td id="queue" class="table-light text-dark" style="font-size:8pt;font-family:monospace;"><p>KBP: {{task_row.date_done|timezone:"Europe/Kiev"|date:"d-m-y, H:i"}}</p><p>UK: {{task_row.date_done|date:"d-m-y, H:i"}}</p></td>
+                        <td id="task_traceback" class="table-light text-dark" style="font-size:8pt;font-family:monospace;">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#task_details_{{task_row.task_id}}">
+                              Traceback
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="task_details_{{task_row.task_id}}" tabindex="-1" role="dialog" aria-labelledby="task_details_ModalLabel_{{task_row.task_id}}" aria-hidden="true">
+                              <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="task_details_ModalLabel_{{task_row.task_id}}">Task traceback:</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                  </div>
+                                  <div class="modal-body" style="font-size:9pt;word-wrap: break-word;white-space: pre-line;">{{task_row.traceback}}</div>
+                                  <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button></div>
+                                </div>
+                              </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <!-- Login form request. -->
+        <div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+            <div class="alert alert-warning" role="alert">
+                Please log in as user, which authorised to manage this page.
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

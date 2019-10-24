@@ -1,0 +1,83 @@
+{% load dev_tags %}
+{% load user_groups %}
+{% load template_simplify %}
+
+{% is_user_log_in as anon_bool %} <!-- Is anon -->
+{% is_power_user as power_user_bool %} <!-- is_power_user -->
+{% is_user_staff as staff_user_bool %} <!-- is_user_staff -->
+
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:1%">
+    <div class="alert alert-dark" role="alert">
+      <h4 class="alert-heading">User info!</h4>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th scope="col">Option</th>
+              <th scope="col">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td scope="row">if user.is_authenticated</td>
+            {% if user.is_authenticated %}
+              <td>True</td>
+            {% else %}
+              <td>False</td>
+            {% endif %}
+            </tr>
+            <tr>
+            {% current_time "%Y-%m-%d %I:%M %p" as the_time %}
+              <td scope="row">current_time "%Y-%m-%d %I:%M %p" as the_time</td>
+              <td>{{ the_time }}</td>
+            </tr>
+            <tr>
+              <td scope="row">if power_user_bool</td>
+            {% if power_user_bool %}
+              <td>True</td>
+            {% else %}
+              <td>False</td>
+            {% endif %}
+            </tr>
+            <tr>
+              <td scope="row">if staff_user_bool</td>
+            {% if staff_user_bool %}
+              <td>True</td>
+            {% else %}
+              <td>False</td>
+            {% endif %}
+            </tr>
+            <tr>
+              <td scope="row">if anon_bool</td>
+            {% if anon_bool %}
+              <td>True</td>
+            {% else %}
+              <td>False</td>
+            {% endif %}
+            </tr>
+          </tbody>
+        </table>
+        <!-- CMD OUTPUT -->
+        <div class="card">
+          <div class="card-header"><b>ATTRIBUTES</b></div>
+          <div class="card-body">
+              <table id="cmd_results" class="table table-condensed table-bordered table-hover table-sm">
+                <thead>
+                    <th id="name" class="table-info" scope="col">Request attrs:</th>
+                    <th id="name" class="table-info" scope="col">Attrs values:</th>
+                </thead>
+                <tbody>
+                {% if ATTRIBUTES %}
+                    {% for attr_k, attr_v in ATTRIBUTES.items %}
+                    <tr>
+                        <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">attr_k: <b>'{{ attr_k }}'</b></td>
+                        <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">attr_v: '{{ attr_v }}'</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                </tbody>
+              </table>
+              <footer class="blockquote-footer">Result can be iterable or string.</footer>
+          </div>
+        </div>
+    </div>
+</div>

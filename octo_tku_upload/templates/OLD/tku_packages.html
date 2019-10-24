@@ -1,0 +1,75 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+{{ SUBJECT }}
+{% endblock %}
+{% load i18n %}
+{% load tz %}
+{% block content %}
+{% load template_simplify %}
+<div style="padding-left:2%;padding-right:2%;margin-bottom:1%;margin-top:1%">
+    <div class="alert alert-secondary" role="alert">{{SUBJECT}}
+        <a class="btn btn-sm btn-outline-warning" style="font-size: 0.7em;" href="{% url 'run_tku_parse' %}">Re-validate table, parse locals.</a>
+        <a class="btn btn-sm btn-outline-info" style="font-size: 0.7em;" href="{% url 'tku_sync' %}">Re-validate table, parse + run WGET</a>
+    </div>
+</div>
+<div style="padding-left:1%;padding-right:1%">
+    {% if not anon_bool %}
+    <div class="alert alert-info" role="alert">
+        <li>ga_candidate_max = <span class="badge badge-primary">{{ ga_candidate_max.package_type__max }}</span> - current last known build, used for fresh install, or upgrade from previous, marked bold in current *(candidate release)</li>
+        <li>released_tkn_max = <span class="badge badge-success">{{ released_tkn_max.package_type__max }}</span> - stable release to install and then upgrade, marked bold in current table*(previous release)</li>
+        <li>tkn_main_continuous_max = <span class="badge badge-secondary">{{ tkn_main_continuous_max.package_type__max }}</span> - current last MAX build. Uses continuous packages date and version.</li>
+        <div class="text-warning">Sort only:</div>
+        {% regroup TKU_PACKAGES by tku_type as tku_types_list %}
+        {% for tku_type_name in tku_types_list %}
+            <a class="btn btn-sm btn-outline-info" style="font-size: 0.7em;" href="{% url 'tku_packages' %}?tku_type={{ tku_type_name.grouper }}">{{ tku_type_name.grouper }}</a>
+        {% endfor %}
+    </div>
+    <table class="table table-bordered table-hover table-sm">
+        <thead class="table-dark">
+        <tr>
+            <th class="text-center align-middle font-weight-bold" scope="col">tku_type</th>
+            <th class="text-center align-middle font-weight-bold" scope="col">tku_build</th>
+            <th class="text-center align-middle font-weight-bold" scope="col">package_type</th>
+            <th class="text-center align-middle font-weight-bold" scope="col">addm/tku</th>
+{#            <th class="text-center align-middle font-weight-bold" scope="col">tku_name</th>#}
+{#            <th class="text-center align-middle font-weight-bold" scope="col">zip_type</th>#}
+{#            <th class="text-center align-middle font-weight-bold" scope="col">tku_pack</th>#}
+            <th class="text-center align-middle font-weight-bold" scope="col">zip_file_name</th>
+            <th class="text-center align-middle font-weight-bold" scope="col">zip_file_path</th>
+            <th class="text-center align-middle font-weight-bold" scope="col">zip md5sum</th>
+            <th class="text-center align-middle font-weight-bold" scope="col">updated_at</th>
+            <th class="text-center align-middle font-weight-bold" scope="col">created_at</th>
+        </tr>
+        </thead>
+        <tbody>
+
+            {% for package in TKU_PACKAGES %}
+                {% tku_package_color package.tku_type as color %}
+                <tr>
+                    <td class="table-{{ color }} text-center align-middle" style="font-size: 0.8em;">{{ package.tku_type }}</td>
+                    <td class="table-{{ color }} text-center align-middle" style="font-size: 0.8em;">{{ package.tku_build }}/{{ package.tku_date }}/{{ package.tku_month }}</td>
+                    <td class="table-{{ color }} text-center align-middle
+                        {% if package.package_type in ga_candidate_max.package_type__max %} font-weight-bold
+                        {% elif package.package_type in released_tkn_max.package_type__max %} font-weight-bold
+                        {% endif %}" style="font-size: 0.8em;">{{ package.package_type }}</td>
+                    <td class="table-{{ color }} text-center align-middle" style="font-size: 0.8em;">{{ package.addm_version }}/{{ package.tku_addm_version }}</td>
+{#                    <td class="table-{{ color }}" style="font-size: 0.8em;">{{ package.tku_name }}</td>#}
+{#                    <td class="table-{{ color }} text-center align-middle" style="font-size: 0.8em;">{{ package.zip_type }}</td>#}
+{#                    <td class="table-{{ color }} text-center align-middle" style="font-size: 0.8em;">{{ package.tku_pack }}</td>#}
+                    <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.zip_file_name }}</td>
+                    <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.zip_file_path }}</td>
+                    <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.zip_file_md5_digest }}</td>
+                    <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.updated_at | timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+                    <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.created_at | timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            This query is not allowed for Anonymous users. Please log in or register.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

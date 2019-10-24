@@ -1,0 +1,233 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    Octopus administration
+{% endblock %}
+{% block content %}
+{% load static %}
+{% load tz %}
+{% load template_simplify %}
+    <!-- IF not ANON -->
+    {% if not anon_bool %}
+        <!-- Task buttons for power users -->
+        {% if power_user_bool %}
+        <div style="padding-left:1%;padding-right:1%;margin-top:1em">
+            <!-- Content header block with navigation: -->
+            <div class="alert alert-secondary" role="alert">
+                <!-- Subject: -->
+                <div aria-label="Subject">All tasks statuses in system. On user octopus_super request.
+                    <!-- PLACE to manage tasks: kill active, empty queue, kill hanged etc. -->
+                    <div class="btn-group btn-group-sm" aria-label="Tasks actions" style="float: right">
+                    {% if staff_user_bool %}
+                        <div class="btn-group btn-group-sm" style="float: right">
+                            <a role="button" class="btn btn-sm btn-light" href="{% url 'discard_all_tasks' %}" title="Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Discard waiting tasks</a>
+                            <a role="button" class="btn btn-sm btn-light" href="{% url 'purge_all_tasks' %}" title="Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Purge waiting tasks</a>
+                            <a role="button" class="btn btn-sm btn-danger" href="{% url 'worker_revoke_tasks' %}{% if WORKER_NAME %}?worker_name={{ WORKER_NAME }}{% endif %}" title="(CAUTION) Revoke and terminate all active tasks and tests for each addm AND also all reserved!">Revoke active + reserved</a>
+                            <a role="button" class="btn btn-sm btn-warning" href="{% url 'revoke_tasks_active' %}" title="(CAUTION) Revoke all active tasks and tests for each addm">Revoke all active</a>
+                        </div>
+                        <div class="btn-group btn-group-sm" style="padding-left: 1em;float: right">
+                            <a role="button" class="btn btn-sm btn-info" href="{% url 'workers_restart' %}" title="Worker restart - if anything goes wrong and workers page didn't show usual workers. Or when you revoke tasks but it has no effect.">Workers restart</a>
+                            <a role="button" class="btn btn-sm btn-warning" href="{% url 'celery_worker_heartbeat' %}" title="Worker heartbeat will be executed. This usually restart worker's consumers.">Workers heartbeat</a>
+                            <a role="button" class="btn btn-sm btn-warning" href="{% url 'celery_worker_ping' %}" title="Worker ping will be executed. This usually woke up worker's consumers.">Workers ping</a>
+                        </div>
+                    {% elif power_user_bool %}
+                        <a role="button" class="btn btn-sm btn-warning" href="{% url 'revoke_tasks_active' %}" title="(CAUTION) Revoke all active tasks and tests for each addm">Revoke all active</a>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if TASKS_REVOKED %}
+            <div>
+                <div class="card">
+                  <div class="card-header">
+                    Revoked tasks: {{ TASKS_REVOKED }}
+                  </div>
+                  <div class="card-body">
+                      <table id="revoked" class="table table-condensed table-bordered table-hover table-sm">
+                        <thead>
+                            <th id="name" class="table-info" scope="col">task</th>
+                            <th id="name" class="table-info" scope="col">id</th>
+                            <th id="name" class="table-info" scope="col">hostname</th>
+                            <th id="name" class="table-info" scope="col">args</th>
+                        </thead>
+                        <tbody>
+                        {% for revoked in REVOKED_NAMES %}
+                        <tr>
+                            <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ revoked.task_name }}</td>
+                            <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ revoked.task_id }}</td>
+                            <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ revoked.task_hostname }}</td>
+                            <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ revoked.task_args }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                      <footer class="blockquote-footer">It can take few seconds for update and actually revoke active task.</footer>
+                  </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        <!-- TASK statuses -->
+        <div style="padding-left:2%;padding-right:2%">
+            <!-- WORKERS_ACTIVE_TASKS -->
+            {% if WORKERS_ACTIVE_TASKS %}
+                <h3>Active tasks: <span class="badge badge-secondary">In progress</span></h3>
+                <ul>
+                    {% for worker_item_d in WORKERS_ACTIVE_TASKS %}
+                        <li>Worker: <b>{{ worker_item_d.WORKER }}</b> / Tasks: <b>{{ worker_item_d.TASKS_COUNT }}</b></li>
+                        <ul>
+                            <li><b>{{ worker_item_d.TASKS_ITEMS.TASK_NAME }}</b> args: {{ worker_item_d.TASKS_ITEMS.TASK_ARGS }}</li>
+                            <li>Started:
+                                <table>
+                                    <tr>
+                                        <th>Kiev</th>
+                                        <td>{{ worker_item_d.TASKS_ITEMS.TASK_TIME_START | timezone:"Europe/Kiev" | date:"D d M Y, H:i" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>London</th>
+                                        <td>{{ worker_item_d.TASKS_ITEMS.TASK_TIME_START | date:"D d M Y, H:i" }}</td>
+                                    </tr>
+                                </table>
+                            </li>
+                            <li>In progress: <b>{{ worker_item_d.TASKS_ITEMS.TASK_TIME_PROGRESS }}</b> <cite class="font-weight-light">*Shouldn't be longer than usual test execution time.</cite>
+                                <a class="btn btn-sm btn-outline-info" data-toggle="collapse" data-target="#active_task_info_{{ worker_item_d.TASKS_ITEMS.TASK_ID }}" aria-expanded="false" aria-controls="active_task_info_{{ worker_item_d.TASKS_ITEMS.TASK_ID }}">Task info:</a>
+                                <div class="collapse" id="active_task_info_{{ worker_item_d.TASKS_ITEMS.TASK_ID }}">
+                                    <div class="card card-body" style="width: fit-content">
+                                        <ul>
+                                            <li>Name: {{ worker_item_d.TASKS_ITEMS.TASK_NAME }}</li>
+                                            <li>id: {{ worker_item_d.TASKS_ITEMS.TASK_ID }}</li>
+                                            <li>hostname: {{ worker_item_d.TASKS_ITEMS.TASK_HOSTNAME }}</li>
+                                            <li>args: <cite class="font-weight-light">{{ worker_item_d.TASKS_ITEMS.TASK_ARGS }}</cite></li>
+                                            <li>
+                                                <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'revoke_task_by_id' %}?task_id={{ worker_item_d.TASKS_ITEMS.TASK_ID }}{% spaceless %}
+                                                {% endspaceless %}{% if WORKER_NAME %}&worker_name={{ WORKER_NAME }}{% endif %}" title="Cancel task (Tell all (or specific) workers to revoke a task by id. {% spaceless %}
+                                                {% endspaceless %} If a task is revoked, the workers will ignore the task and not execute it after all.)">Revoke task</a>
+                                            {% if staff_user_bool %}
+                                                <a role="button" class="btn btn-sm btn-danger" href="{% url 'revoke_task_by_id' %}?task_id={{ worker_item_d.TASKS_ITEMS.TASK_ID }}{% spaceless %}
+                                                {% endspaceless %}{% if WORKER_NAME %}&worker_name={{ WORKER_NAME }}{% endif %}&terminate=True" title="Cancel task (Tell all (or specific) workers to revoke a task by id. {% spaceless %}
+                                                {% endspaceless %} If a task is revoked, the workers will ignore the task and not execute it after all.)">Revoke task and terminate proc</a>
+                                                <a role="button" class="btn btn-sm btn-warning" href="{% url 'celery_worker_ping' %}?worker_name={{ WORKER_NAME }}" title="Ping worker">Ping worker</a>
+                                            {% endif %}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <!-- WORKERS_RESERVED_TASKS -->
+            {% if WORKERS_RESERVED_TASKS %}
+                <h5>Reserved tasks: <span class="badge badge-secondary">To be executed...</span></h5>
+                <ul>
+                    {% for reserved_worker_item_d in WORKERS_RESERVED_TASKS %}
+                        <li>Worker: <b>{{ reserved_worker_item_d.WORKER }}</b> / Tasks: <b>{{ reserved_worker_item_d.TASKS_COUNT }}</b>
+                            <div class="btn-group btn-group-sm" style="padding-left: 1em;">
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'celery_worker_ping' %}?worker_name={{ reserved_worker_item_d.WORKER }}" title="Ping worker">Ping</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'celery_worker_heartbeat' %}?worker_name={{ reserved_worker_item_d.WORKER }}" title="Worker heartbeat will be executed. This usually restart worker's consumers.">Heartbeat</a>
+                            </div>
+                        </li>
+                        <ul>
+                        <li>
+                            <a class="btn btn-sm btn-outline-info" data-toggle="collapse" data-target="#reserved_tasks_{{ forloop.counter }}" aria-expanded="false" aria-controls="reserved_tasks_{{ forloop.counter }}">Show reserved tasks:</a>
+                            <div class="collapse" id="reserved_tasks_{{ forloop.counter }}">
+                                <div class="card card-body" style="width: fit-content">
+                                    All tasks
+                                    {% for task_item in reserved_worker_item_d.TASKS_ITEMS %}
+                                        {% include 'small_blocks/task_info_accordion.html' %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {{ task_item.TASK_NAME }} args: <cite class="font-weight-light">{{ task_item.TASK_ARGS }}</cite>
+                        </li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <!-- SCHEDULED_WORKERS -->
+            {% if SCHEDULED_WORKERS %}
+                <p>SCHEDULED:</p>
+                <ul>
+                    {% for item in SCHEDULED_WORKERS %}
+                        {{ item | safe }}
+                    {% endfor %}
+                    {% for task in SCHEDULED_TASKS_CONTXT %}
+                        <ul>
+                            <li><b>Name: {{ task.TASK_NAME }}</b></li>
+                            <li>Started: <b>{{ task.TASK_TIME_START }}</b></li>
+                            <li>pattern_library: <b>{{ task.TASK_PATTERN_LIBRARY }}</b></li>
+                            <li>pattern_file_name: <b>{{ task.TASK_PATTERN_FILE_NAME }}</b></li>
+                            <li>pattern_folder_name: <b>{{ task.TASK_PATTERN_FOLDER_NAME }}</b></li>
+                            <li>id: {{ task.TASK_ID }}</li>
+                            <li>hostname: {{ task.TASK_HOSTNAME }}</li>
+                            <li>args: {{ task.TASK_ARGS }}</li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <!-- REGISTERED_WORKERS -->
+            {% if REGISTERED_WORKERS %}
+                <p>REGISTERED:</p>
+                <ul>
+                    {% for item in REGISTERED_WORKERS %}
+                        {{ item | safe }}
+                    {% endfor %}
+                    {% for task in REGISTERED_TASKS_CONTXT %}
+                        <ul>
+                            <li><b>Name: {{ task.TASK_NAME }}</b></li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <div style="padding-top:2%;padding-bottom:2%">
+                <div id="accordion">
+                    <div class="card">
+                        <div class="card-header" id="heading_RAW_TASK_ACTIVE">
+                            <h5 class="mb-0">
+                                <button class="btn btn-sm btn-light collapsed" data-toggle="collapse" data-target="#RAW_TASK_ACTIVE" aria-controls="RAW_TASK_ACTIVE">
+                                    RAW_TASK_ACTIVE
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="RAW_TASK_ACTIVE" class="collapse" aria-labelledby="heading_RAW_TASK_ACTIVE" data-parent="#accordion">
+                            <div class="card-body">
+                                {% if RAW_TASK_ACTIVE %}{{ RAW_TASK_ACTIVE }}{% else %}"None"{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="heading_RAW_TASK_RESERVED">
+                            <h5 class="mb-0">
+                                <button class="btn btn-sm btn-light collapsed" data-toggle="collapse" data-target="#RAW_TASK_RESERVED" aria-controls="RAW_TASK_RESERVED">
+                                    RAW_TASK_RESERVED
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="RAW_TASK_RESERVED" class="collapse" aria-labelledby="heading_RAW_TASK_RESERVED" data-parent="#accordion">
+                            <div class="card-body">
+                                {{ RAW_TASK_RESERVED }}
+                                {% if RAW_TASK_RESERVED %}{{ RAW_TASK_RESERVED }}{% else %}"None"{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if staff_user_bool %}
+            <div style="padding-left:1%;padding-right:1%;margin-top:1em">
+                <div class="alert alert-secondary" role="alert">
+                    Danger zone: restart system services
+                <a role="button" class="btn btn-sm btn-danger" href="{% url 'celery_service_restart' %}" title="systemctl reload httpd.service && systemctl restart celery.service && systemctl restart celerybeat.service && systemctl restart flower.service">Celery service restart + apache + flower</a>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Login form request. -->
+        <div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+            <div class="alert alert-warning" role="alert">
+                Please log in as user, which authorised to manage this page.
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

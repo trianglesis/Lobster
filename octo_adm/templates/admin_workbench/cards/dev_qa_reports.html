@@ -1,0 +1,34 @@
+{% load i18n %}
+{% load static %}
+{% load template_simplify %}
+<div class="card" style="margin-right: 0.5em;margin-left: 0.5em">
+    <div class="card-header text-muted"><h6>DEV/QA Reports</h6></div>
+    <div class="card-body" style="padding-left: 5%;padding-right: 5%;">
+        <div class="text-center">
+            <div style="padding-top: 1em;" role="toolbar">
+{#                <div class="card-text text-sm-center">Patterns level all</div>#}
+                <a role="button" class="btn btn-sm btn-outline-info" title="Patterns summary with all statuses" href="{% url "patterns_digest" %}?branch=tkn_main">{% select_branch_icon 'tkn_main' 24 %}{% trans 'Main all patterns digest' %}</a>
+                <a role="button" class="btn btn-sm btn-outline-info" title="Patterns summary with all statuses" href="{% url "patterns_digest" %}?branch=tkn_ship">{% select_branch_icon 'tkn_ship' 24 %}{% trans 'Ship all patterns digest' %}</a>
+            </div>
+            <div style="padding-top: 1em;" role="toolbar">
+{#                <div class="card-text text-sm-center">Patterns pass </div>#}
+                <a role="button" class="btn btn-sm btn-outline-success" title="Patterns on Main only passed" href="{% url "patterns_digest" %}?branch=tkn_main;pass_only=True">{% select_branch_icon 'tkn_main' 24 %}{% trans 'Main pass patterns digest' %}</a>
+                <a role="button" class="btn btn-sm btn-outline-success" title="Patterns on Ship only passed" href="{% url "patterns_digest" %}?branch=tkn_ship;pass_only=True">{% select_branch_icon 'tkn_ship' 24 %}{% trans 'Ship pass patterns digest' %}</a>
+            </div>
+            <div style="padding-top: 1em;" role="toolbar">
+{#                <div class="card-text text-sm-center">Patterns not pass (fail, error, unexpected)</div>#}
+                <a role="button" class="btn btn-sm btn-outline-danger" title="Patterns on Main only not pass" href="{% url "patterns_digest" %}?branch=tkn_main;not_pass_only=True">{% select_branch_icon 'tkn_main' 24 %}{% trans 'Main fail patterns digest' %}</a>
+                <a role="button" class="btn btn-sm btn-outline-danger" title="Patterns on Ship only not pass" href="{% url "patterns_digest" %}?branch=tkn_ship;not_pass_only=True">{% select_branch_icon 'tkn_ship' 24 %}{% trans 'Ship fail patterns digest' %}</a>
+            </div>
+            <div style="padding-top: 1em;" role="toolbar">
+{#                <div class="card-text text-sm-center">Patterns skipped</div>#}
+                <a role="button" class="btn btn-sm btn-outline-dark" title="Patterns on Main skipped" href="{% url "patterns_digest" %}?branch=tkn_main;skip_only=True">{% select_branch_icon 'tkn_main' 24 %}{% trans 'Main skip patterns digest' %}</a>
+                <a role="button" class="btn btn-sm btn-outline-dark" title="Patterns on Ship skipped" href="{% url "patterns_digest" %}?branch=tkn_ship;skip_only=True">{% select_branch_icon 'tkn_ship' 24 %}{% trans 'Ship skip patterns digest' %}</a>
+            </div>
+            <div style="padding-top: 1em;" role="toolbar">
+                <div class="card-text text-sm-center font-weight-normal">Upload tests <span class="badge badge-secondary">New</span></div>
+                <a role="button" class="btn btn-sm btn-outline-dark" href="#">Upload test results digest</a>
+            </div>
+        </div>
+    </div>
+</div>

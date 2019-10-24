@@ -1,0 +1,23 @@
+<div class="btn-group-justified">
+    <a class="btn btn-sm btn-outline-info" data-toggle="collapse" data-target="#collapse_{{ task_item.TASK_ID }}" aria-expanded="false" aria-controls="collapse_{{ task_item.TASK_ID }}">
+        <b class="text-secondary">{{ task_item.TASK_NAME }}</b> | args: <cite class="font-weight-light">{{ task_item.TASK_ARGS }}</cite>
+    </a>
+    <div class="collapse" id="collapse_{{ task_item.TASK_ID }}">
+      <div class="card card-body" style="width: fit-content">
+        <ul>
+        <li>Name: {{ task_item.TASK_NAME }}</li>
+        <li>id: {{ task_item.TASK_ID }}</li>
+        <li>
+            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'revoke_task_by_id' %}?task_id={{ task_item.TASK_ID }}{% spaceless %}
+            {% endspaceless %}{% if WORKER_NAME %}&worker_name={{ WORKER_NAME }}{% endif %}" title="Cancel task (Tell all (or specific) workers to revoke a task by id. {% spaceless %}
+            {% endspaceless %} If a task is revoked, the workers will ignore the task and not execute it after all.)">Revoke task</a>
+        {% if staff_user_bool %}
+            <a role="button" class="btn btn-sm btn-danger" href="{% url 'revoke_task_by_id' %}?task_id={{ task_item.TASK_ID }}{% spaceless %}
+            {% endspaceless %}{% if WORKER_NAME %}&worker_name={{ WORKER_NAME }}{% endif %}&terminate=True" title="Cancel task (Tell all (or specific) workers to revoke a task by id. {% spaceless %}
+            {% endspaceless %} If a task is revoked, the workers will ignore the task and not execute it after all.)">Revoke task and terminate proc</a>
+        {% endif %}
+        </li>
+        </ul>
+      </div>
+    </div>
+</div>

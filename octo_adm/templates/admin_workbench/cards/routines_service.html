@@ -1,0 +1,348 @@
+{% load i18n %}
+{% load static %}
+{% load template_simplify %}
+<div class="card" style="margin-right: 0.5em;margin-left: 0.5em">
+    <div class="card-header text-muted"><h6>Routines service</h6></div>
+    <div style="padding-left: 10%;padding-right: 10%;">
+        <div class="card-text text-muted text-sm-center font-weight-normal">Start routines with options</div>
+        <h6>Routine start manual:</h6>
+        <div role="toolbar">
+            <!-- Button trigger modal MANUAL EXECUTE ROUTINE FOR SELECTED BRANCH -->
+            <button type="button" class="btn btn-sm btn-outline-info btn-block" data-toggle="modal" data-target="#ManualRoutineUser_Exec">Routine execute {% select_icon 'git-branch' 24 'left' 1 %}</button>
+            <!-- Modal -->
+            <div class="modal fade" id="ManualRoutineUser_Exec" tabindex="-1" role="dialog" aria-labelledby="manual_routine_user_exec" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content border-info">
+                        <div class="modal-header bg-info">
+                            <h6 class="modal-title text-white" id="manual_routine_user_exec">Execute night routine manually</h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            {% if not staff_user_bool %}<p>For 'staff' users only.</p>{% endif %}
+                            <p>Run usual night routine for selected branch in manual manner. Executes right after button has been pressed.</p>
+                            <p class="text-danger">Please be sure you have cancelled all pending tasks before execute manual routine!</p>
+                            <p class="text-info">Here use start dates as ARG: main="2017-09-25", ship="2017-10-12"</p>
+                            <div>
+                                <p>You can see planned tasks here: <a class="btn btn-sm btn-outline-info" href="{% url 'celery_beat_crontabschedules' %}">Cron</a>
+                                </p>
+                                <p>You can see execute progress here: <a class="btn btn-sm btn-outline-info" href="{% url 'workers_status' %}">Worker status</a></p>
+                            </div>
+                            {% if staff_user_bool %}
+                                <div id="accordion">
+                                  <div class="card">
+                                    <div class="card-header" id="head_01">
+                                      <h4 class="mb-sm-0">
+                                        <button class="btn btn-sm btn-link" data-toggle="collapse" data-target="#collapse_01" aria-expanded="true" aria-controls="collapse_01">Send mail | Sync TKU</button>
+                                      </h4>
+                                    </div>
+                                    <div id="collapse_01" class="collapse show" aria-labelledby="head_01" data-parent="#accordion">
+                                      <div class="card-body text-center">
+                                        <div style="padding-bottom: 1%">
+                                            <div style="padding-top: 0.5em;" class="btn-group-vertical">
+                                                {% with 'addm_group=alpha,beta,charlie,delta' as options %}
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'All branches all workers' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }}" class="btn btn-sm btn-outline-primary">All workers both branches{% select_icon 'globe' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};send_mail=True" class="btn btn-sm btn-outline-primary">All workers both branches{% select_icon 'globe' 24 'left' 1 %}{% select_icon 'mail' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};send_mail=True;sync_tku=True" class="btn btn-sm btn-outline-primary">All workers both branches{% select_icon 'globe' 24 'left' 1 %}{% select_icon 'mail' 24 'left' 1 %}{% select_icon 'sync' 24 'left' 1 %}</a>
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="card">
+                                    <div class="card-header" id="head_1">
+                                      <h4 class="mb-sm-0">
+                                        <button class="btn btn-sm btn-link" data-toggle="collapse" data-target="#collapse_1" aria-expanded="false" aria-controls="collapse_1">Send mail | Sync TKU{% select_icon 'mail' 24 'left' 1 %}{% select_icon 'sync' 24 'left' 1 %}</button>
+                                      </h4>
+                                    </div>
+                                    <div id="collapse_1" class="collapse" aria-labelledby="head_1" data-parent="#accordion">
+                                      <div class="card-body text-center">
+                                        <div style="padding-bottom: 1%">
+{#                                            TODO: Centrify#}
+                                            <div style="padding-top: 0.5em;" role="toolbar">
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Main branch' %}</div>
+                                                {% with 'branch=tkn_main;send_mail=True&sync_tku=True' as options %}
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=alpha" class="btn btn-sm btn-outline-primary">alpha{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=beta" class="btn btn-sm btn-outline-primary">beta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=charlie" class="btn btn-sm btn-outline-primary">charlie{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=delta" class="btn btn-sm btn-outline-primary">delta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                {# CLEAN #}
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Clean' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=alpha;clean=True" class="btn btn-sm btn-outline-primary">alpha{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=beta;clean=True" class="btn btn-sm btn-outline-primary">beta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=charlie;clean=True" class="btn btn-sm btn-outline-primary">charlie{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=delta;clean=True" class="btn btn-sm btn-outline-primary">delta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                {% endwith %}
+                                            </div>
+                                            <div style="padding-top: 0.5em;" role="toolbar">
+                                                {% with 'branch=tkn_ship;send_mail=True&sync_tku=True' as options %}
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Ship branch' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=alpha" class="btn btn-sm btn-outline-secondary">alpha{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=beta" class="btn btn-sm btn-outline-secondary">beta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=charlie" class="btn btn-sm btn-outline-secondary">charlie{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=delta" class="btn btn-sm btn-outline-secondary">delta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                {# CLEAN #}
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Clean' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=alpha;clean=True" class="btn btn-sm btn-outline-secondary">alpha{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=beta;clean=True" class="btn btn-sm btn-outline-secondary">beta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=charlie;clean=True" class="btn btn-sm btn-outline-secondary">charlie{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=delta;clean=True" class="btn btn-sm btn-outline-secondary">delta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="card">
+                                    <div class="card-header" id="head_2">
+                                      <h4 class="mb-sm-0">
+                                        <button class="btn btn-sm btn-link collapsed" data-toggle="collapse" data-target="#collapse_2" aria-expanded="false" aria-controls="collapse_2">Send mail | Do NOT Sync TKU{% select_icon 'mail' 24 'left' 1 %}</button>
+                                      </h4>
+                                    </div>
+                                    <div id="collapse_2" class="collapse" aria-labelledby="head_2" data-parent="#accordion">
+                                      <div class="card-body text-center">
+                                        <div style="padding-bottom: 1%">
+                                            <div style="padding-top: 0.5em;" role="toolbar">
+                                                {% with 'branch=tkn_main;send_mail=True' as options %}
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Main branch' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=alpha" class="btn btn-sm btn-outline-primary">alpha{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=beta" class="btn btn-sm btn-outline-primary">beta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=charlie" class="btn btn-sm btn-outline-primary">charlie{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=delta" class="btn btn-sm btn-outline-primary">delta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                {% endwith %}
+                                            </div>
+                                            <div style="padding-top: 0.5em;" role="toolbar">
+                                                {% with 'branch=tkn_ship;send_mail=True' as options %}
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Ship branch' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=alpha" class="btn btn-sm btn-outline-secondary">alpha{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=beta" class="btn btn-sm btn-outline-secondary">beta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=charlie" class="btn btn-sm btn-outline-secondary">charlie{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=delta" class="btn btn-sm btn-outline-secondary">delta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="card">
+                                    <div class="card-header" id="head_3">
+                                      <h4 class="mb-sm-0">
+                                        <button class="btn btn-sm btn-link collapsed" data-toggle="collapse" data-target="#collapse_3" aria-expanded="false" aria-controls="collapse_3">Do NOT Send mail | Sync TKU{% select_icon 'sync' 24 'left' 1 %}</button>
+                                      </h4>
+                                    </div>
+                                    <div id="collapse_3" class="collapse" aria-labelledby="head_3" data-parent="#accordion">
+                                      <div class="card-body text-center">
+                                        <div style="padding-bottom: 1%">
+                                            <div style="padding-top: 0.5em;" role="toolbar">
+                                                {% with 'branch=tkn_main;sync_tku=True' as options %}
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Main branch' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=alpha" class="btn btn-sm btn-outline-primary">alpha{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=beta" class="btn btn-sm btn-outline-primary">beta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=charlie" class="btn btn-sm btn-outline-primary">charlie{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=delta" class="btn btn-sm btn-outline-primary">delta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                {% endwith %}
+                                            </div>
+                                            <div style="padding-top: 0.5em;" role="toolbar">
+                                                {% with 'branch=tkn_ship;sync_tku=True' as options %}
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Ship branch' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=alpha" class="btn btn-sm btn-outline-secondary">alpha{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=beta" class="btn btn-sm btn-outline-secondary">beta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=charlie" class="btn btn-sm btn-outline-secondary">charlie{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?{{ options }};addm_group=delta" class="btn btn-sm btn-outline-secondary">delta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="card">
+                                    <div class="card-header" id="head_4">
+                                      <h4 class="mb-sm-0">
+                                        <button class="btn btn-sm btn-link collapsed" data-toggle="collapse" data-target="#collapse_4" aria-expanded="false" aria-controls="collapse_4">Do NOT Send mail | Do NOT Sync TKU</button>
+                                      </h4>
+                                    </div>
+                                    <div id="collapse_4" class="collapse" aria-labelledby="head_4" data-parent="#accordion">
+                                      <div class="card-body text-center">
+                                        <div style="padding-bottom: 1%">
+                                            <div style="padding-top: 0.5em;" role="toolbar">
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Main branch' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?branch=tkn_main;addm_group=alpha" class="btn btn-sm btn-outline-primary">alpha{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?branch=tkn_main;addm_group=beta" class="btn btn-sm btn-outline-primary">beta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?branch=tkn_main;addm_group=charlie" class="btn btn-sm btn-outline-primary">charlie{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?branch=tkn_main;addm_group=delta" class="btn btn-sm btn-outline-primary">delta{% select_icon 'git-branch' 24 'left' 1 %}</a>
+                                            </div>
+                                            <div style="padding-top: 0.5em;" role="toolbar">
+                                                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'Ship branch' %}</div>
+                                                <a href="{% url 'manual_run_night' %}?branch=tkn_ship;addm_group=alpha" class="btn btn-sm btn-outline-secondary">alpha{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?branch=tkn_ship;addm_group=beta" class="btn btn-sm btn-outline-secondary">beta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?branch=tkn_ship;addm_group=charlie" class="btn btn-sm btn-outline-secondary">charlie{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                                <a href="{% url 'manual_run_night' %}?branch=tkn_ship;addm_group=delta" class="btn btn-sm btn-outline-secondary">delta{% select_icon 'git-merge' 24 'left' 1 %}</a>
+                                            </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            {% if staff_user_bool %}
+                                <a role="button" aria-pressed="true" class="btn btn-sm btn-dark"
+                                   href="{% url 'discard_all_tasks' %}"
+                                   title="Discard all waiting tasks. {% spaceless %}
+                      {% endspaceless %} This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Discard
+                                    waiting tasks</a>
+                                <a role="button" aria-pressed="true" class="btn btn-sm btn-danger"
+                                   href="{% url 'purge_all_tasks' %}" title="Discard all waiting tasks. {% spaceless %}
+                      {% endspaceless %} This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Purge
+                                    waiting tasks</a>
+                                <a role="button" aria-pressed="true" class="btn btn-sm btn-warning"
+                                   href="{% url 'worker_revoke_tasks' %}"
+                                   title="(CAUTION) Revoke and terminate all active tasks and tests for each addm">Revoke
+                                    all active</a>
+                            {% else %}
+                                <b class="text-danger">You can execute this only as staff user.</b>
+                            {% endif %}
+                            <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Modal -->
+        </div>
+        <h6>Upload tests: <span class="badge badge-secondary">New</span></h6>
+        <div role="toolbar">
+            <button type="button" class="btn btn-sm btn-outline-dark btn-block" data-toggle="modal" data-target="#UploadTests">Upload tests <img alt="" style="height:24px;width:24px;" src="{% static "octicons/svg/issue-reopened.svg" %}"></button>
+            <div class="modal fade" id="UploadTests" tabindex="-1" role="dialog" aria-labelledby="upload_tests" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content border-dark">
+                        <div class="modal-header bg-dark">
+                            <h6 class="modal-title text-white" id="upload_tests">Run upload tests manually</h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body" style="margin-left: 1em">
+                            {% if not staff_user_bool %}<p>For 'staff' users only.</p>{% endif %}
+                            <h6 class="card-text">Execute upload tests with different options:</h6>
+                            <ul>
+                                <li>This tests require TKU parsed data in local database, so run parse first is mandatory.</li>
+                                <li>It now use two different modes: "fresh" and "update"(upgrade TKU). </li>
+                                <li>Fresh - mode just install latest TKU GA build on wiped ADDM.</li>
+                                <li>Update(upgrade) - mode install latest TKU GA build after previous RELERASED TKU were installed.</li>
+                                <li>wget=True - options is used to select when it require to refresh everything in local file system and remote ADDM machines for new TKU zips and prepare to install</li>
+                                <li>WGET executes ONLY on Octopus system!</li>
+                            </ul>
+                            <div style="padding-bottom: 1%;padding-left: 5%">
+{#                                <h6 class="card-text">Use WGET</h6>#}
+{#                                <div class="btn-toolbar" role="group" style="padding-bottom: 5%" aria-label="Upload tests wget">#}
+{#                                    <div class="btn-toolbar" role="group">#}
+{#                                        <div class="btn-group-vertical" style="padding-right: 5%">#}
+{#                                            <div class="card-text"> Upgrade</div>#}
+{#                                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url '_t_routine_tku_upload_test' %}?mode=update;tku_wget=True;addm_group=alpha">Alpha <img style="height:20px;width:20px;" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm"/></a>#}
+{#                                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url '_t_routine_tku_upload_test' %}?mode=update;tku_wget=True;addm_group=beta">Beta <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm"/></a>#}
+{#                                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url '_t_routine_tku_upload_test' %}?mode=update;tku_wget=True;addm_group=charlie">Charlie <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm"/></a>#}
+{#                                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url '_t_routine_tku_upload_test' %}?mode=update;tku_wget=True;addm_group=delta">Delta <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm"/></a>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                    <div class="btn-toolbar" role="group">#}
+{#                                        <div class="btn-group-vertical" style="padding-right: 5%">#}
+{#                                            <div class="card-text"> Fresh</div>#}
+{#                                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url '_t_routine_tku_upload_test' %}?mode=fresh;tku_wget=True;addm_group=alpha">Alpha <img style="height:20px;width:20px;" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm"/></a>#}
+{#                                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url '_t_routine_tku_upload_test' %}?mode=fresh;tku_wget=True;addm_group=beta">Beta <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm"/></a>#}
+{#                                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url '_t_routine_tku_upload_test' %}?mode=fresh;tku_wget=True;addm_group=charlie">Charlie <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm"/></a>#}
+{#                                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url '_t_routine_tku_upload_test' %}?mode=fresh;tku_wget=True;addm_group=delta">Delta <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm"/></a>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </div>#}
+                                <h6 class="card-text">No WGET use local</h6>
+                                <div class="btn-toolbar" role="group" style="padding-bottom: 5%" aria-label="Upload tests local">
+                                    <div class="btn-toolbar" role="group">
+                                        <div class="btn-group-vertical" style="padding-right: 5%">
+                                            <div class="card-text"> Upgrade</div>
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=update;addm_group=alpha">Alpha upgrade TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=update;addm_group=beta">Beta upgrade TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=update;addm_group=charlie">Charlie upgrade TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=update;addm_group=delta">Delta upgrade TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=update;addm_group=echo">Echo upgrade TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=update;addm_group=foxtrot">Foxtrot upgrade TKU</a>#}
+                                        </div>
+                                    </div>
+                                    <div class="btn-toolbar" role="group">
+                                        <div class="btn-group-vertical" style="padding-right: 5%">
+                                            <div class="card-text"> Fresh</div>
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=fresh;addm_group=alpha">Alpha fresh TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=fresh;addm_group=beta">Beta fresh TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=fresh;addm_group=charlie">Charlie fresh TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=fresh;addm_group=delta">Delta fresh TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=fresh;addm_group=echo">Echo fresh TKU</a>#}
+{#                                            <a role="button" class="btn btn-outline-primary" href="{% url '_tku_upload_test' %}?mode=fresh;addm_group=foxtrot">Foxtrot fresh TKU</a>#}
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6 class="card-text">Run wget and parse:</h6>
+                                <div class="btn-toolbar" role="group" aria-label="Upload tests local">
+                                    <a role="button" class="btn btn-sm btn-outline-dark" href="{% url 'tku_sync' %}">TKU download n parse</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer"><button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h6>Routine cancel:</h6>
+        <div role="toolbar">
+            <!-- Button trigger modal MANUAL EXECUTE ROUTINE FOR SELECTED BRANCH -->
+            <button type="button" class="btn btn-outline-danger btn-block" data-toggle="modal" data-target="#ManualRoutineCancel">Routine cancel <img alt="" style="height:24px;width:24px;"
+                                                                           src="{% static "octicons/svg/issue-reopened.svg" %}"></button>
+            <!-- Modal -->
+            <div class="modal fade" id="ManualRoutineCancel" tabindex="-1" role="dialog"
+                 aria-labelledby="manual_routine_cancel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content border-danger">
+                        <div class="modal-header bg-danger">
+                            <h6 class="modal-title text-white" id="manual_routine_cancel">Cancel tasks manually</h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            {% if not staff_user_bool %}<p>For 'staff' users only.</p>{% endif %}
+                            <p>Simply <b>cancel</b> all active task in current and planned queue.</p>
+                            <p class="text-danger">This will cancel all tasks from pending state and can revoke
+                                currently running tasks.</p>
+                            <div>
+                                <p>You can see planned tasks here: <a class="btn btn-sm btn-outline-info" href="{% url 'celery_beat_crontabschedules' %}">Cron</a></p>
+                                <p>You can see execute progress here: <a class="btn btn-sm btn-outline-info" href="{% url 'workers_status' %}">Worker status</a></p>
+                            </div>
+                            <div style="padding-bottom: 1%">
+                                {% if staff_user_bool %}
+                                    <a role="button" aria-pressed="true" class="btn btn-sm btn-dark" href="{% url 'discard_all_tasks' %}" title="Discard all waiting tasks. {% spaceless %}
+                              {% endspaceless %} This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Discard waiting tasks</a>
+                                    <a role="button" aria-pressed="true" class="btn btn-sm btn-danger" href="{% url 'purge_all_tasks' %}" title="Discard all waiting tasks. {% spaceless %}
+                              {% endspaceless %} This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Purge waiting tasks</a>
+                                    <a role="button" aria-pressed="true" class="btn btn-sm btn-warning" href="{% url 'worker_revoke_tasks' %}" title="(CAUTION) Revoke and terminate all active tasks and tests for each addm">Revoke all active</a>
+                                {% else %}
+                                    <b class="text-danger">You can execute this only as staff user.</b>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Modal -->
+        </div>
+        {% if staff_user_bool %}
+            <div style="padding-left:1%;padding-right:1%;margin-top:1em">
+                <div class="alert alert-warning" role="alert">
+                    Danger zone: restart system services <a role="button" class="btn btn-sm btn-danger" href="{% url 'celery_service_restart' %}" title="systemctl reload httpd.service && systemctl restart celery.service && systemctl restart celerybeat.service && systemctl restart flower.service">Celery service restart + apache + flower</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+

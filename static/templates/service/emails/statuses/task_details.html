@@ -1,0 +1,25 @@
+{% extends "service/emails/mail_main.html" %}
+{% block content %}
+{% if SUBJECT %}<table style="margin-bottom:1em;"><th><b>{{ SUBJECT }}</b></th></table>{% endif %}
+    {% if TASK_DETAILS %}
+        <table style="margin-top:1em;"><th><b>Task details:</b></th></table>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                  <th scope="col" class="table-dark">#</th>
+                  <th scope="col" class="table-dark">Item</th>
+                  <th scope="col" class="table-dark">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item_k, item_v in TASK_DETAILS.items %}
+                <tr>
+                    <th scope="row" class="table-light">{{ forloop.counter }}</th>
+                    <td scope="row" class="table-light">{{ item_k }}</td>
+                    <td scope="row" class="table-light">{{ item_v }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

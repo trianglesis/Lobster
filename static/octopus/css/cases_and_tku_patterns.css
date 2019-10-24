@@ -1,0 +1,228 @@
+/* Style for TKU tables with patterns and test cases */
+/*font-family: 'Open Sans', sans-serif;*/
+/*font-family: 'Jaldi', sans-serif;*/
+/*font-family: 'Catamaran', sans-serif;*/
+/*font-family: 'BenchNine', sans-serif;*/
+/*font-family: 'Assistant', sans-serif;*/
+/*font-family: 'Maven Pro', sans-serif;*/
+/*font-family: 'Nunito', sans-serif;*/
+
+/* Main test cases page and filter */
+.test-cases-content {
+    padding: 20px 15px 20px 15px;
+
+}
+/* Bootstrap cards override */
+.card-deck {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.card-autosize {
+    width: min-content !important;
+    margin-right: 5px !important;
+    margin-left: 5px !important;
+}
+
+.card-header {
+    padding: 2px 5px 2px 20px !important;
+    font-size: 0.9em;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.list-group-item {
+    padding: 1px 2px 1px 10px !important;
+    font-size: 0.9em;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.overall-cases {
+    float: right;
+    padding-right: 20px;
+}
+
+.cases-table {
+    font-size: 1em;
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    /*font-family: 'BenchNine', sans-serif;*/
+    /*font-family: 'Assistant', sans-serif;*/
+    font-family: 'Maven Pro', sans-serif;
+    /*font-family: 'Nunito', sans-serif;*/
+}
+
+.case-table {
+    font-size: 1em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+
+/* Table fomts and row sizes */
+.small-font {
+    font-size: 0.7em;
+}
+
+.no-wrap_whitesp {
+    white-space: nowrap;
+}
+
+.break-all {
+    word-break: break-all;
+}
+
+.monospace {
+    font-family: monospace;
+}
+
+.center_txt {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.row-txt-left-sm {
+    white-space: nowrap;
+    font-size: 0.8em;
+    text-align: left !important;
+    vertical-align: middle !important;
+}
+
+.row-txt-right-sm {
+    white-space: nowrap;
+    font-size: 0.8em;
+    text-align: right !important;
+    vertical-align: middle !important;
+}
+
+.row-txt-center-sm {
+    white-space: nowrap;
+    font-size: 0.8em;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.row-mono-left-sm {
+    font-size: 0.8em;
+    font-family: monospace;
+    text-align: left !important;
+}
+
+.row-mono-center-sm {
+    font-size: 0.8em;
+    font-family: monospace;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* Bootstrap table override NOTE: Do not use same as Bootstrap classes*/
+/*.table-sm, td {*/
+/*    padding: .2em!important;*/
+/*}*/
+/*.table, td, .table th {*/
+/*    padding: .2em!important;*/
+/*}*/
+
+/* Table buttons */
+#content > div > div:nth-child(3) > table > tbody > tr > td > a {
+    padding: 2px 4px 4px!important;
+}
+#content > div > div:nth-child(3) > table > tbody > tr > th > a {
+    padding: 2px 4px 4px!important;
+}
+
+
+/* Group change style overrides */
+.form-control#id_test_cases {
+    height: 300px!important;
+}
+.form-control > option {
+    font-size: .8em;
+}
+
+/**/
+/* Tooltip for pattern in table */
+.popover > div.popover-body > div > span {
+    padding-left: 1.4rem;
+}
+.txt-sm {
+    font-size: 0.8em;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+}
+.popover > div.popover-body > div.test_case_depot_path {
+    background-image: url('/static/octicons/svg/git-commit.svg');
+    background-repeat: no-repeat;
+    background-size: 1.5em;
+    color: #0c5460;
+    font-family: monospace;
+    text-align: left !important;
+}
+.popover > div.popover-body > div.pattern_library {
+    background-image: url('/static/octicons/svg/repo.svg');
+    background-repeat: no-repeat;
+    background-size: 1em;
+}
+.popover > div.popover-body > div.change_user {
+    background-image: url('/static/octicons/svg/person.svg');
+    background-repeat: no-repeat;
+    background-size: 1em;
+}
+.popover > div.popover-body > div.change_time {
+    background-image: url('/static/octicons/svg/calendar.svg');
+    background-repeat: no-repeat;
+    background-size: 1em;
+}
+.popover > div.popover-body > div.change_ticket {
+    background-image: url('/static/octicons/svg/issue-closed.svg');
+    background-repeat: no-repeat;
+    background-size: 1em;
+}
+.popover > div.popover-body > div.change_desc {
+    background-image: url('/static/octicons/svg/info.svg');;
+    background-repeat: no-repeat;
+    background-size: 1em;
+}
+.popover > div.popover-body > div.test_time_weight {
+    background-image: url('/static/octicons/svg/clock.svg');
+    background-repeat: no-repeat;
+    background-size: 1em;
+}
+.popover > div.popover-body > div.test_py_path_template {
+    background-image: url('/static/octicons/svg/file-code.svg');;
+    background-repeat: no-repeat;
+    background-size: 1em;
+}
+.popover > div.popover-body > div.test_dir_path_template {
+    background-image: url('/static/octicons/svg/file-directory.svg');;
+    background-repeat: no-repeat;
+    background-size: 1em;
+}
+.popover > div.popover-body > div.related_test_cases {
+    background-image: url('/static/octicons/svg/briefcase.svg');;
+    background-repeat: no-repeat;
+    background-size: 1em;
+}
+
+/* https://www.cssscript.com/dual-list-box-javascript-multi-js/ */
+.non-selected-wrapper > a {
+    font-size: 0.7em;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+    padding: 0!important;
+}
+
+.selected-wrapper > a {
+    font-size: 0.7em;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+    padding: 0!important;
+}
+
+.non-selected-wrapper > a.selected {
+    display: none;
+}
+
+
+/* Modal for test actions: */
+div #test_py_path {
+    word-wrap: break-word;
+    font-size: .875em;
+    font-family: monospace;
+}

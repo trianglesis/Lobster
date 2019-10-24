@@ -1,0 +1,51 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+Patterns & Tests for Night Run
+{% endblock %}
+{% block content %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+
+{% if ASC %}
+    {% regroup ALL_PATTERNS|dictsort:SORT_BY by test_py_path as patterns_tests_list %}
+{% elif DESC %}
+    {% regroup ALL_PATTERNS|dictsortreversed:SORT_BY by test_py_path as patterns_tests_list %}
+{% else %}
+    {% regroup ALL_PATTERNS|dictsortreversed:SORT_BY by test_py_path as patterns_tests_list %}
+{% endif %}
+
+<div style="padding-left:2%;padding-right:2%;margin-bottom:1%;margin-top:1%">
+    <div class="alert alert-info" role="alert">
+        <div>{{ SUBJECT }}</div>
+        <p>Here all patterns selected for usual "Night routine" test execution. Usually night routine runs at 17:15 UK time on work days.</p>
+        <div class="dropdown-divider"></div>
+        <div>Items selected: <span class="badge badge-secondary">{{ ALL_PATTERNS|length }}</span> - everything include patterns.</div>
+        <div>Items for testing: <span class="badge badge-success">{{ patterns_tests_list|length }}</span> - only unique test.py items (test.py should include other patterns in parent folder in SetUp).</div>
+        Last known change <span class="badge badge-info">{{ CHANGE_MAX.change__max }}</span> / date <span class="badge badge-info">{{ DATE_MAX.change_time__max|timezone:"Europe/London"|date:'Y-m-d H:i' }} - {{ DATE_MAX.change_time__max|timezone:"Europe/London"|naturaltime }}</span>
+        <div>It use select option for branches with following options - everything changed since date:
+            <li><span class="badge badge-info">TKN_MAIN</span> - <span class="badge badge-warning">2017-09-25</span></li>
+            <li><span class="badge badge-info">TKN_SHIP</span> - <span class="badge badge-warning">2017-10-12</span></li>
+            <li><span class="badge badge-primary">Key patterns</span> - and all patterns with 'key_pattern' flag.</li>
+            Sorted from newest to oldest.
+        </div>
+        <div>Push the button if you want update this table from Perforce Depot!</div>
+        <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'parse_patterns_user' %}">Parse & Sync both branches{% select_icon 'git-compare' 26 'left' 0.2 %}</a>
+        <div>This button will compute average patterns test executing time - based on tests history records. Use last 30 days records.</div>
+        <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'patterns_weight_compute' %}?last_days=30">Update time exec{% select_icon 'law' 26 'left' 0.2 %}</a>
+    </div>
+</div>
+
+<div style="padding-left:1em;padding-right:1em">
+    {% if not anon_bool %}
+        {% nightly_test_run_table patterns_tests_list %}
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            This query is not allowed for Anonymous users. Please log in or register.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

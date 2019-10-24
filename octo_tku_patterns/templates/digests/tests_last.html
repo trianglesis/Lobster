@@ -1,0 +1,226 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Last tests
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
+    {% dynamical_selector_compose '' 'selector_str' %}
+    {% dynamical_selector_compose 'tkn_branch' 'selector_tkn_branch' %}
+    {% dynamical_selector_compose 'tst_status' 'selector_tst_status' %}
+    {% dynamical_selector_compose 'addm_name' 'selector_addm_name' %}
+    <div aria-live="polite" aria-atomic="true" style="position: relative">
+        <!-- Position it -->
+        <div style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 2"></div>
+        </div>
+    </div>
+    {% comment %}NAV BAR{% endcomment %}
+    <nav class="navbar navbar-light test-report-navbar">
+    {% spaceless %}
+        <!-- Navbar content -->
+        <!-- Navbar left part content -->
+        <div class="nav-reports-left">
+            <!-- Digest levels breadcrumbs: -->
+            <div class="digest-breadcrumbs">
+                <nav class="nav nav-pills">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                        {# URL back to ADDM should contain tkn_branch, - to know what page to open previuosly #}
+                        <a class="btn btn-sm btn-info" href="{% url 'addm_digest' %}?{{ selector_str }}"><i class="fas fa-step-backward"></i> ADDM Digest</a>
+                        <a class="btn btn-sm btn-info active" href="#" title="You are here..."><i class="fas fa-play"></i> Patterns Digest</a>
+                        <a class="btn btn-sm btn-info disabled" href="#"><i class="fas fa-step-forward"></i> Single Test Digest</a>
+                        <a class="btn btn-sm btn-info disabled" href="#"><i class="fas fa-step-forward"></i> Single Test unit Digest</a>
+                    </div>
+                </nav>
+            </div>
+            <!-- History browse: -->
+            <div class="digest-history">
+{#                <nav class="nav-item dropdown">#}
+{#                    <a class="btn btn-sm btn-info dropdown-toggle" href="#" id="navbarDropdownHistory" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">History view</a>#}
+{#                    <div class="dropdown-menu" aria-labelledby="navbarDropdownHistory">#}
+{#                        <div class="dropdown-divider"></div>#}
+{#                        <a class="dropdown-item" href="#">Browse History</a>#}
+{#                        <div class="dropdown-divider"></div>#}
+{#                    </div>#}
+{#                </nav>#}
+            </div>
+            <!-- Change branch here: -->
+            <div class="digest-branch">
+                <nav class="nav-item dropdown">
+                    <a class="btn btn-sm btn-info dropdown-toggle" href="#" id="navbarDropdownTknBranch"
+                       role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if selector.tkn_branch == 'tkn_main' %}
+                            {% select_icon 'git-branch' 16 'right' 0.4 %} tkn main
+                        {% elif selector.tkn_branch == 'tkn_ship' %}
+                            {% select_icon 'git-merge' 16 'right' 0.4 %} tkn ship
+                        {% else %}
+                            {% select_icon 'git-commit' 16 'right' 0.4 %} both branches
+                        {% endif %}
+                    </a>
+                    <!-- Choose branch -->
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownTknBranch">
+                        <a class="dropdown-item" href="{% url 'tests_last' %}?tkn_branch=tkn_main;{{ selector_tkn_branch }}">{% select_icon 'git-branch' 20 'right' 0.4 %}TKN MAIN</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'tests_last' %}?tkn_branch=tkn_ship;{{ selector_tkn_branch }}">{% select_icon 'git-merge' 20 'right' 0.4 %}TKN SHIP</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'tests_last' %}?{{ selector_tkn_branch }}">{% select_icon 'git-commit' 20 'right' 0.4 %}BOTH</a>
+                    </div>
+                </nav>
+            </div>
+            <div class="selection-state">
+                {% if selector.addm_name %}
+                    <a class="btn btn-sm btn-outline-light disabled"><i class="fas fa-compress-arrows-alt"></i> Static: {{ selector.addm_name }}</a>
+                {% else %}
+                    <a class="btn btn-sm btn-outline-light disabled"><i class="fas fa-expand-arrows-alt"></i> Dynamical: All addms</a>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Navbar right part content -->
+        <div class="nav-reports-right digest-test-log-levels">
+            <!-- Change test log level browse: -->
+            <nav class="nav-item dropdown">
+                <a class="btn btn-sm btn-outline-info dropdown-toggle" href="#" id="navbarDropdownLogLvl" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {% if selector.tst_status == 'notpass' %}
+                        <i class="fas fa-bug text-danger"></i>
+                        <span class="text-danger"> Not pass</span>
+                    {% elif selector.tst_status == 'fail' %}
+                        <i class="fas fa-bug text-danger"></i>
+                        <span class="text-danger"> Fail</span>
+                    {% elif selector.tst_status == 'error' %}
+                        <i class="fas fa-exclamation-circle text-warning"></i>
+                        <span class="text-warning"> Error</span>
+                    {% elif selector.tst_status == 'skip' %}
+                        <i class="fas fa-step-forward text-info"></i>
+                        <span class="text-info"> Skip</span>
+                    {% elif selector.tst_status == 'pass' %}
+                        <i class="far fa-check-circle"></i>
+                        <span class="text-success"> Pass</span>
+                    {% else %}
+                        <i class="fas fa-vials"></i> All
+                    {% endif %}
+                </a>
+                <!-- Choose log level -->
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownLogLvl">
+                    <a class="nav-link text-danger" href="{% url 'tests_last' %}?tst_status=notpass;{{selector_tst_status}}"><i class="fas fa-bug"></i> Not Pass</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link text-danger" href="{% url 'tests_last' %}?tst_status=fail;{{selector_tst_status}}"><i class="fas fa-bug"></i> Fail</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link text-warning" href="{% url 'tests_last' %}?tst_status=error;{{selector_tst_status}}"><i class="fas fa-exclamation-circle"></i> Error</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link text-info" href="{% url 'tests_last' %}?tst_status=skip;{{selector_tst_status}}"><i class="fas fa-step-forward"></i> Skip</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link text-success" href="{% url 'tests_last' %}?tst_status=pass;{{selector_tst_status}}"><i class="far fa-check-circle"></i> Passed</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link active" href="{% url 'tests_last' %}?{{ selector_tst_status }}"><i class="fas fa-vials"></i> All</a>
+                </div>
+            </nav>
+        </div>
+    {% endspaceless %}
+    </nav>
+    {% comment %}Test reports{% endcomment %}
+    <div class="report-content">
+        <!-- Choose addm -->
+        {% if selector.addm_name %}
+            <!-- STATICAL view tabs. When addm_name is added to request parameters - draw table for each tab only when requested. Draw tab as hyperlinks as many as unique addm_names -->
+            <nav>
+                <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+                {% for addm_actual in addm_names %}
+                    <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% endif %}" id="{{addm_actual.addm_name}}-tab" href="{% url 'tests_last' %}?addm_name={{addm_actual.addm_name}};{{ selector_addm_name }}">{{addm_actual.addm_name}}</a>
+                {% endfor %}
+                </div>
+            </nav>
+            {% include 'digests/tables_details/tests_last_table.html' with var_addm_name=addm_name %}
+        {% else %}
+            <!-- DYNAMICAl view tabs. When addm_name is NOT added to request parameters - draw tables for all actual addm_names. -->
+            <nav>
+                <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+                    <!-- Draw each tab based on count of unique addm_names  -->
+                    {% for addm_actual in addm_names %}
+                        <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% elif forloop.counter == 1 %}active{% else %}{% endif %}"
+                           title="{{ forloop.counter }}"
+                           id="{{addm_actual.addm_name}}-tab" data-toggle="tab"
+                           href="#{{ addm_actual.addm_name }}" role="tab"
+                           aria-controls="{{ addm_actual.addm_name }}"
+                           aria-selected="{% if selector.addm_name == addm_actual.addm_name %}true{% elif forloop.counter == 1 %}true{% else %}false{% endif %}">{{ addm_actual.addm_name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <!-- Draw each tab content based on count of unique addm_names  -->
+                {% for addm_actual in addm_names %}
+                    <div class="tab-pane {% if selector.addm_name == addm_actual.addm_name %}fade show active{% elif forloop.counter == 1 %}fade show active{% endif %}"
+                         title="{{ forloop.counter }}"
+                         id="{{ addm_actual.addm_name }}"
+                         role="tabpanel"
+                         aria-labelledby="{{ addm_actual.addm_name }}">
+                        {% include 'digests/tables_details/tests_last_table.html' with var_addm_name=addm_actual.addm_name %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    {% comment %}Nav sticky bottom{% endcomment %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'addm_digest' %}">ADDM Digest</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'tests_last' %}?{{ selector_str }}">Tests Digest</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled">{% if not "None" in selector.tst_status %}{{ selector.tst_status }}{% else %}All{% endif %}</a>
+            </li>
+            <li class="nav-item">
+                {% if selector.addm_name %}
+                    <a class="nav-link disabled"><i class="fas fa-compress-arrows-alt"></i> Query static for {{ selector.addm_name }}</a>
+                {% else %}
+                    <a class="nav-link disabled"><i class="fas fa-expand-arrows-alt"></i> Query dynamical for all addms</a>
+                {% endif %}
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    {# Coloring rows #}
+    <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>
+    {# Show test actions modal, make active buttons #}
+    {% include 'digests/includes/toast_popup.html' %}
+    {% include 'digests/includes/test_actions_modal_dynamic.html' %}
+    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
+    <script src="{% static 'octopus/js/digest/test-last-modal.js' %}"></script>
+    <script src="{% static 'octopus/js/digest/test-last-toast.js' %}"></script>
+
+    {% comment %}Use dynamic tabs{% endcomment %}
+    {% if not selector.addm_name %}<script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>{% endif %}
+    {% comment %}DEBUG{% endcomment %}
+    <div class="debug-context">
+        {% if request.GET.debug %}
+            <p>DEBUG enabled</p>
+            <p>actual addm_names: {{ addm_names }}</p>
+            <p>Selector: {{ selector }}</p>
+            <ul>
+                {% for sel_k, sel_v in selector.items %}
+                    {% if sel_v %}
+                        <li class="text-success">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% else %}
+                        <li class="text-warning">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}

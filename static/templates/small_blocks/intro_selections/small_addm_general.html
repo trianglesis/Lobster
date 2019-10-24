@@ -1,0 +1,53 @@
+{% load static %}
+{% load template_simplify %}
+{% load tz %}
+{% load humanize %}
+{% load user_groups %}
+
+{% with "text-center" as text_back %}
+<div style="padding-top: 0.5em;">
+    <table id="addm_table" class="table table-sm">
+        <thead class="table-light bg-light table-sm">
+            <tr>
+                <!-- ADDM table Head: -->
+                <th scope="col">Discovery</th>
+                <th class="{{ text_back }}" scope="col">v.</th>
+                <th class="{{ text_back }}" scope="col">Patterns</th>
+                <th class="{{ text_back }}" scope="col">Rate</th>
+                <th class="{{ text_back }}" scope="col">Tests</th>
+                <th class="{{ text_back }}" scope="col">Success</th>
+                <th class="{{ text_back }}" scope="col">F</th>
+                <th class="{{ text_back }}" scope="col">E</th>
+                <th class="{{ text_back }}" scope="col">S</th>
+                <th class="{{ text_back }}" scope="col">Report</th>
+            </tr>
+        </thead>
+        <tbody class="table-light bg-light table-sm">
+        <!-- ADDM table rows in cycle: -->
+        {% for addm_row in ADDM_DIGEST|dictsortreversed:'addm_v_int' %}
+            <tr>
+                <td class="bg-light" style="font-size: 1em;">{{ addm_row.addm_name }}</td>
+                <td class="{{ text_back }}" style="font-size: 1em;">{{ addm_row.addm_v_int }}</td>
+                <td class="{{ text_back }}" style="font-size: 1em;">{{ addm_row.patterns_count }}</td>
+                <td class="{{ text_back }} text-success" title="See all patterns status"
+                    onclick="window.document.location='{% url "patterns_digest" %}?branch={{ addm_row.tkn_branch }}&addm_name={{ addm_row.addm_name }}';" style="font-size: 1em;">{{ addm_row.tests_passed_percent|floatformat:"1" }}%
+                </td>
+                <td class="{{ text_back }}" style="font-size: 1em;">{{ addm_row.tests_count }}</td>
+                <td class="{{ text_back }}" title="See PASS patterns"
+                    onclick="window.document.location='{% url "patterns_digest" %}?branch={{ addm_row.tkn_branch }}&addm_name={{ addm_row.addm_name }}&pass_only=True';" style="font-size: 1em;">{{ addm_row.tests_passed|floatformat:"0" }}</td>
+                <td class="{{ text_back }} text-danger" title="See all logs not passed tests"
+                    onclick="window.document.location='{% url "pattern_logs" %}?branch={{ addm_row.tkn_branch }}&addm_name={{ addm_row.addm_name }};not_pass_only=True';" style="font-size: 1em;">{{ addm_row.tests_fails|floatformat:"0" }}</td>
+                <td class="{{ text_back }} text-warning" title="See all logs error tests"
+                    onclick="window.document.location='{% url "pattern_logs" %}?branch={{ addm_row.tkn_branch }}&addm_name={{ addm_row.addm_name }}&error_only=True';" style="font-size: 1em;">{{ addm_row.tests_error|floatformat:"0" }}</td>
+                <td class="{{ text_back }} text-info" title="See all logs skipped tests"
+                    onclick="window.document.location='{% url "pattern_logs" %}?branch={{ addm_row.tkn_branch }}&addm_name={{ addm_row.addm_name }}&skip_only=True';" style="font-size: 1em;">{{ addm_row.tests_skipped|floatformat:"0" }}</td>
+                <td class="{{ text_back }}" style="font-size: 1em;">
+                    <a class="btn btn-sm btn-outline-info" title="Table of patterns" style="font-size: 0.9em;" href="{% url "patterns_digest" %}?branch={{ addm_row.tkn_branch }}&addm_name={{ addm_row.addm_name }};not_pass_only=True">Report</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endwith %}
+

@@ -1,0 +1,136 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+{{ SUBJECT }}
+{% endblock %}
+{% load tz %}
+{% load i18n %}
+{% load dev_tags %}
+{% block content %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% request_path_search 'search_history_results' as search_history_results %}
+{% request_path_search 'history_select' as history_select %}
+{% request_path_search 'pattern_logs' as pattern_logs %}
+<!-- Draw navigation head as custom breadcrumbs if NAV_HEAD_DRAW -->
+{% if NAV_HEAD_DRAW %}
+    {% if search_history_results %}
+        {% breadcrumbs_navigation 'history_select' 'general_addm' 'patterns_digest' 'history_select' %}
+    {% elif pattern_logs %}
+        {% breadcrumbs_navigation 'pattern_logs' 'general_addm' 'patterns_digest' 'history_select' %}
+    {% elif history_select %}
+        {% breadcrumbs_navigation 'history_select' 'general_addm' 'pattern_logs' 'history_select' %}
+    {% endif %}
+{% else %}
+    NAV_HEAD_DRAW = False
+{% endif %}
+
+<!-- Draw addm navigation tabs if TABS_DRAW -->
+{% if TABS_DRAW %}
+    <!-- ADDM TABS for pattern tests digest: -->
+    {% if search_history_results %}
+            {% addm_tabs "history_select" %}
+    {% elif pattern_logs %}
+            {% addm_tabs "pattern_logs" %}
+    {% elif history_select %}
+            {% addm_tabs "history_select" %}
+    {% endif %}
+{% else %}
+    <!-- ADDM TABS False -->
+    TABS_DRAW = False
+{% endif %}
+
+<!-- TEST table content: -->
+<div style="padding-left:1%;padding-right:1%">
+{% with "text-center align-middle" as text_align %}
+    <table class="table table-bordered table-responsive-sm table-hover table-sm">
+        <thead class="table-dark">
+        <!-- TEST table head: -->
+        <th scope="col" class="{{ text_align }}">#</th>
+        <th scope="col" class="{{ text_align }}">Place</th>
+        <th scope="col" class="{{ text_align }}">Test</th>
+        <th scope="col" class="{{ text_align }}">Test info</th>
+        <th scope="col" class="{{ text_align }}" style="width: 50%">Message</th>
+        <th scope="col" class="{{ text_align }}">Actions</th>
+        <th scope="col" class="{{ text_align }}">Date time</th>
+        <th scope="col" class="{{ text_align }}">Details</th>
+        <th scope="col" class="{{ text_align }}">ADDM</th>
+        </thead>
+        <tbody>
+    <!-- TEST table rows in cycle: -->
+{#    {% for pattern_row in PATTERNS_CONTENT|dictsortreversed:SORT_BY %}#}
+    {% for pattern_row in LATEST_TESTS|dictsortreversed:'test_date_time' %}
+{#    {% for pattern_row in LATEST_TESTS %}#}
+        <tr title="by user: '{{ pattern_row.change_user }}' is key: {{ pattern_row.is_key_pattern }} ADDM name: '{{ pattern_row.addm_name }}', group: '{{ pattern_row.addm_group }}', host: '{{ pattern_row.addm_host }}'">
+            {% assign_color pattern_row.tst_status as color %}
+            <td class="{{ text_align }} table-{{ color }}" style="font-size: 0.8em;">{{ forloop.counter }}</td>
+            <td class="{{ text_align }} table-{{ color }}" style="font-size: 0.8em;">/{{ pattern_row.pattern_library }}/<b>{{ pattern_row.pattern_folder_name }}</b>/<br>{{ pattern_row.pattern_file_name }}</td>
+            <td class="table-{{ color }} text-left align-middle" style="font-size: 0.8em;word-wrap: break-word;white-space: pre-line;">{{ pattern_row.tst_class }}./<br>{{ pattern_row.tst_name }}
+            </td>
+            <td class="{{ text_align }} table-{{ color }} text-{{ color }} font-weight-bold" style="font-size: 0.8em;font-family:monospace;">
+                {{ pattern_row.tst_status }}<br>{{ pattern_row.fail_status }}<br>{{ pattern_row.tst_message }}
+            </td>
+            <td class="table-{{ color }} align-baseline" style="width: 30%;font-size: 0.8em;font-family:monospace;">{{ pattern_row.fail_message }}</td>
+            <td class="{{ text_align }} table-{{ color }}" style="width: 3%" title="Run test options:">
+                {% user_run_test pattern_row 1 %}
+{#                <div class="btn-group btn-group-sm btn-outline-info" role="group" style="font-size: 0.9em;">#}
+{#                  <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>#}
+{#                  <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">#}
+{#                    {% if power_user_bool %}#}
+{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
+{#                           href="{% url 'last_success' %}?branch={{ BRANCH }}&pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&addm_name={{ ADDM_NAME }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}">{% spaceless %}#}
+{#                        {% endspaceless %}{% select_icon 'eye' 18 'right' 0.2 %}<b class="text-info">Last success</b>#}
+{#                        </a>#}
+{#                        <div class="dropdown-divider"></div>#}
+{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
+{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}">{% spaceless %}#}
+{#                        {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run single test!</b>#}
+{#                        </a>#}
+{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
+{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}&refresh=True">{% spaceless %}#}
+{#                        {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">Sync + run single test!</b>#}
+{#                        </a>#}
+{#                        <div class="dropdown-divider"></div>#}
+{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
+{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }}">{% spaceless %}#}
+{#                        {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run test.py!</b>#}
+{#                        </a>#}
+{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
+{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }}&refresh=True">{% spaceless %}#}
+{#                        {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">Sync + run test.py!</b>#}
+{#                        </a>#}
+{#                    {% else %}#}
+{#                        <a class="dropdown-item" style="font-size: 0.9em;" href="{% url 'login' %}"><b class="text-warning">Log in</b></a>#}
+{#                    {% endif %}#}
+{#                  </div>#}
+{#                </div>#}
+            </td>
+            <td class="{{ text_align }} table-{{ color }}" style="font-size: 0.7em;white-space: pre">{{ pattern_row.test_date_time | timezone:"Europe/London"|date:'Y-m-d H:i' }}<br>{{ pattern_row.test_date_time | naturaltime }}<br>t {{ pattern_row.time_spent_test | f_sec }}</td>
+            <td class="{{ text_align }} table-{{ color }}" style="font-size: 0.7em;">
+                <a class="btn btn-sm btn-info" title="Go to ADDM UI DataHome" style="font-size: 1em;" target="_blank" href="http://{{ pattern_row.addm_host }}.bmc.com/ui/DataHome">{{ pattern_row.addm_name }} ({{ pattern_row.addm_v_int }})</a><br>
+                {{ pattern_row.addm_host }}<br>{{ pattern_row.addm_ip }}<br>{{ pattern_row.addm_group }}
+            </td>
+            <td class="{{ text_align }} table-{{ color }}" style="font-size: 1.4em;white-space: pre">{{ pattern_row.addm_v_int }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    <!-- TEST table foot: -->
+        <tfoot class="table-dark">
+        <tr>
+            <th scope="col" class="{{ text_align }}">#</th>
+            <th scope="col" class="{{ text_align }}">Place</th>
+            <th scope="col" class="{{ text_align }}">Test</th>
+            <th scope="col" class="{{ text_align }}">Test info</th>
+            <th scope="col" class="{{ text_align }}">Message</th>
+            <th scope="col" class="{{ text_align }}">Actions</th>
+            <th scope="col" class="{{ text_align }}">Date time</th>
+            <th scope="col" class="{{ text_align }}">Details</th>
+            <th scope="col" class="{{ text_align }}">ADDM</th>
+        </tr>
+        </tfoot>
+    </table>
+{% endwith %}
+</div>
+{% debug_info %}
+{% endblock %}

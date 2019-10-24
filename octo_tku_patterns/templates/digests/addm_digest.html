@@ -1,0 +1,103 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        ADDM Digest
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
+        <nav class="navbar navbar-light test-report-navbar">
+        <!-- Navbar content -->
+        <!-- Navbar left part content -->
+        <div class="nav-reports-left">
+            <!-- Digest levels breadcrumbs: -->
+            <div class="digest-breadcrumbs">
+                <nav class="nav nav-pills">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                        <a class="btn btn-sm btn-info active" href="{% url 'addm_digest' %}" title="You are here..."><i class="fas fa-play"></i> ADDM</a>
+                        <a class="btn btn-sm btn-info disabled" href="#"><i class="fas fa-step-forward"></i> Patterns Digest</a>
+                        <a class="btn btn-sm btn-info disabled" href="#"><i class="fas fa-step-forward"></i> Single Test Digest</a>
+                        <a class="btn btn-sm btn-info disabled" href="#"><i class="fas fa-step-forward"></i> Single Test unit Digest</a>
+                    </div>
+                </nav>
+            </div>
+            <!-- History browse: -->
+            <div class="digest-history"><!-- No History selection for ADDM Digest --></div>
+            <!-- Change branch here: -->
+            <div class="digest-branch"><!-- No branch selection for ADDM Digest, just tabs --></div>
+        </div>
+        <!-- Navbar right part content -->
+        <div class="nav-reports-right digest-test-log-levels"><!-- No Log levels sort for ADDM Digest: --></div>
+    </nav>
+    <div class="addm-digest-content">
+        <div class="jumbotron jumbotron-fluid addm-digest-jumbotron">
+            <div class="container">
+                <h1 class="display-4">ADDM Tests digest</h1>
+                <p class="lead">Shows the short digest of test success rate on all registered ADDM machines for last day</p>
+            </div>
+        </div>
+
+        <div class="addm-digest-table-content">
+            <ul class="nav nav-tabs nav-justified" id="ADDMTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="tkn_main-tab" data-toggle="tab" href="#tkn_main" role="tab"
+                       aria-controls="tkn_main" aria-selected="true">{% select_icon 'git-branch' 20 'right' 0.4 %}tkn_main</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tkn_ship-tab" data-toggle="tab" href="#tkn_ship" role="tab"
+                       aria-controls="tkn_ship" aria-selected="false">{% select_icon 'git-merge' 20 'right' 0.4 %}tkn_ship</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="both-tab" data-toggle="tab" href="#both_branch" role="tab"
+                       aria-controls="both_branch" aria-selected="false">{% select_icon 'git-commit' 20 'right' 0.4 %}both</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="ADDMTabContent">
+                <div class="tab-pane fade show active" id="tkn_main" role="tabpanel" aria-labelledby="tkn_main-tab">
+                    {% include 'digests/tables_details/addm_digest_table.html' with var_branch='tkn_main' %}
+                </div>
+                <div class="tab-pane fade" id="tkn_ship" role="tabpanel" aria-labelledby="tkn_ship-tab">
+                    {% include 'digests/tables_details/addm_digest_table.html' with var_branch='tkn_ship' %}
+                </div>
+                <div class="tab-pane fade" id="both_branch" role="tabpanel" aria-labelledby="both_branch-tab">
+                    {% include 'digests/tables_details/addm_digest_table.html' with var_branch=None%}
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'addm_digest' %}">ADDM Digest</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    <script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>
+    <div class="debug-context">
+        {% if request.GET.debug %}
+        <p>DEBUG enabled</p>
+            <ul>
+                {% for sel_k, sel_v in selector.items %}
+                    {% if sel_v %}
+                        <li class="text-success">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% else %}
+                        <li class="text-warning">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}

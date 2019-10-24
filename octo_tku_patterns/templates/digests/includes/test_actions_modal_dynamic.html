@@ -1,0 +1,193 @@
+{% load static %}
+{% load tz %}
+<!-- DYNAMIC modal window -->
+<div class="modal fade" id="actionsModal" tabindex="-1" role="dialog" aria-labelledby="actionsModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="actionsModalLabel">Test Case Options</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <!-- Case info -->
+                <div class="modal-variables">
+                </div>
+                <!-- Action buttons -->
+                <div class="test-actions">
+                    {% if "tests_last" in request.path %}
+                        <div class="span-test-actions-modal-name">Tests last</div>
+                        <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="see-logs" class="btn btn-sm btn-outline-info">See test.py logs output</a>
+                            <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                        </div>
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="wipe-run"
+                               data-wipe="1"
+                               class="btn btn-sm btn-outline-warning">Wipe current logs and run test.py</a>
+                            <a href="#" id="p4-run"
+                               data-refresh="1"
+                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run test.py</a>
+                            <a href="#" id="instant-run" class="btn btn-sm btn-outline-warning">Instant run test.py, keep logs</a>
+                        </div>
+                    {% elif "test_details" in request.path %}
+                        <div class="span-test-actions-modal-name">Unit History</div>
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="see-logs-history" class="btn btn-sm btn-outline-info">Unit history</a>
+                        </div>
+                        <div class="list-group text-center test_details" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="unit-wipe-run"
+                               data-wipe="1"
+                               class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
+                            <a href="#" id="unit-p4-run"
+                               data-refresh="1"
+                               class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
+                            <a href="#" id="unit-instant-run" class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
+                        </div>
+                    {% elif "test_item_history" in request.path %}
+                        <div class="span-test-actions-modal-name">Test case History</div>
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a class="btn btn-sm btn-outline-info disabled">History of unit (dead end)</a>
+                        </div>
+                        <div class="list-group text-center test_item_history" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="unit-wipe-run"
+                               data-wipe="1"
+                               class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
+                            <a href="#" id="unit-p4-run"
+                               data-refresh="1"
+                               class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
+                            <a href="#" id="unit-instant-run" class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
+                        </div>
+                    {% elif 'user_space' in request.path %}
+                        <div class="span-test-actions-modal-name">User Space</div>
+                        <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="see-logs" class="btn btn-sm btn-outline-info">See test.py logs output</a>
+                            <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                            <a href="#" target="_blank" id="see-logs-history" class="btn btn-sm btn-outline-info"
+                               title="Show all history records for current test. Open in new window.">Test case history logs (long)</a>
+                        </div>
+                    {% elif 'test_cases_group' in request.path %}
+                        <div class="span-test-actions-modal-name">Test case group</div>
+                        <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="see-logs" class="btn btn-sm btn-outline-info">See test.py logs output</a>
+                            <a href="#" target="_blank" id="see-logs-history" class="btn btn-sm btn-outline-info"
+                               title="Show all history records for current test. Open in new window.">Test case history logs (long)</a>
+                        </div>
+                        <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                            <a href="#" id="edit-case" class="btn btn-sm btn-outline-warning">Test case edit</a>
+                        </div>
+                    {% elif 'test_cases' in request.path %}
+                        <div class="span-test-actions-modal-name">Test cases table</div>
+                        <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="see-logs" class="btn btn-sm btn-outline-info">See test.py logs output</a>
+                            <a href="#" target="_blank" id="see-logs-history" class="btn btn-sm btn-outline-info"
+                               title="Show all history records for current test. Open in new window.">Test case history logs (long)</a>
+                        </div>
+                        <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                            <a href="#" id="edit-case" class="btn btn-sm btn-outline-warning">Test case edit</a>
+                        </div>
+                    {% else %}
+                        <div class="span-test-actions-modal-name">Somewhere else...</div>
+                        <a class="btn btn-sm btn-outline-info disabled">Else</a>
+                    {% endif %}
+                    {% if selector.change %}
+                        <div class="span-test-actions-modal-name">Actions for change <span class="badge badge-info">{{ selector.change }}</span></div>
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a href="#"
+                               id="wipe-run-case-meta"
+                               data-wipe="1"
+                               data-change="{{ selector.change }}"
+                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{ selector.change }}</a>
+                            <a href="#"
+                               id="p4-run-case-meta"
+                               data-refresh="1"
+                               data-change="{{ selector.change }}"
+                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {{ selector.change }}</a>
+                            <a href="#"
+                               id="instant-run-case-meta"
+                               data-change="{{ selector.change }}"
+                               class="btn btn-sm btn-outline-warning">Instant run all tests in {{ selector.change }}, keep logs</a>
+                        </div>
+                    {% elif selector.change_user %}
+                        <div class="span-test-actions-modal-name">Actions for change_user <span class="badge badge-info">{{ selector.change_user }}</span></div>
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a href="#"
+                               id="wipe-run-case-meta"
+                               data-wipe="1"
+                               data-change_user="{{ selector.change_user }}"
+                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests for {{selector.change_user}}</a>
+                            <a href="#"
+                               id="p4-run-case-meta"
+                               data-refresh="1"
+                               data-change_user="{{ selector.change_user }}"
+                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests for {[selector.change_user]}</a>
+                            <a href="#"
+                               id="instant-run-case-meta"
+                               data-change_user="{{ selector.change_user }}"
+                               class="btn btn-sm btn-outline-warning">Instant run all tests for {{selector.change_user}}, keep logs</a>
+                        </div>
+                    {% elif selector.change_ticket %}
+                        <div class="span-test-actions-modal-name">Actions for change_ticket <span class="badge badge-info">{{ selector.change_ticket }}</span></div>
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a href="#"
+                               id="wipe-run-case-meta"
+                               data-wipe="1"
+                               data-change_ticket="{{ selector.change_ticket }}"
+                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{selector.change_ticket}}</a>
+                            <a href="#"
+                               id="p4-run-case-meta"
+                               data-refresh="1"
+                               data-change_ticket="{{ selector.change_ticket }}"
+                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {[selector.change_ticket]}</a>
+                            <a href="#"
+                               id="instant-run-case-meta"
+                               data-change_ticket="{{ selector.change_ticket }}"
+                               class="btn btn-sm btn-outline-warning">Instant run all tests in {{selector.change_ticket}}, keep logs</a>
+                        </div>
+                    {% elif selector.change_review %}
+                        <div class="span-test-actions-modal-name">Actions for change_review <span class="badge badge-info">{{ selector.change_review }}</span></div>
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a href="#"
+                               id="wipe-run-case-meta"
+                               data-wipe="1"
+                               data-change_review="{{ selector.change_review }}"
+                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{selector.change_review}}</a>
+                            <a href="#"
+                               id="p4-run-case-meta"
+                               data-refresh="1"
+                               data-change_review="{{ selector.change_review }}"
+                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {{selector.change_review}}</a>
+                            <a href="#"
+                               id="instant-run-case-meta"
+                               data-change_review="{{ selector.change_review }}"
+                               class="btn btn-sm btn-outline-warning">Instant run all tests in {{selector.change_review}}, keep logs</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="selector-options text-center">
+                <div class="blockquote-footer">
+                    <div class="addm-selector txt-sm-it">
+                        {% if selector.addm_name %}
+                            <span>Show single ADDM: {{ selector.addm_name }}</span>
+                        {% else %}
+                            <span>Show all ADDMs. Load data at once.</span>
+                        {% endif %}
+                    </div>
+                    <div class="tst-status-selector txt-sm-it">
+                        {% if selector.tst_status %}
+                            <span>Show only test status: {{ selector.tst_status }}</span>
+                        {% else %}
+                            <span>Show all test statuses. Load data at once.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="modal-hide">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

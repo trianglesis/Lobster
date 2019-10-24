@@ -1,0 +1,38 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+You cannot access or have no permission for this function.
+{% endblock %}
+{% block content %}
+{% load user_groups %}
+{% is_user_log_in as anon_bool %} <!-- Is anon -->
+{% is_power_user as power_user_bool %} <!-- is_power_user -->
+{% is_user_staff as staff_user_bool %} <!-- is_user_staff -->
+<div style="padding-left:1%;padding-right:1%;margin-bottom:5px;margin-top:5px">
+    <!-- Content header block with navigation: -->
+    <div class="alert alert-danger text-center" role="alert">Forbidden</div>
+</div>
+<div style="padding-left: 1%;padding-right: 1%">
+    <div class="card-deck" style="padding-left:15%;padding-right:15%;padding-top:1em">
+        <div class="card text-center">
+        <div class="card-header alert-danger">You cannot access or have no permission for this function.</div>
+            <div class="card-body">
+                {% if anon_bool %}
+                    You can
+                    <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'login' %}">Log in</a> or
+                    <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'django_registration_register' %}">Register</a>
+                    <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'password_reset' %}">Reset password</a>
+                    <p>And ask admin to give you an access to {{ CAME_FROM }}</p>
+                {% else %}
+                    {% if CAME_FROM %}
+                        Make a request to admin to include you in powerusers group. You have requested - {{ CAME_FROM }}
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'request_access' %}?came_from={{ CAME_FROM }}">Request access</a>
+                    {% else %}
+                        <div class="text-center text-warning">Your request cannot be fulfilled...</div>
+                        <div class="text-lg-center">You've tried to execute something or get access somewhere I don't know.</div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

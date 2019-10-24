@@ -1,0 +1,174 @@
+{% load i18n %}
+{% load static %}
+{% load template_simplify %}
+<div class="card" style="margin-right: 0.5em;margin-left: 0.5em">
+    <div class="card-header text-muted"><h6>Data operations, changes, parse, sync</h6></div>
+    <div class="card-body">
+        <div style="padding-top: 0.2em;" role="toolbar" >
+            <h6>P4 Sync\Parse</h6>
+            <!-- Modal button for: "P4 Sync" -->
+            <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#p4_sync_manual">P4 Sync\Parse options <img alt="" style="height:24px;width:24px;" src="{% static "octicons/svg/sync.svg" %}"></button>
+            <!-- Modal body "P4 Sync"-->
+            <div class="modal fade" id="p4_sync_manual" tabindex="-1" role="dialog" aria-labelledby="p4_sync_manual_modal" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content border-warning">
+                        <div class="modal-header bg-warning">
+                            <h6 class="modal-title" id="p4_sync_manual_modal">P4 Sync and parse</h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body" style="margin-left: 1em">
+                            {% if not staff_user_bool and not power_user_bool %}<p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                            <h6 class="card-text" style="padding-top: 1%"> Patterns and tests - parse, changes refresh and sync options:</h6>
+                            <ul>
+                                <li>Parse local files stored on Octopus filesystem and get new files in database.</li>
+                                <li>Parse p4 fstat and p4 changes based on local files, old and new. Refresh change details for each pattern folder.</li>
+                                <li>Sync all new files from perforce depot if change number is not recent or null with force. OR "sync force" just everything in branch</li>
+                                <li>Sync new pattern and test files to selected ADDM group. OR sync everything to everything.</li>
+                            </ul>
+                            {% if power_user_bool %}
+                            <div>
+                            <h6 class="card-text" style="padding-top: 1%">A. Parse files on Octopus MNG (routine_user_manual_parse_patterns)</h6>
+                                <div style="padding-bottom: 1%;padding-left: 5%">
+                                    <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'parse_patterns_user' %}?branch=tkn_main">Parse files in Main <img style="height:20px;width:20px" src="{% static "/octicons/svg/git-branch.svg" %}" alt="parse_tkn_main" title="Parse local FS in Octopus and add changes to DB"/></a>
+                                    <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'parse_patterns_user' %}?branch=tkn_ship">Parse files in Ship <img style="height:20px;width:20px" src="{% static "/octicons/svg/git-merge.svg" %}" alt="parse_tkn_ship" title="Parse local FS in Octopus and add changes to DB"/></a>
+                                </div>
+                            <h6 class="card-text">B. P4 Sync force (task_p4_sync_force)</h6>
+                                <div style="padding-bottom: 1%;padding-left: 5%">
+                                    <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'p4_sync_force' %}?branch=tkn_main">P4 Force sync tkn_main <img style="height:20px;width:20px" src="{% static "/octicons/svg/git-branch.svg" %}" alt="p4_sync_tkn_main" title="Sync everything based on perforce workspace mappings for Octopus"/></a>
+                                    <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'p4_sync_force' %}?branch=tkn_ship">P4 Force sync tkn_ship <img style="height:20px;width:20px" src="{% static "/octicons/svg/git-merge.svg" %}" alt="p4_sync_tkn_ship" title="Sync everything based on perforce workspace mappings for Octopus"/></a>
+                                </div>
+                            <h6 class="card-text">E. Sync from Octopus MNG to ADDM VMs (sync_addm_shares)</h6>
+                                <div style="padding-bottom: 1%;padding-left: 5%">
+                                    <div class="btn-toolbar" role="group" aria-label="Sync main branch">
+                                        <div class="btn-group-vertical" style="padding-right: 5%">
+                                            <div class="card-text"> Sync main to ADDM</div>
+                                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'sync_patterns' %}?branch=tkn_main;addm_group=alpha">Alpha <img style="height:20px;width:20px;" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'sync_patterns' %}?branch=tkn_main;addm_group=beta">Beta <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'sync_patterns' %}?branch=tkn_main;addm_group=charlie">Charlie <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'sync_patterns' %}?branch=tkn_main;addm_group=delta">Delta <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                            <div class="card-text"> Sync main to all ADDMs</div>
+                                            <a role="button" class="btn btn-sm btn-outline-info disabled" href="{% url 'sync_patterns' %}?branch=tkn_main">All ADDMs <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                        </div>
+                                        <div class="btn-group-vertical">
+                                            <div class="card-text"> Sync ship to ADDM</div>
+                                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'sync_patterns' %}?branch=tkn_ship;addm_group=alpha">Alpha <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'sync_patterns' %}?branch=tkn_ship;addm_group=beta">Beta <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'sync_patterns' %}?branch=tkn_ship;addm_group=charlie">Charlie <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'sync_patterns' %}?branch=tkn_ship;addm_group=delta">Delta <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                            <div class="card-text"> Sync ship to all ADDMs</div>
+                                            <a role="button" class="btn btn-sm btn-outline-info disabled" href="{% url 'sync_patterns' %}?branch=ship">All ADDMs <img style="height:20px;width:20px" src="{% static "/octicons/svg/broadcast.svg" %}" alt="sync_to_addm" title="Sync new local files from Octopus to ADDM VMs all files, both branches."/></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <h6 class="card-text">F. Sync Smart + Parse patterns + P4 changes parse + Sync all to ADDMs</h6>
+                                <div style="padding-bottom: 1%;padding-left: 5%">
+                                    <a role="button" class="btn btn-sm btn-outline-secondary disabled" href="{% url 'parse_patterns_user' %}?branch=tkn_main;sync_shares=True">Parsing and syncing in MAIN<img style="height:20px;width:20px;margin-right: 0.1em;" src="{% static "/octicons/svg/git-branch.svg" %}" alt="parse_tkn_main" title="Parse local FS in Octopus and add changes to DB"/></a>
+                                    <a role="button" class="btn btn-sm btn-outline-secondary disabled" href="{% url 'parse_patterns_user' %}?branch=tkn_ship;sync_shares=True">Parsing and syncing in SHIP<img style="height:20px;width:20px;margin-right: 0.1em;" src="{% static "/octicons/svg/git-merge.svg" %}" alt="parse_tkn_ship" title="Parse local FS in Octopus and add changes to DB"/></a>
+                                </div>
+                            </div>
+                            {% else %}
+                                <p>You can execute this only as power user.</p>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Modal "P4 Sync" -->
+            <div class="card-text text-muted text-sm-center font-weight-normal">Parse local patterns, get new changes, refresh</div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div style="padding-top: 0.2em;" role="toolbar" >
+        <h6>Product content sync manual (in progress)</h6>
+        <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#ADDM_Prod_cont_sync">Product content {% select_icon 'sync' 24 'left' 0.4 %}</button>
+        <div class="modal fade" id="ADDM_Prod_cont_sync" tabindex="-1" role="dialog"
+                 aria-labelledby="addm_cleanup_daily" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content border-info">
+                        <div class="modal-header bg-info">
+                            <h6 class="modal-title" id="addm_cleanup_daily">Sync everything from product content folder to ADDM</h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                        </div>
+                        <div class="modal-body" style="margin-left: 1em">
+                            {% if not staff_user_bool and not power_user_bool %}<p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                            <div class="text-info">Sync product content.</div>
+                            <p class="text-warning">This is under development and not testes yet!</p>
+                            <table class="table table-sm">
+                                <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td scope="row" style="font-size: 0.9em">Sync data installed</td>
+                                    <td scope="row" style="font-size: 0.8em;font-family:monospace;">\addm\tkn_main\product_content\r1_0\code\data\installed\ → /usr/tideway/data/installed</td>
+                                </tr>
+                                <tr>
+                                    <td scope="row" style="font-size: 0.9em">Sync code python</td>
+                                    <td scope="row" style="font-size: 0.8em;font-family:monospace;">\addm\tkn_main\product_content\r1_0\code\python\ → /usr/tideway/python</td>
+                                </tr>
+                                <tr>
+                                    <td scope="row" style="font-size: 0.9em">Restart services</td>
+                                    <td scope="row" style="font-size: 0.8em;font-family:monospace;">Please run tideway restart - hitting the button in "Octopus & ADDM service"</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <h6>Sync data installed:</h6>
+                            {% if power_user_bool %}
+                                <a role="button" class="btn btn-sm btn-outline-info disabled" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_data">Sync all{% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_data;addm_group=alpha">Alpha {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_data;addm_group=beta">Beta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_data;addm_group=charlie">Charlie {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_data;addm_group=delta">Delta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_data;addm_group=echo">Echo {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_data;addm_group=foxtrot">Foxtrot {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            {% else %}
+                                <p>You can execute this only as power user.</p>
+                            {% endif %}
+
+                            <h6>Sync code python:</h6>
+                            {% if power_user_bool %}
+                                <a role="button" class="btn btn-sm btn-outline-info disabled" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_python">Sync all{% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_python;addm_group=alpha">Alpha {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_python;addm_group=beta">Beta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_python;addm_group=charlie">Charlie {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_python;addm_group=delta">Delta {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_python;addm_group=echo">Echo {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=sync_prod_cont_python;addm_group=foxtrot">Foxtrot {% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                            {% else %}
+                                <p>You can execute this only as power user.</p>
+                            {% endif %}
+
+                            <h6>Tideway services restart</h6>
+                            {% if power_user_bool %}
+                                <a role="button" class="btn btn-sm btn-outline-info disabled" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart">Tideway restart All {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=alpha">Alpha {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=beta">Beta {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=charlie">Charlie {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=delta">Delta {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=echo">Echo {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group=foctrot">Foxtrot {% select_icon 'plug' 20 'left' 0.4 %}</a>
+                            {% else %}
+                                <p>You can execute this only as power user.</p>
+                            {% endif %}
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary"
+                                    data-dismiss="modal">Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,91 @@
+{# COL 1 #}
+<div class="col-sm-4">
+    {# CARD 1#}
+    <div class="card" style="width:auto;">
+      <div class="card-body">
+        <h5 class="card-title">P4 and parse:</h5>
+        <h6 class="card-subtitle mb-2 text-muted"></h6>
+        <p class="card-text">Run perforce task, functions and view. Also run local parsing routines in dev and preview mode.</p>
+        <ul>
+            <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_p4_info_web' %}">P4_Oper().p4_info()</a></li>
+            <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_p4_sync_smart' %}">TExecTest().t_p4_sync_smart task</a></li>
+            <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_parse_local_files' %}">LocalPatternsParse().compose_tree_paths</a></li>
+            <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'tku_patterns_all' %}?branch=tkn_main">selector_out.views.Patterns#tku_pattern_libraries</a></li>
+        </ul>
+      </div>
+    </div>
+    {# CARD 2#}
+    <div class="card" style="width:auto;">
+      <div class="card-body">
+        <h5 class="card-title">Celery DEV</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Run celery workers funcs</h6>
+            <p class="card-text text-info">Celery processing</p>
+            <ul>
+                <li>octo_adm.views.AdminFunctions#tasks_inspection_web: <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'tasks_statuses' %}">Get raw date from all workers</a></li>
+                <li>selector_out.views.CeleryInteract#workers_status: <a role="button" class="btn btn-sm btn-outline-info" href="{% url "workers_status" %}">Tasks work status details</a></li>
+                <li>octo_adm.views.AdminFunctions#workers_active_reserved: <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'workers_active_reserved' %}">Get empty workers and status</a></li>
+                <li>octo_adm.views.AdminFunctions#workers_raw: <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'workers_raw' %}">Get raw data from balancing workers</a></li>
+            </ul>
+      </div>
+    </div>
+    {# CARD 3#}
+    <div class="card" style="width:auto;">
+      <div class="card-body">
+        <h5 class="card-title">Octopus internal code tests: <span class="badge badge-secondary">Internal core code options</span></h5>
+        <h6 class="card-subtitle mb-2 text-muted">Internal core code options</h6>
+            <p class="card-text text-info">TEST ITEMS:</p>
+            <ul>
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'tasks_statuses' %}">All tasks statuses</a></li>
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'test_execute_web' %}?pattern_folder=10genMongoDB&pattern_library=CORE&branch=tkn_main">Execute live (test_execute_web)</a></li>
+            </ul>
+      </div>
+    </div>
+
+    {# CARD 4#}
+    <div class="card" style="width:auto;">
+        <div class="card-body">
+            <h5 class="card-title">Upload tests: <span class="badge badge-secondary">Upload tasks and tests dev</span>
+            </h5>
+            <div class="text-info">Upload test and digest</div>
+            <ul>
+                <li><a role="button" class="btn btn-sm btn-sm btn-outline-info" href="#">upload_test_digest</a></li>
+                <li><a role="button" class="btn btn-sm btn-sm btn-outline-info" href="#">upload_test_logs</a>
+            </ul>
+        </div>
+    </div>
+
+
+    {# CARD 5#}
+    <div class="card" style="width:auto;">
+        <div class="card-body">
+            <h5 class="card-title">Patterns tests: <span class="badge badge-secondary">Night, optional, users</span>
+            </h5>
+            <div class="text-info">Night routine examples</div>
+            <ul>
+                <li><a role="button" class="btn btn-sm btn-sm btn-outline-info" href="{% url 'manual_run_night' %}?addm_group=foxtrot;sel_patterns=SterlingCommerceConnectDirect;branch=tkn_main">Foxtrot (SterlingCommerceConnectDirect)</a></li>
+                <li><a role="button" class="btn btn-sm btn-sm btn-outline-info" href="{% url 'manual_run_night' %}?addm_group=alpha,beta,charlie,delta,echo,foxtrot;excluded_seq=TKU-ProcessorInfo,TKU-CDM-Mapping">Usual Night Run</a>
+                <li><a role="button" class="btn btn-sm btn-sm btn-outline-info" href="{% url 'dev_manual_exec_night_run_task' %}?addm_group=alpha,beta,charlie,delta,echo,foxtrot;excluded_seq=TKU-ProcessorInfo,TKU-CDM-Mapping">Dev Night Run</a>
+            </ul>
+
+            <div class="text-info">Optional tests examples</div>
+            <ul>
+                <li><a role="button" class="btn btn-sm btn-sm btn-outline-info" href="{% url 'manual_run_optional' %}?addm_group=foxtrot;user=admin">Foxtrot admin</a></li>
+                <li><a role="button" class="btn btn-sm btn-sm btn-outline-info" href="{% url 'manual_run_optional' %}?addm_group=foxtrot;sel_patterns=SterlingCommerceConnectDirect;branch=tkn_main">foxtrot SterlingCommerceConnectDirect tkn_main</a>
+                <li><a role="button" class="btn btn-sm btn-sm btn-outline-info" href="{% url 'manual_run_optional' %}?addm_group=foxtrot;sel_patterns=SterlingCommerceConnectDirect;branch=tkn_main;sync_data=1">foxtrot SterlingCommerceConnectDirect tkn_main</a>
+            </ul>
+        </div>
+    </div>
+
+
+    {# CARD 6#}
+    <div class="card" style="width:auto;">
+        <div class="card-body">
+            <h5 class="card-title"><span class="badge badge-secondary">Other</span>
+            </h5>
+            <div class="text-info">Views</div>
+            <ul>
+                <li><a role="button" class="btn btn-sm btn-sm btn-outline-info" href="{% url 'dev_cron_items' %}">dev_cron_items</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

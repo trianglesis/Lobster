@@ -1,0 +1,31 @@
+{% load static %}
+{% load tz %}
+<!-- DYNAMIC modal window -->
+<div class="modal fade" id="mulCasesModal" tabindex="-1" role="dialog" aria-labelledby="mulCasesModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mulCasesModalLabel">Selected cases for run:</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <!-- Case info -->
+                <div class="modal-variables">
+                    <div id="cases_ids"></div>
+                </div>
+                <div class="btn-group btn-group-sm group-test-buttons">
+                    <a class="btn btn-sm btn-outline-warning" id="cases-wipe-run" href="#">Run test wipe logs</a>
+                    <a class="btn btn-sm btn-outline-dark" id="cases-p4-run" href="#">Run p4, test, wipe logs</a>
+                    <a class="btn btn-sm btn-outline-info" id="cases-instant-run" href="#">Run test instantly</a>
+                </div>
+            </div>
+            <div class="selector-options text-center">
+                <div class="blockquote-footer">Run multiple test cases at once.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="modal-hide">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

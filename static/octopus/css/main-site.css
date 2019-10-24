@@ -1,0 +1,49 @@
+.octopus-navbar {
+    font-size: .875em;
+    /*font-family: 'Maven Pro', sans-serif;*/
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    /*font-family: 'BenchNine', sans-serif;*/
+    font-family: 'Assistant', sans-serif;
+    /*font-family: 'Nunito', sans-serif;*/
+}
+
+.octopus-time {
+    color: #0b2e13 !important;
+    padding-right: 10px;
+    font-size: .9em;
+    /*font-family: 'Maven Pro', sans-serif;*/
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    font-family: 'BenchNine', sans-serif;
+    /*font-family: 'Assistant', sans-serif;*/
+    /*font-family: 'Nunito', sans-serif;*/
+}
+
+.octopus-search {
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: .875em;
+    /*font-family: 'Maven Pro', sans-serif;*/
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    font-family: 'BenchNine', sans-serif;
+    /*font-family: 'Assistant', sans-serif;*/
+    /*font-family: 'Nunito', sans-serif;*/
+}
+
+.octopus-login {
+    right: 0;
+    left: auto;
+    font-size: .875em;
+    /*font-family: 'Maven Pro', sans-serif;*/
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    font-family: 'BenchNine', sans-serif;
+    /*font-family: 'Assistant', sans-serif;*/
+    /*font-family: 'Nunito', sans-serif;*/
+}

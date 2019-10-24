@@ -1,0 +1,7 @@
+{% spaceless %}
+{% if PATTERN_LIBRARY %}&pattern_library={{ PATTERN_LIBRARY }}{% endif %}
+{% if PATTERN_FOLDER %}&pattern_folder={{ PATTERN_FOLDER }}{% endif %}
+{% if START_DATE %}&start_date={{ START_DATE|date:'Y-m-d' }}{% endif %}
+{% if END_DATE %}&end_date={{ END_DATE|date:'Y-m-d' }}{% endif %}
+{% if ADPROD_USER %}&adprod_user={{ ADPROD_USER }}{% endif %}
+{% endspaceless %}

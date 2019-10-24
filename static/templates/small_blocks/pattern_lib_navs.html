@@ -1,0 +1,56 @@
+{% load template_simplify %}
+{#{% pattern_lib_highlight PATTERN_LIBRARY as color %}#}
+<!-- TKU PATTERNS LIBRARY NAVS -->
+<div style="padding-left:2%;padding-right:2%">
+    <ul class="nav nav-tabs nav-justified">
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'BLADE_ENCLOSURE' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=BLADE_ENCLOSURE">BLADE_ENCLOSURE</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'CLOUD' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=CLOUD">CLOUD</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'CORE' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=CORE">CORE</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'DBDETAILS' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=DBDETAILS">DBDETAILS</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'EXTRAS' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=EXTRAS">EXTRAS</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'LOAD_BALANCER' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=LOAD_BALANCER">LOAD_BALANCER</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'MANAGEMENT_CONTROLLERS' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=MANAGEMENT_CONTROLLERS">MANAGEMENT_CONTROLLERS</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'MIDDLEWAREDETAILS' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=MIDDLEWAREDETAILS">MIDDLEWAREDETAILS</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'NETWORK' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=NETWORK">NETWORK</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'STORAGE' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=STORAGE">STORAGE</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if PATTERN_LIBRARY == 'SYSTEM' %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}{% if RELEASE %}&release=True{% endif %}&pattern_library=SYSTEM">SYSTEM</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if not PATTERN_LIBRARY and not IS_KEY_PATTERN %}badge-dark{% else %}badge-light{% endif %}"
+               href="{% url 'tku_pattern_libraries' %}?branch={{ BRANCH }}&everything=1">All</a>
+        </li>
+    </ul>
+</div>
+<!-- ADDM TABS end TAG -->

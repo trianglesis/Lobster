@@ -1,0 +1,72 @@
+/*http://HOST/octo_tku_patterns/cases_workbench/*/
+.li-pad-sm {
+    padding: .4rem .8rem !important;;
+}
+.card-txt-w {
+    width: 100%;
+}
+.card-txt-h {
+    height: 150px;
+}
+.float-righ{
+    float: right;
+}
+.evenly-flex{
+    justify-content: space-evenly;
+    display: flex;
+}
+.interval{
+    padding-bottom: 1.5em;
+}
+
+.card-header-shrink {
+    padding: .2em;
+}
+
+.card-body-sm {
+    padding: .6em;
+}
+
+.card-body-shrink {
+    padding: .2em;
+}
+
+/* Navigate on test reports NAV BAR */
+.test-report-navbar {
+    background-color: #e3f2fd;
+    /*margin: 1%;*/
+    margin: 20px 10px 20px 10px;
+}
+/*Navbar left part content*/
+.nav-reports-left {
+    display: flex;
+    justify-content: flex-start !important;
+}
+/*Navbar right part content*/
+.nav-reports-right {
+    display: flex;
+    justify-content: flex-end !important;
+}
+
+.workbench-content{
+    padding-left:0.5em;
+    padding-right:0.5em;
+    padding-bottom:2em;
+    margin-top:0.5em
+}
+
+.buttons-section{
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'BenchNine', sans-serif;*/
+    font-family: 'Assistant', sans-serif;
+    /*font-family: 'Maven Pro', sans-serif;*/
+    /*font-family: 'Nunito', sans-serif;*/
+}
+.btn-support-text{
+    display: flex;
+    font-size: .9em;
+    justify-content: center;
+    font-family: 'Jaldi', sans-serif;
+}

@@ -1,0 +1,83 @@
+{% load static %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% block content %}
+    {% spaceless %}
+        <!-- ADDM logs table content: -->
+        <div class="test-unit-content">
+            <table class="table table-bordered table-responsive-sm table-hover table-sm test-unit-table">
+                <thead class="table-dark">
+                <!-- ADDM table Head: -->
+                <th>Path</th>
+                <th>Tst Class.unit</th>
+                <th>Fail message</th>
+                <th>Tested</th>
+                <th>ADDM name</th>
+                <th>Actions</th>
+                </thead>
+                <tbody class="table-shrink">
+                <!-- ADDM table rows in cycle: -->
+                {% for test in test_detail %}
+                    {% if test.addm_name == var_addm_name or not var_addm_name %}
+                        <tr>
+                            <td id='case_unit' class="list-nostyle">
+                                <li class="pattern_library">{{ test.pattern_library }}</li>
+                                <li class="pattern_folder_name">{{ test.pattern_folder_name }}</li>
+                            </td>
+                            <td id="test_unit" class="list-nostyle txt-center-prewrap">
+                                <li class="tst_class">{{ test.tst_class }}</li>
+                                <li class="tst_name">{{ test.tst_name }}</li>
+                                <li id="tst_status" class="tst_status">{% if not test.tst_status == 'ok' %}{{ test.tst_status }}{% endif %}</li>
+                                <li id="tst_message" class="tst_message">{% if not test.tst_message == ' ... ' %}{{ test.tst_message }}{% endif %}</li>
+                            </td>
+                            <td id="fail_message" class="txt-monospace txt-left-prewrap">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
+                            <td id="test_date_time" class="txt-center-prewrap">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
+                            <td id="addm_name" class="txt-center-prewrap">{{ test.addm_name }}</td>
+                            <td class="actions_button">
+                                <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                                        data-target="#actionsModal"
+                                        data-tst_status="{{ context.selector.tst_status }}"
+                                        data-addm_name="{{ context.selector.addm_name }}">Actions
+                                </button>
+                            </td>
+                            <td id="test_id" style="display:none">{{ test.id }}</td>
+                            <td id="tkn_branch" style="display:none">{{ test.tkn_branch }}</td>
+                            <td id="pattern_library" style="display:none">{{ test.pattern_library }}</td>
+                            <td id="pattern_folder_name" style="display:none">{{ test.pattern_folder_name }}</td>
+                            <td id="pattern_file_name" style="display:none">{{ test.pattern_file_name }}</td>
+                            <td id="fail_status" style="display:none">{{ test.fail_status }}</td>
+                            <td id="fail_name" style="display:none">{{ test.fail_name }}</td>
+                            <td id="fail_class" style="display:none">{{ test.fail_class }}</td>
+                            <td id="time_spent_test" style="display:none">{{ test.time_spent_test }}</td>
+                            <td id="tst_status" style="display:none">{{ test.tst_status }}</td>
+                            <td id="tst_class" style="display:none">{{ test.tst_class }}</td>
+                            <td id="tst_name" style="display:none">{{ test.tst_name }}</td>
+                            <td id="tst_module" style="display:none">{{ test.tst_module }}</td>
+                            <td id="fail_module" style="display:none">{{ test.fail_module }}</td>
+                            <td id="addm_group" style="display:none">{{ test.addm_group }}</td>
+                            <td id="addm_v_int" style="display:none">{{ test.addm_v_int }}</td>
+                            <td id="addm_host" style="display:none">{{ test.addm_host }}</td>
+                            <td id="addm_ip" style="display:none">{{ test.addm_ip }}</td>
+                            <td id="pattern_file_path" style="display:none">{{ test.pattern_file_path }}</td>
+                            <td id="test_py_path" style="display:none">{{ test.test_py_path }}</td>
+                            <td id="pattern_folder_path_depot" style="display:none">{{ test.pattern_folder_path_depot }}</td>
+                            <td id="pattern_file_path_depot" style="display:none">{{ test.pattern_file_path_depot }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+                <tfoot class="table-dark">
+                <!-- ADDM table foot: -->
+                <th>Path</th>
+                <th>Tst Class.unit</th>
+                <th>Fail message</th>
+                <th>Tested</th>
+                <th>ADDM name</th>
+                <th>Actions</th>
+                </tfoot>
+            </table>
+        </div>
+    {% endspaceless %}
+{% endblock %}
+

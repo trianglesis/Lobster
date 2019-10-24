@@ -1,0 +1,23 @@
+<!-- Change log level SMALL TAG -->
+{% load template_simplify %}
+<div class="btn-group btn-group-sm" role="group" aria-label="Level" style="{% if FLOATING %}float: right{% endif %}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="Level" style="{% if FLOATING %}float: right{% endif %}">
+
+        <a title="Only passed tests" role="button" aria-pressed="true" class="btn {% if PASS_ONLY %}btn-success{% else %}btn-outline-success{% endif %}" href="{{ URL_STR }}?branch={{ BRANCH }}&pass_only=True{% spaceless %}
+           {% select_pattern_items %}{% endspaceless %}{% spaceless %}
+           {% if ADDM_NAME %}&addm_name={{ ADDM_NAME }}{% if DAYS_AGO %}&days_ago={{ DAYS_AGO }}{% endif %}{% endif %}{% endspaceless %}">Pass only</a>
+
+        <a title="Only failed, error tests" role="button" aria-pressed="true" class="btn {% if NOT_PASS_ONLY %}btn-danger{% else %}btn-outline-danger{% endif %}" href="{{ URL_STR }}?branch={{ BRANCH }};not_pass_only=True{% spaceless %}
+           {% select_pattern_items %}{% endspaceless %}{% spaceless %}
+           {% if ADDM_NAME %}&addm_name={{ ADDM_NAME }}{% if DAYS_AGO %}&days_ago={{ DAYS_AGO }}{% endif %}{% endif %}{% endspaceless %}">Not pass</a>
+
+        <a title="Only skipped tests" role="button" aria-pressed="true" class="btn {% if SKIP_ONLY %}btn-info{% else %}btn-outline-info{% endif %}" href="{{ URL_STR }}?branch={{ BRANCH }}&skip_only=True{% spaceless %}
+           {% select_pattern_items %}{% endspaceless %}{% spaceless %}
+           {% if ADDM_NAME %}&addm_name={{ ADDM_NAME }}{% if DAYS_AGO %}&days_ago={{ DAYS_AGO }}{% endif %}{% endif %}{% endspaceless %}">Skip only</a>
+
+        <a title="All tests and all statuses. Loooong" role="button" aria-pressed="true" class="btn {% if not PASS_ONLY and not FAIL_ONLY and not SKIP_ONLY and not ERROR_ONLY and not NOT_PASS_ONLY %}btn-dark{% else %}btn-outline-dark{% endif %}" href="{{ URL_STR }}?branch={{ BRANCH }}{% spaceless %}
+           {% select_pattern_items %}{% endspaceless %}{% spaceless %}
+           {% if ADDM_NAME %}&addm_name={{ ADDM_NAME }}{% if DAYS_AGO %}&days_ago={{ DAYS_AGO }}{% endif %}{% endif %}{% endspaceless %}">Everything</a>
+    </div>
+</div>
+<!-- Change log level SMALL end TAG -->

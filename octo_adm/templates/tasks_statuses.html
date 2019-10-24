@@ -1,0 +1,104 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+Octopus administration
+{% endblock %}
+{% block content %}
+{% load static %}
+<!-- Sub nav on child page P$ info Summary -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <!-- Content header block with navigation: -->
+    <div class="alert alert-secondary" role="alert">
+        <!-- Subject: -->
+        {{SUBJECT}}
+    </div>
+</div>
+<div style="padding-left:2%;padding-right:2%">
+    <p>Parse results:</p>
+    <p>ACTIVE:</p>
+    <ul>{% for item in ACTIVE_WORKERS %} {{ item | safe }} {% endfor %}</ul>
+{#    <p>RESERVED:</p>#}
+{#    <ul>{% for item in RESERVED_WORKERS %} {{ item | safe }} {% endfor %}</ul>#}
+    <p>RESERVED:</p>
+    <ul>
+        {% for item_k, item_v in RESERVED.items %}
+            <li>{{ item_k }}:</li>
+            <ul>
+                {% for task in item_v %}
+                    <li>{{ task }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </ul>
+    <p>REGISTERED:</p>
+    <ul>
+        {% for item_k, item_v in REGISTERED.items %}
+            <li>{{ item_k }}:</li>
+            <ul>
+                {% for task in item_v %}
+                    <li>{{ task }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </ul>
+    <p>SCHEDULED:</p>
+    <ul>
+        {% for item_k, item_v in SCHEDULED.items %}
+            <li>{{ item_k }}:</li>
+            <ul>
+                {% for task in item_v %}
+                    <li>{{ task }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </ul>
+    <p>INSPECT_WORKERS:</p>
+    <ul>
+        {% for task_type_k, task_type_items_v in INSPECT_WORKERS.items %}
+            <li>{{ task_type_k }}:</li>
+            <ul>
+                {% for task_k, tasks_v in task_type_items_v.items %}
+                    <li>{{ task_k }} : {{ tasks_v }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </ul>
+    <p>Dict tasks_inspection TASK_RESULT: {{ TASK_RESULT }}</p>
+    {#<p>Inspect inspect_active_tsk: {{ TASK_RESULT.inspect_active_tsk }}</p>#}
+    <p>Inspect tasks and queues: </p>
+    {% for worker_instance, worker_nodes in TASK_RESULT.inspect_active_tsk.items %}
+        <b>Worker instance: {{ worker_instance }}</b>
+        {% for worker_node in worker_nodes %}
+            <p>worker node: {{ worker_node }}</p>
+        {% endfor %}
+    {% endfor %}
+    <div>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Show task status:
+        </button>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Task Name</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Task ID = {{ TASK_ID }}</p>
+                        <p>Task state success = {{ TASK_STATE }}</p>
+                        <p>Task status success = {{ TASK_STATUS }}</p>
+                        <p>Task result = {{ TASK_RESULT }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Do something?</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

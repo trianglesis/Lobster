@@ -1,0 +1,47 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+Octopus administration console
+{% endblock %}
+{% block content %}
+{% load static %}
+{% load dev_tags %}
+{% load template_simplify %}
+{% load tz %}
+{% get_current_timezone as TIME_ZONE %}
+<!-- Sub nav on child page Patterns Summary -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <!-- Content header block with navigation: -->
+    <div class="alert alert-secondary" role="alert">
+        <!-- Subject: -->
+        {{SUBJECT}} | Server django {% now "Y-m-d H:i:s" %}
+        |
+        {% timezone "Europe/London" %}
+            London time: {% now "Y-m-d H:i:s" %}
+        {% endtimezone %}
+        |
+        {% timezone "UTC" %}
+            UTC: {% now "Y-m-d H:i:s" %}
+        {% endtimezone %}
+
+    </div>
+</div>
+<!-- Only for staff -->
+{% if staff_user_bool %}
+<div style="padding-left:2%;padding-right:2%;padding-top:1%">
+{# THIS IS THE PLACE FOR DEV WIDGETS INCLUDE #}
+    {# ROW #}
+    <div class="row">
+    {% include "dev_debug_workbench/dev_includes/dev_col_1.html" %}
+    {% include "dev_debug_workbench/dev_includes/dev_col_2.html" %}
+    {% include "dev_debug_workbench/dev_includes/dev_col_3.html" %}
+    </div>
+</div>
+{% else %}
+<!-- Login form request. -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <div class="alert alert-warning" role="alert">
+        This page is only for "staff" users and development.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

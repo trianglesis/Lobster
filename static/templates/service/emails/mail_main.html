@@ -1,0 +1,19 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  {% load i18n %}
+  {% load i18n static %}
+  {% load template_simplify %}
+  {% load static %}
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>{{SUBJECT}}</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'octicons/octicons.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/mail-styles.css' %}" />
+</head>
+<body>
+<div style="padding: 1%">
+{% block content %}{% endblock %}
+</div>
+</body>
+</html>

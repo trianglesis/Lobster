@@ -1,0 +1,56 @@
+{% load i18n %}
+{% load static %}
+{% load template_simplify %}
+<div class="card" style="margin-right: 0.3em;margin-left: 0.3em">
+    <div class="card-header text-muted"><h6>Restart tideway services</h6></div>
+    <div class="card-body">
+        <div role="toolbar" style="padding-top: 0.2em;">
+            <h6>Tideway restart all</h6>
+            <!-- Modal button for: "ADDM Tideway restart" -->
+            <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                    data-target="#ManualADDM_tideway_restart">Tideway restart <img alt=""
+                    style="height:24px;width:24px;" src="{% static "octicons/svg/plug.svg" %}"></button>
+            <!-- Modal body "ADDM Tideway restart"-->
+            <div class="modal fade" id="ManualADDM_tideway_restart" tabindex="-1" role="dialog"
+                 aria-labelledby="manual_addm_tideway_restart" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content border-info">
+                        <div class="modal-header bg-info">
+                            <h6 class="modal-title" id="manual_addm_tideway_restart">Tideway restart
+                                ADDM</h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" style="margin-left: 1em">
+                            {% if not staff_user_bool and not power_user_bool %}
+                                <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                            <p>Run usual usual ADDM tideway service restart.</p>
+                            <li>Restart tideway services.</li>
+                        </div>
+                        <div class="modal-footer">
+                            {% if power_user_bool %}
+
+                                {% with 'alpha beta delta charlie echo foxtrot' as addm_group_list %}
+                                    {% for addm in addm_group_list.split %}
+                                        <a role="button" class="btn btn-sm btn-outline-info" title="Run tideway restart for {{ addm }}" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group={{ addm }}">{{ addm }}{% select_icon 'plug' 20 'left' 0.4 %}</a>
+                                    {% endfor %}
+                                    {% with addm_group_list.split as addm_list  %}
+                                        <a role="button" class="btn btn-sm btn-outline-danger" title="Run tideway restart for all" href="{% url 'addm_custom_cmd' %}?cmd_k=tideway_restart;addm_group={{ addm_list|join:"," }}">Tideway restart all{% select_icon 'plug' 20 'left' 0.4 %}</a>
+                                    {% endwith %}
+                                {% endwith %}
+                            {% else %}
+                                <p>You can execute this only as power user.</p>
+                            {% endif %}
+                            <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Modal "ADDM Tideway restart" -->
+
+        </div>
+    </div>
+</div>

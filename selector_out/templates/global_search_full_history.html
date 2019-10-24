@@ -1,0 +1,152 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+    {{ SUBJECT }}
+{% endblock %}
+{% block content %}
+{% load i18n %}
+{% load static %}
+{% load tz %}
+{% load humanize %}
+{% load dev_tags %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% get_current_timezone as TIME_ZONE %}
+<div style="padding-left:0.5em;padding-right:0.5em;margin-top:0.5em">
+    <div class="alert alert-success" role="alert">
+        {% if SEARCH_STING %}
+            Showing full history by: {{ SEARCH_STING }}
+        {% else %}
+            {{ SUBJEST }}
+        {% endif %}
+    </div>
+</div>
+{% with 'text-center align-middle' as center_txt %}
+<div style="padding-left: 0.5em;padding-right: 0.5em;">
+
+    {% if test_history.has_other_pages %}
+    <div class="prev_next">
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm justify-content-center">
+
+                {# PREVIOUS #}
+                {% if test_history.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?search_sting={{ SEARCH_STING }};page={{ test_history.previous_page_number }}">Previous</a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Previous</a></li>
+                {% endif %}
+
+                {# PAGES: #}
+                {% for i in test_history.paginator.page_range %}
+                    {% if test_history.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link">
+                                {{ i }}
+                                <span class="sr-only">(current)</span>
+                            </span>
+                        </li>
+                    {% elif i > test_history.number|add:'-10' and i < test_history.number|add:'10' %}
+                        <li class="page-item"><a class="page-link" href="?search_sting={{ SEARCH_STING }};page={{ i }}">{{ i }}</a></li>
+{#                    {% else %}#}
+{#                        <li class="page-item"><a class="page-link" href="?search_sting={{ SEARCH_STING }};page={{ i }}">{{ i }}</a></li>#}
+                    {% endif %}
+                {% endfor %}
+
+                {# NEXT #}
+                {% if test_history.has_next %}
+                    <li class="page-item"><a class="page-link" href="?search_sting={{ SEARCH_STING }};page={{ test_history.next_page_number }}">Next</a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+    <div id="accordion">
+        <div class="card">
+        <div class="card-header" id="TestsHistory">
+            <button class="btn btn-warning" data-toggle="collapse" data-target="#collapse_TestsHistory" aria-expanded="true" aria-controls="collapse_TestsHistory">History tests full <span class="badge badge-light">
+                {{ test_history|length }}</span> found </button>
+        </div>
+        <div id="collapse_TestsHistory" class="collapse show" aria-labelledby="TestsHistory" data-parent="#accordion">
+            <div class="card-body" style="padding: 0.2em;">
+                {# TESTS LAST TABLE #}
+                <table class="table table-bordered table-responsive-sm table-hover table-sm">
+                    <thead class="table-dark">
+                        <!-- TEST table head: -->
+                        <th class="{{ center_txt }}">#</th>
+                        <th class="{{ center_txt }}">Place</th>
+                        <th class="{{ center_txt }}">Test</th>
+                        <th class="{{ center_txt }}">Test info</th>
+                        <th class="{{ center_txt }}">Message</th>
+                        <th class="{{ center_txt }}">Actions</th>
+                        <th class="{{ center_txt }}">Execution</th>
+                        <th class="{{ center_txt }}">Addm</th>
+                    </thead>
+                    <tbody>
+                        <!-- TEST table rows in cycle: -->
+                        {% for pattern_row in test_history|dictsortreversed:'test_date_time' %}
+                            <tr title="by user: '{{ pattern_row.change_user }}' is key: {{ pattern_row.is_key_pattern }} ADDM name: '{{ pattern_row.addm_name }}', group: '{{ pattern_row.addm_group }}', host: '{{ pattern_row.addm_host }}'">
+                                {% assign_color pattern_row.tst_status as color %}
+                                <td class="table-{{ color }} {{ center_txt }}" style="font-size: 0.8em;">{{ forloop.counter }}</td>
+                                <td class="table-{{ color }} {{ center_txt }}" style="font-size: 0.8em;">/{{ pattern_row.pattern_library }}/<br><b>{{ pattern_row.pattern_folder_name }}</b></td>
+                                <td class="table-{{ color }} text-left align-middle" style="font-size: 0.8em;word-wrap: break-word;">{{ pattern_row.tst_class }}./<br>{{ pattern_row.tst_name }}</td>
+                                <td class="table-{{ color }} text-{{ color }} {{ center_txt }}" style="font-size: 0.8em;font-family:monospace;">{{ pattern_row.tst_status }}<br>{{ pattern_row.fail_status }}<br>{{ pattern_row.tst_message }}</td>
+                                <td class="table-{{ color }}" style="font-size: 0.8em;font-family:monospace;">{{ pattern_row.fail_message }}</td>
+                                <td class="{{ center_txt }} table-{{ color }}" title="Run test options:">
+                                    {% user_run_test pattern_row 1 %}
+{#                                    <div class="btn-group btn-group-sm btn-outline-info" role="group" style="font-size: 0.9em;">#}
+{#                                        <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>#}
+{#                                        <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">#}
+{#                                            {% if power_user_bool %}#}
+{#                                                <a class="dropdown-item" style="font-size: 0.9em;"#}
+{#                                                   href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}">{% spaceless %}#}
+{#                                                {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run single test!</b>#}
+{#                                                </a>#}
+{#                                                <a class="dropdown-item" style="font-size: 0.9em;"#}
+{#                                                   href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}&refresh=True">{% spaceless %}#}
+{#                                                {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">Sync + run single test!</b>#}
+{#                                                </a>#}
+{#                                                <div class="dropdown-divider"></div>#}
+{#                                                <a class="dropdown-item" style="font-size: 0.9em;"#}
+{#                                                   href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }}">{% spaceless %}#}
+{#                                                {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run test.py!</b>#}
+{#                                                </a>#}
+{#                                                <a class="dropdown-item" style="font-size: 0.9em;"#}
+{#                                                   href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }}&refresh=True">{% spaceless %}#}
+{#                                                {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">Sync + run test.py!</b>#}
+{#                                                </a>#}
+{#                                            {% else %}#}
+{#                                                <a class="dropdown-item" style="font-size: 0.9em;" href="{% url 'login' %}"><b class="text-warning">Log in</b></a>#}
+{#                                            {% endif %}#}
+{#                                        </div>#}
+{#                                    </div>#}
+                                </td>
+                                <td class="{{ center_txt }} table-{{ color }} font-weight-normal" style="font-size: 0.7em;">{% spaceless %}
+                                    {% endspaceless %}{{ pattern_row.test_date_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}<br>{{ pattern_row.test_date_time|timezone:"Europe/London"|naturaltime }}<br>{{ pattern_row.time_spent_test|f_sec }}</td>
+                                <td class="{{ center_txt }} table-{{ color }} font-weight-normal" style="font-size: 0.7em;">{{ pattern_row.addm_name }} ({{ pattern_row.addm_v_int }})<br>{{ pattern_row.addm_host }}<br>{{ pattern_row.addm_ip }}<br>{{ pattern_row.addm_group }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <!-- TEST table foot: -->
+                    <tfoot class="table-dark">
+                        <tr>
+                            <th class="{{ center_txt }}">#</th>
+                            <th class="{{ center_txt }}">Place</th>
+                            <th class="{{ center_txt }}">Test</th>
+                            <th class="{{ center_txt }}">Test info</th>
+                            <th class="{{ center_txt }}">Message</th>
+                            <th class="{{ center_txt }}">Actions</th>
+                            <th class="{{ center_txt }}">Execution</th>
+                            <th class="{{ center_txt }}">Addm</th>
+                        </tr>
+                    </tfoot>
+                </table>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endwith %}
+{% endblock %}

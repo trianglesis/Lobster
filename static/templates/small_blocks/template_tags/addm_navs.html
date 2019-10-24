@@ -1,0 +1,74 @@
+{% load template_simplify %}
+{# TODO: Make navs dynamically anjusted to ADDM names from table  #}
+<!-- ADDM TABS TAG -->
+<div style="padding-left:2%;padding-right:2%">
+    <ul class="nav nav-tabs nav-justified">
+      <li class="nav-item">
+        <!-- Change addm version double_decker tab addm_navs: -->
+        <a class="nav-link {% if ADDM_NAME == 'double_decker' %}active{% else %}badge-light{% endif %}"
+           href="{{ URL_STR }}?branch={{ BRANCH }}&addm_name=double_decker{% spaceless %}
+           {% if DAYS_AGO %}&days_ago={{ DAYS_AGO }}{% endif %}
+           {% if DATE_FROM %}&date_from={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_LAST %}&date_last={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_FROM %}&start_date={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_LAST %}&end_date={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if ADPROD_USER %}&adprod_user={{ ADPROD_USER }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% select_pattern_items %}{% log_levels %}
+           {% endspaceless %}">11.3 double_decker
+        </a>
+      </li>
+      <li class="nav-item">
+        <!-- Change addm version custard_cream tab addm_navs: -->
+        <a class="nav-link {% if ADDM_NAME == 'custard_cream' %}active{% else %}badge-light{% endif %}"
+           href="{{ URL_STR }}?branch={{ BRANCH }}&addm_name=custard_cream{% spaceless %}
+           {% if DAYS_AGO %}&days_ago={{ DAYS_AGO }}{% endif %}
+           {% if DATE_FROM %}&date_from={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_LAST %}&date_last={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_FROM %}&start_date={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_LAST %}&end_date={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if ADPROD_USER %}&adprod_user={{ ADPROD_USER }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% select_pattern_items %}{% log_levels %}
+           {% endspaceless %}">11.2 custard_cream</a>
+      </li>
+      <li class="nav-item">
+        <!-- Change addm version bobblehat tab addm_navs: -->
+        <a class="nav-link {% if ADDM_NAME == 'bobblehat' %}active{% else %}badge-light{% endif %}"
+           href="{{ URL_STR }}?branch={{ BRANCH }}&addm_name=bobblehat{% spaceless %}
+           {% if DAYS_AGO %}&days_ago={{ DAYS_AGO }}{% endif %}
+           {% if DATE_FROM %}&date_from={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_LAST %}&date_last={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_FROM %}&start_date={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_LAST %}&end_date={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if ADPROD_USER %}&adprod_user={{ ADPROD_USER }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% select_pattern_items %}{% log_levels %}
+           {% endspaceless %}">11.1 bobblehat</a>
+      </li>
+      <li class="nav-item">
+        <!-- Change addm version aardvark tab addm_navs: -->
+        <a class="nav-link {% if ADDM_NAME == 'aardvark' %}active{% else %}badge-light{% endif %}"
+           href="{{ URL_STR }}?branch={{ BRANCH }}&addm_name=aardvark{% spaceless %}
+           {% if DAYS_AGO %}&days_ago={{ DAYS_AGO }}{% endif %}
+           {% if DATE_FROM %}&date_from={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_LAST %}&date_last={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_FROM %}&start_date={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if DATE_LAST %}&end_date={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% if ADPROD_USER %}&adprod_user={{ ADPROD_USER }}{% endif %}{% endspaceless %}{% spaceless %}
+           {% select_pattern_items %}{% log_levels %}
+           {% endspaceless %}">11.0 aardvark</a>
+      </li>
+{#      <li class="nav-item">#}
+{#        <!-- Change addm version zythum tab addm_navs: -->#}
+{#        <a class="nav-link {% if ADDM_NAME == 'zythum' %}active{% else %}badge-light{% endif %}"#}
+{#           href="{{ URL_STR }}?branch={{ BRANCH }}&addm_name=zythum{% spaceless %}#}
+{#           {% if DAYS_AGO %}&days_ago={{ DAYS_AGO }}{% endif %}#}
+{#           {% if DATE_FROM %}&date_from={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}#}
+{#           {% if DATE_LAST %}&date_last={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}#}
+{#           {% if DATE_FROM %}&start_date={{ DATE_FROM|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}#}
+{#           {% if DATE_LAST %}&end_date={{ DATE_LAST|date:'Y-m-d' }}{% endif %}{% endspaceless %}{% spaceless %}#}
+{#           {% if ADPROD_USER %}&adprod_user={{ ADPROD_USER }}{% endif %}{% endspaceless %}{% spaceless %}#}
+{#           {% select_pattern_items %}{% log_levels %}#}
+{#           {% endspaceless %}">10.2 zythum</a>#}
+{#      </li>#}
+    </ul>
+</div>
+<!-- ADDM TABS end TAG -->

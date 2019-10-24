@@ -1,0 +1,7 @@
+{% spaceless %}
+{% if PASS_ONLY %}&pass_only={{ PASS_ONLY }}
+{% elif FAIL_ONLY %}&fail_only={{ FAIL_ONLY }}
+{% elif SKIP_ONLY %}&skip_only={{ SKIP_ONLY }}
+{% elif ERROR_ONLY %}&error_only={{ ERROR_ONLY }}
+{% elif NOT_PASS_ONLY %};not_pass_only={{ NOT_PASS_ONLY }}
+{% else %}{% endif %}{% endspaceless %}

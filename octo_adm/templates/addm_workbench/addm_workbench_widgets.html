@@ -1,0 +1,41 @@
+{% extends "main/main.html" %}
+{% load i18n %}
+{% block page_title %}
+ADDM Workbench
+{% endblock %}
+{% block content %}
+{% load static %}
+{% load template_simplify %}
+{% if power_user_bool or staff_user_bool %}
+
+<div style="padding: 1%;">
+    <div class="alert alert-info" role="alert">
+        <div class="text-primary"><img style="height:36px;width:36px;" src="/static/octicons/svg/server.svg" alt="ADDM" /> ADDM Servers workbench. All ADDM used in Octopus - run services for ADDM groups: clean, update, maintain. etc.
+            <a role="button" class="btn btn-sm btn-outline-info" title="ADDM Buttons" href="{% url 'addm_buttons_page' %}">ADDM Buttons</a>
+        </div>
+    </div>
+</div>
+
+<div style="padding-left: 1%;padding-right: 1%">
+    <div class="card-deck">
+        {% include 'addm_workbench/cards/addm_cleaning.html' %}
+        {% include 'addm_workbench/cards/addm_restart.html' %}
+        {% include 'addm_workbench/cards/addm_upgrade.html' %}
+    </div>
+</div>
+
+<div style="padding-top: 1%;padding-right: 1%;padding-left: 1%">
+    <div class="card-deck">
+        {% include 'addm_workbench/cards/addm_commands.html' %}
+    </div>
+</div>
+
+{% else %}
+<!-- Login form request. -->
+<div style="padding-left:1%;padding-right:1%;padding-bottom:1%;">
+    <div class="alert alert-warning" role="alert">
+        This page is only for "staff" or power users and development.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

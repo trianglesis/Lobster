@@ -1,0 +1,178 @@
+{% extends "service/emails/mail_main.html" %}
+{% load i18n %}
+{% block content %}
+{% load tz %}
+    {% if SUBJECT %}
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="2">{{ SUBJECT }}</td></tr>
+                <tr>
+                    <td>Started at: </td>
+                    <td><b>{{ START_TIME|timezone:"Europe/London"|date:'Y-m-d H:i' }}</b></td>
+                </tr>
+                {% if TKU_WGET %}
+                    <tr>
+                        <td>tku_wget:</td>
+                        <td>{{ TKU_WGET }}</td>
+                    </tr>
+                {% endif %}
+                {% if ADDM_NAME %}
+                    <tr>
+                        <td>addm_name:</td>
+                        <td>{{ ADDM_NAME }}</td>
+                    </tr>
+                {% endif %}
+                {% if ADDM_HOST %}
+                    <tr>
+                        <td>addm_host:</td>
+                        <td>{{ ADDM_HOST }}</td>
+                    </tr>
+                {% endif %}
+                {% if '1. Upload test initiated' in SUBJECT %}
+                    <tr><td colspan="2">Upload test has been initiated. Wait for mail when it starts!</td></tr>
+                {% elif '2.1 Upload test started' in SUBJECT %}
+                    <tr><td colspan="2">Upload test has been started. Wait for confirmation mail after it finished!</td></tr>
+                {% elif '2.2 Upload test TKU install' in SUBJECT %}
+                    <tr><td colspan="2">Upload test running TKU installation part.</td></tr>
+                {% elif '3.1 Upload test running, got output' in SUBJECT %}
+                    <tr><td colspan="2">Test has been started and contain some output information to show.</td></tr>
+                {% elif '3.2 Upload test finished' in SUBJECT %}
+                 <tr>
+                     <td>Time spent: </td>
+                     <td><b>{{ TIME_SPENT }}</b></td>
+                 </tr>
+                <tr><td colspan="2">Test finished. This is confirmation mail!</td></tr>
+                <tr>
+                    <td>See logs: </td>
+                    <td>
+                        {# TODO: Change to new format http://127.0.0.1:8000/octo_tku_upload/upload_today/ #}
+                        <a class="btn btn-primary" href="http://{{ CURR_HOSTNAME }}/octo_tku_upload/upload_today/">See logs here!(TO BE CHANGED)</a>
+                    </td>
+                </tr>
+                {% elif '0. Upload test has unusual status' in SUBJECT %}
+                    <tr><td colspan="2">0. Upload test has unusual status</td></tr>
+                {% else %}
+                    <tr><td colspan="2"><b>There are no args to format mail.</b></td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <table style="margin-top:1em;"><tr><td>Task arguments:</td></tr></table>
+    {% if t_tag %}
+        <table>
+            <tr>
+                <td>t_tag:</td>
+                <td>{{ t_tag }}</td>
+            </tr>
+        </table>
+    {% endif %}
+    <table class="table table-sm table-bordered table-striped">
+        <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Item</th>
+              <th scope="col">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item_k, item_v in MAIL_DETAILS.items %}
+            <tr>
+                <th scope="row" class="table-secondary">{{ forloop.counter }}</th>
+                <td scope="row" class="table-{% if forloop.counter|divisibleby:2 %}info{% else %}light{% endif %}">{{ item_k|lower }}</td>
+                <td scope="row" class="table-{% if forloop.counter|divisibleby:2 %}info{% else %}light{% endif %}">{% if not item_k == 'OUTPUTS' %}{{ item_v }}{% else %}See below for test outputs{% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% if ZIPS %}
+        <table style="margin-top:5em;" class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <td colspan="2" class="text-center align-middle">TKU packages used:</td>
+                </tr>
+                <tr>
+                  <td scope="col" class="table-dark">Type:</td>
+                  <td scope="col" class="table-dark">Value:</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for zip_items_key, zip_items_value in ZIPS.items %}
+                    <tr>
+                        <td class="table-{% if forloop.counter|divisibleby:2 %}info{% else %}light{% endif %}">{{ zip_items_key }}</td>
+                        <td rowspan="{{ forloop.counter }}" class="table-{% if forloop.counter|divisibleby:2 %}info{% else %}light{% endif %}">
+                            {% for zip_item in zip_items_value %}
+                                <table>
+                                    <thead><tr><th colspan="2">TKU zip file:</th></tr></thead>
+                                    {% for zip_values_key, zip_values_val in zip_item.items %}
+                                        <tr>
+                                            <td style="font-size: 0.8em;font-family:monospace;"><b>{{ zip_values_key }}</b>:</td>
+                                            <td style="font-size: 0.8em;font-family:monospace;">{{ zip_values_val }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if OUTPUTS %}
+        <table style="margin-top:5em;" class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <td colspan="2" class="text-center align-middle">Test outputs:</td>
+                </tr>
+                <tr>
+                  <td scope="col" class="table-dark">Item</td>
+                  <td scope="col" class="table-dark">Outputs:</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for output_item_key, output_item_values in OUTPUTS.items %}
+                    <tr>
+                        <td class=""><b>{{ output_item_key }}</b>:</td>
+                        <td class="">
+                            {% if output_item_key == 'addm_item' %}{{ output_item_values }}
+                            {% elif output_item_key == 'mode' %}{{ output_item_values }}
+                            {% elif output_item_key == 'tku_type' %}{{ output_item_values }}
+                            {% elif output_item_key == 'fresh_tku_install' or output_item_key == 'previous_tku_install' %}
+                                <table>
+                                    <thead><tr><th colspan="2">Unpacking: </th></tr></thead>
+                                    {% for out_k, out_v in output_item_values.items %}
+                                        <tr>
+                                            <td style="font-size: 0.8em;font-family:monospace;"><b>{{ out_k }}</b></td>
+                                            <td style="font-size: 0.8em;font-family:monospace;">{{ out_v }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            {% else %}Other: {{ output_item_values }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{#    {% if ZIPS %}#}
+{#        <table style="margin-top:10em;"><tr><td>RAW TKU packages used:</td></tr></table>#}
+{#        <table style="margin-top:2em;"><tr><td>{{ ZIPS }}</td></tr></table>#}
+{#    {% endif %}#}
+{#    {% if RUN_OUT %}#}
+{#        <table style="margin-top:5em;"><tr><td>RAW RUN_OUT outputs:</td></tr></table>#}
+{#        <table style="margin-top:2em;"><tr><td>{{ RUN_OUT }}</td></tr></table>#}
+{#    {% endif %}#}
+{#    {% if FIN_OUT %}#}
+{#        <table style="margin-top:5em;"><tr><td>RAW FIN_OUT outputs:</td></tr></table>#}
+{#        <table style="margin-top:2em;"><tr><td>{{ FIN_OUT }}</td></tr></table>#}
+{#    {% endif %}#}
+{% endblock %}

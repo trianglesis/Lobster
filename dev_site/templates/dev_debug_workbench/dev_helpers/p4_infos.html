@@ -1,0 +1,42 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+Octopus administration
+{% endblock %}
+{% block content %}
+{% load static %}
+<!-- Sub nav on child page P$ info Summary -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <!-- Content header block with navigation: -->
+    <div class="alert alert-secondary" role="alert">
+        <!-- Subject: -->
+        {{SUBJECT}}
+    </div>
+</div>
+{% if staff_user_bool %}
+<div style="padding-left:2%;padding-right:2%">
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Option</th>
+            <th scope="col">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p4_row in P4_INFO %}
+        <tr>
+            <td scope="col">{{ p4_row.0 }}</td>
+            <td scope="col">{{ p4_row.2 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+    <!-- Login form request. -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <div class="alert alert-warning" role="alert">
+        Please log in as user, which authorised to manage this page.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

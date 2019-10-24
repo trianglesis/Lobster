@@ -1,0 +1,74 @@
+{% extends "service/emails/mail_main.html" %}
+{% block content %}
+{% if SUBJECT %}<table style="margin-bottom:1em;"><th scope="col"><b>{{ SUBJECT }}</b></th></table>{% endif %}
+{% if TEXT_BLOCK %}<table style="margin-bottom:1em;">{{ TEXT_BLOCK }}</table>{% endif %}
+
+    <p>Upload test raw outputs: </p>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th scope="col" class="table-dark">Option</th>
+          <th scope="col" class="table-dark">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      {% if MAIL_DETAILS.outputs.items %}
+          {% for option, value in MAIL_DETAILS.outputs.items %}
+            <tr>
+              <th scope="row" class="table-light">{{ option }}</th>
+              <td scope="row" class="table-light">
+                {% if value.items %}
+                    <ul>
+                    {% for key, val in value.items %}
+                        <li>{{ key }}: {{ val }}</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    {{ value }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+      {% else %}
+          {% for out_item in MAIL_DETAILS.outputs %}
+            <tr>
+              <th scope="row" class="table-light"></th>
+              <td scope="row" class="table-light">
+                {% if out_item.items %}
+                    <ul>
+                    {% for key, val in out_item.items %}
+                        <li>{{ key }}: {{ val }}</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    {{ out_item }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+      {% endif %}
+      </tbody>
+    </table>
+
+    {% if MAIL_DETAILS.zips %}
+        <p>Upload test zips used: </p>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th scope="col" class="table-dark">Option</th>
+              <th scope="col" class="table-dark">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for option, value in zips.items %}
+            <tr>
+              <th scope="row" class="table-light">{{ option }}</th>
+              <td scope="row" class="table-light">{{ value }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+    {% endif %}
+
+{% endblock %}

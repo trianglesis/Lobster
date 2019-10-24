@@ -1,0 +1,33 @@
+{% load i18n %}
+{% load static %}
+{% load template_simplify %}
+<div class="card" style="margin-right: 0.5em;margin-left: 0.5em">
+    <div class="card-header text-muted"><h6>Reports</h6></div>
+    <div class="card-body">
+        <div class="text-center">
+            <div style="" role="toolbar">
+                <div class="card-text text-muted text-sm-center font-weight-normal">Reports ADDM</div>
+                <div style="padding-right: 0.2em;padding-left: 0.2em;" role="toolbar">
+                    <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'general_addm' %}?branch=tkn_main&addm_name=all_addms">{% trans 'Main' %}{% select_branch_icon 'tkn_main' 24 %}</a>
+                    <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'general_addm' %}?branch=tkn_ship&addm_name=all_addms">{% trans 'Ship' %}{% select_branch_icon 'tkn_ship' 24 %}</a>
+                </div>
+            </div>
+            <div style="padding-top: 0.5em;" role="toolbar">
+                <div class="card-text text-muted text-sm-center font-weight-normal">{% trans 'TKU Working sets' %}
+                    <div style="padding-right: 0.2em;padding-left: 0.2em;" role="toolbar">
+                    </div>
+                    <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'current_changes' %}?branch=tkn_main&release=True">{% select_icon 'repo' 24 'right' 1 %}{% trans 'Release' %}{% select_branch_icon 'tkn_main' 24 %}</a>
+                    <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'current_changes' %}?branch=tkn_ship&release=True">{% select_icon 'repo' 24 'right' 1 %}{% trans 'Release' %}{% select_branch_icon 'tkn_ship' 24 %}</a>
+                </div>
+                <div style="padding-top: 0.2em;" role="toolbar">
+                    <a role="button" class="btn btn-sm btn-outline-primary"    href="{% url 'tku_patterns_all' %}?branch=tkn_main">{% select_icon 'repo' 24 'right' 1 %}{% trans 'All patterns ' %}{% select_branch_icon 'tkn_main' 24 %}</a>
+                    <a role="button" class="btn btn-sm btn-outline-primary"   href="{% url 'tku_patterns_all' %}?branch=tkn_ship">{% select_icon 'repo' 24 'right' 1 %}{% trans 'All patterns ' %}{% select_branch_icon 'tkn_ship' 24 %}</a>
+                </div>
+                <div style="padding-top: 0.3em;" role="toolbar">
+                    <div class="card-text text-muted text-sm-center font-weight-normal">TKU zips <span class="badge badge-secondary">New</span></div>
+                    <a role="button" class="btn btn-sm btn-outline-info"href="{% url 'tku_packages' %}">{% select_icon 'repo' 24 'right' 1 %}TKU Update packages</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

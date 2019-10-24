@@ -1,0 +1,44 @@
+{% load humanize %}
+{% load template_simplify %}
+<table id="cron" class="table table-condensed table-bordered table-hover table-sm">
+<thead>
+    <th class="table-info" scope="col">Name/task</th>
+    <th class="table-info" scope="col">Args/Kwargs</th>
+    <th class="table-info" scope="col">Planned</th>
+    <th class="table-info" scope="col">Total</th>
+    <th class="table-info" scope="col">Changed/Run</th>
+</thead>
+<tbody>
+{% for DjangoCeleryBeatPeriodictask in periodic_tasks %}
+    {% cron_today DjangoCeleryBeatPeriodictask as run_today %}
+        {% if run_today %}
+            <tr>
+                <td style="font-size:8pt" title="Description: {{ DjangoCeleryBeatPeriodictask.description }}">{{ DjangoCeleryBeatPeriodictask.name }}<br>
+                    <a href="{% url 'admin:index' %}django_celery_beat/periodictask/{{DjangoCeleryBeatPeriodictask.id}}/change/">{{ DjangoCeleryBeatPeriodictask.task }}</a>
+                </td>
+                <td style="font-size:8pt">
+                    <b>args:</b> {{ DjangoCeleryBeatPeriodictask.args }}<br>
+                    <b>kwargs:</b> {{ DjangoCeleryBeatPeriodictask.kwargs }}</td>
+                {% if DjangoCeleryBeatPeriodictask.crontab %}
+                    <td style="font-size:9pt" title="Hour/Minute/Weekday/Date/Month">
+                        {{ DjangoCeleryBeatPeriodictask.crontab.hour }}/
+                        {{ DjangoCeleryBeatPeriodictask.crontab.minute }}/
+                        {{ DjangoCeleryBeatPeriodictask.crontab.day_of_week }}/
+                        {{ DjangoCeleryBeatPeriodictask.crontab.day_of_month }}/
+                        {{ DjangoCeleryBeatPeriodictask.crontab.month_of_year }}
+                        {% if DjangoCeleryBeatPeriodictask.expires  %}Expires: {{ DjangoCeleryBeatPeriodictask.expires  }}{% endif %}
+                    </td>
+                {% endif %}
+                {% if DjangoCeleryBeatPeriodictask.interval %}
+                    <td style="font-size:9pt" title="every:">
+                        {{ DjangoCeleryBeatPeriodictask.interval.every }} {{ DjangoCeleryBeatPeriodictask.interval.period }}
+                        {% if DjangoCeleryBeatPeriodictask.expires  %}Expires: {{ DjangoCeleryBeatPeriodictask.expires  }}{% endif %}
+                    </td>
+                {% endif %}
+                <td style="font-size:9pt">{{ DjangoCeleryBeatPeriodictask.total_run_count }}</td>
+                <td style="font-size:9pt">{{ DjangoCeleryBeatPeriodictask.date_changed | naturaltime }}<br>{{ DjangoCeleryBeatPeriodictask.last_run_at | naturaltime }}</td>
+            </tr>
+        {% endif %}
+{% endfor %}
+</tbody>
+</table>

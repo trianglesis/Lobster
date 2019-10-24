@@ -1,0 +1,31 @@
+
+
+#cases_ids {
+    font-size: 1em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+#casesSelectedArr {
+    margin-top: 1em;
+}
+
+#casesSelectedArr > div {
+    display: list-item;
+    margin-left: 1em;
+}
+
+.pattern-case-details {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+.test-case-details {
+    font-size: .875em;
+    font-family: monospace;
+}
+
+.group-test-buttons {
+    margin-top: 1em;
+    display: flex;
+    align-items: center;
+}

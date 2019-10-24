@@ -1,0 +1,72 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% load tz %}
+{% block page_title %}
+    {{ HAV_PLACE }} {{ MIN_TEST_DATE|timezone:"Europe/London"|date:'Y-m-d H:i' }} - {{ MAX_TEST_DATE|timezone:"Europe/London"|date:'Y-m-d H:i' }} Branch {{ BRANCH }}
+{% endblock %}
+{% block content %}
+    {% load dev_tags %}
+    {% load template_simplify %}
+    <!-- Draw navigation head as custom breadcrumbs if NAV_HEAD_DRAW -->
+    {% if NAV_HEAD_DRAW %}
+        <!-- include "small_blocks/dev_breadcrumb.html" -->
+        {% breadcrumbs_navigation 'patterns_digest' 'general_addm' 'patterns_digest' 'history_select' %}
+    {% else %}
+        NAV_HEAD_DRAW = False
+    {% endif %}
+    <!-- ADDM logs table content: -->
+    <div style="padding-left:15%;padding-right:15%;margin-bottom:5px;margin-top:5px">
+        <table id="addm_table" class="table table-condensed table-bordered table-hover table-sm">
+            <thead>
+            <!-- ADDM table Head: -->
+            <th id="discovery" class="table-info" scope="col">Discovery</th>
+            <th id="addm_ver" class="text-center table-info" scope="col">v.</th>
+            <th id="patterns" class="text-center table-info" scope="col">Patterns</th>
+            <th id="passed" class="text-center table-info" scope="col">Success</th>
+            <th id="tests" class="text-center table-info" scope="col">Tests</th>
+            <th id="success" class="text-center table-info" scope="col">Success</th>
+            <th id="failure" class="text-center table-info" scope="col">Failure</th>
+            <th id="error" class="text-center table-info" scope="col">Error</th>
+            <th id="skipped" class="text-center table-info" scope="col">Skipped</th>
+            <th id="full_report" class="text-center table-info" scope="col">Full report</th>
+{#            <th id="full_report" class="text-center table-info" scope="col">Run / plan</th>#}
+            </thead>
+            <tbody>
+            <!-- ADDM table rows in cycle: -->
+            {% for addm_row in ADDM_DIGEST %}
+                <tr>
+                    <td id="discovery" class="table-light text-dark">{{ addm_row.ADDM_CODENAME }}</td>
+                    <td id="addm_ver" class="text-center table-light text-dark">{{ addm_row.ADDM_VER }}</td>
+                    <td id="patterns" class="text-center table-light text-dark">{{ addm_row.PATTERNS_TESTED }}</td>
+                    <td id="passed" class="text-center table-light text-success" title="See all patterns status"
+                        onclick="window.document.location='{% url "patterns_digest" %}?branch={{ BRANCH }}&addm_name={{ addm_row.ADDM_CODENAME }}';">{{ addm_row.TESTS_PASSED }}%
+                    </td>
+                    <td id="tests" class="text-center table-light usual">{{ addm_row.TESTS_COUNT }}</td>
+                    <td id="success" class="text-center table-light usual" title="See PASS patterns"
+                        onclick="window.document.location='{% url "patterns_digest" %}?branch={{ BRANCH }}&addm_name={{ addm_row.ADDM_CODENAME }}&pass_only=True';">{{ addm_row.TESTS_PASS_COUNT }}</td>
+                    <td id="failure" class="text-center table-light text-danger" title="See all logs not passed tests"
+                        onclick="window.document.location='{% url "pattern_logs" %}?branch={{ BRANCH }}&addm_name={{ addm_row.ADDM_CODENAME }};not_pass_only=True';">{{ addm_row.TESTS_FAILED }}</td>
+                    <td id="error" class="text-center table-light text-warning" title="See all logs error tests"
+                        onclick="window.document.location='{% url "pattern_logs" %}?branch={{ BRANCH }}&addm_name={{ addm_row.ADDM_CODENAME }}&error_only=True';">{{ addm_row.TESTS_ERROR }}</td>
+                    <td id="skipped" class="text-center table-light text-info" title="See all logs skipped tests"
+                        onclick="window.document.location='{% url "pattern_logs" %}?branch={{ BRANCH }}&addm_name={{ addm_row.ADDM_CODENAME }}&skip_only=True';">{{ addm_row.TESTS_SKIPPED }}</td>
+                    <td id="full_report" class="text-center table-light usual">
+                        <a class="badge badge-secondary" title="Table of patterns"
+                           href="{% url "patterns_digest" %}?branch={{ BRANCH }}&addm_name={{ addm_row.ADDM_CODENAME }};not_pass_only=True">
+                            Patterns report </a>
+                    </td>
+{#                    <td title="Full details of current worker status" id="tests_active"#}
+{#                        class="text-center table-light text-dark">#}
+{#                        <a class="badge badge-light" title="See worker queue"#}
+{#                           href="{% url "workers_status_addm" %}?addm_group={{ addm_row.ADDM_CODENAME }}"> {{ addm_row.ACTIVE_TASKS }} / {{ addm_row.RESERVED_TASKS }} </a>#}
+{#                    </td>#}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <blockquote><span style="color:#999999;padding-left:15%"><sub>*<strong><em>Skipped</em></strong><em> &ndash; means that test was skipped by known reason.</em></sub></span>
+    </blockquote>
+    {% debug_info %}
+{% endblock %}
+

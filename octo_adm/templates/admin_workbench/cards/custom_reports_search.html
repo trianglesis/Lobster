@@ -1,0 +1,13 @@
+{% load i18n %}
+{% load static %}
+<div class="card" style="margin-right: 0.5em;margin-left: 0.5em">
+    <div class="card-header text-muted"><h6>Custom reports and search</h6></div>
+    <div class="card-body">
+        <div style="padding: 2em">
+            <a role="button" class="btn btn-sm btn-outline-success btn-block" href="{% url 'search_history' %}">NEW Search <img style="height:24px;width:24px;margin-right: 0.1em;" src="{% static "/octicons/svg/search.svg" %}" alt="New Search"/></a>
+            <a role="button" class="btn btn-sm btn-outline-secondary btn-block" href="#">Informative reports <img style="height:24px;width:24px;margin-right: 0.1em;" src="{% static "/octicons/svg/telescope.svg" %}" alt="more_info"/></a>
+            <a role="button" class="btn btn-sm btn-outline-light btn-block disabled" href="#">History <img style="height:24px;width:24px;margin-right: 0.1em;" src="{% static "/octicons/svg/squirrel.svg" %}" alt="history"/></a>
+            <a role="button" class="btn btn-sm btn-outline-light btn-block disabled" href="#">Last success/fail<img style="height:24px;width:24px;margin-right: 0.1em;" src="{% static "/octicons/svg/squirrel.svg" %}" alt="last_success"/></a>
+        </div>
+    </div>
+</div>

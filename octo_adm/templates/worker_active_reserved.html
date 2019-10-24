@@ -1,0 +1,97 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+Octopus administration
+{% endblock %}
+{% block content %}
+{% load static %}
+<!-- Sub nav on child page P$ info Summary -->
+{#<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">#}
+{#    <!-- Content header block with navigation: -->#}
+{#    <div class="alert alert-secondary" role="alert">#}
+{#        <!-- Subject: -->#}
+{#        {{SUBJECT}}#}
+{#    </div>#}
+{#</div>#}
+{% if power_user_bool %}
+    <div style="padding-left:2%;padding-right:20%">
+    WORKERS_D_SHORT - {{ WORKERS_D_SHORT }}
+        <table class="table table-hover table-bordered table-sm">
+            <thead class="table-info table-sm">
+                <tr>
+                    <td scope="col">Worker item</td>
+                    <td scope="col">Worker status</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td scope="row">Available workers:</td>
+                    <td scope="row">{{ WORKERS }}</td>
+                </tr>
+                <tr>
+                    <td scope="row">Excluded workers</td>
+                    <td scope="row">{{ WORKERS_EXCLUDED }}</td>
+                </tr>
+                <tr>
+                    <td scope="row">Min queue worker</td>
+                    <td scope="row">{{ WORKER_MIN }}</td>
+                </tr>
+                <tr>
+                    <td scope="row">Max queue worker</td>
+                    <td scope="row">{{ WORKER_MAX }}</td>
+                </tr>
+                <tr>
+                    <td scope="row">Optionally excluded</td>
+                    <td scope="row">{{ EXCLUDED_LIST }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>INSPECTED - </p>
+        <ul>
+            {% for task in INSPECTED %}
+                {% for task_k, task_v in task.items %}
+                    <li><b>{{ task_k }}</b>: task values</li>
+                    <ul>
+                        {% for task_a_k, task_attrs in task_v.items %}
+                            <li><b>{{ task_a_k }}</b>:  {% if 'active_tasks' in task_a_k %}
+                                                            Active/all_tasks was hidden to faster load
+                                                        {% elif 'all_tasks' in task_a_k %}
+                                                            Active/all_tasks was hidden to faster load
+                                                        {% else %}
+                                                            {{ task_attrs }}
+                                                        {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+        <p>INSPECTED EXCLUDED - </p>
+            <ul>
+            {% for task in INSPECTED_EXCLUDED %}
+                {% for task_k, task_v in task.items %}
+                    <li><b>{{ task_k }}</b>: task values</li>
+                    <ul>
+                        {% for task_a_k, task_attrs in task_v.items %}
+                            <li><b>{{ task_a_k }}</b>:  {% if 'active_tasks' in task_a_k %}
+                                                            Active/all_tasks was hidden to faster load
+                                                        {% elif 'all_tasks' in task_a_k %}
+                                                            Active/all_tasks was hidden to faster load
+                                                        {% else %}
+                                                            {{ task_attrs }}
+                                                        {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+{% else %}
+<!-- Login form request. -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <div class="alert alert-warning" role="alert">
+        Please log in as user, which authorised to manage this page.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

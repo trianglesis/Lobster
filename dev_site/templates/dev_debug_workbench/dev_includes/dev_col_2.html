@@ -1,0 +1,195 @@
+{# COL 2 #}
+<div class="col-sm-4">
+    {# CARD 1#}
+    <div class="card" style="width:auto;">
+        <div class="card-body">
+            <h5 class="card-title">Patterns parse</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Use threading approach</h6>
+            <p class="card-text text-info">New parse threading: user task t_p4_changes_threads -> p4_changes_multi
+                (works.tasks.TExecTest#t_p4_changes_threads)</p>
+            <ul>
+                dev_parse_patterns_thread: task_p4_changes_threads
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_parse_patterns_thread' %}">DEV
+                    P4_changes_threads</a></li>
+                <li><a role="button" class="btn btn-sm btn-outline-info"
+                       href="{% url 'dev_parse_patterns_thread' %}?mode=update&branch=tkn_main">Update MAIN</a></li>
+                <li><a role="button" class="btn btn-sm btn-outline-info"
+                       href="{% url 'dev_parse_patterns_thread' %}?mode=renew&branch=tkn_ship">Renew SHIP</a></li>
+            </ul>
+        </div>
+    </div>
+    {# CARD 2#}
+    <div class="card" style="width:auto;">
+        <div class="card-body">
+            <h5 class="card-title">Mail drafts</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Send mails</h6>
+            <p class="card-text text-info">DEV MAIL templates and tasks</p>
+            <ul>
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_test_email_templates' %}">dev_test_email_templates</a></li>
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_test_email_templates_upload_test' %}">dev_test_email_templates_upload_test</a></li>
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_get_options_table_values' %}">dev_get_options_table_values</a></li>
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_test_email_night_routine' %}?test_mode=start">dev_test_email_night_routine test_mode=start</a></li>
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_test_email_night_routine' %}?test_mode=run">dev_test_email_night_routine test_mode=run</a></li>
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_test_email_night_routine' %}?test_mode=fin">dev_test_email_night_routine test_mode=fin</a></li>
+            </ul>
+        </div>
+    </div>
+    {# CARD 3#}
+    <div class="card" style="width:auto;">
+        <div class="card-body">
+            <h5 class="card-title">ADDM tasks</h5>
+            <p class="card-text text-info">Test different ADDM cmd and tasks</p>
+            <div class="text-info">This will use view dev_addm_custom_cmd and default values foxtrot and cmd_k if no args passed. Cmd items are set in ADDMOperations.__init__</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <div class="btn-group-sm">
+                        <div class="text-dark">Version cmd - do not affect ADDM in any way, only version.</div>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}">BLANK</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?cmd_k=show_v;addm_group=foxtrot">foxtrot version CMD</a>
+                    </div>
+                </li>
+            </ul>
+
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <div class="btn-group-sm">
+                        <div class="text-info">Dev:</div>
+                        <button class="btn btn-sm btn-info" type="button" data-toggle="collapse" data-target="#DEV_ADDM_CUSTOM_CMD" aria-expanded="false" aria-controls="collapseExample">Info</button>
+                        <div class="collapse" id="DEV_ADDM_CUSTOM_CMD">
+                            <div class="card card-body">
+                                <div class="text-secondary">Dev version: Same as live view: dev_addm_custom_cmd ->
+                                    TRoutine.t_routine_addm_cmd -> return RoutineCases.addm_cmd -> TClean.t_addm_cmd_k
+                                    -> return AddmClean().threading_exec(AddmClean().key_cmd, **kwargs) --(thread)-> (loop
+                                    for addm in seledted group) -> ADDMOperations().addm_exec_cmd
+                                </div>
+                                <div class="text-dark">All options are:
+                                    show_v, wipe_tpl, wipe_log, wipe_sync_log, wipe_syslog, wipe_pool, wipe_record,
+                                    tw_pattern_management, _upload_unzip, product_content, tw_model_wipe, tw_tax_import,
+                                    sync_prod_cont_python, sync_prod_cont_data, test_kill, tw_scan_control,
+                                    tideway_restart
+                                </div>
+                            </div>
+                        </div>
+                        <p></p>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=show_v">show_v</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_tpl">wipe_tpl</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_log">wipe_log</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_sync_log">wipe_sync_log</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_syslog">wipe_syslog</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_pool">wipe_pool</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_record">wipe_record</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_pattern_management">tw_pattern_management</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=_upload_unzip">_upload_unzip</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=product_content">product_content</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_model_wipe">tw_model_wipe</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_tax_import">tw_tax_import</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=test_kill">test_kill</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_scan_control">tw_scan_control</a>
+                        <a role="button" class="btn btn-sm btn-outline-danger" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tideway_restart">tideway_restart</a>
+                    </div>
+                    <div class="text-info">Live:</div>
+                    <div class="btn-group-sm">
+                        <button class="btn btn-sm btn-info" type="button" data-toggle="collapse" data-target="#ADDM_CUSTOM_CMD" aria-expanded="false" aria-controls="collapseExample">Info</button>
+                        <div class="collapse" id="ADDM_CUSTOM_CMD">
+                            <div class="card card-body">
+                                <div class="text-secondary">Live ver: view addm_custom_cmd ->
+                                    TRoutine.t_routine_addm_cmd -> return RoutineCases.addm_cmd -> TClean.t_addm_cmd_k
+                                    -> return AddmClean().threading_exec(AddmClean().key_cmd, **kwargs) --(thread)-> (loop
+                                    for addm in seledted group) -> ADDMOperations().addm_exec_cmd It will choose cmd
+                                    from dict cases setup in ADDMOperations.__init__
+                                </div>
+                            </div>
+                        </div>
+                        <p></p>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=show_v">show_v</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_tpl">wipe_tpl</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_log">wipe_log</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_sync_log">wipe_sync_log</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_syslog">wipe_syslog</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_pool">wipe_pool</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_record">wipe_record</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_pattern_management">tw_pattern_management</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=_upload_unzip">_upload_unzip</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=product_content">product_content</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_model_wipe">tw_model_wipe</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_tax_import">tw_tax_import</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=test_kill">test_kill</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_scan_control">tw_scan_control</a>
+                        <a role="button" class="btn btn-sm btn-outline-danger" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tideway_restart">tideway_restart</a>
+                    </div>
+                </li>
+            </ul>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <div class="btn-group-sm">
+                        <button class="btn btn-sm btn-info" type="button" data-toggle="collapse" data-target="#ADDM_CLEANUP" aria-expanded="false" aria-controls="collapseExample">Info</button>
+                        <div class="collapse" id="ADDM_CLEANUP">
+                            <div class="card card-body">
+                                <div class="text-secondary">Run ADDM Cases. View RoutineCases.clean_addm ->
+                                    TClean.t_addm_clean -> return AddmClean().threading_exec(AddmClean().cleanup_case --(thread)->,
+                                    **kwargs).
+                                    Then it run ADDMOperations().addm_exec_cmd in for loop with each cmd related to specific
+                                    case from AddmClean.__init__
+                                    <p></p>
+                                    Clean Up modes:
+                                    <p></p>
+                                    addm_weekly_cleanup_options = ['tw_scan_control', 'test_kill', 'wipe_tpl', 'wipe_log', 'wipe_sync_log', 'wipe_syslog', 'tw_pattern_management', 'wipe_pool', 'wipe_record', 'tw_model_wipe', 'tw_tax_import', 'tideway_restart']
+                                    <p></p>
+                                    daily_cleanup_options = ['tw_scan_control', 'test_kill', 'wipe_tpl', 'wipe_log', 'wipe_sync_log', 'wipe_syslog', 'tw_pattern_management', 'wipe_pool', 'wipe_record', 'tw_tax_import', 'tideway_restart']
+                                    <p></p>
+                                    clean_test_options = ['tw_scan_control', 'test_kill', 'wipe_tpl', 'wipe_log', 'wipe_sync_log', 'wipe_syslog', 'tw_pattern_management', 'wipe_pool', 'wipe_record']
+                                </div>
+                            </div>
+                        </div>
+                        <p></p>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group=foxtrot">weekly</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_cleanup' %}?mode=daily;addm_group=foxtrot">daily</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_cleanup' %}?mode=tests;addm_group=foxtrot">tests</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_cleanup' %}?addm_group=foxtrot">None</a>
+                    </div>
+                </li>
+            </ul>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+
+                    <div class="btn-group-sm">
+                        <div class="text-secondary">Run ADDM tideway restart. AddmClean.tideway_restart OR</div>
+                        <button class="btn btn-sm btn-info" type="button" data-toggle="collapse" data-target="#DEV_ADDM_TW_RESTART" aria-expanded="false" aria-controls="collapseExample">Info</button>
+                        <div class="collapse" id="DEV_ADDM_TW_RESTART">
+                            <div class="card card-body">
+                                <div class="text-secondary"> Can not be suitable for newer addms? Do not work! Just hang...
+                                    cmd = 'sudo service tideway restart'
+
+                                    RoutineCases.addm_tw_restart
+                                    -> TClean.t_addm_restart
+                                    -> return AddmClean().threading_exec(AddmClean().tideway_restart, **kwargs)
+                                    --(thread)-> ADDMOperations().restart_tideway(ssh=ssh, addm_item=addm_item)
+                                    -->  ADDMConfigurations().addm_cmd_shell_tideway_restart
+                                </div>
+                            </div>
+                        </div>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_tw_restart' %}?addm_group=foxtrot">Run as separate func</a>
+                        <p></p>
+                        <button class="btn btn-sm btn-info" type="button" data-toggle="collapse" data-target="#DEV_ADDM_CUSTOM_CMD_restart" aria-expanded="false" aria-controls="collapseExample">Info</button>
+                        <div class="collapse" id="DEV_ADDM_CUSTOM_CMD_restart">
+                            <div class="card card-body">
+                                <div class="text-secondary">Can be suitable for any addm version?
+                                    In this case we try to use case approach and open interactive_shell=self.restart_tideway, on cmd_k='tideway_restart',
+                                    this could use the same approach as --(thread)-> ADDMOperations().restart_tideway(ssh=ssh, addm_item=addm_item) just only invoked from key case.
+                                    Finally: addm_exec_cmd will run interactive.
+                                </div>
+                            </div>
+                        </div>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tideway_restart">Run as part of cmd_k</a>
+                    </div>
+                </li>
+            </ul>
+
+
+        </div>
+    </div>
+</div>

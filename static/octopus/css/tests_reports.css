@@ -1,0 +1,450 @@
+/* GENERAL STYLES */
+.tableFixHead          { overflow-y: auto; height: 800px; }
+.tableFixHead thead th { position: sticky; top: 0; }
+
+/* Just common table stuff. Really. */
+table  { border-collapse: collapse; width: 100%; }
+th, td { padding: 8px 16px; }
+th     { background:#eee; }
+
+
+.list-nostyle{
+    list-style: none;
+}
+
+/*Text pre-WRAP*/
+.txt-prewrap{
+    white-space: pre-wrap;
+}
+.txt-right-prewrap{
+    text-align: right;
+    white-space: pre-wrap;
+}
+.txt-left-prewrap{
+    text-align: left;
+    white-space: pre-wrap;
+}
+.txt-center-prewrap{
+    text-align: center;
+    white-space: pre-wrap;
+}
+
+/* Nowrap */
+.txt-right-nowrap {
+    white-space: nowrap;
+    text-align: right !important;
+}
+.txt-left-nowrap{
+    white-space: nowrap;
+    text-align: left !important;
+}
+.txt-center-nowrap{
+    white-space: nowrap;
+    text-align: center!important;
+}
+.txt-center-middle {
+    vertical-align: middle!important;
+}
+
+/*Text styles*/
+.txt-sm-it{
+    font-size: 1em;
+    font-style: italic;
+}
+.txt-monospace{
+    font-size: 0.8em;
+    /*font-family: 'Ubuntu Mono', monospace;*/
+    font-family: 'Inconsolata', monospace!important;
+
+}
+
+/* tst_status colors */
+.tst-notpass {
+    /*background-color: #FEDCDD !important;*/
+    background-color: #E5C4CB !important;
+}
+.tst-fail {
+    /*background-color: #FEDCDD !important;*/
+    background-color: #E5C4CB !important;
+}
+.tst-error {
+    /*background-color: #FFF9DD !important;*/
+    background-color: #F9F1D5 !important;
+}
+.tst-skip {
+    /*background-color: #CCC7E1 !important;*/
+    background-color: #9998AE !important;
+}
+.tst-pass {
+    /*background-color: #CFEDCD !important;*/
+    background-color: #C6DABA !important;
+}
+.tst-None {
+    background-color: #bfcbd4 !important;
+}
+.dark {
+    background-color: #3f454b;
+}
+.text-white{
+    color: white;
+}
+/* ^^^ GENERAL STYLES ^^^ */
+/* Navigate on test reports NAV BAR */
+.test-report-navbar {
+    background-color: #e3f2fd;
+    /*margin: 1%;*/
+    margin: 20px 10px 20px 10px;
+}
+/*Navbar left part content*/
+.nav-reports-left {
+    display: flex;
+    justify-content: flex-start !important;
+}
+/*Navbar right part content*/
+.nav-reports-right {
+    display: flex;
+    justify-content: flex-end !important;
+}
+
+.dropdown-menu-right {
+    right: 0;
+}
+
+/*Change branch here*/
+.digest-branch {
+    padding-left: 10px;
+
+}
+/*Digest levels breadcrumbs*/
+.digest-breadcrumbs {
+    padding-left: 10px;
+
+}
+/*History browse*/
+.digest-history {
+    padding-left: 10px;
+}
+.case-info-view{
+    padding-left: 4rem;
+}
+.selection-state {
+    padding-left: 2rem;
+}
+/*Navbar right part content*/
+.digest-test-log-levels {
+    padding-left: 10px;
+}
+
+/*General report container*/
+.report-content {
+    padding: 10px 10px 10px 10px;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+    font-size: 1em;
+    text-align: center;
+}
+
+/* ADDM Digest URL: /octo_tku_patterns/addm_digest/ */
+.addm-digest-jumbotron {
+    padding: 2rem !important;
+    margin-bottom: 1rem !important;
+}
+.addm-digest-content {
+    padding: 5px 15px 20px 15px;
+}
+.addm-digest-table-container{
+    padding-left:9%;
+    padding-right:9%;
+    margin-bottom:5px;
+    margin-top:5px
+}
+.addm-digest-table-content {
+    vertical-align: middle !important;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+#tests-last-table {
+    font-size: 1em;
+    font-family: 'Maven Pro', sans-serif;
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    /*font-family: 'BenchNine', sans-serif;*/
+    /*font-family: 'Assistant', sans-serif;*/
+    /*font-family: 'Nunito', sans-serif;*/
+}
+
+/* Test Cases Digest URL: /octo_tku_patterns/tests_last/ */
+.table-shrink > tr > td {
+    padding: .1rem!important;
+    vertical-align: middle!important;
+}
+
+/* Test Unit item URL: /octo_tku_patterns/test_details/ */
+.test-unit-content{
+    padding-bottom: 40px;
+}
+.test-unit-table{
+    font-size: 1em;
+    text-align: center;
+    vertical-align: middle;
+    padding: .1rem!important;
+    /*font-family: 'Maven Pro', sans-serif;*/
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    font-family: 'Jaldi', sans-serif;
+    /*font-family: 'BenchNine', sans-serif;*/
+    /*font-family: 'Assistant', sans-serif;*/
+    /*font-family: 'Nunito', sans-serif;*/
+}
+
+#tst_class > li.tst_class {
+    font-size: .8em;
+    color: #0f6674;
+    font-style: italic;
+}
+#tst_class > li.tst_name {
+    font-size: .9em;
+    color: #1c7430;
+    font-weight: bold;
+}
+#tst_class > li.tst_status {
+    font-size: .8em;
+    font-style: italic;
+}
+#tst_class > li.tst_message {
+    font-size: .8em;
+    font-style: italic;
+}
+
+/**
+MODAL styles:
+ */
+.span-test-actions-modal-name {
+    margin-top: .5em;
+    font-size: 1.5em;
+    text-align: center;
+    font-family: 'Assistant', sans-serif;
+}
+.modal-variables > div {
+    display: list-item;
+    margin-left: 1em;
+}
+#tkn_branch {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#addm_name {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#pattern_library {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#pattern_folder_name {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#case_id {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#test_id {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#tst_class {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#tst_name {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#cases_ids {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#change_ticket {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#change_review {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#change_user {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#change {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+#test_py_path {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+
+/* Tooltip for pattern in table */
+.popover > div.popover-body > div > span {
+    padding-left: 1.5rem;
+}
+
+.popover > div.popover-body > div.tkn_branch {
+    background-image: url('/static/octicons/svg/git-commit.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    color: #0c5460;
+    font-weight: bold;
+    text-align: left !important;
+}
+
+.popover > div.popover-body > div.test_case_depot_path {
+    background-image: url('/static/fontawesome/svgs/solid/dna.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    color: #0c5460;
+    font-size: 1em;
+    font-family: monospace;
+    text-align: left !important;
+}
+
+.popover > div.popover-body > div.pattern_library {
+    background-image: url('/static/octicons/svg/repo.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.change_user {
+    background-image: url('/static/octicons/svg/person.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.change_time {
+    background-image: url('/static/octicons/svg/calendar.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.test_date_time {
+    background-image: url('/static/fontawesome/svgs/regular/clock.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.change_ticket {
+    background-image: url('/static/octicons/svg/issue-closed.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.change_desc {
+    background-image: url('/static/octicons/svg/info.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.addm_v_int {
+    background-image: url('/static/fontawesome/svgs/solid/server.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+.popover > div.popover-body > div.addm_group {
+    background-image: url('/static/fontawesome/svgs/solid/layer-group.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+.popover > div.popover-body > div.addm_host {
+    background-image: url('/static/fontawesome/svgs/solid/at.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.test_items_prepared {
+    background-image: url('/static/fontawesome/svgs/solid/vial.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.fails {
+    background-image: url('/static/fontawesome/svgs/solid/bug.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    color: #843534 !important;
+}
+
+.popover > div.popover-body > div.error {
+    background-image: url('/static/fontawesome/svgs/solid/exclamation-circle.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    color: #d39e00 !important;
+}
+
+.popover > div.popover-body > div.passed {
+    background-image: url('/static/fontawesome/svgs/solid/check-circle.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    color: #1c7430 !important;
+}
+
+.popover > div.popover-body > div.skipped {
+    background-image: url('/static/fontawesome/svgs/solid/step-forward.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    color: #0f6674 !important;
+}
+
+.popover > div.popover-body > div.time_spent_test {
+    background-image: url('/static/octicons/svg/clock.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.test_time_weight {
+    background-image: url('/static/octicons/svg/clock.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.test_py_path {
+    background-image: url('/static/octicons/svg/file-code.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.case_group {
+    background-image: url('/static/octicons/svg/briefcase.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    white-space: pre-wrap;
+}

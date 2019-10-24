@@ -1,0 +1,56 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Test Case update {{ form.instance.test_case_depot_path }}
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}"/>
+    <div style="padding: 1% 0 0 2%;">
+        <a href="{% url 'test_cases' %}" class="btn btn-sm btn-light">{% select_icon 'arrow-left' 34 'right' 0.2 %}Back
+            to all</a>
+    </div>
+    <div class="single-case" style="padding: 1% 2% 2% 2%;">
+        <div class="card">
+            <div class="card-header">Test case</div>
+            <div class="card-body">
+                <h5 class="card-title">Edit test case:</h5>
+                <a class="btn btn-sm btn-outline-info" href="{% url 'test_case' pk=form.instance.id %}" {% popover 'hover' 'left' None 'View case full info' %}>View this case</a>
+                <p class="text-warning">There is no actual need to edit case data, it will be refreshed autimatically at the next p4 sync run. Change only if you know what you're doing.</p>
+                <div style="padding: 20px">
+                    <form method="post">{% csrf_token %}
+                        {{ form.as_p }}
+                        <input class="btn btn-primary" type="submit" value="Update">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'cases_workbench' %}">Workbench Cases</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'test_cases' %}">Test Cases</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'test_case' pk=form.instance.id %}">Edit Test Case: {{ form.instance.test_case_depot_path }}</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+
+{% endblock %}

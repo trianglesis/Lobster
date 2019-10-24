@@ -1,0 +1,64 @@
+{% load static %}
+{% load tz %}
+{% load template_simplify %}
+<div class="btn-group btn-group-sm btn-outline-info" role="group" style="font-size: 0.9em;">
+    <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>
+    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+        <div class="dropdown-divider"></div>
+        {% if history %}
+            <!-- This is history located test run button -->
+            {% if pattern_row.tst_class %}
+                <a class="dropdown-item" style="font-size: 0.8em;"
+                   href="{% url 'last_success' %}?{{ TEST_STRING }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}">{% spaceless %}
+                {% endspaceless %}{% select_icon 'eye' 18 'right' 0.2 %}<b class="text-info">Last success</b>
+                </a>
+                <div class="dropdown-divider"></div>
+            {% endif %}
+
+            <a class="dropdown-item" style="font-size: 0.9em;"
+               href="{% url "test_execute_web" %}?{{ TEST_STRING }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}">{% spaceless %}
+            {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run single test!</b>
+            </a>
+            <a class="dropdown-item" style="font-size: 0.9em;"
+               href="{% url "test_execute_web" %}?{{ TEST_STRING }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }};wipe=1">{% spaceless %}
+            {% endspaceless %}{% select_icon 'trashcan' 18 'right' 0.2 %}<b class="text-danger">Wipe + run single test!</b>
+            </a>
+            <a class="dropdown-item" style="font-size: 0.9em;"
+               href="{% url "test_execute_web" %}?{{ TEST_STRING }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}&refresh=1">{% spaceless %}
+            {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">P4 + run single test!</b>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" style="font-size: 0.9em;"
+               href="{% url "test_execute_web" %}?{{ TEST_STRING }}">{% spaceless %}
+            {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run test.py!</b>
+            </a>
+            <a class="dropdown-item" style="font-size: 0.9em;"
+               href="{% url "test_execute_web" %}?{{ TEST_STRING }};wipe=1">{% spaceless %}
+            {% endspaceless %}{% select_icon 'trashcan' 18 'right' 0.2 %}<b class="text-danger">Wipe + run test.py!</b>
+            </a>
+            <a class="dropdown-item" style="font-size: 0.9em;"
+               href="{% url "test_execute_web" %}?{{ TEST_STRING }};refresh=1">{% spaceless %}
+            {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">P4 + run test.py!</b>
+            </a>
+        {% else %}
+            <!-- This is usual located test run button -->
+            <a class="dropdown-item" style="font-size: 0.8em;"
+               href="{% url 'pattern_logs' %}?{{ TEST_STRING }}{% if ADPROD_USER %}adprod_user={{ ADPROD_USER }}{% endif %}">{% select_icon 'file' 18 'right' 0.2 %}<b class="text-info">Logs</b>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" style="font-size: 0.8em;"
+               href="{% url "test_execute_web" %}?{{ TEST_STRING }}">{% spaceless %}
+               {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run!</b>
+            </a>
+            <a class="dropdown-item" style="font-size: 0.8em;"
+               href="{% url "test_execute_web" %}?{{ TEST_STRING }}&wipe=1">{% spaceless %}
+               {% endspaceless %}{% select_icon 'trashcan' 18 'right' 0.2 %}<b class="text-danger">Wipe+run!</b>
+            </a>
+            <a class="dropdown-item" style="font-size: 0.8em;"
+               href="{% url "test_execute_web" %}?{{ TEST_STRING }}&refresh=1">{% spaceless %}
+               {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">P4+run!</b>
+            </a>
+        {% endif %}
+        <div class="dropdown-divider"></div>
+    </div>
+</div>

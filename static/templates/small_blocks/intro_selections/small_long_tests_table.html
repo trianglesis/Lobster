@@ -1,0 +1,25 @@
+{% load template_simplify %}
+{% with "text-center align-middle" as text_align %}
+<div style="padding-top: 1em">
+    <table id="top_long_table" class="table table-hover table-sm">
+        <thead class="table-light bg-light table-sm">
+            <tr>
+                <th scope="col" class="{{ text_align }} bg-light">Pattern item</th>
+                <th scope="col" class="{{ text_align }} bg-light">Time spent</th>
+                <th scope="col" class="{{ text_align }} bg-light">Addm name</th>
+                <th scope="col" class="{{ text_align }} bg-light">Addm group</th>
+            </tr>
+        </thead>
+        <tbody class="table-light bg-light table-sm">
+        {% for patt_row in TEST_TOP %}
+            <tr>
+                <td scope="row" class="{{ text_align }} font-weight-normal" style="font-size: 1em;font-family: monospace">{{ patt_row.pattern_library }}/{{ patt_row.pattern_folder_name }}</td>
+                <td scope="row" class="{{ text_align }} font-weight-bold" style="font-size: 1em;font-family: monospace">{{ patt_row.time_spent_test | f_sec }}</td>
+                <td scope="row" class="{{ text_align }} font-weight-normal" style="font-size: 1em;font-family: monospace">{{ patt_row.addm_name }}</td>
+                <td scope="row" class="{{ text_align }} font-weight-normal" style="font-size: 1em;font-family: monospace">{{ patt_row.addm_group }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endwith %}

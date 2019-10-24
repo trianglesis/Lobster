@@ -1,0 +1,88 @@
+{% load static %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% block content %}
+    {% spaceless %}
+    <!-- ADDM logs table content: -->
+    <table id="tests-last-table" class="table table-bordered table-hover table-sm">
+        <thead>
+        <!-- ADDM table Head: -->
+        <th>View</th>
+        <th>Branch</th>
+        <th>Library</th>
+        <th>Folder name</th>
+        <th>Addm name</th>
+        <th>Addm v</th>
+        <th>User</th>
+        <th>Tests</th>
+        <th>Fail</th>
+        <th>Error</th>
+        <th>Pass</th>
+        <th>Skip</th>
+        <th>Tested</th>
+        <th></th>
+        </thead>
+        <tbody class="table-shrink">
+        <!-- ADDM table rows in cycle: -->
+        {% for test in tests_digest %}
+            {% if test.addm_name == var_addm_name or not var_addm_name %}
+                <tr>
+                    <td id="tooltip">
+                        <a class="btn btn-sm" {% tooltip_tku_test 'hover' 'right' test %}><i class="far fa-eye"></i></a>
+                    </td>
+                    <td id="tkn_branch">{{ test.tkn_branch }}</td>
+                    <td id="pattern_library" class="txt-center-nowrap table-shrink"><span>{{ test.pattern_library }}</span></td>
+                    <td id="pattern_folder_name" class="txt-center-nowrap"><span>{{ test.pattern_folder_name }}</span></td>
+                    <td id="addm_name"><span>{{ test.addm_name }}</span></td>
+                    <td id="addm_v_int">{{ test.addm_v_int }}</td>
+                    <td id="change_user">{{ test.change_user }}</td>
+                    <td id="test_items_prepared">{{ test.test_items_prepared }}</td>
+                    <td id="fails">{{ test.fails }}</td>
+                    <td id="error">{{ test.error }}</td>
+                    <td id="passed">{{ test.passed }}</td>
+                    <td id="skipped">{{ test.skipped }}</td>
+                    <td id="test_date_time" class="txt-center-prewrap">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
+                    <td id="action" class="actions_button">
+                        <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                                data-target="#actionsModal"
+                                data-tst_status="{{ selector.tst_status }}"
+                                data-addm_name="{{ selector.addm_name }}">Actions
+                        </button>
+                    </td>
+                    <td id="change" style="display:none">{{ test.change }}</td>
+                    <td id="change_review" style="display:none">{{ test.change_review }}</td>
+                    <td id="change_ticket" style="display:none">{{ test.change_ticket }}</td>
+                    <td id="test_type" style="display:none">{{ test.test_type }}</td>
+                    <td id="change_time" style="display:none">{{ test.change_time }}</td>
+                    <td id="change_desc" style="display:none">{{ test.change_desc }}</td>
+                    <td id="test_case_depot_path" style="display:none">{{ test.test_case_depot_path }}</td>
+                    <td id="test_py_path" style="display:none">{{ test.test_py_path }}</td>
+                    <td id="time_spent_test" style="display:none">{{ test.time_spent_test }}</td>
+                    <td id="test_time_weight" style="display:none">{{ test.test_time_weight }}</td>
+                    <td id="test_id" style="display:none">{{ test.test_id }}</td>
+                    <td id="case_id" style="display:none">{{ test.case_id }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    <tfoot>
+        <th>View</th>
+        <th>Branch</th>
+        <th>Library</th>
+        <th>Folder name</th>
+        <th>Addm name</th>
+        <th>Addm v</th>
+        <th>User</th>
+        <th>Tests</th>
+        <th>Fail</th>
+        <th>Error</th>
+        <th>Pass</th>
+        <th>Skip</th>
+        <th>Tested</th>
+        <th></th>
+    </tfoot>
+    </table>
+    {% endspaceless %}
+{% endblock %}
+

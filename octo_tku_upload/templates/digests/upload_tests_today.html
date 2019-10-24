@@ -1,0 +1,106 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Today Upload tests
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/upload-tests.css' %}"/>
+
+    <nav class="navbar navbar-light test-report-navbar">
+        <!-- Navbar content -->
+        <!-- Navbar left part content -->
+        <div class="nav-reports-left">
+            <!-- Digest levels breadcrumbs: -->
+            <div class="digest-breadcrumbs">
+                <nav class="nav nav-pills">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                        <a class="btn btn-sm btn-light" href="{% url 'tku_workbench' %}"><i class="fas fa-step-backward"></i> TKU Upload Workbench</a>
+                        {% if previous_day %}
+                            <a class="btn btn-sm btn-light"
+                               href="{% url 'upload_test_day' year=previous_day|date:'Y' month=previous_day|date:'b' day=previous_day|date:'d' %}">
+                                <i class="fas fa-backward"></i> Yesterday {{ previous_day|date:"F j, Y" }}
+                            </a>
+                        {% endif %}
+                        <a class="btn btn-sm btn-light active" href="#"><i class="fas fa-play"></i> Tests Today {{ day }}</a>
+                        {% if next_day %}
+                            <a class="btn btn-sm btn-light" href="#"><i class="fas fa-play"></i> Tomorrow {{ next_day }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </nav>
+            </div>
+            <!-- History browse: -->
+            <div class="digest-history"><!-- No History selection for ADDM Digest --></div>
+            <!-- Change branch here: -->
+            <div class="digest-branch"><!-- No branch selection for ADDM Digest, just tabs --></div>
+        </div>
+        <!-- Navbar right part content -->
+        <div class="nav-reports-right digest-test-log-levels"><!-- No Log levels sort for ADDM Digest: --></div>
+    </nav>
+    <p>TO DO:</p>
+    <ul>
+        <li>Add buttons sorting by all possible: test_mode, tku_type, mode_key, addm_name</li>
+        <li>Add button to sort\browse by package type/name or so. To get find one package for related release?</li>
+        <li>Popover for long outputs make separate: for warn, stderr</li>
+        <li>Important and full outputs show in modal</li>
+        <li>Reinvent Upload workbench</li>
+    </ul>
+    {# Break queryset to portions based on tky_type, and then render ech type in it's own table   #}
+    {% regroup object_list|dictsort:'tku_type' by tku_type as tku_type_tests %}
+    <div class="upload-test-today-content">
+        <div class="row">
+            {% for test_tku_type in tku_type_tests %}
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-header">{{ test_tku_type.grouper }}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Mode key: "{{ test_tku_type.list.0.mode_key }}"</h5>
+                            {% include 'digests/tables_details/today_table.html' with object_list=test_tku_type.list %}
+                            <p class="card-text"><small class="text-muted">Package name: {{ test_tku_type.list.0.package_type }}</small></p>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Test mode: {{ test_tku_type.list.0.test_mode }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="days-browse">
+        <p>
+            {% if previous_day %}
+                Previous Day: {{ previous_day }}
+            {% endif %}
+            {% if previous_day and next_day %}--{% endif %}
+            {% if next_day %}
+                Next Day: {{ next_day }}
+            {% endif %}
+        </p>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'tku_workbench' %}">TKU Upload Workbench</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'upload_test_today' %}">Tests Today</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    <script src="{% static 'octopus/js/upload-test-table-color.js' %}"></script>
+{% endblock %}
+

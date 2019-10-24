@@ -1,0 +1,105 @@
+{% load i18n %}
+{% load static %}
+{% load template_simplify %}
+<div class="card" style="margin-right: 0.3em;margin-left: 0.3em">
+    <div class="card-header text-muted"><h6>ADDM Codebase sync/update</h6></div>
+    <div class="card-body">
+        <div role="toolbar" style="padding-top: 0.2em;">
+            <h6>ADDM update\upgrade</h6>
+            <!-- Modal button for: "ADDM Update" -->
+            <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                    data-target="#addm_update_manual">ADDM VMs update options <img alt=""
+                    style="height:24px;width:24px;" src="{% static "octicons/svg/cloud-upload.svg" %}">
+            </button>
+            <!-- Modal body "ADDM Update"-->
+            <div class="modal fade" id="addm_update_manual" tabindex="-1" role="dialog"
+                 aria-labelledby="addm_update_manual_modal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content border-info">
+                        <div class="modal-header bg-info">
+                            <h6 class="modal-title" id="addm_update_manual_modal">Update or upgrade
+                                ADDMs:</h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body" style="margin-left: 1em">
+                            {% if not staff_user_bool and not power_user_bool %}
+                                <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                            <p>This will help you to update ADDM test scripts or upgrade taxonomy or
+                                platform scripts.</p>
+                            <li>Run this after tw_model_wipe!</li>
+                            <li>Run this when you see that tests fails because of old models.</li>
+                            <li>Run this when you need to upgrade ADDM with new platform scripts.</li>
+                            {% if power_user_bool %}
+                                <div style="padding-bottom: 1%">
+                                    <h6>Taxonomy</h6> execute <a
+                                        href="https://docs.bmc.com/docs/display/DISCO110/tw_tax_import">tw_tax_import</a>
+                                    <div class="text-warning">** REMINDER: You should restart tideway
+                                        services after tax update**
+                                    </div>
+                                    {% with 'alpha beta delta charlie echo foxtrot' as addm_group_list %}
+                                        {% for addm in addm_group_list.split %}
+                                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tw_tax_import for {{ addm }}" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group={{ addm }}">{{ addm }}</a>
+                                        {% endfor %}
+                                        {% with addm_group_list.split as addm_list  %}
+                                            <a role="button" class="btn btn-sm btn-outline-danger" title="Run tw_tax_import" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group={{ addm_list|join:"," }}">Update taxonomy all</a>
+                                        {% endwith %}
+                                    {% endwith %}
+                                </div>
+                            {% else %}
+                                <p>You can execute this only as power user.</p>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Modal "ADDM Update" -->
+
+            <h6>ADDM SYNC Shares Octopus  NFS -> ADDM FS</h6>
+            <!-- Modal button for: "ADDM SYNC Shares Octopus  NFS -> ADDM FS" -->
+            <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#ManualADDMSYNC">Tideway SYNC FS <img alt="" style="height:24px;width:24px;" src="{% static "octicons/svg/sync.svg" %}"></button>
+            <!-- Modal body "ADDM Tideway restart"-->
+            <div class="modal fade" id="ManualADDMSYNC" tabindex="-1" role="dialog"
+                 aria-labelledby="manual_addm_sync" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content border-info">
+                        <div class="modal-header bg-info">
+                            <h6 class="modal-title" id="manual_addm_sync">Sync ADDM</h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body" style="margin-left: 1em">
+                            {% if not staff_user_bool and not power_user_bool %}
+                                <p>For 'staff' and 'powerusers' users only.</p>{% endif %}
+                            <p>Execute rsync utility for selected ADDM group (for each ADDM in it) to sync files from Octopus NFS share to local ADDM FS</p>
+                            <li>Octopus NFS share mounted as: /usr/tideway/TKU/..</li>
+                            <li>ADDM FS share mounted as: /usr/tideway/SYNC/..</li>
+                        </div>
+                        <div class="modal-footer">
+                            {% if power_user_bool %}
+                                {% with 'alpha beta delta charlie echo foxtrot' as addm_group_list %}
+                                {% for addm in addm_group_list.split %}
+                                    <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_sync_shares' %}?addm_group={{ addm }}">{{ addm }} {% select_icon 'sync' 20 'left' 0.4 %}</a>
+                                {% endfor %}
+                                {% endwith %}
+                            {% else %}
+                                <p>You can execute this only as power user.</p>
+                            {% endif %}
+                            <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Modal "ADDM SYNC Shares Octopus  NFS -> ADDM FS" -->
+
+            <h6>ADDM Buttons</h6>
+            <a role="button" class="btn btn-sm btn-outline-info" title="ADDM Buttons" href="{% url 'addm_buttons_page' %}">ADDM Buttons</a>
+        </div>
+    </div>
+</div>

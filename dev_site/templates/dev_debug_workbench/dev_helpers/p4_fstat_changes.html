@@ -1,0 +1,57 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+Octopus administration
+{% endblock %}
+{% block content %}
+{% load static %}
+<!-- Sub nav on child page P$ info Summary -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <!-- Content header block with navigation: -->
+    <div class="alert alert-secondary" role="alert">
+        <!-- Subject: -->
+        {{SUBJECT}}
+    </div>
+</div>
+{% if staff_user_bool %}
+<div style="padding-left:2%;padding-right:2%">
+<p>{{ TASK_RESULT }}</p>
+    <div>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+      Show task status:
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Task Name</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <p>Task ID = {{ TASK_ID }}</p>
+              <p>Task state success = {{ TASK_STATE }}</p>
+              <p>Task status success = {{ TASK_STATUS }}</p>
+              <p>Task result = {{ TASK_RESULT }}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Do something?</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+</div>
+{% else %}
+    <!-- Login form request. -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <div class="alert alert-warning" role="alert">
+        Please log in as user, which authorised to manage this page.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

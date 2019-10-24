@@ -1,0 +1,70 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Group test cases
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/groups.css' %}"/>
+    <div style="padding: 1% 0 0 2%;">
+        <div class="alert alert-dark" role="alert">
+            Custom test groups. Can be used for test skip, execute, sort in customizable groups. Add a group with
+            informative description, for example, if you want to indicate that test is broken.
+        </div>
+        <div style="padding: 0 5% 5% 5%;">
+            <a href="{% url 'test_cases_group_create' %}">Create group</a>
+            <div class="list-group groups-content" >
+                {% for group in groups %}
+                    <a href="{% url 'test_cases_group' pk=group.id %}"
+                       class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h3 class="mb-1">{% select_icon 'briefcase' 34 'right' 0.2 %}{{ group.title }}</h3>
+                            <small>{{ group.changed_date|timezone:"Europe/London"|naturaltime }}</small>
+                        </div>
+                        <p class="mb-1">{{ group.description }}</p>
+                        <span style="font-size: 0.8em;font-family: monospace;text-align: left !important;">
+                            {% if group.test_cases %}
+                                {% for case in group.test_cases.all %}
+                                    {{ case.tkn_branch }}/{{ case.pattern_folder_name }},
+                                {% endfor %}
+                            {% endif %}
+                        </span>
+                        <p></p>
+                        <span class="badge badge-info">{{ group.author }}</span> at <span class="badge badge-light">{{ group.pub_date }}</span>
+    {#                    <div style="display:inline-block; float: right">#}
+    {#                        <button class="btn btn-sm btn-warning" href="{% url 'test_cases_group_update' pk=group.id %}">Edit</button>#}
+    {#                        <button class="btn btn-sm btn-outline-warning" href="#">Run all</button>#}
+    {#                        <button class="btn btn-sm btn-danger disabled" href="#">Delete</button>#}
+    {#                    </div>#}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% include 'small_blocks/pagination.html' %}
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'cases_workbench' %}">Workbench Cases</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'test_cases_groups' %}">Groups</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+{% endblock %}
+
+
+

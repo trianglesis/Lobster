@@ -1,0 +1,38 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+    All logs from RoutineExecutionLog
+{% endblock %}
+{% block content %}
+    <!-- Upload test digest table content: -->
+    <div style="padding-left:1%;padding-right:1%;margin-bottom:5px;margin-top:5px">
+        <table id="addm_table" class="table table-hover table-sm">
+            <thead>
+            <!-- Upload tests table Head: -->
+            <th class="text-center table-info" scope="col">routine_date_time_auto</th>
+            <th class="text-center table-info" scope="col">routine_name</th>
+            <th class="text-center table-info" scope="col">routine_date_time_start</th>
+            <th class="text-center table-info" scope="col">routine_time_spent</th>
+            <th class="table-info" scope="col">routine_key</th>
+            <th class="text-center table-info" scope="col">routine_args</th>
+            <th class="text-center table-info" scope="col">routine_kwargs</th>
+
+            </thead>
+            <tbody>
+            <!-- Upload test items table rows in cycle: -->
+            {% for log_item in LOG_ITEMS_Q %}
+                <tr>
+                    <td class="text-center table-light text-dark">{{ log_item.routine_date_time_auto }}</td>
+                    <td class="text-center table-light text-dark">{{ log_item.routine_name }}</td>
+                    <td class="text-center table-light text-dark">{{ log_item.routine_date_time_start }}</td>
+                    <td class="text-center table-light text-dark">{{ log_item.routine_time_spent }}</td>
+                    <td class="table-light text-dark">{{ log_item.routine_key }}</td>
+                    <td class="text-center table-light text-dark">{{ log_item.routine_args }}</td>
+                    <td class="text-center table-light text-dark">{{ log_item.routine_kwargs }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+Octopus administration
+{% endblock %}
+{% block content %}
+{% load static %}
+{% load tz %}
+{% if not anon_bool %}
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <!-- Content header block with navigation: -->
+    <div class="alert alert-secondary" role="alert">
+        <div aria-label="Branch icons" style="float: left;padding-right:1%;"><img style="height:36px;width:36px;" src="{% static "octicons/svg/clock.svg" %}" title="Output" alt="output" /></div>
+        <!-- Subject: -->
+        <button id="subject" type="button" class="btn btn-sm btn-outline-dark disabled">{{SUBJECT}}</button>
+    </div>
+    <!-- CMD OUTPUT -->
+    <div class="card">
+      <div class="card-header">
+        OUTPUT <b>{{ SUBJECT }}</b>
+      </div>
+      <div class="card-body">
+
+        {% if STR_OUTPUT %}
+          <table id="cmd_results" class="table table-condensed table-bordered table-hover table-sm">
+            <thead>
+                <th id="name" class="table-info" scope="col">Str Output:</th>
+                <th id="name" class="table-info" scope="col">Str Values:</th>
+            </thead>
+            <tbody>
+            <tr>
+                <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">Str</td>
+                <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ STR_OUTPUT }}</td>
+            </tr>
+            </tbody>
+          </table>
+        {% endif %}
+
+        {% if LIST_OUTPUT %}
+         Len: {{ LIST_OUTPUT|length }}
+          <table id="cmd_results" class="table table-condensed table-bordered table-hover table-sm">
+            <thead>
+                <th id="name" class="table-info" scope="col">List Output:</th>
+                <th id="name" class="table-info" scope="col">List Values:</th>
+            </thead>
+            <tbody>
+            {% for item in LIST_OUTPUT %}
+                <tr>
+                    <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ forloop.counter }}:</td>
+                    <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ item }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+
+        {% if KV_OUTPUT %}
+            Len: {{ KV_OUTPUT|length }}
+          <table id="cmd_results" class="table table-condensed table-bordered table-hover table-sm">
+            <thead>
+                <th id="name" class="table-info" scope="col">KeyVal Output:</th>
+                <th id="name" class="table-info" scope="col">KeyVal Values:</th>
+            </thead>
+            <tbody>
+                {% for cmd_k, cmd_v in KV_OUTPUT.items %}
+                    <tr>
+                        <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ forloop.counter }} cmd_k: <b>'{{ cmd_k }}'</b></td>
+                        <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">cmd_v: '{{ cmd_v }}'</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+
+        {% if QUERY_OUTPUT %}
+            Len: {{ QUERY_OUTPUT|length }}
+          <table id="cmd_results" class="table table-condensed table-bordered table-hover table-sm">
+            <thead>
+                <th id="name" class="table-info" scope="col">Query Output:</th>
+                <th id="name" class="table-info" scope="col">Query Values:</th>
+            </thead>
+            <tbody>
+                {% for item in QUERY_OUTPUT %}
+                    <tr>
+                        <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ forloop.counter }}</td>
+                        <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">
+                        {% for item_k, item_v in item.items %}
+                            <li>{{ item_k }}: {{ item_v }}</li>
+                        {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+
+
+        {% if ITEMS_QUERY_OUTPUT %}
+            Len: {{ ITEMS_QUERY_OUTPUT|length }}
+          <table id="cmd_results" class="table table-condensed table-bordered table-hover table-sm">
+            <thead>
+                <th id="name" class="table-info" scope="col">ITEMS_QUERY_OUTPUT Output:</th>
+                <th id="name" class="table-info" scope="col">ITEMS_QUERY_OUTPUT Values:</th>
+            </thead>
+            <tbody>
+                {% for Q_key, Q_val in ITEMS_QUERY_OUTPUT.items %}
+                    <tr>
+                        <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal">{{ forloop.counter }}</td>
+                        <td id="name" class="table-light text-dark" style="font-size:8pt;font-family:monospace;line-break: normal"> {{ Q_key }}
+                        {% for item_k, item_v in Q_val.items %}
+                            <li>{{ item_k }}: {{ item_v }}</li>
+                        {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+
+          <footer class="blockquote-footer">Result can be STR_OUTPUT, LIST_OUTPUT, KV_OUTPUT.</footer>
+      </div>
+    </div>
+
+</div>
+{% else %}
+    <!-- Login form request. -->
+<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+    <div class="alert alert-warning" role="alert">
+        Please log in as user, which authorised to manage this page.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

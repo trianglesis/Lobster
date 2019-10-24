@@ -1,0 +1,94 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Daily browsing history tests
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <h1>{{ day }}</h1>
+    <table class="table table-active table-bordered table-shrink">
+        <thead>
+        <tr>
+            <th>test_mode</th>
+            <th>mode_key</th>
+            <th>package_type</th>
+            <th>tku_type</th>
+{#            <th>tku_build</th>#}
+{#            <th>tku_date</th>#}
+{#            <th>tku_month</th>#}
+            <th>upload_test_status</th>
+{#            <th>upload_test_str_stdout</th>#}
+{#            <th>upload_test_str_stderr</th>#}
+{#            <th>important_out</th>#}
+            <th>all_errors</th>
+            <th>all_warnings</th>
+{#            <th>upload_warnings</th>#}
+{#            <th>upload_errors</th>#}
+{#            <th>tku_statuses</th>#}
+{#            <th>tested_zips</th>#}
+            <th>addm_name</th>
+            <th>addm_v_int</th>
+{#            <th>addm_host</th>#}
+{#            <th>addm_ip</th>#}
+{#            <th>addm_version</th>#}
+{#            <th>time_spent_test</th>#}
+            <th>test_date_time</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for test in object_list %}
+            <tr>
+                <td id="test_mode">{{ test.test_mode }}</td>
+                <td id="mode_key">{{ test.mode_key }}</td>
+                <td id="package_type">{{ test.package_type }}</td>
+                <td id="tku_type">{{ test.tku_type }}</td>
+{#                <td id="tku_build">{{ test.tku_build }}</td>#}
+{#                <td id="tku_date">{{ test.tku_date }}</td>#}
+{#                <td id="tku_month">{{ test.tku_month }}</td>#}
+                <td id="upload_test_status">{{ test.upload_test_status }}</td>
+{#                <td id="upload_test_str_stdout">{{ test.upload_test_str_stdout|escape|safe }}</td>#}
+{#                <td id="upload_test_str_stderr">{{ test.upload_test_str_stderr|escape|safe }}</td>#}
+{#                <td id="important_out">{{ test.important_out|escape|safe }}</td>#}
+                <td id="all_errors">{{ test.all_errors }}</td>
+                <td id="all_warnings">{{ test.all_warnings }}</td>
+{#                <td id="upload_warnings">{{ test.upload_warnings|escape|safe }}</td>#}
+{#                <td id="upload_errors">{{ test.upload_errors }}</td>#}
+{#                <td id="tku_statuses">{{ test.tku_statuses|escape|safe }}</td>#}
+{#                <td id="tested_zips">{{ test.tested_zips }}</td>#}
+                <td id="addm_name">{{ test.addm_name }}</td>
+                <td id="addm_v_int">{{ test.addm_v_int }}</td>
+{#                <td id="addm_host">{{ test.addm_host }}</td>#}
+{#                <td id="addm_ip">{{ test.addm_ip }}</td>#}
+{#                <td id="addm_version">{{ test.addm_version }}</td>#}
+{#                <td id="time_spent_test">{{ test.time_spent_test }}</td>#}
+                <td id="test_date_time">{{ test.test_date_time }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p>
+        {% if previous_day %}
+            Previous Day: {{ previous_day }}
+        {% endif %}
+        {% if previous_day and next_day %}--{% endif %}
+        {% if next_day %}
+            Next Day: {{ next_day }}
+        {% endif %}
+    </p>
+
+    <div id="history_test_generic">
+        {#    {% with object_list as test_detail %}#}
+        {#        {% include 'digests/tables_details/test_details_table.html' %}#}
+        {#    {% endwith %}#}
+    </div>
+{% endblock %}
+

@@ -1,0 +1,16 @@
+{% load static %}
+{% block content %}
+<div style="padding-left:5%;padding-right:5%">
+    <ul class="nav nav-tabs nav-justified">
+      <li class="nav-item">
+        <a class="nav-link {% if BRANCH == 'tkn_main' %}active{% else %}badge-light{% endif %}" href="{{ request.path }}?branch=tkn_main{% if RELEASE %}&release=True{% endif %}{% if PATTERN_LIBRARY %}&pattern_library={{ PATTERN_LIBRARY }}{% endif %}{% if IS_KEY_PATTERN %}&is_key_pattern=True{% endif %}"><img style="height:36px;width:36px;" src="{% static "octicons/svg/git-branch.svg" %}" alt="branch_main" />TKN_MAIN</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if BRANCH == 'tkn_ship' %}active{% else %}badge-light{% endif %}" href="{{ request.path }}?branch=tkn_ship{% if RELEASE %}&release=True{% endif %}{% if PATTERN_LIBRARY %}&pattern_library={{ PATTERN_LIBRARY }}{% endif %}{% if IS_KEY_PATTERN %}&is_key_pattern=True{% endif %}"><img style="height:36px;width:36px;" src="{% static "octicons/svg/git-merge.svg" %}" alt="merge_ship" />TKN_SHIP</a>
+      </li>
+{#      <li class="nav-item">#}
+{#        <a class="nav-link {% if OPTION == 'diff' %}active{% else %}badge-info{% endif %}" href="{{ request.path }}?diff_branches=True"><img style="height:36px;width:36px;" src="{% static "octicons/svg/diff.svg" %}" alt="merge_ship" />DIFF</a>#}
+{#      </li>#}
+    </ul>
+</div>
+{% endblock %}

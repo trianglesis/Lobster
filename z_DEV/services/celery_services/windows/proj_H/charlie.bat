@@ -1,0 +1,1 @@
+D:\Projects\PycharmProjects\lobster\venv\Scripts\activate.bat && celery -A octo.octo_celery:app worker --pool=eventlet --loglevel=ERROR --concurrency=1 -E -n charlie@tentacle

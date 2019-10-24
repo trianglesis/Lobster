@@ -1,0 +1,126 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Group {{ group.title }}
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/groups.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/modal_cases_multiple.css' %}"/>
+    <div aria-live="polite" aria-atomic="true" style="position: relative">
+        <!-- Position it -->
+        <div style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 1"></div>
+        </div>
+    </div>
+    <div style="padding: 1% 0 0 2%;">
+        <a href="{% url 'test_cases_groups' %}" class="btn btn-sm btn-light">{% select_icon 'arrow-left' 34 'right' 0.2 %}Back to all</a>
+    </div>
+    <div class="case-group" style="padding: 1% 2% 2% 2%;">
+        <div class="card">
+            <div class="card-header">Test group item:</div>
+            <div class="card-body">
+                <h5 class="card-title">{% select_icon 'briefcase' 34 'right' 0.2 %}{{ group.title }}</h5>
+                <p class="card-text">{{ group.description }}</p>
+                {% if group.test_cases %}
+                    <table class="table table-hover table-sm">
+                        <thead>
+                        <tr>
+                            <th class="center_txt">#</th>
+                            <th class="center_txt">Type</th>
+                            <th class="center_txt">Branch</th>
+                            <th class="center_txt">Library</th>
+                            <th class="center_txt">Pattrn Dir</th>
+                            <th class="center_txt">Change</th>
+                            <th class="center_txt">User</th>
+                            <th class="center_txt">Review</th>
+                            <th class="center_txt">JIRA</th>
+                            <th class="center_txt">Test</th>
+                            <th class="center_txt">t:</th>
+                            <th class="center_txt">Changed</th>
+{#                            <th class="center_txt"></th>#}
+                            <th class="center_txt"></th>
+                            <th class="center_txt"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for case in group.test_cases.all %}
+                            <tr>
+                                <td class="row-txt-center-sm"><a class="btn btn-sm btn-light"
+                                        href="{% url 'test_case_update' pk=case.id %}" {% popover 'hover' 'left' None 'View' %}>
+                                    {{ forloop.counter }}
+                                </a>
+                                <td id="test_type" class="row-txt-center-sm">{{ case.test_type }}</td>
+                                <td id="tkn_branch" class="row-txt-center-sm">{{ case.tkn_branch }}</td>
+                                <td id="pattern_library" class="row-txt-center-sm">{{ case.pattern_library }}</td>
+                                <td id="pattern_folder_name" class="row-txt-left-sm">{{ case.pattern_folder_name }}</td>
+                                <td id="change" class="row-txt-center-sm">{{ case.change }}</td>
+                                <td id="change_user" class="row-txt-center-sm">{{ case.change_user }}</td>
+                                <td id="change_review" class="row-txt-center-sm">{{ case.change_review }}</td>
+                                <td id="change_ticket" class="row-txt-center-sm">{{ case.change_ticket }}</td>
+                                <td id="test_case_depot_path" class="small-font align-middle break-all">{{ case.test_case_depot_path }}</td>
+                                <td id="test_time_weight" class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight }}{% else %}0{% endif %}</td>
+                                <td id="change_time" class="small-font center_txt">{{ case.change_time|timezone:"Europe/London"|naturaltime }}<br>{{ case.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+{#                                <td><a class="btn btn-sm btn-outline-info"#}
+{#                                       href="{% url 'test_case' pk=case.id %}" {% popover 'hover' 'left' None 'View case full info' %}>view</a>#}
+{#                                </td>#}
+                                <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
+                                <td class="actions_button">
+                                    <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                                            data-target="#actionsModal">Actions
+                                    </button>
+                                </td>
+                                <td id="case_id" style="display:none">{{ case.id }}</td>
+                                <td id="test_py_path" style="display:none">{{ case.test_py_path }}</td>
+                                <td id="test_time_weight" style="display:none">{{ case.test_time_weight }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+                <div style="display: flex;justify-content: space-between;padding-top: 20px">
+                    <a class="btn btn-warning" href="{% url 'test_cases_group_update' pk=group.id %}">Edit</a>
+                    <button type="button" class="btn btn-outline-warning mul-cases-button" data-toggle="modal"
+                            data-target="#mulCasesModal">Run all</button>
+                    <a class="btn btn-danger disabled" href="#">Delete</a>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                <span class="badge badge-info">{{ group.author }}</span>
+                <span class="badge badge-light">{{ group.changed_date|timezone:"Europe/London"|naturaltime }}</span> created at:
+                <span class="badge badge-light">{{ group.pub_date|timezone:"Europe/London"|date:'Y-m-d H:i' }}</span>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'cases_workbench' %}">Workbench Cases</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'test_cases_group' pk=group.id %}">Group: "{{ group.title }}"</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    {% include 'digests/includes/toast_popup.html' %}
+    {% include 'digests/includes/test_actions_modal_dynamic.html' %}
+    {% include 'digests/includes/modal_cases_multiple.html' %}
+
+    <script src="{% static 'octopus/js/test-actions-modal.js' %}"></script>
+    <script src="{% static 'octopus/js/case-group-modal-multiple-tests.js' %}"></script>
+    <script src="{% static 'octopus/js/case-group-test-run-toast.js' %}"></script>
+
+{% endblock %}

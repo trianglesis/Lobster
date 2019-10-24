@@ -1,0 +1,232 @@
+/*General */
+.table-shrink td th {
+    padding: .1rem !important;
+    vertical-align: middle;
+}
+
+.col-shrink {
+    padding-right: .2em;
+    padding-left: .2em;
+}
+.card-footer-shrink {
+    padding: .2em;
+}
+.card-body-sm {
+    padding: .4em;
+}
+
+
+/*Text styles*/
+.txt-nice {
+    font-size: 1em !important;
+    font-family: 'Maven Pro', sans-serif !important;
+}
+
+.txt-sm-mon {
+    font-size: 0.9em;
+    font-family: 'Inconsolata', monospace !important;
+}
+
+/* tst_status colors */
+.tst-notpass {
+    /*background-color: #FEDCDD !important;*/
+    background-color: #E5C4CB !important;
+}
+.tst-fail {
+    /*background-color: #FEDCDD !important;*/
+    background-color: #E5C4CB !important;
+}
+.tst-error {
+    /*background-color: #FFF9DD !important;*/
+    background-color: #F9F1D5 !important;
+}
+.tst-skip {
+    /*background-color: #CCC7E1 !important;*/
+    background-color: #9998AE !important;
+}
+.tst-pass {
+    /*background-color: #CFEDCD !important;*/
+    background-color: #C6DABA !important;
+}
+.tst-None {
+    background-color: #bfcbd4 !important;
+}
+
+/* Single sections */
+.main-page-content {
+    margin: 0 20px 40px 20px;
+}
+
+.main-page-addm-digest {
+    padding-bottom: 1em;
+}
+.main-page-upload-cont-digest{
+    padding-bottom: 1em;
+}
+.main-page-upload-ga-digest{
+    padding-bottom: 1em;
+}
+.main-page-cron{
+    padding-bottom: 1em;
+}
+.main-page-celery-queues{
+    padding-bottom: 1em;
+}
+
+.addm-digest-table-container tr, td, th {
+    padding: .1rem !important;
+    vertical-align: middle;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+.tku-upload-latest {
+    /*padding-bottom: 1em;*/
+}
+
+.upload-test-today-table {
+    font-size: .975em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+
+/* Tooltip for tku test in table */
+.popover > div.popover-body > div {
+    padding-bottom: .3em;
+}
+
+.popover > div.popover-body > div > span {
+    padding-left: 1.6rem;
+}
+
+.popover > div.popover-body > div.addm_name {
+    background-image: url('/static/fontawesome/svgs/solid/upload.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.test_mode {
+    background-image: url('/static/fontawesome/svgs/solid/flask.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.mode_key {
+    background-image: url('/static/fontawesome/svgs/solid/tag.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.package_type {
+    background-image: url('/static/fontawesome/svgs/solid/archive.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.tku_type {
+    background-image: url('/static/fontawesome/svgs/solid/tags.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.tku_build {
+    background-image: url('/static/fontawesome/svgs/brands/jenkins.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.upload_test_status {
+    background-image: url('/static/octicons/svg/tasklist.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.upload_test_str_stderr {
+    background-image: url('/static/octicons/svg/stop.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.all_errors {
+    background-image: url('/static/fontawesome/svgs/solid/exclamation-triangle.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.upload_errors {
+    background-image: url('/static/fontawesome/svgs/solid/exclamation-triangle.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.all_warnings {
+    background-image: url('/static/fontawesome/svgs/solid/exclamation-circle.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.upload_warnings {
+    background-image: url('/static/fontawesome/svgs/solid/exclamation-circle.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.tested_zips {
+    background-image: url('/static/fontawesome/svgs/solid/file-archive.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.addm_host {
+    background-image: url('/static/fontawesome/svgs/solid/server.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.time_spent_test {
+    background-image: url('/static/fontawesome/svgs/solid/stopwatch.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.test_date_time {
+    background-image: url('/static/fontawesome/svgs/solid/clock.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+/* Additional for TKU Package popover */
+.popover > div.popover-body > div.tku_name {
+    background-image: url('/static/fontawesome/svgs/solid/tags.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.zip_file_md5_digest {
+    background-image: url('/static/fontawesome/svgs/solid/file-archive.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.updated_at {
+    background-image: url('/static/fontawesome/svgs/solid/clock.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.created_at {
+    background-image: url('/static/fontawesome/svgs/solid/clock.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.zip_file_path {
+    background-image: url('/static/fontawesome/svgs/solid/folder.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}
+
+.popover > div.popover-body > div.zip_file_name {
+    background-image: url('/static/fontawesome/svgs/solid/file-archive.svg');
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+}

@@ -1,0 +1,43 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Daily browsing history tests
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+<h1>{{ day }}</h1>
+
+
+<ul>
+    {% for test in object_list %}
+        <li>
+            {{ test.test_date_time|date:"F j, Y" }}: {{ test.test_py_path }} {{ test.tst_name }} {{ test.tst_class }} {{ test.fail_message }}
+        </li>
+    {% endfor %}
+</ul>
+
+<p>
+    {% if previous_day %}
+        Previous Day: {{ previous_day }}
+    {% endif %}
+    {% if previous_day and next_day %}--{% endif %}
+    {% if next_day %}
+        Next Day: {{ next_day }}
+    {% endif %}
+</p>
+
+<div id="history_test_generic">
+    {% with object_list as test_detail %}
+        {% include 'digests/tables_details/test_details_table.html' %}
+    {% endwith %}
+</div>
+{% endblock %}
+

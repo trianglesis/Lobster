@@ -1,0 +1,138 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}Re-run failed tests "{{ADDM_NAME}}" branch "{{ BRANCH }}"{% endblock %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <div style="padding-left:2%;padding-right:2%;margin-top:1%">
+        <div class="alert alert-info" role="alert">
+            <div>{{ SUBJECT }}</div>
+            Re-run failed tests <span class="badge badge-secondary">{{ADDM_NAME}}</span> branch <span class="badge badge-info">{{ BRANCH }}</span>
+            <p>All failed patterns from last night run. You can re-execute all tests, or choose what to run separately, one by one.</p>
+            <ul>
+                <li>{% select_icon 'clock' 26 'right' 1 %}Time to execute all tests: <span class="badge badge-light">{{ all_tests_w }}</span> sec. or <span class="badge badge-warning">{{ all_tests_w|f_sec_time }}</span> minutes for {{ sorted_tests_l|length }} test(s)</li>
+            </ul>
+        </div>
+    </div>
+    <div style="padding-left:2%;padding-right:2%">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Failed patterns(tests)</h5>
+                {% with "text-center align-middle" as text_align %}
+                <table class="table table-hover table-sm">
+                    <thead class="table-light">
+                        <!-- Patterns table Head: -->
+                        <tr>
+                            <th scope="col" id="col_counter" class="{{ text_align }}">#</th>
+                            <th scope="col" id="col_pattern_dir" class="{{ text_align }}">tkn_branch</th>
+                            <th scope="col" id="col_category" class="{{ text_align }}">Category</th>
+                            <th scope="col" id="col_pattern_dir" class="{{ text_align }}">Pattern dir</th>
+                            <th scope="col" id="col_pattern_dir" class="{{ text_align }}">pattern_folder_path_depot</th>
+                            <th scope="col" id="col_run_test" class="{{ text_align }}">Actions</th>
+                            <th scope="col" id="col_date_time" class="{{ text_align }}">Date time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Patterns table rows in cycle: -->
+                    {% for pattern_row in failed_patterns %}
+                        <tr>
+                            <td id="row_counter" class="{{ text_align }} table-danger font-weight-normal" style="font-size: 0.8em;">{{ forloop.counter }}</td>
+                            <td id="row_pattern_dir" class="{{ text_align }} table-danger font-weight-normal text-lg-left" style="font-size: 0.8em;">{{ pattern_row.tkn_branch }}</td>
+                            <td id="row_category" class="{{ text_align }} table-danger font-weight-normal" style="font-size: 0.8em;">{{ pattern_row.pattern_library }}</td>
+                            <td id="row_pattern_dir" class="{{ text_align }} table-danger font-weight-normal text-lg-left" style="font-size: 0.8em;">{{ pattern_row.pattern_folder_name }}</td>
+                            <td id="row_pattern_dir" class="{{ text_align }} table-danger font-weight-normal text-lg-left" style="font-size: 0.8em;">{{ pattern_row.pattern_folder_path_depot }}</td>
+                            <td id="row_run_test" class="{{ text_align }} table-danger font-weight-normal">{% user_run_test pattern_row %}</td>
+                            <td id="row_date_time" class="{{ text_align }} table-danger font-weight-normal" style="white-space: pre;font-size: 0.7em;" title="When test was executed">{{ pattern_row.test_date_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}; {{ pattern_row.time_spent_test| f_sec }}<br>{{ pattern_row.test_date_time|naturaltime }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% endwith %}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Actual related tests for failed set</h5>
+                <table class="table table-hover table-sm">
+                    <thead class="table-info">
+                    <tr>
+                        <th scope="col" id="col_iter">#</th>
+                        <th scope="col" id="col_branch">Branch</th>
+                        <th scope="col" id="col_library">Library</th>
+                        <th scope="col" id="col_folder">Folder</th>
+                        <th scope="col" id="col_id">ID</th>
+                        <th scope="col" id="col_cc">CC</th>
+                        <th scope="col" id="col_user">User</th>
+                        <th scope="col" id="col_depot">p4 #</th>
+                        <th scope="col" id="col_depot">Paths</th>
+                        <th scope="col" id="col_mod">Edited</th>
+                        <th scope="col" id="clet_test_arg">t:</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for patt_row in patterns_to_test %}
+                        <tr>
+                            <!-- Counter/table ID: -->
+                            <td id="row_iter" style="font-size: 0.8em;" class="text-center table-light align-middle text-sm-left" title="row_iter">{{ forloop.counter }}</td>
+                            <!-- TKN BRANCH -->
+                            <td id="row_branch" style="font-size: 0.8em;" class="text-center table-light align-middle text-sm-left" title="Branch">{{ patt_row.tkn_branch }}</td>
+                            <!-- Path to pattern\folder\library: -->
+                            <td id="row_library" style="font-size: 0.8em;" class="text-center table-light align-middle text-sm-left" title="Library">{{ patt_row.pattern_library }}</td>
+                            <!-- Path to pattern\folder\library: -->
+                            <td id="row_folder" style="font-size: 0.8em;" class="text-center table-light align-middle text-sm-left" title="Pattern folder">{{ patt_row.pattern_folder_name }}</td>
+                            <!-- TICKET browse: -->
+                            <td id="row_id" class="text-center table-light align-middle align-middle text-sm-left" title="ID - JIra, ESC, etc">
+                                {# https://jira.bmc.com/browse/ #}
+                                {% if 'DR' in patt_row.change_ticket %}<a class="badge badge-info" title="Browse JIRA" target="_blank" href="https://jira.bmc.com/browse/{{ patt_row.change_ticket }}">{{ patt_row.change_ticket }}</a>
+                                {% else %}{{ patt_row.change_ticket }}{% endif %}
+                            </td>
+                            <!-- REVIEW browse: -->
+                            <td id="row_cc" class="text-center table-light align-middle text-sm-left" title="CC Review">
+                                {# http://p4collab/ui#review:id= #}
+                                {% if '#' in patt_row.change_review %}<a class="badge badge-success" title="Browse CC review" target="_blank" href="http://p4collab.bmc.com:8080/ui#review:id={{ patt_row.change_review|remove_dash }}">{{ patt_row.change_review }}</a>
+                                {% else %}{{ patt_row.change_review }}{% endif %}
+                            </td>
+                            <!-- Select user's tests only: -->
+                            {% if not single_user %}
+                            <td id="user_adprod" class="text-center table-light align-middle text-sm-left">
+                                {# http:/HOST/select/patterns_digest/?branch=tkn_main;adprod_user=#}
+                                {% if patt_row.change_user %}<a class="badge badge-secondary" title="Select user's tests" target="_blank" href="{% url 'patterns_digest' %}?branch={{ patt_row.tkn_branch }};adprod_user={{ patt_row.change_user }}">{{ patt_row.change_user }}</a>
+                                {% else %}{{ patt_row.change_user }}{% endif %}
+                            </td>
+                            {% endif %}
+
+                            <td id="row_mod" style="font-size: 0.8em" class="text-center table-light align-middle text-sm-left" title="P4 change">{{ patt_row.pattern_folder_change }}</td>
+                            <!-- Full p4 depot path: -->
+                            <td id="row_depot" style="font-size: 0.8em;font-family:monospace;" class="text-center table-light align-middle text-sm-left" title="Depot path to P4 and change:{{ patt_row.pattern_folder_change }}">
+                                <div style="overflow:auto;">
+                                    <div class="text-info">depot: {{ patt_row.pattern_folder_path_depot }}</div>
+                                    <div class="text-primary">py path: {{ patt_row.test_py_path_template }}</div>
+                                </div>
+                            </td>
+                            <!-- Last modification time: -->
+                            <td id="row_mod" style="font-size: 0.8em" class="text-center table-light align-middle text-sm-left" title="Mod date - {{ patt_row.pattern_folder_mod_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}">{{ patt_row.pattern_folder_mod_time|timezone:"Europe/London"|naturaltime }}</td>
+                            <td id="test_avg" style="font-size: 0.8em;" class="text-center table-light align-middle text-sm-left" title="Test average run time">{{ patt_row.test_time_weight | f_sec_time }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+          </div>
+        </div>
+    </div>
+    <div style="padding-left:2%;padding-right:2%">
+        <div class="alert alert-info text-right" role="alert">
+            <div class="text-center">{% select_icon 'clock' 26 'right' 1 %}Time to execute all tests: <b>{{ all_tests_w }} sec. or {{ all_tests_w|f_sec_time }} minutes for {{ sorted_tests_l|length }} test(s)</b>
+{#                <form method="post" action=".">{% csrf_token %}#}
+                    {# TODO: PASS ARGS #}
+{#                    <button role="button" type="submit" class="btn btn-lg btn-outline-secondary">Run all{% select_icon 'law' 26 'left' 0.2 %}</button>#}
+{#                </form>#}
+            </div>
+        </div>
+    </div>
+    {% if DEBUG %}
+        <div style="padding-left:5%;padding-right:5%">{{ sorted_tests_l }}</div>
+        <div style="padding-left:5%;padding-right:5%;padding-top: 5%;">{{ show_patterns_list }}</div>
+    {% endif %}
+{% endblock %}

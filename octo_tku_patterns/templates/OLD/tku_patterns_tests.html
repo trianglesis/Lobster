@@ -1,0 +1,187 @@
+{% extends "main/main.html" %}
+{% load static %}
+{% block page_title %}
+{% if BRANCH %}
+Tests in patterns "{{ BRANCH }}"
+{% else %}
+Patterns & Tests
+{% endif %}
+{% endblock %}
+{% block content %}
+{% load i18n %}
+{% load tz %}
+{% load template_simplify %}
+<link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}" />
+<div style="padding-left:2%;padding-right:2%;margin-bottom:1%;margin-top:1%">
+    <div class="alert alert-info" role="alert">
+        <div>{{ SUBJECT }}</div>
+        <div class="dropdown-divider"></div>
+        <div>Items selected: <span class="badge badge-info">{{ ALL_PATTERNS|length }}</span>
+        {% if select_release %}
+            Selected from release window. From <span class="badge badge-primary">{{ DATE_FROM }}</span> to <span class="badge badge-secondary">{{ DATE_TO }}</span>
+        {% elif DATE_FROM and DATE_TO %}
+            From <span class="badge badge-primary">{{ DATE_FROM }}</span> to <span class="badge badge-secondary">{{ DATE_TO }}</span>
+        {% else %}
+            Select all possible patterns and tests for current options and view. Sorted from newest to oldest.
+        {% endif %}
+        </div>
+        Last known change <span class="badge badge-info">{{ CHANGE_MAX.change__max }}</span> / date <span class="badge badge-info">{{ DATE_MAX.change_time__max|timezone:"Europe/London"|date:'Y-m-d H:i' }}</span> for selected range.
+        <div class="dropdown-divider"></div>
+        {% if not BRANCH %}
+            <div>Push the button if you want update this table from Perforce Depot!</div>
+            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'parse_patterns_user' %}">Parse & Sync both branches{% select_icon 'git-compare' 26 'left' 0.2 %}</a>
+        {% else %}
+            <div>Push the button if you want update this table from Perforce Depot! For selected branch only: "{{ BRANCH }}"</div>
+            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'parse_patterns_user' %}?branch={{ BRANCH }}">Parse & Sync "{{ BRANCH }}"{% select_icon 'git-compare' 26 'left' 0.2 %}</a>
+        {% endif %}
+    </div>
+</div>
+{% if BRANCH %}
+    <div style="padding-left:5%;padding-right:5%">
+        <ul class="nav nav-tabs nav-justified">
+          <li class="nav-item">
+            <a class="nav-link {% if BRANCH == 'tkn_main' %}active{% else %}badge-light{% endif %}"
+               href="{{ request.path }}?branch=tkn_main{% if RELEASE %}&release=True{% endif %}{% if PATTERN_LIBRARY %}&pattern_library={{ PATTERN_LIBRARY }}{% endif %}{% if IS_KEY_PATTERN %}&is_key_pattern=True{% endif %}{% if DATE_FROM %};date_from={{ DATE_FROM }}{% endif %}{% if DATE_TO %};date_to={{ DATE_TO }}{% endif %}">
+                <img style="height:36px;width:36px;" src="{% static "octicons/svg/git-branch.svg" %}" alt="branch_main" />TKN_MAIN
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if BRANCH == 'tkn_ship' %}active{% else %}badge-light{% endif %}"
+               href="{{ request.path }}?branch=tkn_ship{% if RELEASE %}&release=True{% endif %}{% if PATTERN_LIBRARY %}&pattern_library={{ PATTERN_LIBRARY }}{% endif %}{% if IS_KEY_PATTERN %}&is_key_pattern=True{% endif %}{% if DATE_FROM %};date_from={{ DATE_FROM }}{% endif %}{% if DATE_TO %};date_to={{ DATE_TO }}{% endif %}">
+                <img style="height:36px;width:36px;" src="{% static "octicons/svg/git-merge.svg" %}" alt="merge_ship" />TKN_SHIP
+            </a>
+          </li>
+        </ul>
+    </div>
+{% endif %}
+
+<div style="padding-left:1em;padding-right:1em">
+    {% if not anon_bool %}
+        <table class="table table-hover table-sm">
+            <thead class="table-dark">
+            <tr>
+                <th class="center_txt">#</th>
+                <th class="center_txt">Library</th>
+                <th class="center_txt">Folder</th>
+                <th class="center_txt">ID</th>
+                <th class="center_txt">CC</th>
+                <th class="center_txt">User</th>
+                <th class="center_txt">Change</th>
+                <th class="center_txt">Time edit</th>
+                <th class="center_txt"></th>
+                <th class="center_txt">P4 depot path</th>
+                <th class="center_txt"></th>
+                <th class="center_txt">Test avg</th>
+                <th class="center_txt">Group</th>
+            </tr>
+            </thead>
+            <tbody>
+             {% for pattern_row in ALL_PATTERNS|dictsortreversed:"change_time" %}
+                <tr>
+                    <td class="row-txt-center-sm" title="row_iter">
+                        <div class="btn-group" role="group" aria-label="Edit" style="text-align: center;">
+                            <a class="btn btn-sm btn-outline-secondary" title="ADDM Edit in table" style="font-size: 0.9em;" target="_blank"
+                               href="http://{{ request.META.HTTP_HOST }}/admin/octo_tku_patterns/testcases/{{ pattern_row.id }}/change/">
+                                {{ forloop.counter }}
+                            </a>
+                        </div>
+                    </td>
+                    <td class="row-txt-center-sm" title="Library">
+                        {{ pattern_row.pattern_library }}
+                    </td>
+                    <td class="row-txt-left-sm" title="Pattern folder">
+                        {{ pattern_row.pattern_folder_name }}
+                    </td>
+                    <td class="small-font no-wrap_whitesp center_txt" title="ID - JIra, ESC, etc">
+                        {% if 'DR' in pattern_row.change_ticket %}
+                            <a class="small-font btn btn-sm btn-info" title="Browse JIRA" target="_blank"
+                               href="https://jira.bmc.com/browse/{{ pattern_row.change_ticket }}">
+                                {{ pattern_row.change_ticket }}
+                            </a>
+                        {% else %}
+                            {{ pattern_row.change_ticket }}
+                        {% endif %}
+                    </td>
+                    <td class="small-font no-wrap_whitesp center_txt" title="CC Review">
+                        {% if '#' in pattern_row.change_review %}
+                            <a class="small-font btn btn-sm btn-success" title="Browse CC review" target="_blank"
+                               href="http://p4collab.bmc.com:8080/ui#review:id={{ pattern_row.change_review|remove_dash }}">
+                                {{ pattern_row.change_review }}
+                            </a>
+                        {% else %}
+                            {{ pattern_row.change_review }}
+                        {% endif %}
+                    </td>
+                    <td class="small-font center_txt">
+                        {% if pattern_row.change_user %}
+                            <a class="small-font btn btn-sm btn-dark" title="Select user's tests" target="_blank"
+                               href="{% url 'patterns_digest' %}?branch={{ pattern_row.tkn_branch }};adprod_user={{ pattern_row.change_user }}">
+                                {{ pattern_row.change_user }}
+                            </a>
+                        {% else %}
+                            {{ pattern_row.change_user }}
+                        {% endif %}
+                    </td>
+                    <td class="row-txt-center-sm" title="Change number from p4">
+                        #{{ pattern_row.change }}
+                    </td>
+                    <td class="small-font no-wrap_whitesp text-center align-middle text-sm-left" title="Mod date - pattern file modification date by p4">
+                        {{ pattern_row.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}
+                    </td>
+                    <!-- HISTORY browse: -->
+                    <td class="text-center align-middle text-sm-left">
+                        <div class="btn-group" role="group" aria-label="Level" style="text-align: center;">
+                        <a class="btn btn-sm btn-light" title="History" style="font-size: 0.7em;" href="{% url "history_select" %}{% spaceless %}
+                            {% endspaceless %}?branch={{ BRANCH }}{% spaceless %}
+                            {% endspaceless %}&pattern_library={{ pattern_row.pattern_library }}{% spaceless %}
+                            {% endspaceless %}&pattern_folder={{ pattern_row.pattern_folder_name }}{% spaceless %}
+                            {% if ADDM_NAME %}&addm_name={{ ADDM_NAME }}{% endif %}"{% endspaceless %}> History
+                        </a>
+                        </div>
+                    </td>
+                    <td class="small-font monospace text-center align-middle text-sm-left" title="depot path in p4">
+                        <div style="overflow:auto;">
+                            {{ pattern_row.test_case_depot_path }}
+                        </div>
+                    </td>
+                    <!-- TEST RUN BUTTON -->
+                    <td class="small-font text-center" title="Run">
+                        {% user_run_test pattern_row %}
+                    </td>
+                    <td class="row-txt-center-sm" title="Test average run time">
+                        {{ pattern_row.test_time_weight | f_sec }}
+                    </td>
+                    {# TODO: Show current pattern case group if any #}
+                    <td class="row-txt-center-sm" title="Test case custom group">
+                        {% if pattern_row.related_test_cases %}
+                            {% for case_group in pattern_row.related_test_cases.all %}
+                                {{ case_group.title }}
+                            {% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot class="table-dark">
+                <th class="center_txt">#</th>
+                <th class="center_txt">Library</th>
+                <th class="center_txt">Folder</th>
+                <th class="center_txt">ID</th>
+                <th class="center_txt">CC</th>
+                <th class="center_txt">User</th>
+                <th class="center_txt">Change</th>
+                <th class="center_txt">Time edit</th>
+                <th class="center_txt"></th>
+                <th class="center_txt">P4 depot path</th>
+                <th class="center_txt"></th>
+                <th class="center_txt">Test avg</th>
+                <th class="center_txt">Group</th>
+            </tfoot>
+        </table>
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            This query is not allowed for Anonymous users. Please log in or register.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

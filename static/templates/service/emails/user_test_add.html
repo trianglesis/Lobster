@@ -1,0 +1,84 @@
+{% extends "service/emails/mail_main.html" %}
+{% load i18n %}
+{% block content %}
+    <div style="margin-bottom:1em;margin-top:1em">
+        <div><b>{{ SUBJECT }}</b></div>
+    </div>
+    <div style="margin-left: 1em">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">Current state:</th>
+                <td>{{ CURRENT_STATE }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Server time:</th>
+                <td>{{ TIME_FORMATTED }}</td>
+            </tr>
+            {% if TIME_SPENT %}
+                <tr>
+                    <th scope="row">Spent time:</th>
+                    <td>{{ TIME_SPENT }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">See results:</th>
+                    <td><a href="http://{{ site.domain }}/octo_tku_patterns/pattern_logs/?branch={{ BRANCH }}&pattern_library={{ PATTERN_LIBRARY }}&pattern_folder={{ PATTERN_FOLDER }}">Pattern logs</a></td>
+                </tr>
+            {% endif %}
+            <tr>
+                <th scope="row">User</th>
+                <td>{{ USER_NAME }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Branch</th>
+                <td>{{ BRANCH }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Library</th>
+                <td>{{ PATTERN_LIBRARY }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Pattern folder</th>
+                <td>{{ PATTERN_FOLDER }}</td>
+            </tr>
+            {% if TEST_FUNCTION %}
+            <tr>
+                <th scope="row">Single test function</th>
+                <td>{{ TEST_FUNCTION }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <th scope="row">Addm group</th>
+                <td>{{ ADDM_GROUP }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Mailed to</th>
+                <td>{{ USER_EMAIL }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Is key pattern</th>
+                <td>{{ IS_KEY_PATTERN }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Refresh and sync</th>
+                <td>{{ REFRESH }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Test py</th>
+                <td>{{ TEST_PY }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Pattern depoth path</th>
+                <td>{{ PATTERN_FOLDER_PATH_DEPOT }}</td>
+            </tr>
+            </tbody>
+        </table>
+    <p>*Refresh = True - will delete all related test logs for selected pattern case in "latest" table.</p>
+    </div>
+{% endblock %}

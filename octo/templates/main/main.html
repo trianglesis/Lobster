@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Load scripts: -->
+    {% load i18n static %}
+    {% load template_simplify %}
+    {% load_host_names as hostnames %}
+    {% if hostnames.LOBSTER_SITE_DOMAIN in request.get_host %}
+        <link rel="icon" type="image/png" href="{% static 'octopus/icons/lobster.png' %}"/>
+    {% elif hostnames.OCTOPUS_SITE_DOMAIN in request.get_host %}
+        <link rel="icon" type="image/png" href="{% static 'octopus/icons/octopus.png' %}"/>
+    {% else %}
+        <link rel="icon" type="image/png" href="{% static 'octopus/icons/crab.png' %}"/>
+    {% endif %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/main.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/main-site.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octicons/octicons.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'fontawesome/css/all.css' %}"/>
+    <script src="{% static 'octopus/js/ajax_setup.js' %}"></script>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Assistant:600|BenchNine:700|Catamaran:500|Jaldi|Maven+Pro:500|Nunito:300|Open+Sans&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title id="page_title">
+        {% block page_title %}Main page{% endblock %}
+    </title>
+</head>
+<body>
+{% load dev_tags %}
+{% load user_groups %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% is_user_log_in as anon_bool %} <!-- Is anon -->
+{% is_power_user as power_user_bool %} <!-- is_power_user -->
+{% is_user_staff as staff_user_bool %} <!-- is_user_staff -->
+{#    <p>user: {{ user }}</p>#}
+{#    <p>user.profile: {{ user.profile }}</p>#}
+{#    <p>user.profile.user: {{ user.user_profile.user }}</p>#}
+{#    <p>user.profile.adprod_username: {{ user.user_profile.adprod_username }}</p>#}
+{#    <p>request.user.user_profile.adprod_username: {{ request.user.user_profile.adprod_username }}</p>#}
+
+    <!-- Nav bar: -->
+    <!--suppress SpellCheckingInspection -->
+    <nav class="navbar navbar-expand-lg {% if load_host_names.LOBSTER_SITE_DOMAIN in request.get_host %}navbar-dark bg-danger{% elif load_host_names.OCTOPUS_SITE_DOMAIN in request.get_host %}navbar-light bg-light{% else %}navbar-dark bg-warning{% endif %} sticky-top">
+    <!-- Brand button and place for logo: -->
+    <a class="navbar-brand" href="{% url 'home' %}">Octopus</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse octopus-navbar" id="navbarSupportedContent">
+        <!-- Home link to shorter widgets: -->
+        <!--suppress SpellCheckingInspection -->
+        <ul class="navbar-nav mr-auto">
+            {# HOME PAGE ICON #}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}" title="Home" >{% select_icon 'home' 24 'right' 0.2 %}<span class="sr-only">(Home)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'user_space' %}?change_user={{ request.user.user_profile.adprod_username }}" title="User space" >{% select_icon 'octoface' 24 'right' 0.2 %}</a>
+            </li>
+            {# REPORTS #}
+            <!-- TOP level reports: -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="{% url 'home' %}" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% select_icon 'checklist' 24 'right' 0.2 %}Test Reports</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'addm_digest' %}">{% select_icon 'git-branch' 24 'right' 0.2 %}ADDM Summary</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'tests_last' %}?tkn_branch=tkn_main;tst_status=notpass;">{% select_icon 'git-branch' 24 'right' 0.2 %}Tests report Main</a>
+                    <a class="dropdown-item" href="{% url 'tests_last' %}?tkn_branch=tkn_ship;tst_status=notpass;">{% select_icon 'git-merge' 24 'right' 0.2 %}Tests report Ship</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'tku_workbench' %}">{% select_icon 'repo' 24 'right' 0.2 %}Upload Summary</a>
+                </div>
+            </li>
+            {# LIBRARY #}
+            <!-- Patterns changes: -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="{% url 'home' %}" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% select_icon 'repo' 24 'right' 0.2 %}Test Cases</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <h5 class="dropdown-header">TKN Cases:</h5>
+                    <a class="dropdown-item" href="{% url 'cases_workbench' %}">{% select_icon 'project' 20 'right' 0.6 %}Workbench</a>
+                    <a class="dropdown-item" href="{% url 'test_cases' %}">{% select_icon 'file-code' 20 'right' 0.6 %} Index</a>
+                    <a class="dropdown-item" href="{% url 'test_cases_groups' %}">{% select_icon 'briefcase' 20 'right' 0.6 %}Groups</a>
+                    <div class="dropdown-divider"></div>
+                    <h5 class="dropdown-header">TKU packages in system:</h5>
+                    <a class="dropdown-item" href="{% url 'tku_workbench' %}">{% select_icon 'repo' 24 'right' 0.2 %}Workbench</a>
+                    <a class="dropdown-item" href="{% url 'tku_packages_index' %}?tku_type=ga_candidate">{% select_icon 'repo' 24 'right' 0.2 %}TKU Zips</a>
+                    <a class="dropdown-item" href="{% url 'upload_test_today' %}">{% select_icon 'repo' 24 'right' 0.2 %}Upload today</a>
+                </div>
+            </li>
+            {# ADMIN WORKBENCHES #}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="{% url 'home' %}" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% select_icon 'browser' 24 'right' 0.2 %}<span class="sr-only">(Workbenches)</span>Admin</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-divider"></div>
+                    <h3 class="dropdown-header">Celery status and queues:</h3>
+                    <a class="dropdown-item" href="{% url 'workers_status' %}">{% select_icon 'dashboard' 24 'right' 0.2 %}Celery Workers</a>
+                    <h3 class="dropdown-header">Admin & service tasks:</h3>
+                    <a class="dropdown-item" href="{% url 'workbench' %}">{% select_icon 'browser' 24 'right' 0.2 %} Admin Workbench</a>
+                    <h3 class="dropdown-header">ADDM servicing:</h3>
+                    <a class="dropdown-item" href="{% url 'addm_workbench' %}">{% select_icon 'server' 24 'right' 0.2 %} ADDM Workbench</a>
+                </div>
+            </li>
+            {# REPORTS #}
+            <!-- TOP level reports: -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="{% url 'home' %}" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% select_icon 'squirrel' 24 'right' 0.2 %}Old Reports</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <h3 class="dropdown-header">ADDM Branches:</h3>
+                    <a class="dropdown-item" href="{% url 'general_addm' %}?branch=tkn_main&addm_name=all_addms">{% select_icon 'git-branch' 24 'right' 0.2 %}ADDM Summary Main</a>
+                    <a class="dropdown-item" href="{% url 'general_addm' %}?branch=tkn_ship&addm_name=all_addms">{% select_icon 'git-merge' 24 'right' 0.2 %}ADDM Summary Ship</a>
+                    <div class="dropdown-divider"></div>
+                    <h3 class="dropdown-header">Pattern branches:</h3>
+                    <a class="dropdown-item" href="{% url 'patterns_digest' %}?branch=tkn_main;not_pass_only=True">{% select_icon 'git-branch' 24 'right' 0.2 %}Tests report Main</a>
+                    <a class="dropdown-item" href="{% url 'patterns_digest' %}?branch=tkn_ship;not_pass_only=True">{% select_icon 'git-merge' 24 'right' 0.2 %}Tests report Ship</a>
+                </div>
+            </li>
+            {# SEARCHING MENUS #}
+            <!-- Searching forms: -->
+{#            <li title="Other reports" class="nav-item dropdown">#}
+{#                <a class="nav-link dropdown-toggle" href="{% url 'home' %}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% select_icon 'jersey' 24 'right' 0.2 %}Other reports</a>#}
+{#                <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
+{#                    <a class="dropdown-item" href={% url 'failed_test_prepare' %}?branch=tkn_main>{% select_icon 'git-branch' 24 'right' 0.2 %}Fail re-run Main</a>#}
+{#                    <a class="dropdown-item" href={% url 'failed_test_prepare' %}?branch=tkn_ship>{% select_icon 'git-merge' 24 'right' 0.2 %}Fail re-run Ship</a>#}
+{#                    <a class="dropdown-item" href={% url 'patterns_top_long' %}>{% select_icon 'graph' 24 'right' 0.2 %}TOP 20 Long tests</a>#}
+{#                </div>#}
+{#            </li>#}
+            {# SEARCHING MENUS #}
+            <!-- Searching forms: -->
+{#            <li title="Search by" class="nav-item dropdown">#}
+{#                <a class="nav-link dropdown-toggle" href="{% url 'home' %}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% select_icon 'search' 24 'right' 0.2 %}Find</a>#}
+{#                <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
+{#                    <a class="dropdown-item" href="{% url 'global_search' %}">{% select_icon 'search' 18 'right' 0.2 %}Global Search</a>#}
+{#                    <a class="dropdown-item" href="{% url 'search_history' %}">{% select_icon 'search' 18 'right' 0.2 %}Detailed Search</a>#}
+{#                </div>#}
+{#            </li>#}
+        </ul>
+        <span class="navbar-text octopus-time">{% now "l jS F Y H:i" %}</span>
+        {# GLOBAL SEARCH FORM#}
+        <div class="octopus-search">
+            <form action="{% url 'global_search' %}" class="form-inline my-2 my-sm-0" method="post" enctype="application/x-www-form-urlencoded">{% csrf_token %}
+                <div style="padding-right: 1em;">{% global_search_form as global_search_form %}{{ global_search_form.search_string }}</div>
+{#                <button class="btn btn-light" type="submit">{% select_icon 'search' 18 'right' 0.2 %}Search</button>#}
+            </form>
+        </div>
+        {# AUTH: DJANGO_REGISTRATION  #}
+        <!-- Auth section: -->
+        <div class="octopus-login">
+            <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle align-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float: right;">{% spaceless %}
+                {% if user.is_authenticated %}
+                    {% trans 'Hi, ' %}{{ user }}
+                {% else %}
+                    {% trans 'Log in' %}
+                {% endif %}{% endspaceless %}
+            </button>
+            <div class="dropdown-menu" style="right: 0; left: auto;">
+                {% if anon_bool %}
+                    <a class="dropdown-item" href="{% url 'login' %}">Log in</a>
+                    <a class="dropdown-item" href="{% url 'password_reset' %}">Reset password</a>
+                    <a class="dropdown-item" href="{% url 'django_registration_register' %}">Register</a>
+                {% else %}
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+                    <a class="dropdown-item" href="{% url 'password_change' %}">Change password</a>
+                    <div class="dropdown-divider"></div>
+                    {% if power_user_bool %}
+                        <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
+                        <a class="dropdown-item" href="{% url 'octo_dev_admin' %}">Octopus admin console</a>
+                        <div class="dropdown-divider"></div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    </nav>
+{# KEEP COMMENTTED #}
+{#    {% if SUBJECT %}#}
+{#        <div class="alert alert-warning alert-dismissible fade show" role="alert">#}
+{#            {{ SUBJECT }}#}
+{#            <button type="button" class="close" data-dismiss="alert" aria-label="Close">#}
+{#                <span aria-hidden="true">&times;</span>#}
+{#            </button>#}
+{#        </div>#}
+{#    {% endif %}#}
+<!-- Page content goes here: -->
+<div id="content" style="margin: 25px 5px 25px 5px">
+    {% block content %}{% endblock %}
+</div>
+<!-- Load JS  manual -->
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+<script defer src="{% static 'fontawesome/js/all.js' %}"></script>
+<script src="{% static 'octopus/js/tooltip-active.js' %}"></script>
+</body>
+</html>

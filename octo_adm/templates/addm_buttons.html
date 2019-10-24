@@ -1,0 +1,87 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+{% load template_simplify %}
+{% load_host_names as hostnames %}
+{% if hostnames.LOBSTER_SITE_DOMAIN in request.get_host %}
+Lobster home
+{% elif hostnames.OCTOPUS_SITE_DOMAIN in request.get_host %}
+Octopus home
+{% else %}
+Local home
+{% endif %}
+
+{% endblock %}
+{% load static %}
+{% block content %}
+    {% load template_simplify %}
+<div style="padding-left:5px;margin-bottom:2px;margin-top:2px">
+    <table class="table table-hover table-sm">
+        <tr>
+            <thead class="table-light">
+            <th scope="col" id="col_counter" class="text-center align-middle font-weight-bold">#</th>
+{#            <th scope="col" id="col_id" class="text-center align-middle font-weight-bold">id</th>#}
+            <th scope="col" id="col_addm_host" class="text-center align-middle font-weight-bold">host</th>
+{#            <th scope="col" id="col_root_user" class="text-center align-middle font-weight-bold">root</th>#}
+            <th scope="col" id="col_addm_ip" class="text-center align-middle font-weight-bold">ip</th>
+            <th scope="col" id="col_addm_name" class="text-center align-middle font-weight-bold">name</th>
+{#            <th scope="col" id="col_addm_owner" class="text-center align-middle font-weight-bold">owner</th>#}
+            <th scope="col" id="col_addm_group" class="text-center align-middle font-weight-bold"></th>
+{#            <th scope="col" id="col_addm_group" class="text-center align-middle font-weight-bold">disabled</th>#}
+            {# Useful hyperlinks #}
+            <th scope="col" id="col_SetupApplianceInfo" class="text-center align-middle font-weight-bold"></th>
+            <th scope="col" id="col_addm_v_code" class="text-center align-middle font-weight-bold">v_code</th>
+            <th scope="col" id="col_tideway_user" class="text-center align-middle font-weight-bold">tideway</th>
+            </thead>
+        </tr>
+        <tbody>
+{#        {% for addm in ALL_ADDMS|dictsort:'addm_full_version' %}#}
+        {% for addm in ALL_ADDMS %}
+            {% addm_color addm.addm_group addm.disables as color %}
+            <tr>
+{#                <td id="row_counter" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size:  0.7em;" title="#">{{ forloop.counter }}</td>#}
+
+                <td id="row_id" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size:  0.7em;" title="Change">
+                    <div class="btn-group" role="group" aria-label="Edit" style="text-align: center;">
+                        <a class="btn btn-sm btn-outline-secondary" title="ADDM Edit in table: id: {{ addm.id }}" style="font-size: 0.7em;" target="_blank" href="http://{{ request.META.HTTP_HOST }}/admin/run_core/addmdev/{{ addm.id }}/change/">{{ forloop.counter }}</a>
+                    </div>
+                </td>
+                <td id="row_addm_host" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size: 0.9em;" title="Database addm_host">{{ addm.addm_host }}.bmc.com</td>
+{#                <td id="row_root_user" class="text-hide table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size: 0.7em;" title="Database root_user">{{ addm.root_user }}/{{ addm.root_pwd }}</td>#}
+                <td id="row_addm_ip" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size: 0.7em;" title="Database addm_ip">{{ addm.addm_ip }}</td>
+                <td id="row_addm_name" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size: 0.9em;" title="Database addm_name">{{ addm.addm_name }} ({{ addm.addm_v_int }})</td>
+{#                <td id="row_addm_owner" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size:  0.7em;" title="Database addm_owner">{{ addm.addm_owner }}</td>#}
+                <td id="row_addm_group" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size:  0.9em;" title="Database addm_group">{{ addm.addm_group }}</td>
+{#                <td id="row_addm_group" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size:  0.7em;" title="Database disables">{{ addm.disables }}</td>#}
+                {# Useful hyperlinks #}
+                {# http://vl-aus-rem-dv33.bmc.com/ui/SetupApplianceInfo#}
+                <td id="row_SetupApplianceInfo" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size:  0.9em;" title="SetupApplianceInfo">
+                    <div class="btn-group" role="group" aria-label="Level" style="text-align: center;">
+                        <a class="btn btn-sm btn-info" title="ADDM SetupApplianceInfo" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceInfo">Info</a>
+                        <a class="btn btn-sm btn-info" title="ADDM SetupModelMaintenance" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupModelMaintenance">Model</a>
+                        <a class="btn btn-sm btn-info" title="ADDM SetupModelTaxonomy" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupModelTaxonomy">Tax.</a>
+                        <a class="btn btn-sm btn-success" title="ADDM DiscoveryStats" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/DiscoveryStats">Disc.St.</a>
+                        <a class="btn btn-sm btn-success" title="ADDM DiscoveryHome" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/DiscoveryHome">Disc.Home</a>
+                        <a class="btn btn-sm btn-success" title="ADDM DiscoveryKnowledgeManagement" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/DiscoveryKnowledgeManagement">TKU</a>
+                        <a class="btn btn-sm btn-success" title="ADDM SetupLogging" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupLogging">Log</a>
+                        <a class="btn btn-sm btn-secondary" title="ADDM SetupHome" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupHome">Setup</a>
+                        <a class="btn btn-sm btn-outline-secondary" title="ADDM SetupDiscoveryOptions" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupDiscoveryOptions">Disc.Opt</a>
+                        <a class="btn btn-sm btn-dark" title="ADDM SetupUpgrade" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupUpgrade">Upgr</a>
+                        <a class="btn btn-sm btn-warning" title="ADDM ApplianceSupport" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/ApplianceSupport">AppSupp</a>
+                        <a class="btn btn-sm btn-warning" title="ADDM SetupApplianceControl" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceControl">AppCont</a>
+                        <a class="btn btn-sm btn-warning" title="ADDM SetupDiskUtils" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupDiskUtils">HDD</a>
+                        <a class="btn btn-sm btn-warning" title="ADDM SetupApplianceBaseline" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceBaseline">Baseline</a>
+                        <a class="btn btn-sm btn-warning" title="ADDM SetupApplianceJVMSize" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceJVMSize">JVM</a>
+                        <a class="btn btn-sm btn-warning" title="ADDM SetupNTP" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupNTP">NTP</a>
+                        <a class="btn btn-sm btn-warning" title="ADDM SetupApplianceBaselineActions" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceBaselineActions">Act</a>
+                        <a class="btn btn-sm btn-warning" title="ADDM SetupApplianceMail" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceMail">Mail</a>
+                        <a class="btn btn-sm btn-warning" title="ADDM SetupApplianceBaselineOptions" style="font-size: 0.8em;" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceBaselineOptions">Mail to's</a>
+                    </div>
+                </td>
+                <td id="row_addm_v_code" class="text-center table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size: 0.6em;" title="Database addm_v_code">{{ addm.addm_v_code }} / {{ addm.addm_full_version }} / {{ addm.addm_branch }}</td>
+                <td id="row_tideway_user" class="text-hide table-{{ color }} align-middle font-weight-normal text-sm-left" style="font-size: 0.6em;" title="Database tideway_user">{{ addm.tideway_user }}/{{ addm.tideway_pdw }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
