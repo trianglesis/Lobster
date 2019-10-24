@@ -21,17 +21,8 @@
                             <a href="#" id="see-logs" class="btn btn-sm btn-outline-info">See test.py logs output</a>
                             <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
                         </div>
-                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="wipe-run"
-                               data-wipe="1"
-                               class="btn btn-sm btn-outline-warning">Wipe current logs and run test.py</a>
-                            <a href="#" id="p4-run"
-                               data-refresh="1"
-                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run test.py</a>
-                            <a href="#" id="instant-run" class="btn btn-sm btn-outline-warning">Instant run test.py, keep logs</a>
-                        </div>
                     {% elif "test_details" in request.path %}
-                        <div class="span-test-actions-modal-name">Unit History</div>
+                        <div class="span-test-actions-modal-name">Unit Test details</div>
                         <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
                             <a href="#" id="see-logs-history" class="btn btn-sm btn-outline-info">Unit history</a>
                         </div>
@@ -92,6 +83,15 @@
                         <div class="span-test-actions-modal-name">Somewhere else...</div>
                         <a class="btn btn-sm btn-outline-info disabled">Else</a>
                     {% endif %}
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a href="#" id="wipe-run"
+                               data-wipe="1"
+                               class="btn btn-sm btn-outline-warning">Wipe current logs and run test.py</a>
+                            <a href="#" id="p4-run"
+                               data-refresh="1"
+                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run test.py</a>
+                            <a href="#" id="instant-run" class="btn btn-sm btn-outline-warning">Instant run test.py, keep logs</a>
+                        </div>
                     {% if selector.change %}
                         <div class="span-test-actions-modal-name">Actions for change <span class="badge badge-info">{{ selector.change }}</span></div>
                         <div class="list-group text-center" style="padding: 5px 15% 5px 15%">

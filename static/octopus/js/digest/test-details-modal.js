@@ -18,6 +18,10 @@ $(document).ready(function () {
         let caseData = parseTableRowForCaseData(tableRow);
         console.table(caseData);
 
+        // Run REST get to obtain related case for this test:
+        let caseItem = RESTGetCaseByTestPyPath(caseData.test_py_path);
+        console.table(caseItem);
+
         // Fill modal body with divs:
         fillModalBody(modal, caseData);
 
@@ -28,6 +32,7 @@ $(document).ready(function () {
 
         composeLogsHyperlinks(caseData, addm_name_url, tst_status_url);
         assignTestCaseTestButtons(caseData);
+        assignTestCaseUnitTestButtons(caseData);
         composeCaseHyperlinks(caseData);
     });
 

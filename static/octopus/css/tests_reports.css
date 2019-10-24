@@ -308,9 +308,15 @@ MODAL styles:
 }
 
 #test_py_path {
-    font-size: .875em;
+    font-size: .775em;
     font-family: 'Maven Pro', sans-serif;
+    word-wrap: break-word;
 
+}
+#test_function {
+    font-size: .775em;
+    font-family: 'Maven Pro', sans-serif;
+    word-wrap: break-word;
 }
 
 

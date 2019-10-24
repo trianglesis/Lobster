@@ -50,6 +50,7 @@ function parseTableRowForCaseData(tableRow) {
     // Set tkn_branch if any:
     if (tableRow.cells['tkn_branch'].textContent) {
         caseData.tkn_branch = tableRow.cells['tkn_branch'].textContent;
+        caseData.test_py_path = tableRow.cells['test_py_path'].textContent;
     } else {
         caseData.test_py_path = tableRow.cells['test_py_path'].textContent;
         console.log("There is no tkn_branch for this case, it's probably main test")
@@ -263,14 +264,17 @@ function assignTestCaseUnitTestButtons(caseData) {
     let unit_wipe_run = document.getElementById("unit-wipe-run");
     if (unit_wipe_run) {
         unit_wipe_run.setAttribute('data-cases_ids', caseData.cases_ids);
+        unit_wipe_run.setAttribute('data-test_functions', caseData.test_function);
     }
     let unit_p4_run = document.getElementById("unit-p4-run");
     if (unit_p4_run) {
         unit_p4_run.setAttribute('data-cases_ids', caseData.cases_ids);
+        unit_p4_run.setAttribute('data-test_functions', caseData.test_function);
     }
     let unit_instant_run = document.getElementById("unit-instant-run");
     if (unit_instant_run) {
         unit_instant_run.setAttribute('data-cases_ids', caseData.cases_ids);
+        unit_instant_run.setAttribute('data-test_functions', caseData.test_function);
     }
 }
 
@@ -795,4 +799,30 @@ function RESTGetTask(caseFullData, testButtonDataset) {
         },
     });
     return testButtonDataset;
+}
+
+
+
+function RESTGetCaseByTestPyPath(testPyPath) {
+    // console.log(`GET user test task by id: ${testButtonDataset.task_id}`);
+    $.ajax({
+        "type": "GET",
+        "dataType": "json",
+        contentType: "application/json; charset=utf-8",
+        "url": "/octo_tku_patterns/octo_test_cases/",
+        data: {test_py_path: testPyPath},
+        "beforeSend": function (xhr, settings) {$.ajaxSettings.beforeSend(xhr, settings)},
+        "success": function (result) {
+            let caseItem = result[0];
+            if (caseItem && caseItem.id) {
+                return caseItem
+            } else {
+                console.log("Task GET failed, no task found or no status");
+            }
+        },
+        "error": function () {
+            console.log("GET TASK ERROR, something goes wrong...");
+        },
+    });
+    return [];
 }

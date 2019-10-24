@@ -787,8 +787,7 @@ class PatternsService:
 
         :return:
         """
-        page_widgets = loader.get_template(
-            'workbenches/admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
         user_name, user_string = UserCheck().user_string_f(request)
         log.debug("<=WEB OCTO AMD=> sync_patterns(): %s", user_string)
         addm_group = request.GET.get('addm_group', None)
