@@ -23,17 +23,14 @@ $(document).ready(function () {
 });
 
 function fillModalBodyHyperlinksButtons(caseItem, caseData, modal, event) {
-    console.table(caseItem);
-    console.table(caseData);
+    // console.table(caseItem);
+    // console.table(caseData);
     // Update modal view and data with some of case item values:
     caseData.case_id = caseItem.id;
     caseData.change_ticket = caseItem.change_ticket;
     caseData.change_review = caseItem.change_review;
     caseData.change_user = caseItem.change_user;
     caseData.change = caseItem.change;
-
-    // Fill modal body with divs:
-    fillModalBody(modal, caseData);
 
     let button = getButtonFromEvent(event);
     let addm_name_url = detectADDMSelectorFromContext(button, caseData);
@@ -50,4 +47,7 @@ function fillModalBodyHyperlinksButtons(caseItem, caseData, modal, event) {
     assignTestCaseUnitTestButtons(buttonData);
 
     composeCaseHyperlinks(caseData);
+    // Fill modal body with divs:
+    fillModalBody(modal, caseData);
+    console.log('Modal body is ready now!')
 }

@@ -512,19 +512,19 @@ function eventListenerForCaseTestButtons(funcToRun) {
 
     if (test_wipe_run) {
         test_wipe_run.addEventListener("click", function () {
-            console.log("test_wipe_run clisk");
+            console.log("test_wipe_run click");
             funcToRun(test_wipe_run.dataset);
         });
     }
     if (test_p4_run) {
         test_p4_run.addEventListener("click", function () {
-            console.log("test_p4_run clisk");
+            console.log("test_p4_run click");
             funcToRun(test_p4_run.dataset);
         });
     }
     if (test_instant_run) {
         test_instant_run.addEventListener("click", function () {
-            console.log("test_instant_run clisk");
+            console.log("test_instant_run click");
             funcToRun(test_instant_run.dataset);
         });
     }
@@ -676,7 +676,7 @@ function fillToastBodyWithTestAttributes(toastBase, caseFullData) {
  */
 function toastModifyPre(caseFullData) {
     console.log("toastModifyPre: caseFullData");
-    console.table(caseFullData);
+    // console.table(caseFullData);
     let toastPublished = document.getElementById(caseFullData.toastId);
     let task_id = document.createElement('div');  // toast-body
     task_id.setAttribute('id', 'task_id');
@@ -750,7 +750,7 @@ function waitResult(caseFullData, testButtonDataset) {
  */
 function RESTPostTask(caseFullData, testButtonDataset) {
     console.log(`POST user test: `);
-    console.table(testButtonDataset);
+    // console.table(testButtonDataset);
     $.ajax({
         type: "POST",
         dataType: "json",
