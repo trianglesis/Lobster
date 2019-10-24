@@ -89,7 +89,7 @@ urlpatterns = [
     # Test History day view:
     # Latest by date
     path('test_history_index/', TestHistoryArchiveIndexView.as_view(), name="test_history_index_archive"),
-    # Example: /2012/nov/10/
+    # Example: /2018/nov/10/
     path('test_history_day/<int:year>/<str:month>/<int:day>/', TestHistoryDayArchiveView.as_view(), name="test_history_archive_day"),
     # Test History Today view:
     path('test_history_today/', TestHistoryTodayArchiveView.as_view(), name="test_history_archive_today"),
