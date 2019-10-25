@@ -651,19 +651,19 @@ class PatternsDjangoTableOper:
 
         all_patterns = TestCases.objects.filter(test_type__exact='tku_patterns')
         # all_patterns = TkuPatterns.objects.values().annotate(dcount=Count('test_py_path'))
-        log.debug("All patterns with test.py len: %s", len(all_patterns))
+        log.debug("All patterns with test.py len: %s", all_patterns.count())
 
         if branch:
             all_patterns = all_patterns.filter(tkn_branch__exact=branch)
-            log.debug("Filtering from all by branch: %s len: %s", branch, len(all_patterns))
+            log.debug("Filtering from all by branch: %s len: %s", branch, all_patterns.count())
 
         if pattern_library:
             all_patterns = all_patterns.filter(pattern_library__exact=pattern_library)
-            log.debug("Filtering from all by pattern_library: %s len: %s", pattern_library, len(all_patterns))
+            log.debug("Filtering from all by pattern_library: %s len: %s", pattern_library, all_patterns.count())
 
         if select_release:
             all_patterns = all_patterns.filter(change_time__range=[date_from, date_to])
-            log.debug("Filtering from all by select_release: %s len: %s", select_release, len(all_patterns))
+            log.debug("Filtering from all by select_release: %s len: %s", select_release, all_patterns.count())
 
         return date_from, date_to, all_patterns
 
@@ -759,7 +759,7 @@ class PatternsDjangoTableOper:
 
         # log.debug("<=Django Model intra_select=> sel_tests_dynamical() "
         #           "selected len: %s "
-        #           "history_recs.query: \n%s", len(all_patterns), all_patterns.query)
+        #           "history_recs.query: \n%s", all_patterns.count(), all_patterns.query)
 
         log.debug("sel_tests_dynamical queryset explain \n%s", all_patterns.explain())
         return all_patterns
@@ -822,7 +822,7 @@ class PatternsDjangoTableOper:
             # TODO: Try to add here queryset.filter(Q(fails__gte=1) | Q(error__gte=1)) and so on
             # tst_status
         )
-        log.debug("<=Django Model intra_select=> Select sel_opts %s", sel_opts)
+        # log.debug("<=Django Model intra_select=> Select sel_opts %s", sel_opts)
         all_qs = model.objects.all()
 
         def intra_select(queryset, option_key, option_value):
@@ -870,7 +870,7 @@ class PatternsDjangoTableOper:
                     intra_qs = queryset.filter(
                         Q(tst_status__iregex='skipped') | Q(tst_status__iregex='expected failure'))
                 else:
-                    log.debug("Unknown option_value '%s' for '%s' Do not select - return as is.",
+                    log.warning("Unknown option_value '%s' for '%s' Do not select - return as is.",
                               option_value, option_key)
                     intra_qs = queryset
 
@@ -889,11 +889,11 @@ class PatternsDjangoTableOper:
             else:
                 # log.info("<=Django Model=> Skipping this option: %s value is %s", opt_k, opt_v)
                 pass
-        log.debug("<=Django Model intra_select=> sel_tests_dynamical() "
-                  "selected len: %s "
-                  "history_recs.query: \n%s", len(all_qs), all_qs.query)
-
-        log.debug("sel_dynamical queryset explain \n%s", all_qs.explain())
+        # log.debug("<=Django Model intra_select=> sel_tests_dynamical() "
+        #           "selected len: %s "
+        #           "history_recs.query: \n%s", all_qs.count(), all_qs.query)
+        #
+        # log.debug("sel_dynamical queryset explain \n%s", all_qs.explain())
         return all_qs
 
     @staticmethod
@@ -913,7 +913,7 @@ class PatternsDjangoTableOper:
         if exclude:
             key_patterns.exclude(pattern_folder_name__in=exclude)
 
-        log.debug("<=Django Model key_select=> Selected key patterns len %s", len(key_patterns))
+        log.debug("<=Django Model key_select=> Selected key patterns len %s", key_patterns.count())
         return key_patterns
 
     @staticmethod

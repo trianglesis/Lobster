@@ -230,7 +230,7 @@ class PatternTestExecCases:
         parse_stat = LocalPatternsParse().compose_tree_paths(tkn_branch=branch)  # Run local parsing procedure:
         log.debug("<=p4_changes_multi=> Local parsed 'compose_tree_paths' status is: %s ", parse_stat)
         patterns = TkuPatterns.objects.filter(tkn_branch__exact=branch).values()  # Select parsed from table and run perforce parsing procedure:
-        log.debug("Patterns selected len: %s", len(patterns))
+        log.debug("Patterns selected len: %s", patterns.count())
 
         w = 5
         threads = list(range(w))

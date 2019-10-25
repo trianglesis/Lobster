@@ -82,11 +82,11 @@ if __name__ == "__main__":
             :param exclude: list of pattern folder names to exclude from set
             :return: list if dicts
             """
-            log.info("<=test_items_sorting=> All amount of tests to sort: %s", len(test_items))
+            log.info("<=test_items_sorting=> All amount of tests to sort: %s", test_items.count())
             if exclude:
                 log.info("<=test_items_sorting=> Excluding: %s", exclude)
                 test_items = test_items.exclude(pattern_folder_name__in=exclude)
-                log.info("<=test_items_sorting=> All amount of tests after exclude: %s", len(test_items))
+                log.info("<=test_items_sorting=> All amount of tests after exclude: %s", test_items.count())
             # Primitive RawQuerySet to Dict conversion:
             test_items_list = []
             for test_item in test_items:
@@ -213,7 +213,7 @@ if __name__ == "__main__":
 
             log.debug("<=Django Model intra_select=> sel_tests_dynamical() "
                       "selected len: %s "
-                      "history_recs.query: \n%s", len(all_patterns), all_patterns.query)
+                      "history_recs.query: \n%s", all_patterns.count(), all_patterns.query)
 
             return all_patterns
 

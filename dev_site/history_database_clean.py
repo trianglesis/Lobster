@@ -19,7 +19,7 @@ if __name__ == "__main__":
             Q(fail_status__regex=r"skipped \'Version is") |
             Q(fail_status__regex=r"testutils\.MY_dml_test_utils")
         ).defer()
-        log.debug("Count unwanted_query: %s", len(unwanted_query))
+        log.debug("Count unwanted_query: %s", unwanted_query.count())
         log.debug("unwanted_query.query %s", unwanted_query.query)
         return unwanted_query
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         """
         unwanted_results = TestHistory.objects.raw(unwanted_query)
 
-        log.debug("Count unwanted_query: %s", len(unwanted_results))
+        log.debug("Count unwanted_query: %s", unwanted_results.count())
         log.debug("unwanted_query.query %s", unwanted_results.query)
         return unwanted_results
 
@@ -67,24 +67,24 @@ if __name__ == "__main__":
 
     def select_addm_all(addm_name):
         addm_name_query = TestHistory.objects.filter(addm_name__exact=addm_name)
-        log.debug("Count addm_name_query: %s", len(addm_name_query))
+        log.debug("Count addm_name_query: %s", addm_name_query.count())
         log.debug("unwanted_query.query %s", addm_name_query.query)
         return addm_name_query
 
     def select_errors_all():
         errors_query = TestHistory.objects.filter(fail_status__exact='ERROR:')
-        log.debug("Count errors_query: %s", len(errors_query))
+        log.debug("Count errors_query: %s", errors_query.count())
         log.debug("unwanted_query.query %s", errors_query.query)
         return errors_query
 
     def select_skips_all():
         skipped_query = TestHistory.objects.filter(tst_status__contains="skipped 'Version is")
-        log.debug("Count select_skips_all: %s", len(skipped_query))
+        log.debug("Count select_skips_all: %s", skipped_query.count())
         log.debug("unwanted_query.query %s", skipped_query.query)
         return skipped_query
 
     def delete_selected(query_sel):
-        log.warning("About to delete all selected items %s", len(query_sel))
+        log.warning("About to delete all selected items %s", query_sel.count())
         deleted = query_sel.delete()
         log.debug("deleted: %s", deleted)
         return deleted
@@ -97,7 +97,7 @@ if __name__ == "__main__":
             table_name = model_sel.model._meta.db_table
 
         log.info("Run Optimize, check, analyze for: %s'", table_name)
-        
+
         OPTIMIZE = """OPTIMIZE TABLE {}""".format(table_name)
         optimize = model_sel.raw(OPTIMIZE)
         log.debug("Table %s optimize: %s", table_name, optimize)

@@ -930,19 +930,19 @@ def compose_selector(request_data):
 
 def tst_status_selector(queryset, sel_opts):
     if sel_opts.get('tst_status') == 'pass':
-        log.debug("use: pass_only")
+        # log.debug("use: pass_only")
         queryset = queryset.filter(fails__lte=0, error__lte=0)
     elif sel_opts.get('tst_status') == 'fail':
-        log.debug("use: fail_only")
+        # log.debug("use: fail_only")
         queryset = queryset.filter(fails__gte=1)
     elif sel_opts.get('tst_status') == 'notpass':
-        log.debug("use: not_pass_only")
+        # log.debug("use: not_pass_only")
         queryset = queryset.filter(Q(fails__gte=1) | Q(error__gte=1))
     elif sel_opts.get('tst_status') == 'error':
-        log.debug("use: error_only")
+        # log.debug("use: error_only")
         queryset = queryset.filter(error__gte=1)
     elif sel_opts.get('tst_status') == 'skip':
-        log.debug("use: skip_only")
+        # log.debug("use: skip_only")
         queryset = queryset.filter(skipped__gte=1)
     else:
         log.debug("use: TestLatestDigestAll")
@@ -950,8 +950,49 @@ def tst_status_selector(queryset, sel_opts):
     return queryset
 
 
+def history_selector(queryset, sel_opts):
+    if sel_opts.get('addm_version'):
+        # log.debug("queryset sort: addm_version %s", sel_opts.get('addm_version'))
+        queryset = queryset.filter(addm_version__exact=sel_opts.get('addm_version'))
+    if sel_opts.get('addm_name'):
+        # log.debug("queryset sort: addm_name %s", sel_opts.get('addm_name'))
+        queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
+    if sel_opts.get('tkn_branch'):
+        # log.debug("queryset sort: tkn_branch %s", sel_opts.get('tkn_branch'))
+        queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
+    if sel_opts.get('change_user'):
+        # log.debug("queryset sort: change_user %s", sel_opts.get('change_user'))
+        queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
+    if sel_opts.get('change_review'):
+        # log.debug("queryset sort: change_review %s", sel_opts.get('change_review'))
+        queryset = queryset.filter(change_review__exact=sel_opts.get('change_review'))
+    if sel_opts.get('change_ticket'):
+        # log.debug("queryset sort: change_ticket %s", sel_opts.get('change_ticket'))
+        queryset = queryset.filter(change_ticket__exact=sel_opts.get('change_ticket'))
+    if sel_opts.get('pattern_library'):
+        # log.debug("queryset sort: pattern_library %s", sel_opts.get('pattern_library'))
+        queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
+    if sel_opts.get('pattern_folder_name'):
+        # log.debug("queryset sort: pattern_folder_name %s", sel_opts.get('pattern_folder_name'))
+        queryset = queryset.filter(pattern_folder_name__exact=sel_opts.get('pattern_folder_name'))
+    if sel_opts.get('change'):
+        # log.debug("queryset sort: change %s", sel_opts.get('change'))
+        queryset = queryset.filter(change__exact=sel_opts.get('change'))
+    if sel_opts.get('test_py_path'):
+        # log.debug("queryset sort: test_py_path %s", sel_opts.get('test_py_path'))
+        queryset = queryset.filter(test_py_path__exact=sel_opts.get('test_py_path'))
+    if sel_opts.get('tst_name'):
+        # log.debug("queryset sort: tst_name %s", sel_opts.get('tst_name'))
+        queryset = queryset.filter(tst_name__exact=sel_opts.get('tst_name'))
+    if sel_opts.get('tst_class'):
+        # log.debug("queryset sort: tst_class %s", sel_opts.get('tst_class'))
+        queryset = queryset.filter(tst_class__exact=sel_opts.get('tst_class'))
+    return queryset
+
+
 # TKU Upload test workbench:
 class TKNCasesWorkbenchView(TemplateView):
+    __url_path = '/octo_tku_patterns/cases_workbench/'
     template_name = 'cases_workbench.html'
     context_object_name = 'objects'
     title = 'Test Cases Workbench'
@@ -960,6 +1001,7 @@ class TKNCasesWorkbenchView(TemplateView):
 # Test reports:
 # ADDM Digest summary:
 class AddmDigestListView(ListView):
+    __url_path = '/octo_tku_patterns/addm_digest/'
     model = AddmDigest
     template_name = 'digests/addm_digest.html'
     context_object_name = 'addm_digest'
@@ -967,71 +1009,75 @@ class AddmDigestListView(ListView):
 
 # Pattern Digest or Cases Digest summary:
 class TestLastDigestListView(ListView):
+    __url_path = '/octo_tku_patterns/tests_last/'
     template_name = 'digests/tests_last.html'
     context_object_name = 'tests_digest'
+    # Check if this is usefule case to have queryset loaded on view class init:
+    queryset = TestLatestDigestAll.objects.all()
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_context_data")
+        # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_context_data")
 
         # Get unique addm names based on table latest run:
         addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
-        log.debug("TestLastDigestListView addm_names explain \n%s", addm_names.explain())
+        # log.debug("TestLastDigestListView addm_names explain \n%s", addm_names.explain())
 
         if self.request.method == 'GET':
-            log.debug("METHOD: GET - show test cases digest")
+            # log.debug("METHOD: GET - show test cases digest")
             context = super(TestLastDigestListView, self).get_context_data(**kwargs)
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
             return context
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_queryset")
+        # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_queryset")
         sel_opts = compose_selector(self.request.GET)
 
-        queryset = TestLatestDigestAll.objects.all()
         if sel_opts.get('addm_name'):
-            log.debug("use: addm_name")
-            queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
+            # log.debug("use: addm_name")
+            self.queryset = self.queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
         if sel_opts.get('tkn_branch'):
-            log.debug("use: tkn_branch")
-            queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
+            # log.debug("use: tkn_branch")
+            self.queryset = self.queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
         if sel_opts.get('change_user'):
-            log.debug("use: change_user")
-            queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
+            # log.debug("use: change_user")
+            self.queryset = self.queryset.filter(change_user__exact=sel_opts.get('change_user'))
 
-        queryset = tst_status_selector(queryset, sel_opts)
-        log.debug("TestLastDigestListView queryset explain \n%s", queryset.explain())
-        return queryset
+        self.queryset = tst_status_selector(self.queryset, sel_opts)
+        # log.debug("TestLastDigestListView self.queryset explain \n%s", self.queryset.explain())
+        return self.queryset
 
 
 # Test last table - show single(or all with status) test results for test.py
 class TestLastSingleDetailedListView(ListView):
+    __url_path = '/octo_tku_patterns/test_details/'
     template_name = 'digests/test_details.html'
     context_object_name = 'test_detail'
     model = TestLast
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info',
-                            "<=TestLastSingleDetailedListView=> test single table context")
+        # UserCheck().logator(self.request, 'info', "<=TestLastSingleDetailedListView=> test single table context")
         # Get unique addm names based on table latest run:
         addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
         log.debug("Set of addm_names: %s", addm_names)
 
         if self.request.method == 'GET':
-            log.debug("<=TestLastSingleDetailedListView=> METHOD: GET - show tests items")
+            # log.debug("<=TestLastSingleDetailedListView=> METHOD: GET - show tests items")
             context = super(TestLastSingleDetailedListView, self).get_context_data(**kwargs)
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
             return context
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=TestLastSingleDetailedListView=> test cases table queryset")
+        # UserCheck().logator(self.request, 'info', "<=TestLastSingleDetailedListView=> test cases table queryset")
         sel_opts = compose_selector(self.request.GET)
         queryset = PatternsDjangoTableOper.sel_dynamical(TestLast, sel_opts=sel_opts)
-        log.debug("TestLastSingleDetailedListView queryset explain \n%s", queryset.explain())
+        # log.debug("TestLastSingleDetailedListView queryset explain \n%s", queryset.explain())
+        # log.debug("<=TestLastSingleDetailedListView=> selected len: %s query: \n%s", queryset.count(), queryset.query)
         return queryset
 
 
 # Test history table - show single test.py unit historical runs.
 class TestItemSingleHistoryListView(ListView):
+    __url_path = '/octo_tku_patterns/test_item_history/'
     """
     Show page for
         - one test000 item history log
@@ -1042,42 +1088,33 @@ class TestItemSingleHistoryListView(ListView):
     model = TestHistory
     template_name = 'digests/test_details.html'
     context_object_name = 'test_detail'
-    paginate_by = 500
+    # paginate_by = 500
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info',
-                            "<=TestItemSingleHistoryListView=> test item table context")
+        # UserCheck().logator(self.request, 'info', "<=TestItemSingleHistoryListView=> test item table context")
         context = super(TestItemSingleHistoryListView, self).get_context_data(**kwargs)
         # Get unique addm names based on table latest run:
         addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
-        log.debug("Set of addm_names: %s", addm_names)
+        # log.debug("Set of addm_names: %s", addm_names)
 
         if self.request.method == 'GET':
-            log.debug("<=TestItemSingleHistoryListView=> METHOD: GET - show single test case item tests")
+            # log.debug("<=TestItemSingleHistoryListView=> METHOD: GET - show single test case item tests")
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
             return context
-        # Redirect to single test view or so:
-        elif self.request.method == 'POST':
-            test_py_path = self.request.POST.get('test_py_path')
-            addm_name = self.request.POST.get('addm_name')
-            tst_name = self.request.POST.get('tst_name')
-            tst_class = self.request.POST.get('tst_class')
-            log.debug("<=TestItemSingleHistoryListView=> METHOD: POST GO TO NOT SURE WHERE! %s", (test_py_path, addm_name, tst_name, tst_class))
-        else:
-            pass
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=TestItemSingleHistoryListView=> test cases table queryset")
+        # UserCheck().logator(self.request, 'info', "<=TestItemSingleHistoryListView=> test cases table queryset")
         sel_opts = compose_selector(self.request.GET)
         # sel_opts.pop('tst_status')
         queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
         # queryset = tst_status_selector(queryset, sel_opts)
-        log.debug("TestItemSingleHistoryListView queryset explain \n%s", queryset.explain())
+        # log.debug("TestItemSingleHistoryListView queryset explain \n%s", queryset.explain())
         return queryset
 
 
 # Test History Latest View:
 class TestHistoryArchiveIndexView(ArchiveIndexView):
+    __url_path = '/octo_tku_patterns/test_history_index/'
     model = TestHistory
     date_field = "test_date_time"
     allow_future = False
@@ -1085,8 +1122,7 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info',
-                            "<=TestHistoryArchiveIndexView=> test history index")
+        UserCheck().logator(self.request, 'info', "<=TestHistoryArchiveIndexView=> test history index")
         context = super(TestHistoryArchiveIndexView, self).get_context_data(**kwargs)
         context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
@@ -1094,6 +1130,10 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
 
 # Test History Daily View:
 class TestHistoryDayArchiveView(DayArchiveView):
+    """
+    http://127.0.0.1:8000/octo_tku_patterns/test_history_day/2019/sep/30/?test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/SymantecAntiVirus/tests/test.py
+    """
+    __url_path = '/octo_tku_patterns/test_history_day/<int:year>/<str:month>/<int:day>/'
     model = TestHistory
     date_field = "test_date_time"
     allow_future = False
@@ -1101,15 +1141,29 @@ class TestHistoryDayArchiveView(DayArchiveView):
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info',
-                            "<=TestHistoryDayArchiveView=> test history by day")
-        context = super(TestHistoryDayArchiveView, self).get_context_data(**kwargs)
-        context.update(selector=compose_selector(self.request.GET), selector_str='')
-        return context
+        # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test history by day")
+        # Get unique addm names based on table latest run:
+        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
+        # log.debug("Set of addm_names: %s", addm_names)
+        if self.request.method == 'GET':
+            context = super(TestHistoryDayArchiveView, self).get_context_data(**kwargs)
+            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            return context
+
+    def get_queryset(self):
+        # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
+        sel_opts = compose_selector(self.request.GET)
+
+        self.queryset = TestHistory.objects.all()
+        queryset = history_selector(self.queryset, sel_opts)
+        # log.debug("TestHistoryDayArchiveView queryset explain \n%s", queryset.explain())
+        # log.debug("<=TestHistoryDayArchiveView=> selected len: %s query: \n%s", queryset.count(), queryset.query)
+        return queryset
 
 
 # Test History Today View:
 class TestHistoryTodayArchiveView(TodayArchiveView):
+    __url_path = '/octo_tku_patterns/test_history_today/'
     model = TestHistory
     date_field = "test_date_time"
     allow_future = False
@@ -1117,14 +1171,14 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info',
-                            "<=TestHistoryTodayArchiveView=> test history today")
+        UserCheck().logator(self.request, 'info', "<=TestHistoryTodayArchiveView=> test history today")
         context = super(TestHistoryTodayArchiveView, self).get_context_data(**kwargs)
         context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
 
 
 class AllDatesTestHistoryView(DayMixin, MonthMixin, YearMixin, ListView):
+    __url_path = '/octo_tku_patterns/test_history_dates/'
     model = TestHistory
     date_field = "test_date_time"
     allow_future = False
@@ -1132,8 +1186,7 @@ class AllDatesTestHistoryView(DayMixin, MonthMixin, YearMixin, ListView):
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info',
-                            "<=AllDatesTestHistoryView=> test history DATES MIX {}".format(kwargs))
+        UserCheck().logator(self.request, 'info', "<=AllDatesTestHistoryView=> test history DATES MIX {}".format(kwargs))
 
         context = super(AllDatesTestHistoryView, self).get_context_data(**kwargs)
         year_mixin = super(YearMixin, self).get_context_data(**kwargs)
@@ -1151,6 +1204,7 @@ class AllDatesTestHistoryView(DayMixin, MonthMixin, YearMixin, ListView):
 
 # Cases
 class TestCasesListView(ListView):
+    __url_path = '/octo_tku_patterns/test_cases/'
     model = TestCases
     context_object_name = 'test_cases'
     template_name = 'cases_groups/cases/cases_table.html'
@@ -1178,6 +1232,7 @@ class TestCasesListView(ListView):
 
 
 class TestCaseDetailView(DetailView):
+    __url_path = '/octo_tku_patterns/test_case/<int:pk>/'
     template_name = 'cases_groups/cases/case_single.html'
     context_object_name = 'case'
     model = TestCases
@@ -1191,6 +1246,7 @@ class TestCaseDetailView(DetailView):
 
 # Cases groups
 class TestCasesUpdateView(UpdateView):
+    __url_path = '/octo_tku_patterns/test_case/change/<int:pk>/'
     template_name = 'cases_groups/cases/case_update_create.html'
     model = TestCases
     fields = (
@@ -1241,6 +1297,7 @@ class TestCasesUpdateView(UpdateView):
 
 
 class TestCasesDetailsListView(ListView):
+    __url_path = '/octo_tku_patterns/test_cases_groups/'
     # queryset = TestCases.objects.all().order_by('-change_time').values()
     model = TestCasesDetails
     context_object_name = 'groups'
@@ -1254,6 +1311,7 @@ class TestCasesDetailsListView(ListView):
 
 
 class TestCasesDetailsDetailView(DetailView):
+    __url_path = '/octo_tku_patterns/test_cases_group/<int:pk>/'
     template_name = 'cases_groups/groups/group_single.html'
     context_object_name = 'group'
     model = TestCasesDetails
@@ -1267,6 +1325,7 @@ class TestCasesDetailsDetailView(DetailView):
 
 @method_decorator(login_required, name='dispatch')
 class TestCasesDetailsUpdateView(UpdateView):
+    __url_path = '/octo_tku_patterns/test_cases_group/change/<int:pk>/'
     template_name = 'cases_groups/groups/group_update_create.html'
     model = TestCasesDetails
     fields = (
@@ -1301,6 +1360,7 @@ class TestCasesDetailsUpdateView(UpdateView):
 
 @method_decorator(login_required, name='dispatch')
 class TestCasesDetailsCreateView(CreateView):
+    __url_path = '/octo_tku_patterns/test_cases_group/create/'
     template_name = 'cases_groups/groups/group_update_create.html'
     model = TestCasesDetails
     fields = (
@@ -1333,6 +1393,7 @@ class TestCasesDetailsCreateView(CreateView):
 # Operations:
 @method_decorator(login_required, name='dispatch')
 class TestCaseRunTest(TemplateView):
+    __url_path = '/octo_tku_patterns/test_execute_web/'
     template_name = 'actions/test_added.html'
     context_object_name = 'objects'
     title = 'Test added!'
@@ -1380,12 +1441,12 @@ class TestCaseRunTest(TemplateView):
 
 
 class TestCaseRunTestREST(APIView):
-
+    __url_path = '/octo_tku_patterns/user_test_add/'
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request=None):
-        task_id = self.request.GET.get('task_id', None)
+        task_id = self.request.GET.get('task_id', 'ThisIsNotTheTaskJustSayingYouKnow?')
         log.debug("<=TestCaseRunTestREST=> GET - retrieve task by task_id: %s", task_id)
         log.debug("task id by request: %s", task_id)
         # Get task status from celery-app
@@ -1433,6 +1494,7 @@ class TestCaseRunTestREST(APIView):
 
 # DEVELOPMENT VIEWS:
 class MailTestAddedDev(TemplateView):
+    __url_path = '/octo_tku_patterns/mail_test_added_dev/'
     template_name = 'service/emails/statuses/test_added.html'
     context_object_name = 'objects'
     title = 'Test added!'

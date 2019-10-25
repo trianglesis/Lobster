@@ -42,7 +42,7 @@ class ViewTKU:
         """
         patterns_summary = loader.get_template('OLD/tku_packages.html')
         user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=ViewTKU=> tku_packages(): %s", user_str)
+        # log.debug("<=ViewTKU=> tku_packages(): %s", user_str)
 
         tku_type = request.GET.get('tku_type', False)
 
@@ -210,38 +210,39 @@ def upload_case_query_selector(queryset, sel_opts):
     # package_type already in
     # tku_type already in
     if sel_opts.get('addm_version'):
-        log.debug("queryset sort: addm_version %s", sel_opts.get('addm_version'))
+        # log.debug("queryset sort: addm_version %s", sel_opts.get('addm_version'))
         queryset = queryset.filter(addm_version__exact=sel_opts.get('addm_version'))
     if sel_opts.get('zip_type'):
-        log.debug("queryset sort: zip_type %s", sel_opts.get('zip_type'))
+        # log.debug("queryset sort: zip_type %s", sel_opts.get('zip_type'))
         queryset = queryset.filter(zip_type__exact=sel_opts.get('zip_type'))
     if sel_opts.get('tku_name'):
-        log.debug("queryset sort: tku_name %s", sel_opts.get('tku_name'))
+        # log.debug("queryset sort: tku_name %s", sel_opts.get('tku_name'))
         queryset = queryset.filter(tku_name__exact=sel_opts.get('tku_name'))
     # Tests:
     if sel_opts.get('test_mode'):
-        log.debug("queryset sort: test_mode %s", sel_opts.get('test_mode'))
+        # log.debug("queryset sort: test_mode %s", sel_opts.get('test_mode'))
         queryset = queryset.filter(test_mode__exact=sel_opts.get('test_mode'))
     if sel_opts.get('tku_type'):
-        log.debug("queryset sort: tku_type %s", sel_opts.get('tku_type'))
+        # log.debug("queryset sort: tku_type %s", sel_opts.get('tku_type'))
         queryset = queryset.filter(tku_type__exact=sel_opts.get('tku_type'))
     if sel_opts.get('mode_key'):
-        log.debug("queryset sort: mode_key %s", sel_opts.get('mode_key'))
+        # log.debug("queryset sort: mode_key %s", sel_opts.get('mode_key'))
         queryset = queryset.filter(mode_key__exact=sel_opts.get('mode_key'))
     if sel_opts.get('addm_name'):
-        log.debug("queryset sort: addm_name %s", sel_opts.get('addm_name'))
+        # log.debug("queryset sort: addm_name %s", sel_opts.get('addm_name'))
         queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
     if sel_opts.get('package_type'):
-        log.debug("queryset sort: package_type %s", sel_opts.get('package_type'))
+        # log.debug("queryset sort: package_type %s", sel_opts.get('package_type'))
         queryset = queryset.filter(package_type__exact=sel_opts.get('package_type'))
     if sel_opts.get('upload_test_status'):
-        log.debug("queryset sort: upload_test_status %s", sel_opts.get('upload_test_status'))
+        # log.debug("queryset sort: upload_test_status %s", sel_opts.get('upload_test_status'))
         queryset = queryset.filter(upload_test_status__exact=sel_opts.get('upload_test_status'))
     return queryset
 
 
 # TKU Upload test workbench:
 class TKUUpdateWorkbenchView(TemplateView):
+    __url_path = '/octo_tku_upload/tku_workbench/'
     model = TkuPackagesNew
     template_name = 'workbench.html'
     context_object_name = 'objects'
@@ -341,6 +342,7 @@ class TKUUpdateWorkbenchView(TemplateView):
 
 # TKU packages view:
 class TKUPackagesListView(ListView):
+    __url_path = '/octo_tku_upload/tku_packages_index/'
     model = TkuPackagesNew
     context_object_name = 'tku_packages'
     template_name = 'packages/packages_index.html'
@@ -361,6 +363,7 @@ class TKUPackagesListView(ListView):
 
 # Test History Latest View:
 class UploadTestArchiveIndexView(ArchiveIndexView):
+    __url_path = '/octo_tku_upload/upload_index/'
     model = UploadTestsNew
     date_field = "test_date_time"
     allow_future = False
@@ -374,39 +377,41 @@ class UploadTestArchiveIndexView(ArchiveIndexView):
         return context
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=UploadTestArchiveIndexView=> get_queryset")
+        # UserCheck().logator(self.request, 'info', "<=UploadTestArchiveIndexView=> get_queryset")
         sel_opts = compose_selector(self)
         queryset = UploadTestsNew.objects.all()
         queryset = upload_case_query_selector(queryset, sel_opts)
-        log.debug("UploadTestArchiveIndexView queryset explain \n%s", queryset.explain())
+        # log.debug("UploadTestArchiveIndexView queryset explain \n%s", queryset.explain())
         return queryset.order_by('-test_date_time')
 
 
 # Test History Daily View:
 class UploadTestDayArchiveView(DayArchiveView):
-    model = UploadTestsNew
+    __url_path = '/octo_tku_upload/upload_day/<int:year>/<str:month>/<int:day>/'
+    # model = UploadTestsNew
     date_field = "test_date_time"
     allow_future = False
     template_name = 'digests/upload_tests_daily.html'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info',
-                            "<=UploadTestDayArchiveView=> upload test history by day")
+        UserCheck().logator(self.request, 'info', "<=UploadTestDayArchiveView=> upload test history by day")
         context = super(UploadTestDayArchiveView, self).get_context_data(**kwargs)
         context.update(selector=compose_selector(self), selector_str='')
         return context
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=UploadTestDayArchiveView=> get_queryset")
+        # UserCheck().logator(self.request, 'info', "<=UploadTestDayArchiveView=> get_queryset")
         sel_opts = compose_selector(self)
-        queryset = UploadTestsNew.objects.all()
-        queryset = upload_case_query_selector(queryset, sel_opts)
-        log.debug("UploadTestDayArchiveView queryset explain \n%s", queryset.explain())
+        self.queryset = UploadTestsNew.objects.all()
+        queryset = upload_case_query_selector(self.queryset, sel_opts)
+        # log.debug("UploadTestDayArchiveView queryset explain \n%s", queryset.explain())
+        # log.debug("<=UploadTestDayArchiveView=> selected len: %s query: \n%s", queryset.count(), queryset.query)
         return queryset.order_by('-addm_name')
 
 
 # Test History Today View:
 class UploadTestTodayArchiveView(TodayArchiveView):
+    __url_path = '/octo_tku_upload/upload_today/'
     model = UploadTestsNew
     date_field = "test_date_time"
     allow_future = False
@@ -420,9 +425,9 @@ class UploadTestTodayArchiveView(TodayArchiveView):
         return context
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=UploadTestTodayArchiveView=> get_queryset")
+        # UserCheck().logator(self.request, 'info', "<=UploadTestTodayArchiveView=> get_queryset")
         sel_opts = compose_selector(self)
         queryset = UploadTestsNew.objects.all()
         queryset = upload_case_query_selector(queryset, sel_opts)
-        log.debug("UploadTestTodayArchiveView queryset explain \n%s", queryset.explain())
+        # log.debug("UploadTestTodayArchiveView queryset explain \n%s", queryset.explain())
         return queryset.order_by('-addm_name')

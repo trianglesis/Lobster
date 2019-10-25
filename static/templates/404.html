@@ -1,0 +1,30 @@
+{% extends "main/main.html" %}
+{% load template_simplify %}
+{% block page_title %}
+    {% load_host_names as hostnames %}
+    {% if hostnames.LOBSTER_SITE_DOMAIN in request.get_host %}Not Found
+    {% elif hostnames.OCTOPUS_SITE_DOMAIN in request.get_host %}Not Found
+    {% else %}404 Not Found
+    {% endif %}
+{% endblock %}
+{% block content %}
+    {% load static %}
+    {% load humanize %}
+    {% load tz %}
+    <div class="not-found-page-sub-nav">
+    Put some nav here
+    </div>
+    <div class="not-found-page-content">
+    Put some conent here
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Requested item not found =( </span>
+    </nav>
+{% endblock %}
