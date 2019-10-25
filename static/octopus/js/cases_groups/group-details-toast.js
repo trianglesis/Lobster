@@ -13,33 +13,25 @@
 $(document).ready(function () {
     console.log("Toast prepare");
 
+    // Test case use usual way to listen buttons
     eventListenerForCaseTestButtons(testRunPrepareToast);
+    // Test cases group 'Run all' buttons listen to:
+    eventListenerForCaseGroupButtons(testRunPrepareToast);
 
     console.log("Toast ready");
 });
 
 
 function testRunPrepareToast(testButtonDataset) {
-    // console.log('testRunPrepareToast got dataset');
-    // console.table(testButtonDataset);
+    let taskIdStorage = {};
+    let toastBase = getToastDraftMultipleCases();  // Multiple case toast does not require ID based on cases
+    taskIdStorage.toastId = toastBase.id;
 
-    let modalBody = document.getElementById('actionsModal').childNodes[1].childNodes[1].childNodes[3];  // To modal body
-    // console.table(modalBody);
-    let caseData = parseModalBodyForCaseData(modalBody);  // parse modal body
-    // console.log('caseData');
-    // console.table(caseData);
+    let toastReady = fillToastBodyWithTestAttributes(toastBase, testButtonDataset);  // fill toast with data
 
-    // Maybe assign this summarized object to another var, so we can show full dataSet, but POST only needed for test:
-    let caseFullData = Object.assign(caseData, testButtonDataset);
-    // console.log('caseFullData');
-    // console.table(caseFullData);
-    let toastBase = getToastDraftWithId(caseFullData);  // Make unique copy of toast draft
-    let toastReady = fillToastBodyWithTestAttributes(toastBase, caseFullData);  // fill toast with data
     appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
-
-    // console.log('testButtonDataset');
-    // console.table(testButtonDataset);
-
-    new RESTPostTask(caseFullData, testButtonDataset); //  Now, keeping our toast ID in memory, make a request to GET actual task_id status:
-    showToast(caseData.toastId); // Make toast visible
+    new RESTPostTask(taskIdStorage, testButtonDataset); //  Now, keeping our toast ID in memory, make a request to GET actual task_id status:
+    showToastHideModal(toastBase.id); // Make toast visible and hide modal
+    $('#mulCasesModal').modal('hide');
+    $('#actionsModal').modal('hide');
 }

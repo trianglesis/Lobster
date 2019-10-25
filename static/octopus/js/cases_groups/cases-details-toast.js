@@ -12,7 +12,10 @@
 $(document).ready(function () {
     console.log("Toast prepare");
 
+    // Test case use usual way to listen buttons
     eventListenerForCaseTestButtons(testRunPrepareToast);
+    // Test case use meta buttons to listen, allows to run tests based on change, user, ticket, etc
+    eventListenerForCaseMetaButtons(testRunPrepareToast);
 
     console.log("Toast ready");
 });

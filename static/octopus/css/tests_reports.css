@@ -390,11 +390,13 @@ MODAL styles:
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
+
 .popover > div.popover-body > div.addm_group {
     background-image: url('/static/fontawesome/svgs/solid/layer-group.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
+
 .popover > div.popover-body > div.addm_host {
     background-image: url('/static/fontawesome/svgs/solid/at.svg');
     background-repeat: no-repeat;

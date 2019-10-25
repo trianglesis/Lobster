@@ -16,6 +16,15 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
+    $('#mulCasesModal').on('hidden.bs.modal', function (event) {
+        $('#mulCasesModal').modal('hide');
+    });
+});
+
+/**
+ * This modal activates on single case row, on button Actions
+ */
+$(document).ready(function () {
     //Opening of modal action
     $('#actionsModal').on('show.bs.modal', function (event) {
         // let modal_ = $(this);
@@ -27,14 +36,30 @@ $(document).ready(function () {
         // Fill modal body with divs:
         fillModalBody(modal, caseData);
 
-        // Paste hypelinks on buttons with log views:
-        let button = getButtonFromEvent(event);
-        let addm_name_url = detectADDMSelectorFromContext(button, caseData);
-        let tst_status_url = detectTestStatusSelectorFromContext(button, caseData);
-
-        composeLogsHyperlinks(caseData, addm_name_url, tst_status_url);
+        // No need to get addm or test status on group page;
+        composeLogsHyperlinks(caseData, '', '');
         assignTestCaseTestButtons(caseData);
         composeCaseHyperlinks(caseData);
     });
+});
 
+/**
+ * This modal activates on group container, on the button 'Run All'
+ */
+$(document).ready(function () {
+    //Opening of modal action
+    $('#mulCasesModal').on('show.bs.modal', function (event) {
+        let modal = document.getElementById("mulCasesModal");
+        let tableOfCasesRows = tableCases(event);
+        let casesData = collectCasesFromRows(tableOfCasesRows);
+
+        // console.log("mulCasesModal casesData:");
+        // console.table(casesData);
+
+        fillModalBodyWithMultipleCases(modal, casesData);
+        // Draw a button for test run:
+        fillButtonTestRun(modal, casesData);
+        // console.table(casesData);
+        // When buttons are ready - lets wait for actions on them:
+    });
 });

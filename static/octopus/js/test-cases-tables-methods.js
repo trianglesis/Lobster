@@ -194,6 +194,54 @@ function fillModalBody(modal, caseData) {
 }
 
 /**
+ * Fill empty modal body with list of cases to run, and ids
+ * @param modal
+ * @param casesData
+ */
+function fillModalBodyMultipleCases(modal, casesData) {
+    let modal_variables = modal.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
+    // console.log('Modal modal-variables has children - remove them!');
+    while (modal_variables.firstChild) {
+        modal_variables.firstChild.remove();
+    }
+    // Create modal body details of case:
+
+    for (const [keyArr, valueArr] of Object.entries(casesData)) {
+        // For simple IDs array make one div:
+        if (keyArr === 'cases_ids') {
+            let div = document.createElement('div');
+            div.setAttribute('id', keyArr);
+            div.innerText = `Selected cases id list: ${valueArr}`;
+            modal_variables.appendChild(div);
+
+        // For selected cases details array create more divs
+        } else if (keyArr === 'casesSelectedArr') {
+
+            let div = document.createElement('div'); // div for all cases details below:
+            div.setAttribute('id', keyArr);  // div id = casesSelectedArr
+            modal_variables.appendChild(div);
+
+            for (let caseDetails of casesData[keyArr]) {
+                let caseDiv = document.createElement('div');
+                // Create test py path only if no tkn_branch - that means this case is not a pattern-related.
+                //TODO: Later calculate etimated time weight for all tests, by their time_weight value
+                if (caseDetails.tkn_branch) {
+                    caseDiv.innerText = `${caseDetails.tkn_branch}/${caseDetails.pattern_library}/${caseDetails.pattern_folder_name}\
+                     t: ${caseDetails.test_time_weight}`;
+                    caseDiv.setAttribute('class', 'pattern-case-details');
+                    div.appendChild(caseDiv);
+                } else {
+                    caseDiv.innerText = `${caseDetails.test_py_path}`;
+                    caseDiv.setAttribute('class', 'test-case-details');
+                    div.appendChild(caseDiv);
+                }
+
+            }
+        }
+    }
+}
+
+/**
  * Try to see if we have an addm_name in context, which could be passed here from button data.
  * This is required when user wants to sort out only addm related tests.
  * From test last table call modal with options:
@@ -512,19 +560,19 @@ function eventListenerForCaseTestButtons(funcToRun) {
 
     if (test_wipe_run) {
         test_wipe_run.addEventListener("click", function () {
-            console.log("test_wipe_run click");
+            // console.log("test_wipe_run click");
             funcToRun(test_wipe_run.dataset);
         });
     }
     if (test_p4_run) {
         test_p4_run.addEventListener("click", function () {
-            console.log("test_p4_run click");
+            // console.log("test_p4_run click");
             funcToRun(test_p4_run.dataset);
         });
     }
     if (test_instant_run) {
         test_instant_run.addEventListener("click", function () {
-            console.log("test_instant_run click");
+            // console.log("test_instant_run click");
             funcToRun(test_instant_run.dataset);
         });
     }
@@ -585,6 +633,33 @@ function eventListenerForCaseMetaButtons(funcToRun) {
 }
 
 /**
+ * Listen to actions on buttons modal Run All on page /octo_tku_patterns/test_cases_group/
+ * @param funcToRun
+ */
+function eventListenerForCaseGroupButtons(funcToRun) {
+    // Listen for case meta if possible:
+    let casesGroupWipeRun = document.getElementById("cases-wipe-run");
+    let casesGroupP4Run = document.getElementById("cases-p4-run");
+    let casesGroupInstantRun = document.getElementById("cases-instant-run");
+
+    if (casesGroupWipeRun) {
+        casesGroupWipeRun.addEventListener("click", function () {
+            funcToRun(casesGroupWipeRun.dataset)
+        });
+    }
+    if (casesGroupP4Run) {
+        casesGroupP4Run.addEventListener("click", function () {
+            funcToRun(casesGroupP4Run.dataset)
+        });
+    }
+    if (casesGroupInstantRun) {
+        casesGroupInstantRun.addEventListener("click", function () {
+            funcToRun(casesGroupInstantRun.dataset)
+        });
+    }
+}
+
+/**
  * Making a copy of toast draft HTML and assign new copy with unique case ID
  * TODO: If no case_id found - use unique case values set. (tkn_branch, library, patt_folder etc) or use test ID?
  * @param caseData
@@ -615,6 +690,20 @@ function getToastDraftWithId(caseData) {
 }
 
 /**
+ * Making a copy of toast draft HTML and assign new copy with unique case ID
+ * @returns {Node}
+ */
+function getToastDraftMultipleCases() {
+    let toastDraft = document.getElementById('toastDraft'); // Get draft toast from page foot
+    let toastBase = toastDraft.children[0].cloneNode(true);  // Toast object
+    // Set toast values:
+    toastBase.setAttribute('data-delay', 30000); // 30 sec. Wait to task mod
+    // Make a toast with stale ID, there is a group execution, we don't need multiple toasts
+    toastBase.id = 'multiple-cases-run-toast';
+    return toastBase
+}
+
+/**
  * Fill new toast copy body with attributes from case to show which test has been started and what pattern.
  * @param toastBase
  * @param caseFullData
@@ -627,7 +716,7 @@ function fillToastBodyWithTestAttributes(toastBase, caseFullData) {
     for (const [key, value] of Object.entries(caseFullData)) {
         if (metaData.indexOf(key) > -1) {
             if (value) {
-                console.log(`Key is in extras: ${key} val: ${value}`);
+                // console.log(`Key is in extras: ${key} val: ${value}`);
                 // Remove cases_ids, because we want to test cases related on metadata only:
                 let metadata = document.createElement('div');  // toast-body
                 metadata.setAttribute('id', 'testOnMetadata');
@@ -639,19 +728,29 @@ function fillToastBodyWithTestAttributes(toastBase, caseFullData) {
     }
 
     if (showPattern) {
-        // When no metadata key,values found, just keep caseFullData with current keys.
-        // They're usually patterns attributes or cases_ids.
-        let tknBranchPattLib = document.createElement('div');  // toast-body
-        let patternDirectory = document.createElement('div');  // toast-body
+        if (caseFullData.tkn_branch) {
+            // When no metadata key,values found, just keep caseFullData with current keys.
+            // They're usually patterns attributes or cases_ids.
+            let tknBranchPattLib = document.createElement('div');  // toast-body
+            let patternDirectory = document.createElement('div');  // toast-body
 
-        tknBranchPattLib.setAttribute('id', 'tknBranchPattLib');
-        patternDirectory.setAttribute('id', 'patternDirectory');
+            tknBranchPattLib.setAttribute('id', 'tknBranchPattLib');
+            patternDirectory.setAttribute('id', 'patternDirectory');
 
-        tknBranchPattLib.innerText = `${caseFullData.tkn_branch} / ${caseFullData.pattern_library}`;
-        patternDirectory.innerText = caseFullData.pattern_folder_name;
+            tknBranchPattLib.innerText = `${caseFullData.tkn_branch} / ${caseFullData.pattern_library}`;
+            patternDirectory.innerText = caseFullData.pattern_folder_name;
 
-        toastBase.childNodes[3].appendChild(tknBranchPattLib);
-        toastBase.childNodes[3].appendChild(patternDirectory);
+            toastBase.childNodes[3].appendChild(tknBranchPattLib);
+            toastBase.childNodes[3].appendChild(patternDirectory);
+        } else {
+            // When run multiple tests, there are can be a lot of patterns, no need to show them all in toast
+            // Just show text info about multiple tests would run.
+            let multipleCasesRun = document.createElement('div');  // toast-body
+            multipleCasesRun.setAttribute('id', 'multipleCasesRun');
+            multipleCasesRun.innerText = 'Run all selected cases!';
+            toastBase.childNodes[3].appendChild(multipleCasesRun);
+        }
+
     }
 
     let test_mode = document.createElement('div');  // toast-body
@@ -675,7 +774,7 @@ function fillToastBodyWithTestAttributes(toastBase, caseFullData) {
  * @param caseFullData
  */
 function toastModifyPre(caseFullData) {
-    console.log("toastModifyPre: caseFullData");
+    // console.log("toastModifyPre: caseFullData");
     // console.table(caseFullData);
     let toastPublished = document.getElementById(caseFullData.toastId);
     let task_id = document.createElement('div');  // toast-body
@@ -726,6 +825,11 @@ function showToast(toastID) {
     $('#' + toastID).toast('show')
 }
 
+function showToastHideModal(toastID) {
+    // $('#' + modalID).modal('hide');
+    $('#' + toastID).toast('show')
+}
+
 /**
  * REST
  **/
@@ -749,7 +853,7 @@ function waitResult(caseFullData, testButtonDataset) {
  * @constructor
  */
 function RESTPostTask(caseFullData, testButtonDataset) {
-    console.log(`POST user test: `);
+    // console.log(`POST user test: `);
     // console.table(testButtonDataset);
     $.ajax({
         type: "POST",
@@ -816,7 +920,16 @@ function RESTGetTask(caseFullData, testButtonDataset) {
     return testButtonDataset;
 }
 
-
+/**
+ * Get case details on test digest pages of deeper level: test items, test history.
+ * Main important action - this function gets case ID which later used for test run.
+ * This approach is much better then pass pattern_lib, folder, branch and so on.
+ * @param caseData
+ * @param modal
+ * @param event
+ * @param callThen
+ * @constructor
+ */
 function RESTGetCaseByTestPyPath(caseData, modal, event, callThen) {
     // console.log(`GET user test task by id: ${testButtonDataset.task_id}`);
     let caseItem = {};
