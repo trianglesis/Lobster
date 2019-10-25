@@ -14,7 +14,7 @@
 {% load intro_selections %}
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-run-toast.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-actions-modal-toast.css' %}"/>
     {% dynamical_selector_compose '' 'selector_str' %}
     {% dynamical_selector_compose 'tkn_branch' 'selector_tkn_branch' %}
     {% dynamical_selector_compose 'test_type' 'selector_test_type' %}
@@ -158,8 +158,8 @@
                     <th class="center_txt" scope="col">t:</th>
                     <th class="center_txt" scope="col">Changed</th>
                     <th class="center_txt" scope="col">Groups:</th>
-                    <th class="center_txt" scope="col">Actions</th>
                     <th class="center_txt" scope="col"></th>
+                    <th class="center_txt" scope="col">Actions</th>
                 </tr>
                 </thead>
                 <tbody>

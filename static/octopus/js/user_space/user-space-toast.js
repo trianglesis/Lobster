@@ -1,7 +1,8 @@
 /**
- * This is an event listener and toast maker for pattern test cases (only test sorted) on page: /octo_tku_patterns/test_details/
- * Here we have not case metadata info. Use test details to compose task request.
- * Run POST and GET requests with test data?
+ * This is an event listener and toast maker for pattern test cases on page: /octo_tku_patterns/tests_last/
+ * Here we have most of case metadata from p4: changes, user, and so on.
+ * Use metadata to show toast details.
+ * Run POST and GET requests with case ID to run test and check if task added to queue.
  */
 
 // Listen to button user pushed:
@@ -10,7 +11,6 @@ $(document).ready(function () {
     console.log("Toast prepare");
 
     eventListenerForCaseTestButtons(testRunPrepareToast);
-    eventListenerForCaseUnitTestButtons(testRunPrepareToast);
 
     console.log("Toast ready");
 });

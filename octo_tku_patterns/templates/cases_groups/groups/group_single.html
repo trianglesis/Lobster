@@ -14,8 +14,7 @@
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/groups.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/modal_cases_multiple.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-run-toast.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-actions-modal-toast.css' %}"/>
     <div aria-live="polite" aria-atomic="true" style="position: relative">
         <!-- Position it -->
         <div style="position: absolute; top: 0; left: 0;">
@@ -126,7 +125,4 @@
     <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
     <script src="{% static 'octopus/js/cases_groups/group-details-modal.js' %}"></script>
     <script src="{% static 'octopus/js/cases_groups/group-details-toast.js' %}"></script>
-
-    {# <script src="{% static 'octopus/js/case-group-modal-multiple-tests.js' %}"></script>#}
-
 {% endblock %}

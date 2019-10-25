@@ -17,8 +17,8 @@ $(document).ready(function () {
 
 
 function testRunPrepareToast(testButtonDataset) {
-    console.log('testRunPrepareToast got dataset');
-    console.table(testButtonDataset);
+    // console.log('testRunPrepareToast got dataset');
+    // console.table(testButtonDataset);
 
     let modalBody = document.getElementById('actionsModal').childNodes[1].childNodes[1].childNodes[3];  // To modal body
     // console.table(modalBody);

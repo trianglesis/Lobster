@@ -1,0 +1,237 @@
+/**
+MODAL styles:
+ */
+
+.case-unit-modal-buttons {
+    margin-top: .5em;
+    font-size: 1.5em;
+    text-align: center;
+    font-family: 'Assistant', sans-serif;
+}
+
+.case-info-modal-buttons {
+    margin-top: .5em;
+    font-size: 1.5em;
+    text-align: center;
+    font-family: 'Assistant', sans-serif;
+}
+
+.test-actions-modal-name {
+    margin-top: .5em;
+    font-size: 1.5em;
+    text-align: center;
+    font-family: 'Assistant', sans-serif;
+}
+
+.modal-variables > div {
+    display: list-item;
+    margin-left: 1em;
+}
+
+.modal-variables > #tkn_branch {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+.modal-variables > #addm_name {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+.modal-variables > #pattern_library {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+.modal-variables > #pattern_folder_name {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+.modal-variables > #case_id {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    /*display: none;*/
+}
+
+.modal-variables > #case_id:before {
+    content: 'Case id:';
+}
+
+.modal-variables > #test_id {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    display: none;
+
+}
+
+.modal-variables > #tst_class {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+.modal-variables > #tst_name {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+
+}
+
+.modal-variables > #cases_ids {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    display: none;
+
+}
+
+.modal-variables > #change_ticket {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+.modal-variables > #change_ticket:before {
+    content: 'Change ticket: ';
+}
+
+.modal-variables > #change_review {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+.modal-variables > #change_review:before {
+    content: 'Change review: ';
+}
+
+.modal-variables > #change_user {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+.modal-variables > #change_user:before {
+    content: 'Change user: ';
+}
+
+.modal-variables > #change {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+.modal-variables > #change:before {
+    content: 'Change: ';
+}
+
+.modal-variables > #test_py_path {
+    font-size: .775em;
+    font-family: 'Maven Pro', sans-serif;
+    word-wrap: break-word;
+    /*display: none;*/
+
+}
+
+.modal-variables > #test_function {
+    font-size: .775em;
+    font-family: 'Maven Pro', sans-serif;
+    word-wrap: break-word;
+    display: none;
+}
+
+/*
+    Multiple cases from case group - modal:
+*/
+#cases_ids {
+    font-size: 1em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+#casesSelectedArr {
+    margin-top: 1em;
+}
+
+#casesSelectedArr > div {
+    display: list-item;
+    margin-left: 1em;
+}
+
+.pattern-case-details {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+.test-case-details {
+    font-size: .875em;
+    font-family: monospace;
+}
+
+.group-test-buttons {
+    margin-top: 1em;
+    display: flex;
+    align-items: center;
+}
+
+/* TOAST */
+#testOnMetadata {
+    font-style: italic;
+    font-size: 1em;
+    font-family: 'Maven Pro', sans-serif;
+    text-align: right;
+    color: #1f5592cc;
+}
+
+#tknBranchPattLib {
+    font-size: 1em;
+    font-family: 'Maven Pro', sans-serif;
+    font-weight: bold;
+    background-image: url(/static/octicons/svg/git-commit.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.2rem;
+}
+
+#patternDirectory {
+    font-size: 1em;
+    font-family: 'Maven Pro', sans-serif;
+    font-weight: bold;
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/repo.svg);
+}
+
+#multipleCasesRun {
+    font-size: 1em;
+    font-family: 'Maven Pro', sans-serif;
+    font-style: italic;
+    text-align: right;
+    color: #a90494;
+}
+
+#test_mode {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    color: #006d09;
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.2rem;
+}
+
+#task_id {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    color: brown;
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.2rem;
+}
+
+#task_status {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    font-weight: bolder;
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.2rem;
+}

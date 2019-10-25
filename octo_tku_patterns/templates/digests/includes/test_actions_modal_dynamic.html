@@ -7,7 +7,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="actionsModalLabel">Test Case Options</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <!-- Case info -->
@@ -15,88 +16,195 @@
                 </div>
                 <!-- Action buttons -->
                 <div class="test-actions">
+                    {% comment %}
+                    TEST LAST DIGEST
+                        Tests last page, shows tests digest for last night routne,
+                        uses model view select for this digest. Have info abou cases and tests as summary
+                    {% endcomment %}
                     {% if "tests_last" in request.path %}
-                        <div class="span-test-actions-modal-name">Tests last</div>
+                        <!-- Test last page and buttons -->
+                        <div class="test-actions-modal-name">Tests last</div>
                         <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="see-logs" class="btn btn-sm btn-outline-info">See test.py logs output</a>
-                            <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                            <a href="#"
+                               id="see-logs"
+                               class="btn btn-sm btn-outline-info">See test.py logs output</a>
+                            <div class="case-info-modal-buttons">Case info</div>
+                            <a href="#"
+                               id="all-info"
+                               class="btn btn-sm btn-outline-info">Test case info detailed</a>
                         </div>
+                    {% comment %}
+                    TEST DETAILS DIGEST
+                        Shows only one selested test.py unit test results.
+                        Can be sorted by test status, or forcely showed as full output from whole ADDM or totally all records (sloooooow)
+                        Have only data from tests records, to cases metadata available, we use REST call to get extra data for case of this test
+                        to show it on modal window and then run test by case id!
+                    {% endcomment %}
                     {% elif "test_details" in request.path %}
+                        <!-- Test details page and buttons -->
                         <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                            <div class="case-info-modal-buttons">Case info</div>
+                            <a href="#"
+                               id="all-info"
+                               class="btn btn-sm btn-outline-info">Test case info detailed</a>
                         </div>
-                        <div class="span-test-actions-modal-name">Unit Test details</div>
+                        <div class="test-actions-modal-name">Unit Test details</div>
                         <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="see-logs-history" class="btn btn-sm btn-outline-info">Unit history</a>
+                            <a href="#"
+                               id="see-logs-history"
+                               class="btn btn-sm btn-outline-info">Unit history</a>
                         </div>
+                        <!-- Case unit test actions:  -->
+                        <div class="case-unit-modal-buttons">Case test unit actions:</div>
                         <div class="list-group text-center test_details" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="unit-wipe-run"
+                            <a href="#"
+                               id="unit-wipe-run"
                                data-wipe="1"
                                class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
-                            <a href="#" id="unit-p4-run"
+                            <a href="#"
+                               id="unit-p4-run"
                                data-refresh="1"
                                class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
-                            <a href="#" id="unit-instant-run" class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
+                            <a href="#"
+                               id="unit-instant-run"
+                               class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
                         </div>
+                    {% comment %}
+                    TEST HISTORY for TEST ITEM
+                        This page shows history records for only selected test case unit test /
+                            or can also show full test.py history, and even all tests all history - but server could
+                            close this connection as too long one.
+                        Best usecase - show small amounts of very unique data.
+                        We use REST to get case data.
+                    {% endcomment %}
                     {% elif "test_item_history" in request.path %}
-                        <div class="span-test-actions-modal-name">Test case History</div>
+                        <!-- Test history for one item oage and buttons -->
+                        <div class="test-actions-modal-name">Test case History</div>
                         <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
                             <a class="btn btn-sm btn-outline-info disabled">History of unit (dead end)</a>
                         </div>
+                        <!-- Case unit test actions:  -->
+                        <div class="case-unit-modal-buttons">Case test unit actions:</div>
                         <div class="list-group text-center test_item_history" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="unit-wipe-run"
+                            <a href="#"
+                               id="unit-wipe-run"
                                data-wipe="1"
                                class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
-                            <a href="#" id="unit-p4-run"
+                            <a href="#"
+                               id="unit-p4-run"
                                data-refresh="1"
                                class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
-                            <a href="#" id="unit-instant-run" class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
+                            <a href="#"
+                               id="unit-instant-run"
+                               class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
                         </div>
+                    {% comment %}
+                    USER SPACE:
+                        Select all related tests and cases based on user adprod name, if this name was added to user model in django admin.
+                        Can browse tests, history, case full details.
+                        Can execute tests in different modes from all tables in the same manner as LAST TESTS DIGEST page and TEST CASES
+                    {% endcomment %}
                     {% elif 'user_space' in request.path %}
-                        <div class="span-test-actions-modal-name">User Space</div>
+                        <!-- User Space page and buttons -->
+                        <div class="test-actions-modal-name">User Space</div>
                         <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="see-logs" class="btn btn-sm btn-outline-info">See test.py logs output</a>
-                            <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
-                            <a href="#" target="_blank" id="see-logs-history" class="btn btn-sm btn-outline-info"
+                            <a href="#"
+                               id="see-logs"
+                               class="btn btn-sm btn-outline-info">See test.py logs output</a>
+                            <div class="case-info-modal-buttons">Case info</div>
+                            <a href="#"
+                               id="all-info"
+                               class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                            <a href="#" target="_blank"
+                               id="see-logs-history"
+                               class="btn btn-sm btn-outline-info"
                                title="Show all history records for current test. Open in new window.">Test case history logs (long)</a>
                         </div>
+                    {% comment %}
+                    TEST CASES GROUPS:
+                        Single group with added cases.
+                        Can be used to group some amount of test cases and run them all.
+                        Can browse cases details
+                        Can run tests
+                    {% endcomment %}
                     {% elif 'test_cases_group' in request.path %}
-                        <div class="span-test-actions-modal-name">Test case group</div>
+                        <!-- Test Cases Group page and buttons -->
+                        <div class="test-actions-modal-name">Test case group</div>
                         <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="see-logs" class="btn btn-sm btn-outline-info">See test.py logs output</a>
-                            <a href="#" target="_blank" id="see-logs-history" class="btn btn-sm btn-outline-info"
+                            <a href="#"
+                               id="see-logs"
+                               class="btn btn-sm btn-outline-info">See test.py logs output</a>
+                            <a href="#" target="_blank"
+                               id="see-logs-history"
+                               class="btn btn-sm btn-outline-info"
                                title="Show all history records for current test. Open in new window.">Test case history logs (long)</a>
                         </div>
+                        <!-- Case full info buttons: -->
+                        <div class="case-info-modal-buttons">Case info</div>
                         <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
-                            <a href="#" id="edit-case" class="btn btn-sm btn-outline-warning">Test case edit</a>
+                            <a href="#"
+                               id="all-info"
+                               class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                            <a href="#"
+                               id="edit-case"
+                               class="btn btn-sm btn-outline-warning">Test case edit</a>
                         </div>
+                    {% comment %}
+                    TEST CASES TABLE:
+                        Page of indexed test cases.
+                        Can be sorted with multiple values.
+                        Can execute tests.
+                        Can see and edit cases
+                    {% endcomment %}
                     {% elif 'test_cases' in request.path %}
-                        <div class="span-test-actions-modal-name">Test cases table</div>
+                        <!-- Test cases page table and buttons -->
+                        <div class="test-actions-modal-name">Test cases table</div>
                         <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="see-logs" class="btn btn-sm btn-outline-info">See test.py logs output</a>
-                            <a href="#" target="_blank" id="see-logs-history" class="btn btn-sm btn-outline-info"
+                            <a href="#"
+                               id="see-logs"
+                               class="btn btn-sm btn-outline-info">See test.py logs output</a>
+                            <a href="#" target="_blank"
+                               id="see-logs-history"
+                               class="btn btn-sm btn-outline-info"
                                title="Show all history records for current test. Open in new window.">Test case history logs (long)</a>
                         </div>
+                        <!-- Case full info buttons: -->
+                        <div class="case-info-modal-buttons">Case info</div>
                         <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="all-info" class="btn btn-sm btn-outline-info">Test case info detailed</a>
-                            <a href="#" id="edit-case" class="btn btn-sm btn-outline-warning">Test case edit</a>
+                            <a href="#"
+                               id="all-info"
+                               class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                            <a href="#"
+                               id="edit-case"
+                               class="btn btn-sm btn-outline-warning">Test case edit</a>
                         </div>
                     {% else %}
-                        <div class="span-test-actions-modal-name">Somewhere else...</div>
+                        <div class="test-actions-modal-name">Somewhere else...</div>
                         <a class="btn btn-sm btn-outline-info disabled">Else</a>
                     {% endif %}
-                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
-                            <a href="#" id="wipe-run"
-                               data-wipe="1"
-                               class="btn btn-sm btn-outline-warning">Wipe current logs and run test.py</a>
-                            <a href="#" id="p4-run"
-                               data-refresh="1"
-                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run test.py</a>
-                            <a href="#" id="instant-run" class="btn btn-sm btn-outline-warning">Instant run test.py, keep logs</a>
-                        </div>
+                    {% comment %}
+                    Test Case Actions
+                        Common buttons to run test.py with different modes
+                    {% endcomment %}
+                    <!-- Actions: test run with options: -->
+                    <div class="case-info-modal-buttons">Test Case actions:</div>
+                    <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                        <a href="#" id="wipe-run"
+                           data-wipe="1"
+                           class="btn btn-sm btn-outline-warning">Wipe current logs and run test.py</a>
+                        <a href="#" id="p4-run"
+                           data-refresh="1"
+                           class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run test.py</a>
+                        <a href="#" id="instant-run"
+                           class="btn btn-sm btn-outline-warning">Instant run test.py, keep logs</a>
+                    </div>
+                    {% comment %}
+                    CHANGE:
+                        Buttons to run test cases related to one change
+                    {% endcomment %}
                     {% if selector.change %}
-                        <div class="span-test-actions-modal-name">Actions for change <span class="badge badge-info">{{ selector.change }}</span></div>
+                        <!-- Selector for multiple cases sorted out by change -->
+                        <div class="test-actions-modal-name">Actions for change <span class="badge badge-info">{{ selector.change }}</span></div>
                         <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
                             <a href="#"
                                id="wipe-run-case-meta"
@@ -113,59 +221,74 @@
                                data-change="{{ selector.change }}"
                                class="btn btn-sm btn-outline-warning">Instant run all tests in {{ selector.change }}, keep logs</a>
                         </div>
+                    {% comment %}
+                    USER:
+                        Buttons to run test cases related to one change_user
+                    {% endcomment %}
                     {% elif selector.change_user %}
-                        <div class="span-test-actions-modal-name">Actions for change_user <span class="badge badge-info">{{ selector.change_user }}</span></div>
+                        <!-- Selector for multiple cases sorted out by change_user -->
+                        <div class="test-actions-modal-name">Actions for change_user <span class="badge badge-info">{{ selector.change_user }}</span></div>
                         <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
                             <a href="#"
                                id="wipe-run-case-meta"
                                data-wipe="1"
                                data-change_user="{{ selector.change_user }}"
-                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests for {{selector.change_user}}</a>
+                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests for {{ selector.change_user }}</a>
                             <a href="#"
                                id="p4-run-case-meta"
                                data-refresh="1"
                                data-change_user="{{ selector.change_user }}"
-                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests for {[selector.change_user]}</a>
+                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests for {{ selector.change_user }}</a>
                             <a href="#"
                                id="instant-run-case-meta"
                                data-change_user="{{ selector.change_user }}"
-                               class="btn btn-sm btn-outline-warning">Instant run all tests for {{selector.change_user}}, keep logs</a>
+                               class="btn btn-sm btn-outline-warning">Instant run all tests for {{ selector.change_user }}, keep logs</a>
                         </div>
+                    {% comment %}
+                    CHANGE_TICKET:
+                        Buttons to run test cases related to one change_ticket: escalations, jira.
+                    {% endcomment %}
                     {% elif selector.change_ticket %}
-                        <div class="span-test-actions-modal-name">Actions for change_ticket <span class="badge badge-info">{{ selector.change_ticket }}</span></div>
+                        <!-- Selector for multiple cases sorted out by change_ticket -->
+                        <div class="test-actions-modal-name">Actions for change_ticket <span class="badge badge-info">{{ selector.change_ticket }}</span></div>
                         <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
                             <a href="#"
                                id="wipe-run-case-meta"
                                data-wipe="1"
                                data-change_ticket="{{ selector.change_ticket }}"
-                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{selector.change_ticket}}</a>
+                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{ selector.change_ticket }}</a>
                             <a href="#"
                                id="p4-run-case-meta"
                                data-refresh="1"
                                data-change_ticket="{{ selector.change_ticket }}"
-                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {[selector.change_ticket]}</a>
+                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {{selector.change_ticket}}</a>
                             <a href="#"
                                id="instant-run-case-meta"
                                data-change_ticket="{{ selector.change_ticket }}"
-                               class="btn btn-sm btn-outline-warning">Instant run all tests in {{selector.change_ticket}}, keep logs</a>
+                               class="btn btn-sm btn-outline-warning">Instant run all tests in {{ selector.change_ticket }}, keep logs</a>
                         </div>
+                    {% comment %}
+                    CHANGE_REVIEW:
+                        Buttons to run test cases related to one change_review, mean CC
+                    {% endcomment %}
                     {% elif selector.change_review %}
-                        <div class="span-test-actions-modal-name">Actions for change_review <span class="badge badge-info">{{ selector.change_review }}</span></div>
+                        <!-- Selector for multiple cases sorted out by change_review -->
+                        <div class="test-actions-modal-name">Actions for change_review <span class="badge badge-info">{{ selector.change_review }}</span></div>
                         <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
                             <a href="#"
                                id="wipe-run-case-meta"
                                data-wipe="1"
                                data-change_review="{{ selector.change_review }}"
-                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{selector.change_review}}</a>
+                               class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{ selector.change_review }}</a>
                             <a href="#"
                                id="p4-run-case-meta"
                                data-refresh="1"
                                data-change_review="{{ selector.change_review }}"
-                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {{selector.change_review}}</a>
+                               class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {{ selector.change_review }}</a>
                             <a href="#"
                                id="instant-run-case-meta"
                                data-change_review="{{ selector.change_review }}"
-                               class="btn btn-sm btn-outline-warning">Instant run all tests in {{selector.change_review}}, keep logs</a>
+                               class="btn btn-sm btn-outline-warning">Instant run all tests in {{ selector.change_review }}, keep logs</a>
                         </div>
                     {% endif %}
                 </div>
