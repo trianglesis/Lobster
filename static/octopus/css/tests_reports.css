@@ -89,6 +89,7 @@ th     { background:#eee; }
     color: white;
 }
 /* ^^^ GENERAL STYLES ^^^ */
+
 /* Navigate on test reports NAV BAR */
 .test-report-navbar {
     background-color: #e3f2fd;
@@ -352,4 +353,24 @@ th     { background:#eee; }
     background-repeat: no-repeat;
     background-size: 1.2em;
     white-space: pre-wrap;
+}
+
+
+/*
+    Search page:
+*/
+.found-cases {
+    padding-bottom: 1em;
+    border-top: #e682058c 2px dashed;
+    text-align: center;
+}
+.found-test-digest {
+    padding-bottom: 1em;
+    border-top: #e682058c 2px dashed;
+    text-align: center;
+}
+.found-test-items {
+    padding-bottom: 1em;
+    border-top: #e682058c 2px dashed;
+    text-align: center;
 }

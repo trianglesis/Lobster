@@ -17,7 +17,7 @@ $(document).ready(function () {
                 if (tableRows.hasOwnProperty(t_row)) {
                     // console.log(tableRows[t_row]);
                     //If table row has case in it (excluding th rows)
-                    if (tableRows[t_row].cells['case_id']) {
+                    if (tableRows[t_row].cells['case_id'] && tableRows[t_row].cells['fails']) {
                         // Assign values
                         let currentRow = tableRows[t_row];
                         let tdNode_fails = parseInt(tableRows[t_row].cells['fails'].textContent, 10);

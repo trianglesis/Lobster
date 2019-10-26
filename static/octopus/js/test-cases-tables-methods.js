@@ -315,29 +315,48 @@ function assignTestCaseTestButtons(caseData) {
 function assignTestCaseUnitTestButtons(caseData) {
     // Test case Unit test run:
     let unit_wipe_run = document.getElementById("unit-wipe-run");
-    if (unit_wipe_run) {
-        unit_wipe_run.setAttribute(
-            'data-cases_ids', caseData.cases_ids);
-        unit_wipe_run.setAttribute(
-            'data-test_function',
-            `${caseData.tst_class}+${caseData.tst_name}`);
-    }
     let unit_p4_run = document.getElementById("unit-p4-run");
-    if (unit_p4_run) {
-        unit_p4_run.setAttribute(
-            'data-cases_ids', caseData.cases_ids);
-        unit_p4_run.setAttribute(
-            'data-test_function',
-            `${caseData.tst_class}+${caseData.tst_name}`);
-    }
     let unit_instant_run = document.getElementById("unit-instant-run");
-    if (unit_instant_run) {
-        unit_instant_run.setAttribute(
-            'data-cases_ids', caseData.cases_ids);
-        unit_instant_run.setAttribute(
-            'data-test_function',
-            `${caseData.tst_class}+${caseData.tst_name}`);
+
+    if (caseData.tst_class && caseData.tst_name) {
+        document.getElementsByClassName("case-unit-modal-buttons")[0].style.display = 'block';
+        document.getElementsByClassName("test-actions-modal-name")[0].style.display = 'block';
+        document.getElementById("see-logs-history").style.display = 'block';
+        document.getElementById("unit-wipe-run").style.display = 'block';
+        document.getElementById("unit-p4-run").style.display = 'block';
+        document.getElementById("unit-instant-run").style.display = 'block';
+        if (unit_wipe_run) {
+            unit_wipe_run.setAttribute(
+                'data-cases_ids', caseData.cases_ids);
+            unit_wipe_run.setAttribute(
+                'data-test_function',
+                `${caseData.tst_class}+${caseData.tst_name}`);
+        }
+        if (unit_p4_run) {
+            unit_p4_run.setAttribute(
+                'data-cases_ids', caseData.cases_ids);
+            unit_p4_run.setAttribute(
+                'data-test_function',
+                `${caseData.tst_class}+${caseData.tst_name}`);
+        }
+        if (unit_instant_run) {
+            unit_instant_run.setAttribute(
+                'data-cases_ids', caseData.cases_ids);
+            unit_instant_run.setAttribute(
+                'data-test_function',
+                `${caseData.tst_class}+${caseData.tst_name}`);
+        }
+    } else {
+        // In case of page fails to give us test_class+test_name we just mark buttons hidden.
+        document.getElementsByClassName("case-unit-modal-buttons")[0].style.display = "none";
+        document.getElementsByClassName("test-actions-modal-name")[0].style.display = "none";
+        document.getElementById("see-logs-history").style.display = "none";
+        document.getElementById("unit-wipe-run").style.display = "none";
+        document.getElementById("unit-p4-run").style.display = "none";
+        document.getElementById("unit-instant-run").style.display = "none";
     }
+
+
 }
 
 /**

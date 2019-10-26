@@ -103,32 +103,16 @@
                     <a class="dropdown-item" href="{% url 'addm_workbench' %}">{% select_icon 'server' 24 'right' 0.2 %} ADDM Workbench</a>
                 </div>
             </li>
-            {# SEARCHING MENUS #}
-            <!-- Searching forms: -->
-{#            <li title="Other reports" class="nav-item dropdown">#}
-{#                <a class="nav-link dropdown-toggle" href="{% url 'home' %}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% select_icon 'jersey' 24 'right' 0.2 %}Other reports</a>#}
-{#                <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
-{#                    <a class="dropdown-item" href={% url 'failed_test_prepare' %}?branch=tkn_main>{% select_icon 'git-branch' 24 'right' 0.2 %}Fail re-run Main</a>#}
-{#                    <a class="dropdown-item" href={% url 'failed_test_prepare' %}?branch=tkn_ship>{% select_icon 'git-merge' 24 'right' 0.2 %}Fail re-run Ship</a>#}
-{#                    <a class="dropdown-item" href={% url 'patterns_top_long' %}>{% select_icon 'graph' 24 'right' 0.2 %}TOP 20 Long tests</a>#}
-{#                </div>#}
-{#            </li>#}
-            {# SEARCHING MENUS #}
-            <!-- Searching forms: -->
-{#            <li title="Search by" class="nav-item dropdown">#}
-{#                <a class="nav-link dropdown-toggle" href="{% url 'home' %}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% select_icon 'search' 24 'right' 0.2 %}Find</a>#}
-{#                <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
-{#                    <a class="dropdown-item" href="{% url 'global_search' %}">{% select_icon 'search' 18 'right' 0.2 %}Global Search</a>#}
-{#                    <a class="dropdown-item" href="{% url 'search_history' %}">{% select_icon 'search' 18 'right' 0.2 %}Detailed Search</a>#}
-{#                </div>#}
-{#            </li>#}
         </ul>
         <span class="navbar-text octopus-time">{% now "l jS F Y H:i" %}</span>
         {# GLOBAL SEARCH FORM#}
         <div class="octopus-search">
-            <form action="{% url 'global_search' %}" class="form-inline my-2 my-sm-0" method="post" enctype="application/x-www-form-urlencoded">{% csrf_token %}
-                <div style="padding-right: 1em;">{% global_search_form as global_search_form %}{{ global_search_form.search_string }}</div>
-{#                <button class="btn btn-light" type="submit">{% select_icon 'search' 18 'right' 0.2 %}Search</button>#}
+            <form action="{% url 'cases_found' %}" class="form-inline my-2 my-sm-0" method="get" enctype="application/x-www-form-urlencoded">
+                <div style="padding-right: 1em;">
+                    <label>
+                        <input type='text' class="form-control form-control-sm" placeholder="Search" aria-label="Search" name='q' value='{{ request.GET.q }}' required>
+                    </label>
+                </div>
             </form>
         </div>
         {# AUTH: DJANGO_REGISTRATION  #}

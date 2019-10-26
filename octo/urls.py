@@ -48,8 +48,6 @@ urlpatterns = [
     url(r'^octo_tku_patterns/', include('octo_tku_patterns.urls')),
     # Include: TKU UPLOAD AND RELATED:
     url(r'^octo_tku_upload/', include('octo_tku_upload.urls')),
-    # Include: Searches and logs hyperlinks from emails:
-    url(r'^select/', include('selector_out.urls')),
 
     # Django Auth:
     url(r'^unauthorized_banner/', unauthorized_banner, name='unauthorized_banner'),

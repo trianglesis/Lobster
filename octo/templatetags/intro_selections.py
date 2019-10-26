@@ -15,7 +15,7 @@ from octo_tku_upload.table_oper import UploadTKUTableOper
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper, PatternsDjangoModelRaw
 
 from octo.helpers.tasks_oper import TasksOperations
-from selector_out.forms import GlobalSearch
+
 
 register = template.Library()
 log = logging.getLogger("octo.octologger")
@@ -116,11 +116,6 @@ def cron_table():
     # Update exception based on Null workers
     except Exception:
         return []
-
-
-@register.simple_tag()
-def global_search_form():
-    return GlobalSearch()
 
 
 @register.simple_tag(takes_context=True)

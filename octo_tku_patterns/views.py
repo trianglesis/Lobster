@@ -36,7 +36,6 @@ from octo_adm.user_operations import UserCheck
 from octo_adm.request_service import SelectorRequestsHelpers
 
 from run_core.addm_operations import ADDMOperations
-from selector_out.forms import TestPastDays
 
 from octo.helpers.tasks_run import Runner
 
@@ -391,6 +390,58 @@ def tst_status_selector(queryset, sel_opts):
     return queryset
 
 
+# Seach for test cases or test cases logs:
+class SearchCasesAndLogs(ListView):
+    __url_path = '/octo_tku_patterns/search/'
+    template_name = 'digests/dev/search_cases_and_logs.html'
+    context_object_name = 'search_results'
+
+    @staticmethod
+    def query_runner(query):
+        queryset_cases = TestCases.objects.filter(
+            Q(pattern_folder_name__icontains=query)
+            | Q(test_py_path__icontains=query)
+            | Q(change__icontains=query)
+            | Q(change_desc__icontains=query)
+            | Q(change_user__icontains=query)
+            | Q(change_review__icontains=query)
+            | Q(change_ticket__icontains=query)
+        )
+        queryset_last = TestLast.objects.filter(
+            Q(pattern_folder_name__icontains=query)
+            | Q(test_py_path__icontains=query)
+            | Q(tst_name__icontains=query)
+            | Q(tst_class__icontains=query)
+        )
+        queryset_last_digest = TestLatestDigestAll.objects.filter(
+            Q(pattern_folder_name__icontains=query)
+            | Q(test_py_path__icontains=query)
+            | Q(change__icontains=query)
+            | Q(change_desc__icontains=query)
+            | Q(change_user__icontains=query)
+            | Q(change_review__icontains=query)
+            | Q(change_ticket__icontains=query)
+        )
+
+        queryset = dict(
+            cases=queryset_cases,
+            tests_last=queryset_last,
+            tests_last_digest=queryset_last_digest,
+        )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchCasesAndLogs, self).get_context_data(**kwargs)
+        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
+        context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+        return context
+
+    def get_queryset(self):
+        if self.request.method == 'GET':
+            query = self.request.GET.get('q')
+            return self.query_runner(query)
+
+
 # TKU Upload test workbench:
 class TKNCasesWorkbenchView(TemplateView):
     __url_path = '/octo_tku_patterns/cases_workbench/'
@@ -522,7 +573,7 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
     date_field = "test_date_time"
     allow_future = False
     allow_empty = True
-    template_name = 'digests/dev/tests_history_day.html'
+    template_name = 'digests/tests_history_day.html'
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
@@ -542,7 +593,7 @@ class TestHistoryDayArchiveView(DayArchiveView):
     date_field = "test_date_time"
     allow_future = False
     allow_empty = True
-    template_name = 'digests/dev/tests_history_day.html'
+    template_name = 'digests/tests_history_day.html'
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
@@ -571,7 +622,7 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
     date_field = "test_date_time"
     allow_future = False
     allow_empty = True
-    template_name = 'digests/dev/tests_history_day.html'
+    template_name = 'digests/tests_history_day.html'
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):

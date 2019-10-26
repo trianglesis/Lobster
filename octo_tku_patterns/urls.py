@@ -33,6 +33,10 @@ urlpatterns = [
     url(r'^patterns_top_long/', Reports.patterns_top_long, name='patterns_top_long'),
 
     # TKU Workbench
+    # Search
+    path('search/', SearchCasesAndLogs.as_view(), name="cases_search"),
+    path('found/', SearchCasesAndLogs.as_view(), name="cases_found"),
+
     path('cases_workbench/', TKNCasesWorkbenchView.as_view(), name="cases_workbench"),
     # GENERIC VIEWS
     # Test cases:

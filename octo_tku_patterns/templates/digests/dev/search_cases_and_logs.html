@@ -1,0 +1,297 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Last tests
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-actions-modal-toast.css' %}"/>
+    <div aria-live="polite" aria-atomic="true" style="position: relative">
+        <!-- Position it -->
+        <div style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 2"></div>
+        </div>
+    </div>
+    {% comment %}NAV BAR{% endcomment %}
+    <nav class="navbar navbar-light test-report-navbar">
+    {% spaceless %}
+        <!-- Navbar content -->
+        <!-- Navbar left part content -->
+        <div class="nav-reports-left">
+            <!-- Digest levels breadcrumbs: -->
+            <div class="digest-breadcrumbs">
+                <nav class="nav nav-pills">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                        <a class="btn btn-sm btn-info"><i class="fas fa-search"></i> Search</a>
+                         <div class="form-row">
+                            <div class="col-7">
+                                <form action="{% url 'cases_found' %}" class="form-inline" method="get" enctype="application/x-www-form-urlencoded">
+                                    <div style="padding-left: 1em;">
+                                        <label>
+                                            <input type='text' class="form-control form-control-sm" placeholder="Search" aria-label="Search" size="100" name='q' value='{{ request.GET.q }}' required>
+                                        </label>
+                                    </div>
+                                </form>
+                            </div>
+                         </div>
+                    </div>
+                </nav>
+            </div>
+            <!-- History browse: -->
+            <div class="digest-history">
+{#                <nav class="nav-item dropdown">#}
+{#                    <a class="btn btn-sm btn-info dropdown-toggle" href="#" id="navbarDropdownHistory" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">History view</a>#}
+{#                    <div class="dropdown-menu" aria-labelledby="navbarDropdownHistory">#}
+{#                        <div class="dropdown-divider"></div>#}
+{#                        <a class="dropdown-item" href="#">Browse History</a>#}
+{#                        <div class="dropdown-divider"></div>#}
+{#                    </div>#}
+{#                </nav>#}
+            </div>
+            <!-- Change branch here: -->
+            <div class="digest-branch"></div>
+            <div class="selection-state"></div>
+        </div>
+        <!-- Navbar right part content -->
+        <div class="nav-reports-right digest-test-log-levels"></div>
+    {% endspaceless %}
+    </nav>
+    <div class="search-results">
+        <div class="found-cases">
+            {% if search_results.cases %}
+            <span class="badge badge-primary badge-pill">Cases found</span>
+            <span class="badge badge-info">Overall: {{ search_results.cases.count }}</span>
+            <div class="cases-table" style="padding-top: 2%;">
+                <table class="table table-hover table-sm">
+                    <thead>
+                    <tr>
+                        <th class="center_txt" scope="col">#</th>
+                        <th class="center_txt" scope="col">Branch</th>
+                        <th class="center_txt" scope="col">Library</th>
+                        <th class="center_txt" scope="col">Pattern dir</th>
+                        <th class="center_txt" scope="col">Change</th>
+                        <th class="center_txt" scope="col">User</th>
+                        <th class="center_txt" scope="col">Review</th>
+                        <th class="center_txt" scope="col">JIRA</th>
+                        <th class="center_txt" scope="col">Depot</th>
+                        <th class="center_txt" scope="col">t:</th>
+                        <th class="center_txt" scope="col">Changed</th>
+                        <th class="center_txt" scope="col">Groups:</th>
+                        <th class="center_txt" scope="col"></th>
+                        <th class="center_txt" scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for case in search_results.cases %}
+                        {% with case as tooltip_txt %}
+                        <tr>
+                            <td class="row-txt-center-sm"><a class="btn btn-sm btn-light"
+                                    href="{% url 'test_case_update' pk=case.id %}" {% popover 'hover' 'right' None 'Edit case...' %}>
+                                {{ forloop.counter }}
+                            </a>
+                            </td>
+        {#                    <td class="row-txt-center-sm">{{ pattern.test_type }}</td>#}
+                            <td id="tkn_branch" class="row-txt-center-sm">{% if case.tkn_branch %}{{ case.tkn_branch }}{% else %}{% endif %}</td>
+                            <td id="pattern_library" class="row-txt-right-sm">{% if case.pattern_library %}{{ case.pattern_library }}{% else %}{{ case.test_case_dir }}{% endif %}</td>
+                            <td id="pattern_folder_name" class="row-txt-left-sm">{% if case.pattern_folder_name %}{{ case.pattern_folder_name }}{% else %}{% endif %}</td>
+                            <td class="row-txt-center-sm">
+                                <a class="badge badge-info" href="{% url 'test_cases' %}?change={{ case.change }};" {% popover 'hover' 'bottom' None 'Sort only change' %}>
+                                    {{ case.change }}
+                                </a>
+                            </td>
+                            <td class="row-txt-center-sm">
+                                <a class="badge badge-info" href="{% url 'test_cases' %}?change_user={{ case.change_user }};" {% popover 'hover' 'bottom' None 'Sort only user' %}>
+                                    {{ case.change_user }}
+                                </a>
+                            </td>
+                            <td class="row-txt-center-sm">
+                                {% if case.change_review %}
+                                    <a class="badge badge-info" href="{% url 'test_cases' %}?change_review={{ case.change_review|remove_dash }};" {% popover 'hover' 'bottom' None 'Sort only review' %}>
+                                        {{ case.change_review }}
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td class="row-txt-center-sm">
+                                {% if case.change_ticket %}
+                                    <a class="badge badge-info" href="{% url 'test_cases' %}?change_ticket={{ case.change_ticket }};" {% popover 'hover' 'bottom' None 'Sort only JIRA' %}>
+                                        {{ case.change_ticket }}
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td class="small-font align-middle break-all">{{ case.test_case_depot_path }}</td>
+                            <td class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight }}{% else %}0{% endif %}</td>
+                            <td class="small-font center_txt">
+                                {{ case.change_time|timezone:"Europe/London"|naturaltime }}
+                                {{ pattern.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}
+                            </td>
+                            <td class="row-txt-center-sm">
+                                {% if case.related_test_cases %}
+                                    {% for group in case.related_test_cases.all %}
+                                        <a class="badge badge-info" {% popover 'hover' 'bottom' None 'Go to group' %}
+                                           href="{% url 'test_cases_group' pk=group.id %}">{{ group.title }}
+                                        </a><br>
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                            <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
+                            <td class="actions_button">
+                                <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                                        data-target="#actionsModal">Actions
+                                </button>
+                            </td>
+                            <td id="case_id" style="display:none">{{ case.id }}</td>
+                            <td id="test_py_path" style="display:none">{{ case.test_py_path }}</td>
+                            <td id="change" style="display:none">{{ case.change }}</td>
+                            <td id="change_user" style="display:none">{{ case.change_user }}</td>
+                            <td id="change_review" style="display:none">{{ case.change_review }}</td>
+                            <td id="change_ticket" style="display:none">{{ case.change_ticket }}</td>
+                        </tr>
+                        {% endwith %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        </div>
+        <div class="found-test-digest">
+            {% if search_results.tests_last_digest %}
+            {% with search_results.tests_last_digest as tests_digest %}
+                <span class="badge badge-primary badge-pill">Test digest found</span>
+                <span class="badge badge-info">Overall: {{ search_results.tests_last_digest.count }}</span>
+                    <!-- Choose addm -->
+                    <nav>
+                        <div class="nav nav-tabs nav-justified" id="test-digest-nav-tab" role="tablist">
+                            <!-- Draw each tab based on count of unique addm_names  -->
+                            {% for addm_actual in addm_names %}
+                                <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% elif forloop.counter == 1 %}active{% else %}{% endif %}"
+                                   title="{{ addm_actual.addm_name }}"
+                                   id="{{addm_actual.addm_name}}-tab-test-digest" data-toggle="tab"
+                                   href="#{{ addm_actual.addm_name }}-test-digest" role="tab"
+                                   aria-controls="{{ addm_actual.addm_name }}-test-digest"
+                                   aria-selected="{% if selector.addm_name == addm_actual.addm_name %}true{% elif forloop.counter == 1 %}true{% else %}false{% endif %}">{{ addm_actual.addm_name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </nav>
+                    <div class="tab-content" id="test-digest-nav-tabContent">
+                        <!-- Draw each tab content based on count of unique addm_names  -->
+                        {% for addm_actual in addm_names %}
+                            <div class="tab-pane {% if selector.addm_name == addm_actual.addm_name %}fade show active{% elif forloop.counter == 1 %}fade show active{% endif %}"
+                                 title="{{ addm_actual.addm_name }}"
+                                 id="{{ addm_actual.addm_name }}-test-digest"
+                                 role="tabpanel"
+                                 aria-labelledby="{{ addm_actual.addm_name }}">
+                                {% include 'digests/tables_details/tests_last_table.html' with var_addm_name=addm_actual.addm_name %}
+                            </div>
+                        {% endfor %}
+                    </div>
+            {% endwith %}
+        {% else %}
+            <span>No test digests for current query</span>
+        {% endif %}
+        </div>
+        <div class="found-test-items">
+            {% if search_results.tests_last %}
+            {% with search_results.tests_last as test_details %}
+                <span class="badge badge-primary badge-pill">Test items found</span>
+                <span class="badge badge-info">Overall: {{ search_results.tests_last.count }}</span>
+                <!-- Choose addm -->
+                <nav>
+                    <div class="nav nav-tabs nav-justified" id="test-items-nav-tab" role="tablist">
+                        <!-- Draw each tab based on count of unique addm_names  -->
+                        {% for addm_actual in addm_names %}
+                            <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% elif forloop.counter == 1 %}active{% else %}{% endif %}"
+                               title="{{ addm_actual.addm_name }}"
+                               id="{{addm_actual.addm_name}}-tab-test-items" data-toggle="tab"
+                               href="#{{ addm_actual.addm_name }}-test-items" role="tab"
+                               aria-controls="{{ addm_actual.addm_name }}-test-items"
+                               aria-selected="{% if selector.addm_name == addm_actual.addm_name %}true{% elif forloop.counter == 1 %}true{% else %}false{% endif %}">{{ addm_actual.addm_name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </nav>
+                <div class="tab-content" id="test-items-nav-tabContent">
+                    <!-- Draw each tab content based on count of unique addm_names  -->
+                    {% for addm_actual in addm_names %}
+                        <div class="tab-pane {% if selector.addm_name == addm_actual.addm_name %}fade show active{% elif forloop.counter == 1 %}fade show active{% endif %}"
+                             title="{{ addm_actual.addm_name }}"
+                             id="{{ addm_actual.addm_name }}-test-items"
+                             role="tabpanel"
+                             aria-labelledby="{{ addm_actual.addm_name }}">
+                            {% include 'digests/tables_details/test_details_table.html' with var_addm_name=addm_actual.addm_name test_detail=test_details %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endwith %}
+        {% else %}
+            <span>No tests for current query</span>
+        {% endif %}
+        </div>
+    </div>
+    {% comment %}Nav sticky bottom{% endcomment %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'addm_digest' %}">ADDM Digest</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'tests_last' %}?{{ selector_str }}">Tests Digest</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled">{% if not "None" in selector.tst_status %}{{ selector.tst_status }}{% else %}All{% endif %}</a>
+            </li>
+            <li class="nav-item">
+                {% if selector.addm_name %}
+                    <a class="nav-link disabled"><i class="fas fa-compress-arrows-alt"></i> Query static for {{ selector.addm_name }}</a>
+                {% else %}
+                    <a class="nav-link disabled"><i class="fas fa-expand-arrows-alt"></i> Query dynamical for all addms</a>
+                {% endif %}
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    {# Coloring rows #}
+    <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>
+
+    {# Actions button #}
+    {# Show test actions modal, make active buttons #}
+    {% include 'digests/includes/toast_popup.html' %}
+    {% include 'digests/includes/test_actions_modal_dynamic.html' %}
+    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
+    <script src="{% static 'octopus/js/digest/test-details-modal.js' %}"></script>
+    <script src="{% static 'octopus/js/digest/test-details-toast.js' %}"></script>
+
+    {% comment %}Use dynamic tabs{% endcomment %}
+    {% if not selector.addm_name %}<script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>{% endif %}
+    {% comment %}DEBUG{% endcomment %}
+    <div class="debug-context">
+        {% if request.GET.debug %}
+            <p>DEBUG enabled</p>
+            <p>actual addm_names: {{ addm_names }}</p>
+            <p>Selector: {{ selector }}</p>
+            <ul>
+                {% for sel_k, sel_v in selector.items %}
+                    {% if sel_v %}
+                        <li class="text-success">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% else %}
+                        <li class="text-warning">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}

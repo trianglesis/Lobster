@@ -22,7 +22,7 @@ $(document).ready(function () {
 
         // Run REST get to obtain related case for this test:
         // console.log("GET REST for full case info!");
-        RESTGetCaseByTestPyPath(caseData, modal, event, fillModalBodyHyperlinksButtons);
+        new RESTGetCaseByTestPyPath(caseData, modal, event, fillModalBodyHyperlinksButtons);
     });
 });
 
@@ -51,6 +51,11 @@ function fillModalBodyHyperlinksButtons(caseItem, caseData, modal, event) {
     };
     assignTestCaseTestButtons(buttonData);
     assignTestCaseUnitTestButtons(buttonData);
+
+    if (caseData.tst_class && caseData.tst_name) {
+    } else {
+        console.log("Do not set unit case button, no test_class+name attributes were found!")
+    }
 
     composeCaseHyperlinks(caseData);
     // Fill modal body with divs:

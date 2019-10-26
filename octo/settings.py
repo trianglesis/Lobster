@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'octo',
     'octo_adm',
     'run_core',
-    'selector_out',
     'octo_tku_upload',
     'octo_tku_patterns',
     'dev_site',

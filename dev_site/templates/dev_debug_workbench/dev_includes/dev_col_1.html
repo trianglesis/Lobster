@@ -10,7 +10,6 @@
             <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_p4_info_web' %}">P4_Oper().p4_info()</a></li>
             <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_p4_sync_smart' %}">TExecTest().t_p4_sync_smart task</a></li>
             <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_parse_local_files' %}">LocalPatternsParse().compose_tree_paths</a></li>
-            <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'tku_patterns_all' %}?branch=tkn_main">selector_out.views.Patterns#tku_pattern_libraries</a></li>
         </ul>
       </div>
     </div>
@@ -22,7 +21,7 @@
             <p class="card-text text-info">Celery processing</p>
             <ul>
                 <li>octo_adm.views.AdminFunctions#tasks_inspection_web: <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'tasks_statuses' %}">Get raw date from all workers</a></li>
-                <li>selector_out.views.CeleryInteract#workers_status: <a role="button" class="btn btn-sm btn-outline-info" href="{% url "workers_status" %}">Tasks work status details</a></li>
+                <li>views.CeleryInteract#workers_status: <a role="button" class="btn btn-sm btn-outline-info" href="{% url "workers_status" %}">Tasks work status details</a></li>
                 <li>octo_adm.views.AdminFunctions#workers_active_reserved: <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'workers_active_reserved' %}">Get empty workers and status</a></li>
                 <li>octo_adm.views.AdminFunctions#workers_raw: <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'workers_raw' %}">Get raw data from balancing workers</a></li>
             </ul>

@@ -208,6 +208,44 @@
                                id="edit-case"
                                class="btn btn-sm btn-outline-warning">Test case edit</a>
                         </div>
+                    {% comment %}
+                    FOUND
+                        This is the search page.
+                        It opens after user run search from main menu nav.
+                        Include Test Details table views and use Cases table inserted, not include.
+                        Runs Actions - usual case JS actions for test exec, shows case ID and edit button and related groups
+                        Runs Actions - for test items. It shows only test items from latest page.
+                        TODO: No actual need to show history too? Or maybe later add history excerpt like last 100-500 items?
+                    {% endcomment %}
+                    {% elif "found" in request.path %}
+                        <!-- Test details page and buttons -->
+                        <div class="list-group text-center tests_last" style="padding: 5px 15% 5px 15%">
+                            <div class="case-info-modal-buttons">Case info</div>
+                            <a href="#"
+                               id="all-info"
+                               class="btn btn-sm btn-outline-info">Test case info detailed</a>
+                        </div>
+                        <div class="test-actions-modal-name">Unit Test details</div>
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a href="#"
+                               id="see-logs-history"
+                               class="btn btn-sm btn-outline-info">Unit history</a>
+                        </div>
+                        <!-- Case unit test actions:  -->
+                        <div class="case-unit-modal-buttons">Case test unit actions:</div>
+                        <div class="list-group text-center test_details" style="padding: 5px 15% 5px 15%">
+                            <a href="#"
+                               id="unit-wipe-run"
+                               data-wipe="1"
+                               class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
+                            <a href="#"
+                               id="unit-p4-run"
+                               data-refresh="1"
+                               class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
+                            <a href="#"
+                               id="unit-instant-run"
+                               class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
+                        </div>
                     {% else %}
                         <div class="test-actions-modal-name">Somewhere else...</div>
                         <a class="btn btn-sm btn-outline-info disabled">Else</a>
