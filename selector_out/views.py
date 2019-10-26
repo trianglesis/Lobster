@@ -41,9 +41,7 @@ class Searches:
         log.debug("<=VIEW SELECTOR=> search_history(): %s", user_str)
 
         request_form = loader.get_template('OLD/search_history.html')
-        # request_form = loader.get_template('workbenches/search_history.html')
         tests_summary = loader.get_template('OLD/pattern_logs.html')
-        # tests_summary = loader.get_template('workbenches/pattern_logs.html')
         fail_only = False
         skip_only = False
         error_only = False

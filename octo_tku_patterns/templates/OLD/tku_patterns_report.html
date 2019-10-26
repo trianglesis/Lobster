@@ -123,7 +123,7 @@ Patterns and changes. Branch "{{ BRANCH }}" Changes: {{DATE_FROM}} - {{DATE_LAST
                     </td>
                     <!-- TEST RUN BUTTON -->
                     <td class="small-font text-center" title="Run">
-                        {% user_run_test pattern_row %}
+{#                        {% user_run_test pattern_row %}#}
                     </td>
                     <td class="row-txt-center-sm" title="Test average run time">
                         {{ pattern_row.test_time_weight | f_sec }}

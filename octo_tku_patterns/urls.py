@@ -19,49 +19,18 @@ urlpatterns = [
         name='patterns_weight_compute'),
 
     # TESTS RUN:
-    url(r'^test_execute_web/', TestCaseRunTest.as_view(), name='test_execute_web'),
+    # OLD:
+    # url(r'^test_execute_web/', TestCaseRunTest.as_view(), name='test_execute_web'),
+    # New, also support old:
+    url(r'^test_execute_web/', TestCaseRunTestREST.as_view(), name='test_execute_web'),
     url(r'^user_test_add/', TestCaseRunTestREST.as_view(), name='user_test_add'),
 
     url(r'^test_execute_web/', TestRuns.test_execute_web, name='test_execute_web_old'),
 
-    url(r'^manual_exec_night_run_task/', TestRuns.manual_exec_night_run_task,
-        name='manual_run_night'),
-
-    url(r'^failed_test_prepare/', TestRuns.failed_test_prepare,
-        name='failed_test_prepare'),
-    url(r'^failed_test_run/', TestRuns.failed_test_run,
-        name='failed_test_run'),
-
-    url(r'^optional_test_routine/', TestRuns.optional_test_routine,
-        name='manual_run_optional'),
-
-    # Show reports from DBs
-    # Patterns:
-
-
-    url(r'^current_changes/', Patterns._old_tku_pattern_libraries,
-        name='current_changes'),
-    url(r'^tku_patterns_all/', Patterns._old_tku_pattern_libraries,
-        name='tku_patterns_all'),
-    url(r'^tku_pattern_libraries/', Patterns._old_tku_pattern_libraries,
-        name='tku_pattern_libraries'),
-
-    url(r'^tku_pattern_tests/', Patterns._old_tku_pattern_tests,
-        name='tku_pattern_tests'),
-    url(r'^night_test_set/', Patterns._example_only_patterns_to_test_at_night,
-        name='night_test_set'),
+    url(r'^manual_exec_night_run_task/', TestRuns.manual_exec_night_run_task, name='manual_run_night'),
 
     # Reports
-    url(r'^general_addm/', Reports.general_addm,
-        name="general_addm"),
-    url(r'^patterns_digest/', Reports.patterns_digest,
-        name='patterns_digest'),
-    url(r'^pattern_logs/', Reports.pattern_logs,
-        name='pattern_logs'),
-    url(r'^last_success/', Reports.last_success,
-        name='last_success'),
-    url(r'^patterns_top_long/', Reports.patterns_top_long,
-        name='patterns_top_long'),
+    url(r'^patterns_top_long/', Reports.patterns_top_long, name='patterns_top_long'),
 
     # TKU Workbench
     path('cases_workbench/', TKNCasesWorkbenchView.as_view(), name="cases_workbench"),
@@ -78,12 +47,18 @@ urlpatterns = [
 
     # Test reports:
     # Tests ADDM digest:
+    # 1st level
     url(r'^addm_digest/', AddmDigestListView.as_view(), name='addm_digest'),
     # Tests last:
+    # 2nd level
     url(r'^tests_last/', TestLastDigestListView.as_view(), name='tests_last'),
+    url(r'^patterns_digest/', TestLastDigestListView.as_view(), name='patterns_digest'),
+    # 3rd level
     url(r'^test_details/', TestLastSingleDetailedListView.as_view(), name='test_details'),
+    url(r'^pattern_logs/', TestLastSingleDetailedListView.as_view(), name='pattern_logs'),
     # Tests history:
     url(r'^test_item_history/', TestItemSingleHistoryListView.as_view(), name='test_item_history'),
+    url(r'^last_success/', TestItemSingleHistoryListView.as_view(), name='last_success'),
 
     # JUST FOR DEV
     # Test History day view:

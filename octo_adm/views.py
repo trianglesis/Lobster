@@ -33,24 +33,6 @@ class AdminFunctions:
 
     @staticmethod
     @login_required(login_url='/unauthorized_banner/')
-    def workbench_widgets(request):
-        """
-        Draw useful widgets for workbench page.
-
-        :param request:
-        :return:
-        """
-        user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=MAIN Widgets=> workbench_widgets(): %s", user_string)
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
-
-        objects = dict(
-        )
-
-        return HttpResponse(page_widgets.render(objects, request))
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
     @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
     def addm_workbench_widgets(request):
         """
@@ -61,7 +43,7 @@ class AdminFunctions:
         """
         user_name, user_string = UserCheck().user_string_f(request)
         log.debug("<=MAIN Widgets=> workbench_widgets(): %s", user_string)
-        page_widgets = loader.get_template('addm_workbench/addm_workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         return HttpResponse(page_widgets.render(dict(SUBJECT = "", ACTIVE=True), request))
 
     @staticmethod
@@ -188,7 +170,7 @@ class AdminFunctions:
         :return:
         """
         workers_list = request.GET.get('workers_list', None)
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         workers_d_short = SelectorRequestsHelpers().get_free_included_w_task(workers_list=workers_list)
         if not workers_d_short:
             subject = "There are no available workers to start test, please check later."
@@ -207,7 +189,7 @@ class AdminFunctions:
         :param request:
         :return:
         """
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
         mode = request.GET.get('mode', None)
         addm_group = request.GET.get('addm_group')
@@ -222,7 +204,7 @@ class AdminFunctions:
     @login_required(login_url='/unauthorized_banner/')
     @permission_required('run_core.service_run', login_url='/unauthorized_banner/')
     def addm_tideway_restart(request):
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
         log.debug("<=WEB OCTO AMD=>   addm_tideway_restart(): %s", user_string)
         addm_group = request.GET.get('addm_group', None)
@@ -237,7 +219,7 @@ class AdminFunctions:
     @login_required(login_url='/unauthorized_banner/')
     @permission_required('run_core.service_run', login_url='/unauthorized_banner/')
     def addm_custom_cmd(request):
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
 
         log.debug("<=WEB OCTO AMD=>   addm_custom_cmd(): %s", user_string)
@@ -258,7 +240,7 @@ class AdminFunctions:
     @login_required(login_url='/unauthorized_banner/')
     @permission_required('run_core.service_run', login_url='/unauthorized_banner/')
     def addm_sync_shares(request):
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
         log.debug("<=WEB OCTO AMD=>   addm_custom_cmd(): %s", user_string)
         addm_group = request.GET.get('addm_group', None)  # addm_group=alpha
@@ -337,7 +319,7 @@ class AdminFunctions:
 
         :return:
         """
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
 
         subject = "Please set depot_path!"
@@ -369,7 +351,7 @@ class AdminFunctions:
     def reset_cron_last_run(request):
         from django_celery_beat.models import PeriodicTask
         user_name, user_string = UserCheck().user_string_f(request)
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         log.debug("<=WEB OCTO AMD=>   reset_cron_last_run(): %s", user_string)
 
         info_string = dict(user_name=user_name)
@@ -728,7 +710,7 @@ class CeleryInteract:
         import subprocess
         from time import sleep
         user_name, user_str = UserCheck().user_string_f(request)
-        w_bench_t = loader.get_template('admin_workbench/workbench_widgets.html')
+        w_bench_t = loader.get_template('service/task-action-request-added-started.html')
 
         log.warning("<=SEL OUT=> WARNING   celery_service_restart(): %s", user_str)
         subject = "WARNING: WIll restart Apache + Celery workers and Beat + Flower! In 5 sec!"

@@ -22,37 +22,6 @@ log = logging.getLogger("octo.octologger")
 
 
 @register.simple_tag()
-def general_addm_small(branch):
-    addm_small_t = loader.get_template(
-        'small_blocks/intro_selections/small_addm_general.html')
-    addm_items_d = PatternsDjangoModelRaw().addm_summary_new(branch)
-
-    # Sort table with both branches and choose only one branch for each table?
-    if addm_items_d:
-        user_patterns_summary_t = addm_small_t.render(dict(ADDM_DIGEST=addm_items_d))
-        return user_patterns_summary_t
-    else:
-        return ''
-
-
-@register.simple_tag(takes_context=True)
-def nightly_test_run_table(context, patterns):
-    """
-    Forms the "nightly test run" table
-    """
-    table = loader.get_template('OLD/tku_patterns_night_set_table.html')
-
-    # log.debug("patterns: %s", patterns)
-
-    patterns_summary_t = table.render(
-        dict(patterns_tests_list = patterns,
-             single_user         = context.get('SINGLE_USER', False),
-             request             = context.get('request'))
-    )
-    return patterns_summary_t
-
-
-@register.simple_tag()
 def patterns_top_small(branch):
     """
     Get the list of TOP long running tests and show first 6 items in small table on main page

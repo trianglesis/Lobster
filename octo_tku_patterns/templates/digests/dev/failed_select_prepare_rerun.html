@@ -43,7 +43,7 @@
                             <td id="row_category" class="{{ text_align }} table-danger font-weight-normal" style="font-size: 0.8em;">{{ pattern_row.pattern_library }}</td>
                             <td id="row_pattern_dir" class="{{ text_align }} table-danger font-weight-normal text-lg-left" style="font-size: 0.8em;">{{ pattern_row.pattern_folder_name }}</td>
                             <td id="row_pattern_dir" class="{{ text_align }} table-danger font-weight-normal text-lg-left" style="font-size: 0.8em;">{{ pattern_row.pattern_folder_path_depot }}</td>
-                            <td id="row_run_test" class="{{ text_align }} table-danger font-weight-normal">{% user_run_test pattern_row %}</td>
+                            <td id="row_run_test" class="{{ text_align }} table-danger font-weight-normal">{% comment %}{% user_run_test pattern_row %}{% endcomment %}</td>
                             <td id="row_date_time" class="{{ text_align }} table-danger font-weight-normal" style="white-space: pre;font-size: 0.7em;" title="When test was executed">{{ pattern_row.test_date_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}; {{ pattern_row.time_spent_test| f_sec }}<br>{{ pattern_row.test_date_time|naturaltime }}</td>
                         </tr>
                     {% endfor %}

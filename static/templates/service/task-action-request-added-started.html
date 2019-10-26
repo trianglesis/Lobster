@@ -1,0 +1,21 @@
+{% extends "main/main.html" %}
+{% load template_simplify %}
+{% block page_title %}
+    Action made
+{% endblock %}
+{% block content %}
+
+    {% if SUBJECT %}
+        <h1>{{ SUBJECT }}</h1>
+    {% endif %}
+
+    {% if subject %}
+        <h1>{{ subject }}</h1>
+    {% endif %}
+
+    {% if request.GET.debug %}
+        <p>view: {{ view }}</p>
+        <p>view context: {{ view.context }}</p>
+    {% endif %}
+
+{% endblock %}

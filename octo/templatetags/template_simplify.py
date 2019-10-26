@@ -421,52 +421,6 @@ def request_path_search(context, check_path):
         return False
 
 
-@register.simple_tag(takes_context=True)
-def breadcrumbs_navigation(context,
-                           branch_switch_url,
-                           addm_digest_url,
-                           pattern_digest_url,
-                           history_select_url):
-    """Draw template for breadcrumbs navigation.
-    :param context:
-    :param history_select_url:
-    :param pattern_digest_url:
-    :param addm_digest_url:
-    :type branch_switch_url: str: do not resolve
-    """
-    breadcrumbs        = loader.get_template('small_blocks/template_tags/breadcrumb.html')
-    addm_digest_res    = reverse(addm_digest_url)
-    pattern_digest_res = reverse(pattern_digest_url)
-    history_select_res = reverse(history_select_url)
-    sel_contxt = dict(
-        request            = context['request'],
-        HAV_PLACE          = context.get('HAV_PLACE', False),
-        MIN_TEST_DATE      = context.get('MIN_TEST_DATE', False),
-        MAX_TEST_DATE      = context.get('MAX_TEST_DATE', False),
-        # TABLE              = context.get('TABLE', False),
-        BRANCH             = context.get('BRANCH', False),
-        ADDM_NAME          = context.get('ADDM_NAME', False),
-        PATTERN_LIBRARY    = context.get('PATTERN_LIBRARY', False),
-        PATTERN_FOLDER     = context.get('PATTERN_FOLDER', False),
-        PATTERN_FILENAME   = context.get('PATTERN_FILENAME', False),
-        PASS_ONLY          = context.get('PASS_ONLY', False),
-        FAIL_ONLY          = context.get('FAIL_ONLY', False),
-        SKIP_ONLY          = context.get('SKIP_ONLY', False),
-        ERROR_ONLY         = context.get('ERROR_ONLY', False),
-        NOT_PASS_ONLY      = context.get('NOT_PASS_ONLY', False),
-        START_DATE         = context.get('START_DATE', False),
-        END_DATE           = context.get('END_DATE', False),
-        DAYS_AGO           = context.get('DAYS_AGO', False),
-        ADPROD_USER      = context.get('ADPROD_USER', False),
-        BRANCH_SWITCH_URL  = branch_switch_url,
-        # BRANCH_SWITCH_URL  = reverse(branch_switch_url),
-        ADDM_DIGEST_URL    = addm_digest_res,
-        PATTERN_DIGEST_URL = pattern_digest_res,
-        HISTORY_SELECT_URL = history_select_res,
-        ADDM_GENERAL_LINK  = context.get('ADDM_GENERAL_LINK', False),)
-    return breadcrumbs.render(sel_contxt)
-
-
 @register.simple_tag()
 def pattern_digest_color(fails, error):
     if fails > 0 or error > 0:
@@ -595,31 +549,3 @@ def tku_package_used(package, ga_candidate_max, released_tkn_max):
     else:
         color = "light"
     return color
-
-
-@register.simple_tag()
-def user_run_test(pattern_row, history=None):
-    test_button = loader.get_template('small_blocks/user_test_run.html')
-
-    if pattern_row:
-        if isinstance(pattern_row, dict):
-            test_string = 'branch={tkn_branch};pattern_library={pattern_library};pattern_folder={pattern_folder}'.format(
-                tkn_branch=pattern_row.get('tkn_branch'),
-                pattern_folder=pattern_row.get('pattern_folder_name'),
-                pattern_library=pattern_row.get('pattern_library'),
-            )
-            if pattern_row.get('addm_name', False):
-                test_string += ";addm_name={addm_name}".format(addm_name=pattern_row.get('addm_name'))
-        else:
-            test_string = 'branch={tkn_branch};pattern_library={pattern_library};pattern_folder={pattern_folder}'.format(
-                tkn_branch=pattern_row.tkn_branch,
-                pattern_folder=pattern_row.pattern_folder_name,
-                pattern_library=pattern_row.pattern_library,
-            )
-            if hasattr(pattern_row, 'addm_name'):
-                test_string += ";addm_name={addm_name}".format(addm_name=pattern_row.addm_name)
-    else:
-        test_string = 'pattern_row_is_None'
-
-    pattern_context = dict(pattern_row=pattern_row, history=history, TEST_STRING=test_string)
-    return test_button.render(pattern_context)

@@ -9,15 +9,15 @@
             {% if not var_branch %}
                 <th class="table-info">Branch</th>
             {% endif %}
-            <th class="table-info">Discovery</th>
+            <th class="table-info"><i class="fas fa-server"></i> Discovery</th>
             <th class="text-center table-info">v.</th>
-            <th class="text-center table-info">Patterns</th>
-            <th class="text-center table-info">Success</th>
-            <th class="text-center table-info">Tests</th>
-            <th class="text-center table-info">Pass</th>
-            <th class="text-center table-info">Failure</th>
-            <th class="text-center table-info">Error</th>
-            <th class="text-center table-info">Skipped</th>
+            <th class="text-center table-info"><i class="fas fa-scroll"></i> Patterns</th>
+            <th class="text-center table-info"><i class="far fa-check-circle text-success"></i> Success</th>
+            <th class="text-center table-info"><i class="fas fa-vials"></i> Tests</th>
+            <th class="text-center table-info"><i class="far fa-check-circle text-success"></i> Pass</th>
+            <th class="text-center table-info"><i class="fas fa-bug text-danger"></i> Failure</th>
+            <th class="text-center table-info"><i class="fas fa-exclamation-circle text-warning"></i> Error</th>
+            <th class="text-center table-info"><i class="fas fa-step-forward text-info"></i> Skipped</th>
             <th class="text-center table-info">Full report</th>
             </thead>
             <tbody>
@@ -35,35 +35,35 @@
                             {{ addm.addm_v_int }}
                         </td>
                         <td class="text-center table-light text-dark" {% popover 'hover' 'top' None 'Overall tests run' %}>
-                            <i class="fas fa-scroll"></i> {{ addm.patterns_count }}
+                            {{ addm.patterns_count }}
                         </td>
                         <td class="text-center table-light text-success" {% popover 'hover' 'top' "See all succeeded" 'Success rate pass + skipped / tests count' %}
                             onclick="window.document.location='{% url "tests_last" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=pass;addm_name={{ addm.addm_name }}';">
-                            <i class="far fa-check-circle"></i> {% percent_pass_test addm.passed addm.skipped addm.tests_count %}%
+                            {% percent_pass_test addm.passed addm.skipped addm.tests_count %}%
                         </td>
                         <td class="text-center table-light usual" {% popover 'hover' 'top' None 'Overall tests functions test001 and so on' %}>
-                            <i class="fas fa-vials"></i> {{ addm.tests_count }}
+                            {{ addm.tests_count }}
                         </td>
                         <td class="text-center table-light usual" {% popover 'hover' 'top' "See all passed" 'Success rate pass + skipped / tests count' %}
                             onclick="window.document.location='{% url "tests_last" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=pass;addm_name={{ addm.addm_name }}';">
-                            <i class="far fa-check-circle"></i> {{ addm.passed }}
+                            {{ addm.passed }}
                         </td>
                         <td class="text-center table-light text-danger" {% popover 'hover' 'top' "See log failed" 'Show all test logs with fail status' %}
                             onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ addm.tkn_branch }};tst_status=fail;addm_name={{ addm.addm_name }}#{{ addm.addm_name }}';">
-                            <i class="fas fa-bug"></i> {{ addm.fails }}
+                            {{ addm.fails }}
                         </td>
                         <td class="text-center table-light text-warning" {% popover 'hover' 'top' "See log errors" 'Show all test logs with error status' %}
                             onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=error;addm_name={{ addm.addm_name }}#{{ addm.addm_name }}';">
-                            <i class="fas fa-exclamation-circle"></i> {{ addm.error }}
+                            {{ addm.error }}
                         </td>
                         <td class="text-center table-light text-info" {% popover 'hover' 'top' "See log skipped" 'Show all test logs with skipped status' %}
                             onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=skip;addm_name={{ addm.addm_name }}#{{ addm.addm_name }}';">
-                            <i class="fas fa-step-forward"></i> {{ addm.skipped }}
+                            {{ addm.skipped }}
                         </td>
                         <td class="text-center table-light usual" {% popover 'hover' 'top' "See patterns report" 'Summarize test statuses by cases' %}>
                             <a class="badge badge-secondary" title="Table of patterns"
                                href="{% url "tests_last" %}?tkn_branch={{ addm.tkn_branch }};tst_status=notpass#{{ addm.addm_name }}">
-                                Patterns report </a>
+                                Report </a>
                         </td>
                     </tr>
                 {% endif %}

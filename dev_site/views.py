@@ -49,7 +49,7 @@ class DevRunTasks:
         """
         user_name, user_string = UserCheck().user_string_f(request)
         log.debug("<=WEB OCTO AMD=> manual_exec_night_run_task(): %s", user_string)
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
 
         branch = request.GET.get('branch', None)
         send_mail = request.GET.get('send_mail', False)
@@ -137,7 +137,7 @@ class DevAdminViews:
     @staticmethod
     @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
     def dev_parse_local_files(request):
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_str = UserCheck().user_string_f(request)
         subject = "Please set branch!"
         branch = request.GET.get('branch', False)

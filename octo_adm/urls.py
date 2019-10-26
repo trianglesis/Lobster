@@ -10,7 +10,6 @@ from octo_adm.views import CeleryInteract
 urlpatterns = [
 
     # Admin
-    url(r'^workbench/', AdminFunctions.workbench_widgets, name='workbench'),
     url(r'^addm_workbench/', AdminFunctions.addm_workbench_widgets, name='addm_workbench'),
 
     # P4 and local

@@ -16,11 +16,8 @@
 <!-- Draw navigation head as custom breadcrumbs if NAV_HEAD_DRAW -->
 {% if NAV_HEAD_DRAW %}
     {% if search_history_results %}
-        {% breadcrumbs_navigation 'history_select' 'general_addm' 'patterns_digest' 'history_select' %}
     {% elif pattern_logs %}
-        {% breadcrumbs_navigation 'pattern_logs' 'general_addm' 'patterns_digest' 'history_select' %}
     {% elif history_select %}
-        {% breadcrumbs_navigation 'history_select' 'general_addm' 'pattern_logs' 'history_select' %}
     {% endif %}
 {% else %}
     NAV_HEAD_DRAW = False
@@ -73,7 +70,7 @@
             </td>
             <td class="table-{{ color }} align-baseline" style="width: 30%;font-size: 0.8em;font-family:monospace;">{{ pattern_row.fail_message }}</td>
             <td class="{{ text_align }} table-{{ color }}" style="width: 3%" title="Run test options:">
-                {% user_run_test pattern_row 1 %}
+{#                {% user_run_test pattern_row 1 %}#}
 {#                <div class="btn-group btn-group-sm btn-outline-info" role="group" style="font-size: 0.9em;">#}
 {#                  <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>#}
 {#                  <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">#}

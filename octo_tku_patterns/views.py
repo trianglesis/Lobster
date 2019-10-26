@@ -147,7 +147,7 @@ class TestRuns:
         """
         user_name, user_string = UserCheck().user_string_f(request)
         log.debug("<=WEB OCTO AMD=> manual_exec_night_run_task(): %s", user_string)
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
 
         fake_run = request.GET.get('fake_run', False)
         branch = request.GET.get('branch', None)
@@ -183,432 +183,11 @@ class TestRuns:
         widgets = dict(SUBJECT=subject)
         return HttpResponse(page_widgets.render(widgets, request))
 
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.routine_run', login_url='/unauthorized_banner/')
-    def failed_test_prepare(request):
-        user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=WEB OCTO AMD=> failed_test_prepare(): %s", user_string)
-        page_widgets = loader.get_template('digests/dev/failed_select_prepare_rerun.html')
-
-        fake_run = request.GET.get('fake_run', False)
-        send_mail = request.GET.get('send_mail', True)  # Send mail when this view runs
-        branch = request.GET.get('branch', 'tkn_main')
-        addm_name = request.GET.get('addm_name', 'double_decker')
-        wipe = request.GET.get('wipe', False)
-        info = request.GET.get('info', True)
-        addm_group = request.GET.get('addm_group', None)
-        debug = request.GET.get('debug', False)
-
-        sorted_tests_l, show_patterns_list, failed_patterns, patterns_to_test, all_tests_w = OptionalTestsSelect().select_latest_failed_sort(
-            branch=branch, addm_name=addm_name, info=info)
-        tsk_msg = 'tag=failed_test_run_routine;ype=routine;user_name={u_name};|{branch}:{addm_name}'
-        t_tag = tsk_msg.format(branch=branch, u_name=user_name, addm_name=str(addm_name))
-        subject = "Selected all test fails to run again.".format(branch, addm_name)
-
-        if request.method == 'GET':
-
-            widgets = dict(
-                SUBJECT=subject,
-                SEND_MAIL=send_mail,
-                BRANCH=branch,
-                ADDM_NAME=addm_name,
-                FAKE_RUN=fake_run,
-                WIPE=wipe,
-                INFO=info,
-                ADDM_GROUP=addm_group,
-                # Selected:
-                sorted_tests_l=sorted_tests_l,
-                show_patterns_list=show_patterns_list,
-                failed_patterns=failed_patterns,
-                patterns_to_test=patterns_to_test,
-                all_tests_w=all_tests_w,
-                DEBUG=debug,
-            )
-            return HttpResponse(page_widgets.render(widgets, request))
-        # When POST - run tests:
-        else:
-            page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
-            optional_kw = dict(
-                fake_run=fake_run,
-                wipe=wipe,
-                user_name=user_name,
-                addm_name=addm_name,
-                addm_group=addm_group,
-                branch=branch,
-                test_items_l=sorted_tests_l,
-                patterns_dir_list=show_patterns_list,
-            )
-            Runner.fire_t(TPatternRoutine.t_routine_optional_test, fake_run=True,
-                          t_args=[t_tag], t_kwargs=optional_kw)
-            # if send_mail:
-            #     user_email = [request.user.email]
-            #     TMail().long_r(mode='start', user_email=user_email, start_args=optional_kw,
-            #                    addm_group=addm_name, branch=branch, start_time=datetime.datetime.now())
-
-            subject = "'{0} {1}'. Custom test routine has been added to queue!.".format(branch, addm_name)
-            widgets = dict(SUBJECT=subject)
-            # return HttpResponse(page_widgets.render(widgets, request))
-            # return redirect('/octo_admin/workers_status/')
-            return redirect('/')
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.routine_run', login_url='/unauthorized_banner/')
-    def failed_test_run(request):
-        user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=WEB OCTO AMD=> failed_test_run(): %s", user_string)
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
-
-        send_mail = request.GET.get('send_mail', True)  # Send mail when this view runs
-        branch = request.GET.get('branch', True)
-        addm_name = request.GET.get('addm_name', True)
-        fake_run = request.GET.get('fake_run', False)
-        wipe = request.GET.get('wipe', True)
-        addm_group = request.GET.get('addm_group', None)
-
-        test_items_l, patterns_dir_list = OptionalTestsSelect().select_latest_failed_sort(branch=branch,
-                                                                                          addm_name=addm_name)
-
-        tsk_msg = 'tag=failed_test_run_routine;ype=routine;user_name={u_name};|{branch}:{addm_name}'
-        t_tag = tsk_msg.format(branch=branch, u_name=user_name, addm_name=str(addm_name))
-
-        optional_kw = dict(
-            fake_run=fake_run,
-            wipe=wipe,
-            user_name=user_name,
-            addm_name=addm_name,
-            addm_group=addm_group,
-            branch=branch,
-            test_items_l=test_items_l,
-            patterns_dir_list=patterns_dir_list,
-        )
-
-        Runner.fire_t(TPatternRoutine.t_routine_optional_test, t_args=[t_tag], t_kwargs=optional_kw)
-        if send_mail:
-            user_email = [request.user.email]
-            TMail().long_r(mode='start', user_email=user_email, start_args=optional_kw,
-                           addm_group=addm_name, branch=branch, start_time=datetime.datetime.now())
-
-        subject = "'{0} {1}'. Custom test routine has been added to queue!.".format(branch, addm_name)
-        widgets = dict(SUBJECT=subject)
-        return HttpResponse(page_widgets.render(widgets, request))
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.routine_run', login_url='/unauthorized_banner/')
-    def optional_test_routine(request):
-        """
-        Placeholder for future optional test runner.
-        Same as night routine, but with dynamical args.
-        :param request:
-        :return:
-        """
-        user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=WEB OCTO AMD=> manual_exec_night_run_task(): %s", user_string)
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
-
-        send_mail = request.GET.get('send_mail', True)  # Send mail when this view runs
-        addm_group = request.GET.get('addm_group', None)  # When None - assign one from free/minimal workers
-        user = request.GET.get('user', None)  # Select user patterns
-        branch = request.GET.get('branch', None)  # Select from branch
-        change = request.GET.get('change', None)  # Select by p4 change
-        excluded_seq = request.GET.get('exclude', None)  # Exclude patterns by folder name
-        library = request.GET.get('library', None)  # Select full library
-        last_days = request.GET.get('last_days', None)  # Select changed for the last n days
-        date_from = request.GET.get('date_from', None)  # Select changes from date till tomorrow
-        sel_patterns = request.GET.get('sel_patterns', None)  # Select only patterns from list
-        test_output_mode = request.GET.get('test_output_mode', False)  # Debug:
-        wipe_last = request.GET.get('wipe_last', False)  # Wipe LastTests logs
-        wide_addm = request.GET.get('wide_addm', False)  # Use all ADDM workers possible
-        sync_data = request.GET.get('sync_data', False)  # Sync p4 data or not
-
-        tsk_msg = 'tag=night_routine;lock=True;type=routine;user_name={u_name};excl={excl};use_patterns={sel_p}|{branch} on: {addms}'
-        t_tag = tsk_msg.format(branch=branch, u_name=user_name,
-                               addms=str(addm_group), excl=str(excluded_seq), sel_p=str(sel_patterns))
-
-        optional_kw = dict(
-            user_name=user_name,
-            addm_group=addm_group,
-            user=user,
-            branch=branch,
-            change=change,
-            excluded_seq=excluded_seq,
-            library=library,
-            last_days=last_days,
-            date_from=date_from,
-            sel_patterns=sel_patterns,
-            test_output_mode=test_output_mode,
-            wipe_last=wipe_last,
-            wide_addm=wide_addm,
-            sync_data=sync_data,
-        )
-        Runner.fire_t(TPatternRoutine.t_routine_optional_test, t_args=[t_tag], t_kwargs=optional_kw)
-        if send_mail:
-            user_email = [request.user.email]
-            TMail().long_r(mode='start', user_email=user_email, start_args=optional_kw,
-                           addm_group=addm_group, branch=branch, start_time=datetime.datetime.now())
-
-        subject = "'{0} {1}'. Custom test routine has been added to queue!.".format(branch, addm_group)
-        widgets = dict(SUBJECT=subject)
-        return HttpResponse(page_widgets.render(widgets, request))
-
 
 class Reports:
     """
     Regular reports from test databases for addms, patterns and tests.
     """
-
-    # LEVEL 1 report request TOP:
-    @staticmethod
-    def general_addm(request):
-        """
-        TOP Digest for all ADDM separated on branches.
-        :param request: /?table=LAST_SHIP_TESTS&branch=tkn_ship&addm_name=all_addms
-        :return:
-        """
-        addm_summary = loader.get_template('OLD/general_addm.html')
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=VIEW SELECTOR=> general_addm(): %s", user_str)
-
-        # addm_summary = loader.get_template('OLD/general_addm.html')
-        branch = request.GET.get('branch', 'tkn_main')
-        addm_name = request.GET.get('addm_name', 'all_addms')
-
-        # TODO: Change workers statuses to new design later!
-        addm_items_d = SelectorRequestsHelpers().addm_summary_draw(branch, addm_name)
-        minmax_test_date = PatternsDjangoTableOper().latest_tests_minmax_date(branch)
-
-        addm_ver = addm_items_d[0].get('ADDM_VER', str(99.9))
-        if addm_ver:
-            addms_sort = sorted(addm_items_d, key=itemgetter('ADDM_VER'), reverse=True)
-        else:
-            addms_sort = sorted(addm_items_d, key=itemgetter('ADDM_CODENAME'), reverse=True)
-
-        patterns_contxt = dict(
-            HAV_PLACE='ADDM Summary',
-            MIN_TEST_DATE=minmax_test_date['min_test_date'],
-            MAX_TEST_DATE=minmax_test_date['max_test_date'],
-            BRANCH=branch,
-            ADDM_DIGEST=addms_sort,
-            NAV_HEAD_DRAW=True,
-        )
-        return HttpResponse(addm_summary.render(patterns_contxt, request))
-
-    # LEVEL 2 report request TOP:
-    @staticmethod
-    def patterns_digest(request):
-        """
-        Next after ADDM Top - link to patterns digest - separate for each ADDM version. Tabs.
-        :param request: ?table=LAST_SHIP_TESTS&branch=tkn_ship&addm_name=aardvark
-        :return:
-        """
-        patterns_summary = loader.get_template('OLD/patterns_digest.html')
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=VIEW SELECTOR=> patterns_digest(): %s", user_str)
-        # patterns_summary = loader.get_template('OLD/patterns_digest.html')
-
-        # Assign args:
-        branch = request.GET.get('branch', 'tkn_main')
-        addm_name = request.GET.get('addm_name', 'double_decker')
-        fail_only = request.GET.get('fail_only', '')
-        skip_only = request.GET.get('skip_only', '')
-        error_only = request.GET.get('error_only', '')
-        pass_only = request.GET.get('pass_only', '')
-        not_pass_only = request.GET.get('not_pass_only', '')
-
-        date_start = request.GET.get('date_from', '')
-        date_end = request.GET.get('date_last', '')
-
-        pattern_library = request.GET.get('pattern_library', '')
-        pattern_folder = request.GET.get('pattern_folder', '')
-
-        sort_by = request.GET.get('sort_by', 'test_date_time')
-        adprod_user = request.GET.get('adprod_user', '')
-        # TODO: Later - can be possible a way to sort in both directions...
-        sort_ord = request.GET.get('sort_asc', 'sort_desc')
-
-        test_select = TestPastDays()
-
-        # log.debug("patterns_digest adprod_user: %s", adprod_user)
-
-        # Assign usual args for querying:
-        query_args = dict(
-            branch=branch,
-            addm_name=addm_name,
-            fail_only=fail_only,
-            skip_only=skip_only,
-            error_only=error_only,
-            pass_only=pass_only,
-            not_pass_only=not_pass_only,
-            date_start=date_start,
-            date_end=date_end,
-            user_name=user_name,
-            by_user=adprod_user,
-        )
-
-        # SELECT Min/Max dates in last tests table:
-        minmax_test_date = PatternsDjangoTableOper().latest_tests_minmax_date(branch)
-
-        # Select patterns and PRE-make table with patterns details.
-        # patterns_d_list = SelectorRequestsHelpers().patterns_summary_log_draw(query_args)
-        patterns_digest = PatternsDjangoModelRaw().patterns_tests_latest_digest(query_args)
-
-        start_date = minmax_test_date.get('min_test_date', "N/A")
-        end_date = minmax_test_date.get('max_test_date', "N/A")
-
-        patterns_contxt = dict(
-            HAV_PLACE='Patterns digest',
-            PATTERNS_CONTENT=patterns_digest,
-            BRANCH=branch,
-            ADDM_NAME=addm_name,
-            MIN_TEST_DATE=minmax_test_date['min_test_date'],
-            MAX_TEST_DATE=minmax_test_date['max_test_date'],
-            DATE_FROM=date_start,
-            DATE_LAST=date_end,
-            FAIL_ONLY=fail_only,
-            ERROR_ONLY=error_only,
-            SKIP_ONLY=skip_only,
-            PASS_ONLY=pass_only,
-            NOT_PASS_ONLY=not_pass_only,
-            PATTERN_LIBRARY=pattern_library,
-            PATTERN_FOLDER=pattern_folder,
-            START_DATE=start_date,
-            END_DATE=end_date,
-            NAV_HEAD_DRAW=True,
-            TABS_DRAW=True,
-            ADDM_NAVS_LINK="patterns_digest",
-            # TODO: Later - can be possible a way to sort in both directions...
-            SORT_ORD=sort_ord,
-            SORT_BY=sort_by,
-            test_select_form=test_select,
-            ADPROD_USER=adprod_user,
-        )
-
-        return HttpResponse(patterns_summary.render(patterns_contxt, request))
-
-    # LEVEL 3 report request TOP:
-    @staticmethod
-    def pattern_logs(request):
-        """
-        Detailed log of selected pattern from pattern digest.
-        Now include all, and ok. Should use tabs for OK or Not OK
-
-        :param request: table=LAST_SHIP_TESTS&branch=tkn_ship&pattern_library=CORE
-        :return:
-        """
-        tests_summary = loader.get_template('OLD/pattern_logs.html')
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=VIEW SELECTOR=> pattern_detailed_log(): %s", user_str)
-        # tests_summary = loader.get_template('OLD/pattern_logs.html')
-
-        date_time_now = datetime.datetime.now()
-        date_today = date_time_now.strftime('%Y-%m-%d')
-
-        # Request:
-        branch = request.GET.get('branch', 'tkn_main')
-        # test_function    = request.GET.get('test_function', 'tkn_main')
-        addm_name = request.GET.get('addm_name', 'double_decker')
-        pattern_library = request.GET.get('pattern_library', False)
-        pattern_folder = request.GET.get('pattern_folder', False)
-        fail_only = request.GET.get('fail_only', '')
-        skip_only = request.GET.get('skip_only', '')
-        error_only = request.GET.get('error_only', '')
-        pass_only = request.GET.get('pass_only', '')
-        not_pass_only = request.GET.get('not_pass_only', '')
-
-        if not pattern_library:
-            log.error("pattern_logs: There is no patter lib %s", pattern_library)
-
-        sort_date_exec = request.GET.get('sort_date_exec', '')
-        debug_flag = request.GET.get('debug_flag', False)
-
-        query_args = dict(
-            branch=branch,
-            fail_only=fail_only,
-            skip_only=skip_only,
-            error_only=error_only,
-            pass_only=pass_only,
-            not_pass_only=not_pass_only,
-            addm_name=addm_name,
-            pattern_folder=pattern_folder,
-            pattern_library=pattern_library,
-            sort_date_exec=sort_date_exec,
-        )
-
-        # SELECT by django - with selected attrs:
-        if pattern_library and pattern_folder:
-            latest_records = PatternsDjangoTableOper().select_latest_records_by_pattern(query_args=query_args)
-        elif pattern_library and not pattern_folder:
-            query_args.pop('pattern_folder')
-            latest_records = PatternsDjangoTableOper().select_latest_records(query_args, True)
-        else:
-            latest_records = PatternsDjangoTableOper().select_latest_records(query_args, True)
-
-        # compose_args = dict(
-        #     latest_records = latest_records,
-        #     branch         = branch,
-        #     user_name      = user_name,
-        #     date_time_now  = date_time_now,
-        #     addm_name      = addm_name,
-        #     detailed_log   = False,
-        #     sort_date_exec = sort_date_exec,
-        # )
-        # latest_records_contxt  = SelectorRequestsHelpers().__patterns_detailed_log_draw(compose_args)
-        # Execute query for MAX/MIN dates from latest table:
-
-        minmax_test_date = PatternsDjangoTableOper().latest_tests_minmax_date(branch)
-        tests_pattern_context = dict(
-            HAV_PLACE='Patterns log',
-            LATEST_TESTS=latest_records,
-            DATE_FROM="Latest",
-            DATE_LAST=date_today,
-            DATE_START=date_time_now.strftime('%Y-%m-%d'),
-            BRANCH=branch,
-            FAIL_ONLY=fail_only,
-            SKIP_ONLY=skip_only,
-            ERROR_ONLY=error_only,
-            PASS_ONLY=pass_only,
-            NOT_PASS_ONLY=not_pass_only,
-            PATTERN_LIBRARY=pattern_library,
-            PATTERN_FOLDER=pattern_folder,
-            MIN_TEST_DATE=minmax_test_date['min_test_date'],
-            MAX_TEST_DATE=minmax_test_date['max_test_date'],
-            START_DATE=minmax_test_date.get('min_test_date', date_today),
-            END_DATE=minmax_test_date.get('max_test_date', date_today),
-            ADDM_NAME=addm_name,
-            NAV_HEAD_DRAW=True,
-            TABS_DRAW=True,
-            ADDM_NAVS_LINK="pattern_detailed_log",
-            DEBUG_DATA=debug_flag,
-        )
-        return HttpResponse(tests_summary.render(tests_pattern_context, request))
-
-    @staticmethod
-    def last_success(request):
-        """
-        Show test records for single item with status of success
-
-        :param request:
-        :return:
-        """
-        tests_summary = loader.get_template('digests/tables_details/last_success.html')
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=VIEW SELECTOR=> pattern_detailed_log(): %s", user_str)
-
-        branch = request.GET.get('branch', 'tkn_main')
-        test_function = request.GET.get('test_function', 'tkn_main')
-        pattern_library = request.GET.get('pattern_library', False)
-        pattern_folder = request.GET.get('pattern_folder', False)
-        addm_name = request.GET.get('addm_name', False)
-
-        query_args = dict(branch=branch, test_function=test_function, addm_name=addm_name,
-                          pattern_library=pattern_library, pattern_folder=pattern_folder)
-        latest_records = PatternsDjangoTableOper().select_history_test_last_success(query_args)
-
-        return HttpResponse(tests_summary.render(dict(
-            LATEST_TESTS=latest_records, BRANCH=branch, ADDM_NAME=addm_name, SUBJECT='All logs for single test'),
-            request))
 
     @staticmethod
     def patterns_top_long(request):
@@ -620,7 +199,7 @@ class Reports:
         """
         patterns_summary = loader.get_template('OLD/top_long_tests.html')
         user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=VIEW SELECTOR=> patterns_digest(): %s", user_str)
+        log.debug("<=VIEW SELECTOR=> patterns_top_long(): %s", user_str)
         branch = request.GET.get('branch', 'tkn_main')
         count = request.GET.get('count', 20)
 
@@ -638,144 +217,6 @@ class Reports:
         return HttpResponse(patterns_summary.render(patterns_contxt, request))
 
 
-class Patterns:
-
-    # Select one library TKN patterns:
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    def _old_tku_pattern_libraries(request):
-        """
-        Show all patterns from database with useful details and button for test execution.
-        """
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=VIEW SELECTOR=> _old_tku_pattern_libraries(): %s", user_str)
-        patterns_summary = loader.get_template('OLD/tku_patterns_report.html')
-
-        # page = request.GET.get('page')
-        # diff_branches = request.GET.get('diff_branches', False)
-        release = request.GET.get('release', False)
-        everything = request.GET.get('everything', False)
-        branch = request.GET.get('branch', 'tkn_main')
-        pattern_library = request.GET.get('pattern_library')
-        is_key_pattern = request.GET.get('is_key_pattern')
-
-        query_args = dict(
-            user_name=user_name,
-            pattern_library=pattern_library,
-            is_key_pattern=is_key_pattern,
-            branch=branch,
-            release=release,
-            everything=everything,
-            select_mode="release" if release else "everything")
-
-        all_patterns, date_start, latest_date = PatternsDjangoTableOper().select_all_patterns(query_args)
-        patterns_contxt = dict(
-            ALL_PATTERNS=all_patterns.order_by('-change_time'),
-            PATTERN_LIBRARY=pattern_library,
-            # DATE_START=date_start,
-            # LATEST_DATE=latest_date,
-            LIB=pattern_library if pattern_library else "All",
-            START=date_start,
-            END=latest_date,
-            CHANGE_MAX=all_patterns.aggregate(Max('change')),
-            DATE_MAX=all_patterns.aggregate(Max('change_time')),
-            BRANCH=branch,
-            RELEASE=release,
-            SELECT_MODE=query_args['select_mode']
-        )
-
-        return HttpResponse(patterns_summary.render(patterns_contxt, request))
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    def _old_tku_pattern_tests(request):
-        """
-        Select tku patterns BUT grouped by test.py's
-        :param request:
-        :return:
-        """
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=VIEW SELECTOR=> _old_tku_pattern_libraries(): %s", user_str)
-        patterns_summary = loader.get_template('OLD/tku_patterns_tests.html')
-
-        branch = request.GET.get('branch', 'tkn_main')
-        pattern_library = request.GET.get('pattern_library', None)
-        is_key_pattern = request.GET.get('is_key_pattern', None)
-        select_release = request.GET.get('release', False)
-
-        date_from = request.GET.get('date_from', None)
-        date_to = request.GET.get('date_to', None)
-
-        # if not date_from and select_release:
-        #     date_from = DjangoTableOper.release_db_date()['start_date']
-        # elif date_from and not select_release:
-        #     date_from.strftime('%Y-%m-%d')
-        # else:
-        #     date_from = '1970-01-01'
-        #
-        # if not date_to:
-        #     date_to = DjangoTableOper.release_db_date()['today']
-        # else:
-        #     date_to.strftime('%Y-%m-%d')
-
-        date_from, date_to, selected_tku_tests = PatternsDjangoTableOper().select_tku_test_patterns(
-            branch=branch, pattern_library=pattern_library, is_key_pattern=is_key_pattern,
-            date_from=date_from, date_to=date_to, select_release=select_release)
-
-        # log.debug("selected_tku_tests %s", selected_tku_tests)
-
-        patterns_contxt = dict(
-            ALL_PATTERNS=selected_tku_tests.order_by('-change_time'),
-            CHANGE_MAX=selected_tku_tests.aggregate(Max('change')),
-            DATE_MAX=selected_tku_tests.aggregate(Max('change_time')),
-            DATE_FROM=date_from,
-            DATE_TO=date_to,
-            IS_KEY_PATTERN=is_key_pattern,
-            PATTERN_LIBRARY=pattern_library,
-            RELEASE=select_release,
-            BRANCH=branch,
-            SUBJECT='Only tests which where affected during selected period'
-        )
-
-        return HttpResponse(patterns_summary.render(patterns_contxt, request))
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    def _example_only_patterns_to_test_at_night(request):
-        """
-        Show all patterns which usually used on night routine.
-        :param request:
-        :return:
-        """
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=VIEW SELECTOR=> _example_only_patterns_to_test_at_night(): %s", user_str)
-        patterns_summary = loader.get_template('OLD/tku_patterns_night_set.html')
-
-        sort_by = request.GET.get('sort_by', 'change_time')
-        asc = request.GET.get('asc', False)
-        desc = request.GET.get('desc', False)
-        sel_opts = dict()
-
-        sel_opts.update(date_from='2017-09-25', branch='tkn_main')  # 1.1 Select all for TKN_MAIN:
-        tkn_main_tests = PatternsDjangoTableOper.sel_tests_dynamical(sel_opts=sel_opts)
-        sel_opts.update(date_from='2017-10-12', branch='tkn_ship')  # 1.2 Select all for TKN_SHIP:
-        tkn_ship_tests = PatternsDjangoTableOper.sel_tests_dynamical(sel_opts=sel_opts)
-        sum_tests = tkn_main_tests | tkn_ship_tests  # 2. Summarize all tests and sort:
-        # sorted_tests_l = TestPrepCases.test_items_sorting(sum_tests, exclude=excluded_seq)
-
-        patterns_contxt = dict(
-            ALL_PATTERNS=sum_tests,
-            CHANGE_MAX=sum_tests.aggregate(Max('change')),
-            DATE_MAX=sum_tests.aggregate(Max('change_time')),
-            SORT_BY=sort_by,
-            ASC=asc,
-            DESC=desc,
-            SUBJECT='All tests for usual night routine test run.'
-        )
-
-        return HttpResponse(patterns_summary.render(patterns_contxt, request))
-
-
 class PatternsService:
 
     @staticmethod
@@ -787,7 +228,7 @@ class PatternsService:
 
         :return:
         """
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
         log.debug("<=WEB OCTO AMD=> sync_patterns(): %s", user_string)
         addm_group = request.GET.get('addm_group', None)
@@ -824,7 +265,7 @@ class PatternsService:
 
         :return:
         """
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
 
         branch = request.GET.get('branch', False)
@@ -882,7 +323,7 @@ class PatternsService:
         :return:
         """
         user_name, user_string = UserCheck().user_string_f(request)
-        page_widgets = loader.get_template('admin_workbench/workbench_widgets.html')
+        page_widgets = loader.get_template('service/task-action-request-added-started.html')
         last_days = request.GET.get('last_days', 7)
         subject = 'Run pattern test weight compute task. Use last days {}. By {}'.format(last_days, user_string)
         Runner.fire_t(TPatternParse.t_pattern_weight_index,
@@ -973,7 +414,6 @@ class TestLastDigestListView(ListView):
     template_name = 'digests/tests_last.html'
     context_object_name = 'tests_digest'
     # Check if this is usefule case to have queryset loaded on view class init:
-    queryset = TestLatestDigestAll.objects.all()
 
     def get_context_data(self, **kwargs):
         # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_context_data")
@@ -991,20 +431,21 @@ class TestLastDigestListView(ListView):
     def get_queryset(self):
         # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_queryset")
         sel_opts = compose_selector(self.request.GET)
+        queryset = TestLatestDigestAll.objects.all()
 
         if sel_opts.get('addm_name'):
             # log.debug("use: addm_name")
-            self.queryset = self.queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
+            queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
         if sel_opts.get('tkn_branch'):
             # log.debug("use: tkn_branch")
-            self.queryset = self.queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
+            queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
         if sel_opts.get('change_user'):
             # log.debug("use: change_user")
-            self.queryset = self.queryset.filter(change_user__exact=sel_opts.get('change_user'))
+            queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
 
-        self.queryset = tst_status_selector(self.queryset, sel_opts)
-        # log.debug("TestLastDigestListView self.queryset explain \n%s", self.queryset.explain())
-        return self.queryset
+        queryset = tst_status_selector(queryset, sel_opts)
+        # log.debug("TestLastDigestListView queryset explain \n%s", queryset.explain())
+        return queryset
 
 
 # Test last table - show single(or all with status) test results for test.py
@@ -1162,8 +603,8 @@ class TestCasesListView(ListView):
     def get_queryset(self):
         # TODO: Can add order_by custom option, but not sure this is the real usecase...
         UserCheck().logator(self.request, 'info', "<=TestCasesListView=> test cases table queryset")
+        queryset = TestCases.objects.all()
         sel_opts = compose_selector(self.request.GET)
-        # Not the best idea: remove inter-selection args, when call this func from another views: octo.views.UserMainPage.get_queryset
         sel_opts.pop('tst_status')
         queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)
         return queryset

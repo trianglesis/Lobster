@@ -182,7 +182,7 @@ MODAL styles:
 }
 
 #tknBranchPattLib {
-font-size: 1em;
+    font-size: 1em;
     font-family: 'Maven Pro', sans-serif;
     font-weight: bold;
     background-image: url(/static/octicons/svg/git-commit.svg);
@@ -192,7 +192,7 @@ font-size: 1em;
 }
 
 #patternDirectory {
-font-size: 1em;
+    font-size: 1em;
     font-family: 'Maven Pro', sans-serif;
     font-weight: bold;
     background-repeat: no-repeat;
