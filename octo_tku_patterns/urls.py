@@ -94,8 +94,6 @@ urlpatterns = [
     # Test History Today view:
     path('test_history_today/', TestHistoryTodayArchiveView.as_view(), name="test_history_archive_today"),
     # DEV
-    path('test_history_dates/', AllDatesTestHistoryView.as_view(), name="test_history_dates"),
-
     path('mail_test_added_dev/', MailTestAddedDev.as_view(), name="mail_test_added_dev"),
 
 

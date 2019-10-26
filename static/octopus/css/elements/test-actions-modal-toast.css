@@ -182,23 +182,36 @@ MODAL styles:
 }
 
 #tknBranchPattLib {
-    font-size: 1em;
+font-size: 1em;
     font-family: 'Maven Pro', sans-serif;
     font-weight: bold;
     background-image: url(/static/octicons/svg/git-commit.svg);
     background-repeat: no-repeat;
-    background-size: 1em;
+    background-size: 1.2em;
     padding-left: 1.2rem;
 }
 
 #patternDirectory {
-    font-size: 1em;
+font-size: 1em;
     font-family: 'Maven Pro', sans-serif;
     font-weight: bold;
     background-repeat: no-repeat;
-    background-size: 1em;
+    background-size: 1.1em;
     padding-left: 1.2rem;
     background-image: url(/static/octicons/svg/repo.svg);
+}
+
+#testUnitFunction {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    font-style: italic;
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    padding-left: 1.2rem;
+    color: #1f5592cc;
+    overflow-wrap: break-word;
+    background-image: url(/static/fontawesome/svgs/solid/vial.svg);
+
 }
 
 #multipleCasesRun {

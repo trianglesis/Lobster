@@ -40,9 +40,10 @@
                     <div class="buttons-section">
                         <div class="btn-support-text">Latest sets of test:</div>
                         <div class="text-center evenly-flex interval">
+                            {% now 'Y' as year %}{% now 'b' as month %}{% now 'd' as day %}
                             <a tabindex="0" role="button" class="btn btn-outline-dark"
                                data-toggle="hover" data-placement="top" title="Failed last night" data-content="Set of test cases selected based on latest test logs. You can re-execute all tests at once! But be sure what you're doing - it could block all workers for other users!"
-                               href="#">{% select_icon 'issue-reopened' 20 'right' 0.2 %}Last
+                               href="{% url 'test_history_archive_day' year=year month=month day=day %}?tst_status=notpass">{% select_icon 'issue-reopened' 20 'right' 0.2 %}Last day history
                             </a>
                             <a tabindex="0" role="button" class="btn btn-outline-dark"
                                data-toggle="hover" data-placement="top" title="Most failed for a week | release month" data-content="Set of tests cases selected based on history test logs with time period for a week and release month. Can be re-executed at once!"

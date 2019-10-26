@@ -99,6 +99,36 @@
                                class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
                         </div>
                     {% comment %}
+                    TEST HISTORY DAILY BROWSE
+                        This is daily history browse page. Work same as upload test daily browse.
+                            Uses Django DayArchiveView method, allows to browse Backward and Forward.
+                            Shows info message if nothing found for the day.
+                            Can be sorted as usual TEST HISTORY OR TEST DETAILS DIGEST
+                            REST included, get case data for modal activation!
+                            Allow to run Test Case Unit test AND Test case full
+                    {% endcomment %}
+                    {% elif "test_history_day" in request.path %}
+                        <!-- Test history for one item oage and buttons -->
+                        <div class="test-actions-modal-name">History of the day: {{ day }}</div>
+                        <div class="list-group text-center" style="padding: 5px 15% 5px 15%">
+                            <a class="btn btn-sm btn-outline-info disabled">History Browse (dead end)</a>
+                        </div>
+                        <!-- Case unit test actions:  -->
+                        <div class="case-unit-modal-buttons">Case test unit actions:</div>
+                        <div class="list-group text-center test_item_history" style="padding: 5px 15% 5px 15%">
+                            <a href="#"
+                               id="unit-wipe-run"
+                               data-wipe="1"
+                               class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
+                            <a href="#"
+                               id="unit-p4-run"
+                               data-refresh="1"
+                               class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
+                            <a href="#"
+                               id="unit-instant-run"
+                               class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
+                        </div>
+                    {% comment %}
                     USER SPACE:
                         Select all related tests and cases based on user adprod name, if this name was added to user model in django admin.
                         Can browse tests, history, case full details.

@@ -346,6 +346,7 @@ class TKUPackagesListView(ListView):
     model = TkuPackagesNew
     context_object_name = 'tku_packages'
     template_name = 'packages/packages_index.html'
+    allow_empty = True
 
     def get_context_data(self, **kwargs):
         UserCheck().logator(self.request, 'info', "<=TKUPackagesListView=> test cases table context")
@@ -367,6 +368,7 @@ class UploadTestArchiveIndexView(ArchiveIndexView):
     model = UploadTestsNew
     date_field = "test_date_time"
     allow_future = False
+    allow_empty = True
     template_name = 'digests/upload_tests_index.html'
 
     def get_context_data(self, **kwargs):
@@ -391,6 +393,7 @@ class UploadTestDayArchiveView(DayArchiveView):
     # model = UploadTestsNew
     date_field = "test_date_time"
     allow_future = False
+    allow_empty = True
     template_name = 'digests/upload_tests_daily.html'
 
     def get_context_data(self, **kwargs):
@@ -415,6 +418,7 @@ class UploadTestTodayArchiveView(TodayArchiveView):
     model = UploadTestsNew
     date_field = "test_date_time"
     allow_future = False
+    allow_empty = True
     template_name = 'digests/upload_tests_today.html'
 
     def get_context_data(self, **kwargs):

@@ -46,14 +46,6 @@
         <!-- Navbar right part content -->
         <div class="nav-reports-right digest-test-log-levels"><!-- No Log levels sort for ADDM Digest: --></div>
     </nav>
-    <p>TO DO:</p>
-    <ul>
-        <li>Add buttons sorting by all possible: test_mode, tku_type, mode_key, addm_name</li>
-        <li>Add button to sort\browse by package type/name or so. To get find one package for related release?</li>
-        <li>Popover for long outputs make separate: for warn, stderr</li>
-        <li>Important and full outputs show in modal</li>
-        <li>Reinvent Upload workbench</li>
-    </ul>
     {# Break queryset to portions based on tky_type, and then render ech type in it's own table   #}
     {% regroup object_list|dictsort:'tku_type' by tku_type as tku_type_tests %}
     <div class="upload-test-today-content">
@@ -75,17 +67,6 @@
             {% endfor %}
         </div>
     </div>
-    <div class="days-browse">
-        <p>
-            {% if previous_day %}
-                Previous Day: {{ previous_day }}
-            {% endif %}
-            {% if previous_day and next_day %}--{% endif %}
-            {% if next_day %}
-                Next Day: {{ next_day }}
-            {% endif %}
-        </p>
-    </div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
         <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
         <ul class="navbar-nav mr-auto">
@@ -97,6 +78,17 @@
             </li>
             <li class="nav-item active">
                 <a class="nav-link" href="{% url 'upload_test_today' %}">Tests Today</a>
+            </li>
+            <li>
+                <a class="nav-link">
+                    {% if previous_day %}
+                        Prev: {{ previous_day }}
+                    {% endif %}
+                    {% if previous_day and next_day %}--{% endif %}
+                    {% if next_day %}
+                        Next: {{ next_day }}
+                    {% endif %}
+                </a>
             </li>
         </ul>
         <span class="navbar-text">Octopus automation</span>

@@ -319,7 +319,7 @@ function assignTestCaseUnitTestButtons(caseData) {
         unit_wipe_run.setAttribute(
             'data-cases_ids', caseData.cases_ids);
         unit_wipe_run.setAttribute(
-            'data-test_functions',
+            'data-test_function',
             `${caseData.tst_class}+${caseData.tst_name}`);
     }
     let unit_p4_run = document.getElementById("unit-p4-run");
@@ -327,7 +327,7 @@ function assignTestCaseUnitTestButtons(caseData) {
         unit_p4_run.setAttribute(
             'data-cases_ids', caseData.cases_ids);
         unit_p4_run.setAttribute(
-            'data-test_functions',
+            'data-test_function',
             `${caseData.tst_class}+${caseData.tst_name}`);
     }
     let unit_instant_run = document.getElementById("unit-instant-run");
@@ -335,7 +335,7 @@ function assignTestCaseUnitTestButtons(caseData) {
         unit_instant_run.setAttribute(
             'data-cases_ids', caseData.cases_ids);
         unit_instant_run.setAttribute(
-            'data-test_functions',
+            'data-test_function',
             `${caseData.tst_class}+${caseData.tst_name}`);
     }
 }
@@ -710,6 +710,8 @@ function getToastDraftMultipleCases() {
  * @returns {*}
  */
 function fillToastBodyWithTestAttributes(toastBase, caseFullData) {
+    // console.log("fillToastBodyWithTestAttributes => caseFullData");
+    // console.table(caseFullData);
     let metaData = ['change_ticket', 'change_review', 'change_user', 'change'];
     let showPattern = true;
 
@@ -742,6 +744,15 @@ function fillToastBodyWithTestAttributes(toastBase, caseFullData) {
 
             toastBase.childNodes[3].appendChild(tknBranchPattLib);
             toastBase.childNodes[3].appendChild(patternDirectory);
+            // Check if we run single test unit, and show it for user if true:
+            if (caseFullData.test_function) {
+                let test_function = document.createElement('div');  // toast-body
+                test_function.setAttribute('id', 'testUnitFunction');
+                test_function.innerText = caseFullData.test_function;
+                toastBase.childNodes[3].appendChild(test_function);
+            }
+
+
         } else {
             // When run multiple tests, there are can be a lot of patterns, no need to show them all in toast
             // Just show text info about multiple tests would run.
@@ -750,7 +761,6 @@ function fillToastBodyWithTestAttributes(toastBase, caseFullData) {
             multipleCasesRun.innerText = 'Run all selected cases!';
             toastBase.childNodes[3].appendChild(multipleCasesRun);
         }
-
     }
 
     let test_mode = document.createElement('div');  // toast-body

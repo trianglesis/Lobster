@@ -950,46 +950,6 @@ def tst_status_selector(queryset, sel_opts):
     return queryset
 
 
-def history_selector(queryset, sel_opts):
-    if sel_opts.get('addm_version'):
-        # log.debug("queryset sort: addm_version %s", sel_opts.get('addm_version'))
-        queryset = queryset.filter(addm_version__exact=sel_opts.get('addm_version'))
-    if sel_opts.get('addm_name'):
-        # log.debug("queryset sort: addm_name %s", sel_opts.get('addm_name'))
-        queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
-    if sel_opts.get('tkn_branch'):
-        # log.debug("queryset sort: tkn_branch %s", sel_opts.get('tkn_branch'))
-        queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
-    if sel_opts.get('change_user'):
-        # log.debug("queryset sort: change_user %s", sel_opts.get('change_user'))
-        queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
-    if sel_opts.get('change_review'):
-        # log.debug("queryset sort: change_review %s", sel_opts.get('change_review'))
-        queryset = queryset.filter(change_review__exact=sel_opts.get('change_review'))
-    if sel_opts.get('change_ticket'):
-        # log.debug("queryset sort: change_ticket %s", sel_opts.get('change_ticket'))
-        queryset = queryset.filter(change_ticket__exact=sel_opts.get('change_ticket'))
-    if sel_opts.get('pattern_library'):
-        # log.debug("queryset sort: pattern_library %s", sel_opts.get('pattern_library'))
-        queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
-    if sel_opts.get('pattern_folder_name'):
-        # log.debug("queryset sort: pattern_folder_name %s", sel_opts.get('pattern_folder_name'))
-        queryset = queryset.filter(pattern_folder_name__exact=sel_opts.get('pattern_folder_name'))
-    if sel_opts.get('change'):
-        # log.debug("queryset sort: change %s", sel_opts.get('change'))
-        queryset = queryset.filter(change__exact=sel_opts.get('change'))
-    if sel_opts.get('test_py_path'):
-        # log.debug("queryset sort: test_py_path %s", sel_opts.get('test_py_path'))
-        queryset = queryset.filter(test_py_path__exact=sel_opts.get('test_py_path'))
-    if sel_opts.get('tst_name'):
-        # log.debug("queryset sort: tst_name %s", sel_opts.get('tst_name'))
-        queryset = queryset.filter(tst_name__exact=sel_opts.get('tst_name'))
-    if sel_opts.get('tst_class'):
-        # log.debug("queryset sort: tst_class %s", sel_opts.get('tst_class'))
-        queryset = queryset.filter(tst_class__exact=sel_opts.get('tst_class'))
-    return queryset
-
-
 # TKU Upload test workbench:
 class TKNCasesWorkbenchView(TemplateView):
     __url_path = '/octo_tku_patterns/cases_workbench/'
@@ -1053,6 +1013,7 @@ class TestLastSingleDetailedListView(ListView):
     template_name = 'digests/test_details.html'
     context_object_name = 'test_detail'
     model = TestLast
+    allow_empty = True
 
     def get_context_data(self, **kwargs):
         # UserCheck().logator(self.request, 'info', "<=TestLastSingleDetailedListView=> test single table context")
@@ -1086,6 +1047,7 @@ class TestItemSingleHistoryListView(ListView):
             - change addm tab saving selected day
     """
     model = TestHistory
+    allow_empty = True
     template_name = 'digests/test_details.html'
     context_object_name = 'test_detail'
     # paginate_by = 500
@@ -1118,6 +1080,7 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
     model = TestHistory
     date_field = "test_date_time"
     allow_future = False
+    allow_empty = True
     template_name = 'digests/dev/tests_history_day.html'
     context_object_name = 'test_detail'
 
@@ -1137,6 +1100,7 @@ class TestHistoryDayArchiveView(DayArchiveView):
     model = TestHistory
     date_field = "test_date_time"
     allow_future = False
+    allow_empty = True
     template_name = 'digests/dev/tests_history_day.html'
     context_object_name = 'test_detail'
 
@@ -1153,9 +1117,7 @@ class TestHistoryDayArchiveView(DayArchiveView):
     def get_queryset(self):
         # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
         sel_opts = compose_selector(self.request.GET)
-
-        self.queryset = TestHistory.objects.all()
-        queryset = history_selector(self.queryset, sel_opts)
+        queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
         # log.debug("TestHistoryDayArchiveView queryset explain \n%s", queryset.explain())
         # log.debug("<=TestHistoryDayArchiveView=> selected len: %s query: \n%s", queryset.count(), queryset.query)
         return queryset
@@ -1167,37 +1129,13 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
     model = TestHistory
     date_field = "test_date_time"
     allow_future = False
+    allow_empty = True
     template_name = 'digests/dev/tests_history_day.html'
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
         UserCheck().logator(self.request, 'info', "<=TestHistoryTodayArchiveView=> test history today")
         context = super(TestHistoryTodayArchiveView, self).get_context_data(**kwargs)
-        context.update(selector=compose_selector(self.request.GET), selector_str='')
-        return context
-
-
-class AllDatesTestHistoryView(DayMixin, MonthMixin, YearMixin, ListView):
-    __url_path = '/octo_tku_patterns/test_history_dates/'
-    model = TestHistory
-    date_field = "test_date_time"
-    allow_future = False
-    template_name = 'digests/dev/tests_history_day.html'
-    context_object_name = 'test_detail'
-
-    def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=AllDatesTestHistoryView=> test history DATES MIX {}".format(kwargs))
-
-        context = super(AllDatesTestHistoryView, self).get_context_data(**kwargs)
-        year_mixin = super(YearMixin, self).get_context_data(**kwargs)
-        month_mixin = super(MonthMixin, self).get_context_data(**kwargs)
-        day_mixin = super(DayMixin, self).get_context_data(**kwargs)
-
-        log.debug("context: %s", context)
-        log.debug("day_mixin: %s", day_mixin)
-        log.debug("month_mixin: %s", month_mixin)
-        log.debug("year_mixin: %s", year_mixin)
-
         context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
 

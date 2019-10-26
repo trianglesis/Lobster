@@ -52,17 +52,17 @@
                         {% if previous_day %}
                             <a class="btn btn-sm btn-light"
                                href="{% url 'test_history_archive_day' year=previous_day|date:'Y' month=previous_day|date:'b' day=previous_day|date:'d' %}?{{ selector_str }}">
-                                <i class="fas fa-backward"></i> Yesterday {{ previous_day|date:"F j, Y" }}
+                                <i class="fas fa-backward"></i> {{ previous_day|date:"F j, Y" }}
                             </a>
                         {% endif %}
                         <a class="btn btn-sm btn-light disabled"
                            href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?{{ selector_str }}">
-                            <i class="fas fa-play"></i> Tests Today {{ day }}
+                            <i class="fas fa-play"></i> {{ day }}
                         </a>
                         {% if next_day %}
                             <a class="btn btn-sm btn-light"
                                href="{% url 'test_history_archive_day' year=next_day|date:'Y' month=next_day|date:'b' day=next_day|date:'d' %}?{{ selector_str }}">
-                                <i class="fas fa-forward"></i> Tomorrow {{ next_day }}
+                                <i class="fas fa-forward"></i> {{ next_day }}
                             </a>
                         {% endif %}
                     </div>
@@ -85,15 +85,25 @@
                     </a>
                     <!-- Choose branch -->
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownTknBranch">
-                        <a class="dropdown-item" href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?tkn_branch=tkn_main;{{ selector_tkn_branch }}">{% select_icon 'git-branch' 20 'right' 0.4 %}TKN MAIN {{ day }}</a>
+                        <a class="dropdown-item"
+                           href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?tkn_branch=tkn_main;{{ selector_tkn_branch }}">
+                            {% select_icon 'git-branch' 16 'right' 0.4 %}TKN MAIN
+                        </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?tkn_branch=tkn_ship;{{ selector_tkn_branch }}">{% select_icon 'git-merge' 20 'right' 0.4 %}TKN SHIP {{ day }}</a>
+                        <a class="dropdown-item"
+                           href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?tkn_branch=tkn_ship;{{ selector_tkn_branch }}">
+                            {% select_icon 'git-merge' 16 'right' 0.4 %}TKN SHIP
+                        </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?{{ selector_tkn_branch }}">{% select_icon 'git-commit' 20 'right' 0.4 %}BOTH {{ day }}</a>
+                        <a class="dropdown-item"
+                           href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?{{ selector_tkn_branch }}">
+                            {% select_icon 'git-commit' 16 'right' 0.4 %}BOTH
+                        </a>
                     </div>
                 </nav>
             </div>
             <div class="selection-state">
+                <a class="btn btn-sm btn-outline-light disabled"> Show: {{ day }} Count: {{ test_detail.count }}</a>
                 {% if selector.addm_name %}
                     <a class="btn btn-sm btn-outline-light disabled"><i class="fas fa-compress-arrows-alt"></i> Static: {{ selector.addm_name }}</a>
                 {% else %}
@@ -102,29 +112,67 @@
             </div>
         </div>
         <!-- Navbar right part content -->
-        <div class="nav-reports-right digest-test-log-levels"></div>
+        <div class="nav-reports-right digest-test-log-levels">
+            <!-- Change test log level browse: -->
+            <nav class="nav-item dropdown">
+                <a class="btn btn-sm btn-outline-info dropdown-toggle" href="#" id="navbarDropdownLogLvl" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {% if selector.tst_status == 'notpass' %}
+                        <i class="fas fa-bug text-danger"></i>
+                        <span class="text-danger"> Not pass</span>
+                    {% elif selector.tst_status == 'fail' %}
+                        <i class="fas fa-bug text-danger"></i>
+                        <span class="text-danger"> Fail</span>
+                    {% elif selector.tst_status == 'error' %}
+                        <i class="fas fa-exclamation-circle text-warning"></i>
+                        <span class="text-warning"> Error</span>
+                    {% elif selector.tst_status == 'skip' %}
+                        <i class="fas fa-step-forward text-info"></i>
+                        <span class="text-info"> Skip</span>
+                    {% elif selector.tst_status == 'pass' %}
+                        <i class="far fa-check-circle"></i>
+                        <span class="text-success"> Pass</span>
+                    {% else %}
+                        <i class="fas fa-vials"></i> All
+                    {% endif %}
+                </a>
+                <!-- Choose log level -->
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownLogLvl">
+                    <a class="nav-link text-danger"
+                       href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?tst_status=notpass;{{ selector_tst_status }}">
+                        <i class="fas fa-bug"></i> Not Pass
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link text-danger"
+                       href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?tst_status=fail;{{ selector_tst_status }}">
+                        <i class="fas fa-bug"></i> Fail
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link text-warning"
+                       href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?tst_status=error;{{ selector_tst_status }}">
+                        <i class="fas fa-exclamation-circle"></i> Error
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link text-info"
+                       href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?tst_status=skip;{{ selector_tst_status }}">
+                        <i class="fas fa-step-forward"></i> Skip
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link text-success"
+                       href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?tst_status=pass;{{ selector_tst_status }}">
+                        <i class="far fa-check-circle"></i> Passed
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="nav-link text-secondary"
+                       href="{% url 'test_history_archive_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?{{ selector_tst_status }}">
+                        <i class="fas fa-vials"></i>All
+                    </a>
+                </div>
+            </nav>
+        </div>
     {% endspaceless %}
     </nav>
     <div class="report-content">
-    <h1>{{ day }}</h1>
-    <h2>Overall object_list: {{ object_list.count }}</h2>
-    <h2>Overall test_detail: {{ test_detail.count }}</h2>
-{#    <ul>#}
-{#        {% for test in object_list %}#}
-{#            <li>#}
-{#                {{ test.test_date_time }} {{ test.addm_name }}: {{ test.test_py_path }} {{ test.tst_name }} {{ test.tst_class }} {{ test.fail_message }}#}
-{#            </li>#}
-{#        {% endfor %}#}
-{#    </ul>#}
-{#    <p>#}
-{#        {% if previous_day %}#}
-{#            Previous Day: {{ previous_day }}#}
-{#        {% endif %}#}
-{#        {% if previous_day and next_day %}--{% endif %}#}
-{#        {% if next_day %}#}
-{#            Next Day: {{ next_day }}#}
-{#        {% endif %}#}
-{#    </p>#}
         {% if test_detail %}
             {% if selector.addm_name %}
                 <!-- STATICAL view tabs. When addm_name is added to request parameters - draw table for each tab only when requested. Draw tab as hyperlinks as many as unique addm_names -->
@@ -197,15 +245,26 @@
             {# Patternt test digest #}
             <li class="nav-item">
                 <a class="nav-link"
-                   href="{% url 'tests_last' %}?tkn_branch={{ selector.tkn_branch }}{% if not selector.tst_status %};tst_status=notpass{% else %}tst_status={{ selector.tst_status }}{% endif %}">
+                   href="{% url 'tests_last' %}?tkn_branch={{ selector.tkn_branch }}{% if not selector.tst_status %};tst_status=notpass{% else %};tst_status={{ selector.tst_status }}{% endif %}">
                     Patterns Test Digest
                 </a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="#">Now browsing history: {{ day }}</a>
+                <a class="nav-link" href="#">History: {{ day }}</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link disabled">{% if not "None" in selector.tst_status %}{{ selector.tst_status }}{% else %}All{% endif %}</a>
+                <a class="nav-link disabled">{% if not selector.tst_status == "None" %}{{ selector.tst_status }}{% else %}All{% endif %}</a>
+            </li>
+            <li>
+                <a class="nav-link">
+                    {% if previous_day %}
+                        Prev: {{ previous_day }}
+                    {% endif %}
+                    {% if previous_day and next_day %}--{% endif %}
+                    {% if next_day %}
+                        Next: {{ next_day }}
+                    {% endif %}
+                </a>
             </li>
             <li class="nav-item">
                 {% if selector.addm_name %}
