@@ -64,75 +64,6 @@ class TestRuns:
 
     @staticmethod
     @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.test_run', login_url='/unauthorized_banner/')
-    def test_execute_web(request):
-        """
-
-            This func run test or list of tests in Celery job as one long chain of tests
-            for each ADDM.
-
-            Tests wouldn't mix between workers because they run in separate loop for each ADDM,
-            but Celery will treat this as one long job.
-
-        :param request:
-        :return:
-        """
-        user_name, user_string = UserCheck().user_string_f(request)
-        page_widgets = loader.get_template('small_blocks/user_test_added.html')
-        log.debug("<=WEB OCTO AMD=> test_execute_web(): %s", user_string)
-
-        # TODO: Change selector arg to depot path or test.py path?
-        pattern_library = request.GET.get('pattern_library', False)
-        pattern_folder = request.GET.get('pattern_folder', False)
-        branch = request.GET.get('tkn_branch', False)
-        addm_group = request.GET.get('addm_group', None)
-        refresh = request.GET.get('refresh', False)
-        wipe = request.GET.get('wipe', False)
-        fake_run = request.GET.get('fake_run', False)
-        test_function = request.GET.get('test_function', '')  # request will clear extra symbol '+'
-
-        # lock=True;  - is not used, to allow other users to run tests on the same worker!
-        task_string = 'tag=t_routine_user_tests;type=routine;branch={branch};' \
-                      'addm_group={addm_group};user_name={user_name};refresh={refresh};{pattern_library}/{pattern_folder_name}'
-        t_tag_d = task_string.format(branch=branch,
-                                     user_name=user_name,
-                                     addm_group=addm_group,
-                                     refresh=refresh,
-                                     pattern_library=pattern_library,
-                                     pattern_folder_name=pattern_folder)
-
-        user_email = [request.user.email]
-
-        widgets = dict(
-            SUBJECT='Selected test queued! Wait for initial mail.',
-            OPTION_VALUES=dict(
-                USER_NAME=user_name,
-                BRANCH=branch,
-                CUSTOM_TEST=pattern_folder,
-                TEST_FUNCTION=test_function,
-                ADDM_GROUP=addm_group,
-                REFRESH=refresh,
-                USER_EMAIL=user_email,
-                PATTERN_LIBRARY=pattern_library
-            ))
-
-        log.debug("<=OCTO ADM=> User test test_execute_web: \n%s", t_tag_d)
-        Runner.fire_t(TPatternRoutine.t_routine_user_tests, fake_run=fake_run,
-                      t_args=[t_tag_d], t_kwargs=dict(pattern_library=pattern_library,
-                                                      pattern_folder=pattern_folder,
-                                                      test_function=test_function,
-                                                      branch=branch,
-                                                      addm_group=addm_group,
-                                                      refresh=refresh,
-                                                      wipe=wipe,
-                                                      fake_run=fake_run,
-                                                      user_name=user_name,
-                                                      user_email=user_email)
-                      )
-        return HttpResponse(page_widgets.render(widgets, request))
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
     @permission_required('run_core.routine_run', login_url='/unauthorized_banner/')
     def manual_exec_night_run_task(request):
         """
@@ -281,7 +212,7 @@ class PatternsService:
                                    addm_group=addm_group,
                                    sync_shares=sync_shares)
 
-            Runner.fire_t(TPatternParse.t_routine_user_parse_patt,
+            Runner.fire_t(TPatternParse.t_p4_sync,
                           t_args=[t_tag],
                           t_kwargs=dict(branch=branch, info_string=info_string, addm_group=addm_group,
                                         sync_shares=sync_shares, user_name=user_name))
@@ -299,7 +230,7 @@ class PatternsService:
                 tsk_msg = 'tag=user_parse_patterns;type=routine;user_name={user_name};sync_shares={sync_shares} ' \
                           '| on: "{addm_group}" by: {user_name}'
                 t_tag = tsk_msg.format(user_name=user_name, addm_group=addm_group, sync_shares=sync_shares)
-                Runner.fire_t(TPatternParse.t_routine_user_parse_patt,
+                Runner.fire_t(TPatternParse.t_p4_sync,
                               t_args=[t_tag],
                               t_kwargs=dict(branch=branch, info_string=info_string, addm_group=addm_group,
                                             sync_shares=sync_shares, user_name=user_name))
@@ -824,6 +755,7 @@ class TestCasesDetailsCreateView(CreateView):
 @method_decorator(login_required, name='dispatch')
 class TestCaseRunTest(TemplateView):
     __url_path = '/octo_tku_patterns/test_execute_web/'
+    __url_path_alt = '/octo_tku_patterns/user_test_add/'
     template_name = 'actions/test_added.html'
     context_object_name = 'objects'
     title = 'Test added!'

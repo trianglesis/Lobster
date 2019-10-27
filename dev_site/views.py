@@ -16,73 +16,17 @@ from octo.helpers.tasks_helpers import TMail
 from octo_adm.tasks import ADDMCases
 from octo_adm.tasks import TaskADDMService
 
-from octo_tku_patterns.tasks import TPatternParse
 from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
 
 from octo_adm.user_operations import UserCheck
 from run_core.p4_operations import PerforceOperations as P4_Oper
-from run_core.local_operations import LocalPatternsParse
 
 from run_core.models import Options
-from dev_site.tasks import DevTRoutine
 from dev_site.tasks import DevRunner
 # Python logger
 import logging
 
 log = logging.getLogger("octo.octologger")
-
-
-class DevRunTasks:
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.routine_run', login_url='/unauthorized_banner/')
-    def dev_manual_exec_night_run_task(request):
-        """
-        Run full scenario for typical night run.
-        Execute night test routine.
-        This routine should be the same for all times.
-        Only use -exclude arg and addm list.
-
-        :param request:
-        :return:
-        """
-        user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=WEB OCTO AMD=> manual_exec_night_run_task(): %s", user_string)
-        page_widgets = loader.get_template('service/task-action-request-added-started.html')
-
-        branch = request.GET.get('branch', None)
-        send_mail = request.GET.get('send_mail', False)
-        addm_group_l = request.GET.get('addm_group', None)
-        excluded_seq = request.GET.get('excluded_seq', None)
-        sel_patterns = request.GET.get('sel_patterns', None)
-
-        # Debug:
-        test_output_mode = request.GET.get('test_output_mode', False)
-
-        tsk_msg = 'tag=night_routine;lock=True;type=routine;user_name={u_name};excl={excl};use_patterns={sel_p}|{branch} on: {addms}'
-        t_tag = tsk_msg.format(branch=branch, u_name=user_name,
-                               addms=str(addm_group_l), excl=str(excluded_seq), sel_p=str(sel_patterns))
-
-        if send_mail:
-            user_email = [request.user.email]
-            TMail().long_r(mode='start', r_type='Night web', user_email=user_email, start_args=(branch, addm_group_l),
-                         addm_group=addm_group_l, branch=branch, start_time=datetime.now())
-
-        DevRunner.fire_t(DevTRoutine.dev_t_routine_night_tests,
-                         t_args=[t_tag],
-                         t_kwargs=dict(branch=branch,
-                                       user_name=user_name,
-                                       addm_group=addm_group_l,
-                                       test_output_mode=test_output_mode,
-                                       excluded_seq=excluded_seq,
-                                       sel_patterns=sel_patterns,
-                                       send_mail=send_mail,
-                                       ))
-
-        subject = "'{0} {1}'. Manual night test run has been added to queue!.".format(branch, addm_group_l)
-        widgets = dict(SUBJECT=subject)
-        return HttpResponse(page_widgets.render(widgets, request))
 
 
 class DevAdminViews:
@@ -133,20 +77,6 @@ class DevAdminViews:
         contxt = dict(P4_INFO=p4_info_get, SUBJECT=subject, )
 
         return HttpResponse(p4_info_page.render(contxt, request))
-
-    @staticmethod
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def dev_parse_local_files(request):
-        page_widgets = loader.get_template('service/task-action-request-added-started.html')
-        user_name, user_str = UserCheck().user_string_f(request)
-        subject = "Please set branch!"
-        branch = request.GET.get('branch', False)
-        log.debug("<=WEB OCTO AMD=>   parse_patterns(): %s", user_str)
-        if branch:
-            info_string = dict(branch=branch, user_name=user_name, )
-            LocalPatternsParse().compose_tree_paths(tkn_branch=branch)
-            subject = "User request: '{}' {}.".format("parse_patterns", info_string)
-        return HttpResponse(page_widgets.render(dict(SUBJECT=subject), request))
 
     @staticmethod
     @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
@@ -473,52 +403,6 @@ class DevAdminTasksCall:
 
     @staticmethod
     @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def dev_p4_sync_smart(request):
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=WEB OCTO AMD=>   DEV_p4_sync_smart(): %s", user_str)
-        p4_info_page = loader.get_template(
-            'dev_debug_workbench/dev_helpers/p4_infos.html')
-
-        subject = "DEV_p4_sync_smart. Run as task - On user {0} request.".format(user_name)
-        log.info(subject)
-
-        branch = "tkn_main"
-        DevRunner.fire_t(TPatternParse().t_p4_sync_smart,
-                         t_args=['tag=p4_sync_smart_dev;type=request;branch={};user={};'.format(branch, user_name)],
-                         t_kwargs={'branch': branch})
-
-        contxt = dict(P4_INFO=[], SUBJECT=subject, )
-        return HttpResponse(p4_info_page.render(contxt, request))
-
-    @staticmethod
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def dev_parse_patterns_thread(request):
-        """
-        Parse Octopus local files.
-        :param request:
-        :return:
-        """
-        from octo_tku_patterns.tasks import TPatternParse
-        page_widgets = loader.get_template('dev_debug_workbench/dev_main.html')
-        user_name, user_str = UserCheck().user_string_f(request)
-
-        log.debug("<=WEB OCTO AMD=>   t_p4_changes_threads(): %s", user_str)
-
-        branch = request.GET.get('branch', 'tkn_main')
-        subject = 'Run task_p4_changes_threads_web'
-
-        if branch:
-            info_string = dict(branch=branch, user_name=user_name, )
-            subject = "Perforce task_parse_pattern_web. On {0} request.".format(info_string)
-            tag = 'tag=task_parse_pattern_web;type=request;branch={};user={};'.format(branch, user_name)
-            DevRunner.fire_t(TPatternParse().t_p4_changes_threads,
-                             t_args=[tag],
-                             t_kwargs=dict(branch=branch)
-                             )
-        return HttpResponse(page_widgets.render(dict(SUBJECT=subject), request))
-
-    @staticmethod
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
     def dev_addm_custom_cmd(request):
         user_name, user_str = UserCheck().user_string_f(request)
         page_widgets = loader.get_template(
@@ -532,20 +416,6 @@ class DevAdminTasksCall:
         DevRunner.fire_t(TaskADDMService.t_routine_addm_cmd,
                          t_args=[t_tag],
                          t_kwargs=dict(cmd_k=cmd_k, subject=subject, addm_group=addm_group, user_name=user_name))
-
-        return HttpResponse(page_widgets.render(dict(SUBJECT=subject), request))
-
-    @staticmethod
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def dev_addm_tw_restart(request):
-        user_name, user_str = UserCheck().user_string_f(request)
-        page_widgets = loader.get_template(
-            'dev_debug_workbench/dev_main.html')
-
-        addm_group = request.GET.get('addm_group', 'foxtrot')
-        subject = '{} Run RoutineCases.addm_tw_restart'.format(user_name)
-
-        ADDMCases.addm_tw_restart(subject=subject, addm_group=addm_group, user_name=user_name)
 
         return HttpResponse(page_widgets.render(dict(SUBJECT=subject), request))
 

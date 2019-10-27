@@ -118,7 +118,7 @@ class UploadTKU:
                   '| on: "{addm_group}" by: {user_name}'
         t_tag = tsk_msg.format(user_name=user_name, addm_group=addm_group, tku_type=tku_type)
 
-        log.debug("<=OCTO ADM=> User test test_execute_web: \n%s", t_tag)
+        log.debug("<=OCTO ADM=> User test tku_update_test: \n%s", t_tag)
         Runner.fire_t(TUploadRoutine.t_routine_tku_upload, fake_run=fake_run,
                       t_args=[t_tag],
                       t_kwargs=dict(user_name=user_name, user_email=user_email, tku_type=tku_type,

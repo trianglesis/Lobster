@@ -2,6 +2,7 @@
 OCTO ADM - pages and widgets and functions.
 """
 
+import os
 import logging
 from django.template import loader
 from django.http import HttpResponse
@@ -10,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 
 from run_core.models import AddmDev
+from run_core.addm_operations import ADDMOperations
 from octo.models import CeleryTaskmeta
 
 from octo.helpers.tasks_mail_send import Mails
@@ -24,6 +26,10 @@ from octo_tku_patterns.tasks import TPatternParse
 from octo.helpers.tasks_run import Runner
 
 log = logging.getLogger("octo.octologger")
+
+if os.name == "nt":
+    log.warning("On Local test system run Fake=True! Be aware!")
+    fake_run = True
 
 
 class AdminFunctions:
@@ -43,7 +49,7 @@ class AdminFunctions:
         """
         user_name, user_string = UserCheck().user_string_f(request)
         log.debug("<=MAIN Widgets=> workbench_widgets(): %s", user_string)
-        page_widgets = loader.get_template('service/task-action-request-added-started.html')
+        page_widgets = loader.get_template('addm_workbench/addm_workbench_widgets.html')
         return HttpResponse(page_widgets.render(dict(SUBJECT = "", ACTIVE=True), request))
 
     @staticmethod
@@ -203,21 +209,6 @@ class AdminFunctions:
     @staticmethod
     @login_required(login_url='/unauthorized_banner/')
     @permission_required('run_core.service_run', login_url='/unauthorized_banner/')
-    def addm_tideway_restart(request):
-        page_widgets = loader.get_template('service/task-action-request-added-started.html')
-        user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=WEB OCTO AMD=>   addm_tideway_restart(): %s", user_string)
-        addm_group = request.GET.get('addm_group', None)
-
-        subject = "User request '{}'. queued! {} on {}".format("addm_daily_restart_routine", user_string, addm_group)
-
-        ADDMCases().addm_tw_restart(subject=subject, addm_group=addm_group, user_name=user_name)
-        Mails.short(subject=subject, body=subject, send_to=[request.user.email])
-        return HttpResponse(page_widgets.render(dict(SUBJECT=subject), request))
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.service_run', login_url='/unauthorized_banner/')
     def addm_custom_cmd(request):
         page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
@@ -242,14 +233,20 @@ class AdminFunctions:
     def addm_sync_shares(request):
         page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=WEB OCTO AMD=>   addm_custom_cmd(): %s", user_string)
         addm_group = request.GET.get('addm_group', None)  # addm_group=alpha
         fake_run = request.GET.get('fake_run', False)
         subject = "User request 'ADDM SYNC shares'. queued! {} on {}".format(user_string, addm_group)
-        t_tag = 'addm_custom_cmd|cmd_k={};addm_group={};user_name={user_name}'
-        Runner.fire_t(TPatternParse.t_routine_addm_sync, fake_run=fake_run,
-                      t_args=[t_tag],
-                      t_kwargs=dict(subject=subject, addm_group=addm_group, user_name=user_name))
+
+        addm_set = ADDMOperations.select_addm_set(addm_group=addm_group)
+
+        log.debug("<=TaskPrepare=> Adding task to sync addm group: '%s'", addm_group)
+        t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_name={user_name};' \
+                f'fake={fake_run};'
+        Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=fake_run,
+                      t_args=[t_tag], t_kwargs=dict(addm_items=list(addm_set)),
+                      t_queue=addm_group + '@tentacle.dq2',
+                      t_routing_key='TExecTest.t_addm_rsync_threads.{0}'.format(addm_group))
+
         Mails.short(subject=subject, body=subject, send_to=[request.user.email])
         return HttpResponse(page_widgets.render(dict(SUBJECT=subject), request))
 

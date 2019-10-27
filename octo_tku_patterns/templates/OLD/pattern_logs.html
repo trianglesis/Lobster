@@ -70,38 +70,6 @@
             </td>
             <td class="table-{{ color }} align-baseline" style="width: 30%;font-size: 0.8em;font-family:monospace;">{{ pattern_row.fail_message }}</td>
             <td class="{{ text_align }} table-{{ color }}" style="width: 3%" title="Run test options:">
-{#                {% user_run_test pattern_row 1 %}#}
-{#                <div class="btn-group btn-group-sm btn-outline-info" role="group" style="font-size: 0.9em;">#}
-{#                  <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>#}
-{#                  <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">#}
-{#                    {% if power_user_bool %}#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
-{#                           href="{% url 'last_success' %}?branch={{ BRANCH }}&pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&addm_name={{ ADDM_NAME }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}">{% spaceless %}#}
-{#                        {% endspaceless %}{% select_icon 'eye' 18 'right' 0.2 %}<b class="text-info">Last success</b>#}
-{#                        </a>#}
-{#                        <div class="dropdown-divider"></div>#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
-{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}">{% spaceless %}#}
-{#                        {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run single test!</b>#}
-{#                        </a>#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
-{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}&refresh=True">{% spaceless %}#}
-{#                        {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">Sync + run single test!</b>#}
-{#                        </a>#}
-{#                        <div class="dropdown-divider"></div>#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
-{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }}">{% spaceless %}#}
-{#                        {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run test.py!</b>#}
-{#                        </a>#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
-{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }}&refresh=True">{% spaceless %}#}
-{#                        {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">Sync + run test.py!</b>#}
-{#                        </a>#}
-{#                    {% else %}#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;" href="{% url 'login' %}"><b class="text-warning">Log in</b></a>#}
-{#                    {% endif %}#}
-{#                  </div>#}
-{#                </div>#}
             </td>
             <td class="{{ text_align }} table-{{ color }}" style="font-size: 0.7em;white-space: pre">{{ pattern_row.test_date_time | timezone:"Europe/London"|date:'Y-m-d H:i' }}<br>{{ pattern_row.test_date_time | naturaltime }}<br>t {{ pattern_row.time_spent_test | f_sec }}</td>
             <td class="{{ text_align }} table-{{ color }}" style="font-size: 0.7em;">

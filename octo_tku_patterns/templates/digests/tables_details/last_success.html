@@ -42,33 +42,6 @@
             <td id="row_message" class="table-{{ color }}" style="font-size: 0.8em;font-family:monospace;">{{ pattern_row.fail_message }}</td>
 
             <td id="row_run_test" class="text-center align-middle table-{{ color }}" title="Run test options:">
-{#            {% user_run_test pattern_row 1 %}#}
-{#                <div class="btn-group btn-group-sm btn-outline-info" role="group" style="font-size: 0.9em;">#}
-{#                  <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>#}
-{#                  <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">#}
-{#                    {% if power_user_bool %}#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
-{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}">{% spaceless %}#}
-{#                        {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run single test!</b>#}
-{#                        </a>#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
-{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }};test_function={{ pattern_row.tst_class }}+{{ pattern_row.tst_name }}&refresh=True">{% spaceless %}#}
-{#                        {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">Sync + run single test!</b>#}
-{#                        </a>#}
-{#                        <div class="dropdown-divider"></div>#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
-{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }}">{% spaceless %}#}
-{#                        {% endspaceless %}{% select_icon 'zap' 18 'right' 0.2 %}<b class="text-success">Run test.py!</b>#}
-{#                        </a>#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;"#}
-{#                           href="{% url "test_execute_web" %}?pattern_folder={{ pattern_row.pattern_folder_name }}&pattern_library={{ pattern_row.pattern_library }}&branch={{ BRANCH }}&refresh=True">{% spaceless %}#}
-{#                        {% endspaceless %}{% select_icon 'sync' 18 'right' 0.2 %}<b class="text-warning">Sync + run test.py!</b>#}
-{#                        </a>#}
-{#                    {% else %}#}
-{#                        <a class="dropdown-item" style="font-size: 0.9em;" href="{% url 'login' %}"><b class="text-warning">Log in</b></a>#}
-{#                    {% endif %}#}
-{#                  </div>#}
-{#                </div>#}
             </td>
             <td id="row_test_exec" class="text-center align-middle table-{{ color }} font-weight-normal" style="font-size: 0.7em;">{% spaceless %}
                 {% endspaceless %}{{ pattern_row.test_date_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}<br>{{ pattern_row.test_date_time|timezone:"Europe/London"|naturaltime }}<br>{{ pattern_row.time_spent_test|f_sec }}</td>

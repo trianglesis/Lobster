@@ -3,7 +3,7 @@ Test digest, mails, reports, charts, pages for Confluence
 will be compose and send here.
 
 """
-
+import os
 from django.conf import settings
 from django.core import mail
 from django.core.mail import EmailMessage
@@ -14,6 +14,10 @@ from octo.config_cred import mails
 import logging
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
+
+if os.name == "nt":
+    log.warning("On Local test system run Fake=True! Be aware!")
+    fake_run = True
 
 
 class Mails:
@@ -43,30 +47,34 @@ class Mails:
         if not subject:
             subject = txt.format('No Subject added', ' - ', curr_hostname)
 
-        connection = mail.get_connection()
-        connection.open()
-
-        admin = mails['admin']
-
-        email_args = dict(
-            from_email = getattr(settings, 'EMAIL_ADDR', None),
-            to         = send_to,
-            cc         = send_cc,
-            bcc        = [admin, ],  # Always send to me.
-            subject    = subject,
-            body       = body,
-            connection = connection
-        )
-
-        # log.debug("<=MailSender=> short email_args - %s", email_args)
-        if mail_html:
-            # log.debug("<=MAIL SIMPLE=> Mail html send")
-            email = EmailMultiAlternatives(**email_args)
-            # log.debug("<=MailSender=> short email_args - %s", email_args)
-            email.attach_alternative(mail_args.get('mail_html', ''), "text/html")
-            email.send()
+        if os.name == "nt":
+            msg = f"mail_html={mail_html} body={body} subject={subject} send_to={send_to} send_cc={send_cc}"
+            log.debug('Sending short email confirmation: %s', msg)
         else:
-            email = EmailMessage(**email_args)
+            connection = mail.get_connection()
+            connection.open()
+
+            admin = mails['admin']
+
+            email_args = dict(
+                from_email = getattr(settings, 'EMAIL_ADDR', None),
+                to         = send_to,
+                cc         = send_cc,
+                bcc        = [admin, ],  # Always send to me.
+                subject    = subject,
+                body       = body,
+                connection = connection
+            )
+
             # log.debug("<=MailSender=> short email_args - %s", email_args)
-            email.send()
-            # log.debug("<=MAIL SIMPLE=> Mail txt send")
+            if mail_html:
+                # log.debug("<=MAIL SIMPLE=> Mail html send")
+                email = EmailMultiAlternatives(**email_args)
+                # log.debug("<=MailSender=> short email_args - %s", email_args)
+                email.attach_alternative(mail_args.get('mail_html', ''), "text/html")
+                email.send()
+            else:
+                email = EmailMessage(**email_args)
+                # log.debug("<=MailSender=> short email_args - %s", email_args)
+                email.send()
+                # log.debug("<=MAIL SIMPLE=> Mail txt send")

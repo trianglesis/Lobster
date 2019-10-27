@@ -1221,24 +1221,3 @@ class PatternsDjangoTableOperDel:
         except Exception as e:
             log.error("<=DjangoTableOperDel=> delete_old_solo_test_logs Error: %s", e)
         return test_item_deleted
-
-    # TODO: Test this
-    @staticmethod
-    def delete_optional_test_logs(sorted_set):
-        """
-        Delete optional sets log.
-        Iter over set with keys, delete where key is test_py_path
-
-        :param sorted_set:
-        :return:
-        """
-        for item in sorted_set:
-            for key in item.keys():
-                try:
-                    log.debug("<=DjangoTableOperDel=> Test logs will be deleted for %s", key)
-                    # test_item_deleted = TestLast.objects.filter(test_py_path__exact=key).delete()
-                    test_item_deleted = TestLast.objects.filter(test_py_path__exact=key)
-                    log.debug("Not DEL but SELECT %s", test_item_deleted)
-                except Exception as e:
-                    log.error("<=DjangoTableOperDel=> delete_optional_test_logs Error: %s", e)
-        return True

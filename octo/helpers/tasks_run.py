@@ -10,6 +10,11 @@ import logging
 log = logging.getLogger("octo.octologger")
 
 
+if os.name == "nt":
+    log.warning("On Local test system run Fake=True! Be aware!")
+    fake_run = True
+
+
 class Runner:
 
     @staticmethod
@@ -92,6 +97,7 @@ class Runner:
 
         # Always fake on local test env:
         if os.name == "nt":
+            log.warning("On Local test system run Fake=True! Be aware!")
             fake_run = True
 
         # Show debug messages:

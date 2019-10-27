@@ -36,8 +36,6 @@ urlpatterns = [
         name='addm_custom_cmd'),
     url(r'^addm_sync_shares/', AdminFunctions.addm_sync_shares,
         name='addm_sync_shares'),
-    url(r'^addm_tideway_restart/', AdminFunctions.addm_tideway_restart,
-        name='addm_tideway_restart'),
 
     # Celery shed
 

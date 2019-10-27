@@ -62,25 +62,10 @@ class TPatternRoutine:
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_night_tests',
               soft_time_limit=HOURS_1, task_time_limit=HOURS_2)
     @exception
+    # TODO: Integrate with the t_test_prep
     def t_routine_night_tests(t_tag, **kwargs):
         log.debug("t_tag: %s", t_tag)
         return PatternRoutineCases.nightly_test(**kwargs)
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_user_tests',
-              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
-    @exception
-    def t_routine_user_tests(t_tag, **kwargs):
-        log.debug("t_tag: %s", t_tag)
-        return PatternRoutineCases.user_test(t_tag, **kwargs)
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_night_tests',
-              soft_time_limit=HOURS_1, task_time_limit=HOURS_2)
-    @exception
-    def t_routine_optional_test(t_tag, **kwargs):
-        log.debug("t_tag: %s", t_tag)
-        return PatternRoutineCases.optional_test(t_tag, **kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_test_prep',
@@ -123,14 +108,6 @@ class TPatternParse:
         return PerforceOperations().p4_info()
 
     @staticmethod
-    @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_p4_sync_smart',
-              soft_time_limit=MIN_20, task_time_limit=MIN_40)
-    @exception
-    def t_p4_sync_smart(t_tag, branch):
-        log.debug("t_tag: %s", t_tag)
-        return PerforceOperations().sync_last(branch)
-
-    @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_p4_sync_force',
               soft_time_limit=MIN_20, task_time_limit=MIN_40)
     @exception
@@ -139,44 +116,12 @@ class TPatternParse:
         return PerforceOperations().sync_force(depot_path)
 
     @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_addm_sync',
-              soft_time_limit=MIN_40, task_time_limit=MIN_90)
-    @exception
-    def t_routine_addm_sync(t_tag, **kwargs):
-        log.debug("t_tag: %s", t_tag)
-        return PatternTestExecCases.sync_addm(**kwargs)
-
-    @staticmethod
     @app.task(routing_key='parsing.TExecTest.make_addm_sync_threads.addm_group',
               soft_time_limit=MIN_20, task_time_limit=HOURS_2)
     @exception
     def t_addm_rsync_threads(t_tag, **kwargs):
         log.debug("t_tag: %s", t_tag)
         return ADDMOperations().make_addm_sync_threads(**kwargs)
-
-    @staticmethod
-    @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.TExecTest.t_p4_changes_threads',
-              soft_time_limit=MIN_20, task_time_limit=MIN_40)
-    @exception
-    def t_p4_changes_threads(t_tag, branch):
-        log.debug("t_tag: %s", t_tag)
-        return PatternTestExecCases().p4_changes_multi(branch)
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_cron_parse_patt',
-              soft_time_limit=MIN_20, task_time_limit=MIN_40)
-    @exception
-    def t_routine_cron_parse_patt(t_tag, **kwargs):
-        log.debug("t_tag: %s", t_tag)
-        return PatternTestExecCases().auto_p4_parse_sync(**kwargs)
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_user_parse_patt',
-              soft_time_limit=MIN_20, task_time_limit=MIN_40)
-    @exception
-    def t_routine_user_parse_patt(t_tag, **kwargs):
-        log.debug("t_tag: %s", t_tag)
-        return PatternTestExecCases().case_p4_parse_sync(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_pattern_weight_index',
@@ -213,179 +158,6 @@ class PatternTestExecCases:
             # log.debug("<=TestPrepCases=> chunk - seq[%s:int(%s)]", int(last), int(last + avg))
             last += avg
         return out
-
-    @exception
-    def p4_changes_multi(self, branch):
-        # noinspection PyCompatibility
-        from queue import Queue
-        from threading import Thread
-
-        ts = time()
-        patterns_threads = collections.OrderedDict()
-        thread_list = []
-        test_outputs = []
-        test_q = Queue()
-
-        log.debug("Start parsing threads! %s", ts)
-        parse_stat = LocalPatternsParse().compose_tree_paths(tkn_branch=branch)  # Run local parsing procedure:
-        log.debug("<=p4_changes_multi=> Local parsed 'compose_tree_paths' status is: %s ", parse_stat)
-        patterns = TkuPatterns.objects.filter(tkn_branch__exact=branch).values()  # Select parsed from table and run perforce parsing procedure:
-        log.debug("Patterns selected len: %s", patterns.count())
-
-        w = 5
-        threads = list(range(w))
-        split_patt = self.chunkIt(patterns, len(threads))
-        log.debug("Threads for parse patterns len: %s", len(threads))
-
-        # Thread-patterns pairs:
-        for thread_i, patterns_list in zip(threads, split_patt):
-            patterns_threads.update({'thread-{}'.format(str(thread_i)): dict(patterns_list=collections.deque(patterns_list), thread=thread_i)})
-
-        log.debug("Filling threads with jobs...")
-        for thread_i, patterns in patterns_threads.items():       # Iter each thread and patterns in it:
-
-            conn_q = Queue()                                      # Separate Queue for p4 connection store
-            p4_conn = PerforceOperations().p4_initialize()        # Init p4 connection for single thread-worker
-            conn_q.put(p4_conn)                                   # Put active connection in queue for all threads
-
-            log.debug("Filling threads for thread: %s", thread_i)
-            patterns_list = patterns.get('patterns_list')       # Choose patterns list from dict of threads+patterns
-
-            while 0 < len(patterns_list):                       # Each pattern generates own process
-                pattern_item = patterns_list.popleft()          # When assigned to thread - delete item
-                th_name = 'Parse thread: {} pattern: {}'.format(thread_i, pattern_item['pattern_folder_name'])  # type: str
-                args_d = dict(pattern_d=pattern_item, th_name=th_name, test_q=test_q, conn_q=conn_q)
-                parse_thread = Thread(target=LocalPatternsP4Parse().p4_changes_run, name=th_name, kwargs=args_d)
-                thread_list.append(parse_thread)                 # Save list of threads for further execution
-
-        # Execute threads:
-        log.debug("Executing saved threads!")
-        for parse_thread in thread_list:
-            parse_thread.start()
-
-        # Sync wait:
-        log.debug("Wait for all threads!")
-        for parse_thread in thread_list:
-            parse_thread.join()
-            test_outputs.append(test_q.get())
-
-        msg = "Finish all threads in - {} ! Patterns parsed - {}".format(time() - ts, len(test_outputs))
-        log.debug(msg)
-        return msg
-
-    @exception
-    def case_p4_parse_sync(self, **kwargs):
-        """
-        Refresh file and patterns before run user test.
-        If user use option refresh.
-        Auto-wait until all of these are finished. Then proceed further.
-        NOTE: Must return True or something valuable to allow user test run further.
-
-        :return:
-        """
-
-        user_name = kwargs.get('user_name')
-        branch = kwargs.get('branch')
-        sync_shares = kwargs.get('sync_shares', False)
-        addm_group = kwargs.get('addm_group', None)
-        addm_set = kwargs.get('addm_set', None)
-        fake_run = kwargs.get('fake_run', False)
-        addm_synced = False
-
-        # Select ADDM set if group is present but not set was passed:
-        if not addm_set and addm_group:
-            addm_set = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
-
-        tsk_msg = 'tag={};{};'
-        tag_item = 'branch={br};user_name={usr};sync_shares={sync} | on: "{addm}"'.format(
-            usr=user_name, br=branch, addm=addm_group, sync=sync_shares)
-
-        p4_info = Runner.fire_t(TPatternParse().t_p4_info, fake_run=fake_run,
-                                t_args=['tag=p4_parse_sync;'])
-        # Wait for success:
-        if TasksOperations().task_wait_success(p4_info, 't_p4_info'):
-            log.debug("<=TestExecCases=> P4 Check: p4_info: %s ", p4_info.status)
-            t_tag = tsk_msg.format('p4_parse_sync', tag_item)
-            Runner.fire_t(TPatternParse().t_p4_sync_smart, fake_run=fake_run,
-                          t_args=[t_tag],
-                          t_kwargs={'branch': branch},
-                          t_queue='w_parsing@tentacle.dq2',
-                          )
-            log.info("<=TestExecCases=> t_p4_sync_smart: Added to queue.")
-
-            """ Now parse patterns for local changes. Parse all files change lists from p4 """
-            t_tag = tsk_msg.format('t_p4_changes_threads', tag_item)
-            changes_parse_task = Runner.fire_t(TPatternParse().t_p4_changes_threads, fake_run=fake_run,
-                                               t_args=[t_tag],
-                                               t_kwargs={'branch': branch},
-                                               t_queue='w_parsing@tentacle.dq2',
-                                               )
-            log.info("<=TestExecCases=> t_p4_changes_threads: Added to queue.")
-        else:
-            log.error("<=TestExecCases=> P4 check task fail p4_info: %s and sync stopped here!", p4_info.status)
-            msg = "P4 Sync task was not finished with expected result. Cancel further test execution routine!"
-            log.debug("<=user_test=> test_execute_web: Cannot start user test no addm set or test item can be found in database %s", user_name)
-            Runner.fire_t(TSupport.t_user_mail, fake_run=fake_run,
-                          t_args=['case_p4_parse_sync'],
-                          t_kwargs=dict(mode='failed', addm_group=addm_group, start_time=datetime.datetime.now(),
-                                        options=kwargs,
-                                        err_out='Test cannot be added to queue - no addm set or test items found in DB! ' + msg))
-            return False
-        if sync_shares:
-            # Wait for success:
-            if changes_parse_task and TasksOperations().task_wait_success(changes_parse_task, 't_p4_changes_threads'):
-                log.info("<=TestExecCases=> All files now p4-synced and parsed! Can run ADDM rsync if needed.")
-                log.debug("<=TestExecCases=> case_p4_parse_sync: parse_n_changes finished!")
-                # ADDM sync task will wait for success itself:`
-                addm_synced = self.sync_addm(addm_set=addm_set, addm_group=addm_group)
-            if not fake_run:
-                return addm_synced
-            else:
-                return True
-        else:
-            return True
-
-    @exception
-    def auto_p4_parse_sync(self, **kwargs):
-        """
-        Refresh file and patterns before run user test.
-        If user use option refresh.
-        Auto-wait until all of these are finished. Then proceed further.
-        NOTE: Must return True or something valuable to allow user test run further.
-
-        :return:
-        """
-        branch = kwargs.get('branch')
-        fake_run = kwargs.get('fake_run')
-        tsk_msg = 'tag={};{};'
-        tag_item = 'branch={br};auto_sync_p4;cron'.format(br=branch)
-
-        p4_info = Runner.fire_t(TPatternParse().t_p4_info, fake_run=fake_run,
-                                t_args=['tag=p4_parse_sync;'])
-        # Wait for success:
-        if TasksOperations().task_wait_success(p4_info, 't_p4_info'):
-            log.debug("<=auto_p4_parse_sync=> P4 Check: p4_info: %s ", p4_info.status)
-            t_tag = tsk_msg.format('p4_parse_sync', tag_item)
-            Runner.fire_t(TPatternParse().t_p4_sync_smart, fake_run=fake_run,
-                          t_args=[t_tag],
-                          t_kwargs={'branch': branch},
-                          t_queue='w_parsing@tentacle.dq2',
-                          )
-            log.info("<=auto_p4_parse_sync=> t_p4_sync_smart: Added to queue.")
-            """ Now parse patterns for local changes. Parse all files change lists from p4 """
-            t_tag = tsk_msg.format('t_p4_changes_threads', tag_item)
-            Runner.fire_t(TPatternParse().t_p4_changes_threads, fake_run=fake_run,
-                          t_args=[t_tag],
-                          t_kwargs={'branch': branch},
-                          t_queue='w_parsing@tentacle.dq2',
-                          )
-            log.info("<=auto_p4_parse_sync=> t_p4_changes_threads: Added to queue.")
-        else:
-            state = p4_info.state
-            status = p4_info.status
-            log.error("<=auto_p4_parse_sync=> P4 fail p4_info: %s - %s stopped here!", state, status)
-            msg = "<=auto_p4_parse_sync=> P4 Info task won't finished well, stopping!"
-            return msg
 
     @staticmethod
     @exception
@@ -556,193 +328,6 @@ class PatternRoutineCases:
             start_time=start_time,
         )
         return msg
-
-    @staticmethod
-    @exception
-    def user_test(t_tag, **kwargs):
-        # noinspection SpellCheckingInspection
-        fake_run         = kwargs.get('fake_run', False)
-        user_name        = kwargs.get('user_name')
-        addm_group       = kwargs.get('addm_group', None)
-        refresh          = kwargs.get('refresh', None)
-        wipe             = kwargs.get('wipe', None)
-        branch           = kwargs.get('branch')
-        pattern_library  = kwargs.get('pattern_library')
-        pattern_folder   = kwargs.get('pattern_folder')
-        test_function    = kwargs.get('test_function', '')
-        start_time = datetime.datetime.now()
-
-        # Always fake on local test env:
-        if os.name == "nt":
-            fake_run = True
-
-        """ 1. Select free/minimal queued worker: """
-        if not addm_group:
-            addm_group = WorkerGetAvailable().user_test_available_w(branch=branch, user_mail=kwargs.get('user_email'))
-
-        """ 2 Select ADDM machines and test item from DB and then send an initial mail: """
-        addm_set = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
-        test_item = TkuPatterns.objects.filter(tkn_branch__exact=branch,
-                                               pattern_library__exact=pattern_library,
-                                               pattern_folder_name__exact=pattern_folder).values()
-        # Last check:
-        if not addm_set or not test_item:
-            log.debug("<=user_test=> test_execute_web: Cannot start user test no addm set or test item can be found in database %s", user_name)
-            msg = "Cannot get addm_set or test_item from local database."
-            Runner.fire_t(TSupport.t_user_mail, fake_run=fake_run,
-                          t_args=[t_tag],
-                          t_kwargs=dict(mode='failed', addm_group=addm_group, start_time=start_time,
-                                        options=kwargs,
-                                        err_out='Test cannot be added to queue - no addm set or test items found in DB! ' + msg))
-
-        # Routing keys for mail and test tasks:
-        # sync_r_key = '{}.TExecTest.t_addm_rsync_threads'.format(addm_set[0]['addm_group'])
-        mail_r_key = '{}.TSupport.t_user_mail.{}'.format(addm_set[0]['addm_group'], test_item[0]['pattern_folder_name'])
-        task_r_key = '{}.TExecTest.t_test_exec_threads.{}'.format(addm_set[0]['addm_group'], test_item[0]['pattern_folder_name'])
-        # Send initial mail:
-        Runner.fire_t(TSupport.t_user_mail, fake_run=fake_run,
-                      t_args=[t_tag],
-                      t_kwargs=dict(mode='added', test_item=test_item[0], addm_group=addm_set[0]['addm_group'], start_time=start_time, options=kwargs),
-                      t_queue=addm_set[0]['addm_group']+'@tentacle.dq2',
-                      t_routing_key=mail_r_key)
-
-        """ 3. Delete previous logs or not: when p4 refresh or when wipe only"""
-        if refresh or wipe:
-            # To delete previous test run logs:
-            delete_query_args = dict(branch=branch, pattern_library=test_item[0]['pattern_library'],
-                                     pattern_folder=test_item[0]['pattern_folder_name'])
-            if test_function:
-                # Only delete one test function record:
-                test_arg = test_function.split(' ')  # request will clear extra symbol '+'
-                delete_query_args.update(tst_class=test_arg[0], tst_name=test_arg[1])
-
-            log.info("<=user_test=> Will delete following test logs: %s", delete_query_args)
-            if not fake_run:
-                PatternsDjangoTableOperDel.delete_old_solo_test_logs(delete_query_args)
-        """ 3.1 Run p4 sync"""
-        if refresh:
-            # Parse p4 data, sync changes and sync test files on selected ADDM set:
-            addm_synced = Runner.fire_case(PatternTestExecCases().case_p4_parse_sync, fake_run=fake_run,
-                                           c_kwargs=dict(info_str_d=t_tag, branch=branch, sync_shares=True,
-                                                         addm_group=addm_set[0]['addm_group'],
-                                                         addm_set=addm_set, user_name=user_name))
-            if addm_synced:
-                # Start test mail:
-                Runner.fire_t(TSupport.t_user_mail, fake_run=fake_run,
-                              t_args=[t_tag],
-                              t_kwargs=dict(mode='start', test_item=test_item[0], addm_group=addm_set[0]['addm_group'], start_time=start_time, options=kwargs),
-                              t_queue=addm_set[0]['addm_group']+'@tentacle.dq2',
-                              t_routing_key=mail_r_key)
-                # Test task exec:
-                Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=fake_run,
-                              t_queue=addm_set[0]['addm_group'] + '@tentacle.dq2',
-                              t_args=[t_tag],
-                              t_kwargs=dict(addm_items=addm_set, test_item=test_item[0], test_function=test_function),
-                              t_routing_key=task_r_key, t_soft_time_limit=HOURS_2)
-            else:
-                msg = "<=user_test=> SYNC task failed, should not run test in that case, Will raise error and stop."
-                log.error(msg)
-        else:  # No sync will be executed and not ADDM sync also:
-            # Start test mail:
-            Runner.fire_t(TSupport.t_user_mail, fake_run=fake_run,
-                          t_args=[t_tag],
-                          t_kwargs=dict(mode='start', test_item=test_item[0], addm_group=addm_set[0]['addm_group'], start_time=start_time, options=kwargs),
-                          t_queue=addm_set[0]['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key, )
-            # Test task exec:
-            Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=fake_run,
-                          t_queue=addm_set[0]['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
-                          t_kwargs=dict(addm_items=addm_set, test_item=test_item[0],
-                                        test_function=test_function),
-                          t_routing_key=task_r_key, t_soft_time_limit=HOURS_2)
-        # Finish mail:
-        Runner.fire_t(TSupport.t_user_mail, fake_run=fake_run,
-                      t_args=[t_tag],
-                      t_kwargs=dict(mode='finish', test_item=test_item[0], addm_group=addm_set[0]['addm_group'], start_time=start_time, options=kwargs),
-                      t_queue=addm_set[0]['addm_group']+'@tentacle.dq2',
-                      t_routing_key=mail_r_key)
-        return True
-
-    @staticmethod
-    def optional_test(t_tag, **kwargs):
-        """
-        Run test for user's chosen set:
-        - Sets could be defined by:
-        -- user name
-        -- last days
-        -- from date
-        and etc.
-
-        Sync P4 in separate task on routine worker. Early before run this one!
-
-        :return:
-        """
-        fake_run = kwargs.get('fake_run', False)
-        wipe = kwargs.get('wipe', False)
-        user_name = kwargs.get('user_name')
-        addm_name = kwargs.get('addm_name', 'double_decker')
-        addm_group = kwargs.get('addm_group', None)
-        branch = kwargs.get('branch')
-        test_items_l = kwargs.get('test_items_l', None)
-        patterns_dir_list = kwargs.get('patterns_dir_list', None)
-        start_time = datetime.datetime.now()
-
-        """ 1. Select free/minimal queued worker: """
-        if not addm_group:
-            addm_group = WorkerGetAvailable().user_test_available_w(branch=branch, user_mail=kwargs.get('user_email'))
-
-        """ 2 Select ADDM machines and test item from DB and then send an initial mail: """
-        addm_set = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
-
-        """2.1 Here we're selecting set of patterns to test. Later move it to separate logic to allow us to run
-        different cases, such as: all failed, all user, by change, etc."""
-        if not test_items_l and not patterns_dir_list:
-            test_items_l, patterns_dir_list = OptionalTestsSelect().select_latest_failed_sort(branch=branch, addm_name=addm_name)
-
-        # Last check:
-        if not addm_set or not test_items_l:
-            log.debug("<=user_test=> test_execute_web: Cannot start user test no addm set or test item can be found in database %s", user_name)
-            msg = "Cannot get addm_set or test_item from local database."
-            Runner.fire_t(TSupport.t_user_mail, fake_run=fake_run,
-                          t_args=[t_tag],
-                          t_kwargs=dict(mode='failed', addm_group=addm_group, start_time=start_time,
-                                        options=kwargs,
-                                        err_out='Test cannot be added to queue - no addm set or test items found in DB! ' + msg))
-
-        mail_r_key = '{}.TSupport.t_optional_test_mail'.format(addm_set[0]['addm_group'])
-        # Send initial mail:
-        Runner.fire_t(TSupport.t_user_mail, fake_run=fake_run,
-                      t_args=[t_tag],
-                      t_kwargs=dict(mode='added_optional', test_item=patterns_dir_list,
-                                    addm_group=addm_set[0]['addm_group'],
-                                    start_time=start_time, options=kwargs),
-                      t_queue=addm_set[0]['addm_group']+'@tentacle.dq2',
-                      t_routing_key=mail_r_key)
-
-        """HERE: Wipe old logs for selected items"""
-        if wipe:
-            OptionalTestsSelect.wipe_last_selected_logs(branch, addm_name, patterns_dir_list)
-
-        for test_composed in test_items_l:
-            # TODO: Calc sum of execution time for all selected tests:
-            test_w = test_composed.pop('test_time_weight')
-            task_r_key = '{}.TExecTest.t_test_exec_threads.{}.t{}'.format(
-                addm_set[0]['addm_group'], test_composed.get('pattern_folder_name', 'pattern_folder_name'), test_w)
-
-            for test_item in test_composed.values():
-                Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=fake_run, to_sleep=int(test_w),
-                              t_queue=addm_set[0]['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
-                              t_kwargs=dict(addm_items=addm_set, test_item=test_item),
-                              t_routing_key=task_r_key, t_soft_time_limit=HOURS_2)
-
-        # Finish mail:
-        Runner.fire_t(TSupport.t_user_mail, fake_run=fake_run,
-                      t_args=[t_tag],
-                      t_kwargs=dict(mode='finish_optional', test_item=patterns_dir_list,
-                                    addm_group=addm_set[0]['addm_group'],
-                                    start_time=start_time, options=kwargs),
-                      t_queue=addm_set[0]['addm_group']+'@tentacle.dq2',
-                      t_routing_key=mail_r_key)
-        return True
 
 
 class TaskPrepare:
@@ -1192,7 +777,7 @@ class TaskPrepare:
 
     def task_tag_generate(self):
         """Just make a task tag for this routine"""
-        task_string = 'tag=t_routine_user_tests;type=routine;branch={tkn_branch};' \
+        task_string = 'tag=t_TackPrepare_user_tests;type=routine;branch={tkn_branch};' \
                       'addm_group={addm_group};user_name={user_name};refresh={refresh};{pattern_library}/{pattern_folder_name}'
         t_tag_d = task_string.format(
             tkn_branch=self.selector.get('tkn_branch'),
@@ -1208,7 +793,7 @@ class TaskPrepare:
     # TODO: ????
     def test_and_addm_check(self, addm_set, test_item):
         if not addm_set or not test_item:
-            log.debug("<=TaskPrepare=> test_execute_web: "
+            log.debug("<=TaskPrepare=> TestCaseRunTest: "
                       "Cannot start user test no addm set or test item can be found in database %s", self.user_name)
             msg = "Cannot get addm_set or test_item from local database."
             Runner.fire_t(TSupport.t_user_mail, fake_run=self.fake_run, t_args=[self.t_tag],

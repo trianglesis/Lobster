@@ -19,13 +19,9 @@ urlpatterns = [
         name='patterns_weight_compute'),
 
     # TESTS RUN:
-    # OLD:
-    # url(r'^test_execute_web/', TestCaseRunTest.as_view(), name='test_execute_web'),
     # New, also support old:
     url(r'^test_execute_web/', TestCaseRunTestREST.as_view(), name='test_execute_web'),
     url(r'^user_test_add/', TestCaseRunTestREST.as_view(), name='user_test_add'),
-
-    url(r'^test_execute_web/', TestRuns.test_execute_web, name='test_execute_web_old'),
 
     url(r'^manual_exec_night_run_task/', TestRuns.manual_exec_night_run_task, name='manual_run_night'),
 

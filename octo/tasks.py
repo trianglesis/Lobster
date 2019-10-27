@@ -57,12 +57,6 @@ class TSupport:
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
-    def _routine_log_save(t_tag, **routine_kwargs):
-        RoutineHelpers.night_routine_log(**routine_kwargs)
-
-    @staticmethod
-    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    @exception
     def t_long_mail(t_tag, **mail_kwargs):
         from octo.helpers.tasks_helpers import TMail
         TMail().long_r(**mail_kwargs)

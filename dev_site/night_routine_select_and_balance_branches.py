@@ -14,6 +14,7 @@ if __name__ == "__main__":
     from octo_tku_patterns.tasks import PatternTestExecCases
     from run_core.models import Options
     from run_core.models import AddmDev
+    from octo_tku_patterns.models import TkuPatterns
 
     log = logging.getLogger("octo.octologger")
     log.info("\n\n\n\n\nRun dev_site/night_routine_select_and_balance_branches.py")
@@ -210,6 +211,28 @@ if __name__ == "__main__":
         def select_addm_set(addm_group_l):
             addm_set = ADDMOperations.select_addm_set(addm_group=addm_group_l)
             return addm_set
+
+        @staticmethod
+        def select_pattern_test(branch, pattern_library, pattern_folder):
+            test_item = TkuPatterns.objects.filter(
+                tkn_branch__exact=branch,
+                pattern_library__exact=pattern_library,
+                pattern_folder_name__exact=pattern_folder,
+            ).values(
+                # For test data save:
+                'tkn_branch',
+                'pattern_library',
+                'pattern_folder_name',
+                'test_py_path',
+                'pattern_folder_path_depot',
+                'pattern_file_path_depot',
+                'is_key_pattern',
+                # For test execution
+                'test_py_path_template',
+                'test_folder_path_template',
+                'test_time_weight',
+            )
+            return test_item
 
         @staticmethod
         def fill_workers_with_tasks(addm_set, addm_tests_balanced, user_name):

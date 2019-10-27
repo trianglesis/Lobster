@@ -5,16 +5,7 @@
         <div class="card-body">
             <h5 class="card-title">Patterns parse</h5>
             <h6 class="card-subtitle mb-2 text-muted">Use threading approach</h6>
-            <p class="card-text text-info">New parse threading: user task t_p4_changes_threads -> p4_changes_multi
-                (works.tasks.TExecTest#t_p4_changes_threads)</p>
             <ul>
-                dev_parse_patterns_thread: task_p4_changes_threads
-                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_parse_patterns_thread' %}">DEV
-                    P4_changes_threads</a></li>
-                <li><a role="button" class="btn btn-sm btn-outline-info"
-                       href="{% url 'dev_parse_patterns_thread' %}?mode=update&branch=tkn_main">Update MAIN</a></li>
-                <li><a role="button" class="btn btn-sm btn-outline-info"
-                       href="{% url 'dev_parse_patterns_thread' %}?mode=renew&branch=tkn_ship">Renew SHIP</a></li>
             </ul>
         </div>
     </div>
@@ -165,14 +156,13 @@
                                     cmd = 'sudo service tideway restart'
 
                                     RoutineCases.addm_tw_restart
-                                    -> TClean.t_addm_restart
                                     -> return AddmClean().threading_exec(AddmClean().tideway_restart, **kwargs)
                                     --(thread)-> ADDMOperations().restart_tideway(ssh=ssh, addm_item=addm_item)
                                     -->  ADDMConfigurations().addm_cmd_shell_tideway_restart
                                 </div>
                             </div>
                         </div>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_tw_restart' %}?addm_group=foxtrot">Run as separate func</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url '#' %}?addm_group=foxtrot">Run as separate func</a>
                         <p></p>
                         <button class="btn btn-sm btn-info" type="button" data-toggle="collapse" data-target="#DEV_ADDM_CUSTOM_CMD_restart" aria-expanded="false" aria-controls="collapseExample">Info</button>
                         <div class="collapse" id="DEV_ADDM_CUSTOM_CMD_restart">

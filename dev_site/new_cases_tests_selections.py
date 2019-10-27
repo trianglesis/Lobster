@@ -261,10 +261,6 @@ if __name__ == "__main__":
             print(sorted_tests_l)
 
         @staticmethod
-        def optional_tests_selector():
-            pass
-
-        @staticmethod
         def dev_select_tkn_main():
             # Should be less than TkuPatterns because there is no duplicates!
             sel_opts = dict(

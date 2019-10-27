@@ -1262,6 +1262,8 @@ class LocalPatternsP4Parse:
     def last_changes_get(self):
         """
         Get only diff between MAX change from local DB and actual changes on p4 depot
+        If no change found, use default change from 2015. This will be used as initial point to rebuild database.
+
         Run sync -f for all found changes.
         :return:
         """
@@ -1296,7 +1298,6 @@ class LocalPatternsP4Parse:
         else:
             log.warning("Change / synced files lists are NOT equal!")
 
-        # TODO: Maybe better to get all changes at once?
         self.parse_and_changes_routine(sync_force=False, full=True, p4_conn=p4_conn)
 
 
@@ -2296,7 +2297,7 @@ class LocalDB:
         """
         for patt_k, patt_v in patterns_weight.items():
             # 1. Select all patterns with according test.py path:
-            patterns_sel = TkuPatterns.objects.filter(
+            patterns_sel = TestCases.objects.filter(
                 test_py_path__exact=patt_k,
             )
             # 1. Iter over each found pattern item with corresponding test.py

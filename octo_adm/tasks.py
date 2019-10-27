@@ -95,13 +95,6 @@ class TaskADDMService:
         return ADDMCases().addm_cmd(**kwargs)
 
     @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine._addm_tw_restart',
-              soft_time_limit=MIN_40, task_time_limit=MIN_90)
-    @exception
-    def _addm_tw_restart(t_tag, **kwargs):
-        return ADDMCases().addm_tw_restart(**kwargs)
-
-    @staticmethod
     @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
     def t_addm_clean(t_tag, **kwargs):
@@ -122,27 +115,6 @@ class TaskADDMService:
         :return:
         """
         return AddmClean().threading_exec(AddmClean().cleanup_case, **kwargs)
-
-    @staticmethod
-    @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
-    @exception
-    def t_addm_restart(t_tag, **kwargs):
-        """
-        Check passed addm group or groups
-        Add occupy worker task for each
-        Get addm groups list and next add clean task for each
-
-        kwargs:
-            - subject: short description
-            - user_name: who run this
-            - user_mail: who run this or cron
-            - addm_group_arg: addm group string, later split on list
-
-        :type t_tag: str
-        :param kwargs: KV pairs of args
-        :return:
-        """
-        return AddmClean().threading_exec(AddmClean().tideway_restart, **kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
@@ -253,42 +225,6 @@ class ADDMCases:
                           t_kwargs=dict(info_string=subject, addm_group=addm_group, mode=mode),
                           t_queue=addm_group + '@tentacle.dq2',
                           t_routing_key='{}.t_addm_clean.{}'.format(addm_group, mode))
-
-    def addm_tw_restart(self, **kwargs):
-        """
-        Check passed addm group or groups
-        Add occupy worker task for each
-        Get addm groups list and next add clean task for each
-
-        kwargs:
-            - subject: short description
-            - user_name: who run this
-            - user_mail: who run this or cron
-            - addm_group_arg: addm group string, later split on list
-
-        :param kwargs: KV pairs of args
-        :return:
-        """
-        subject = kwargs.get('subject', 'Running: t_addm_restart')  # type: str
-        user_name = kwargs.get('user_name', 'cron')  # type: str
-        user_mail = kwargs.get('user_mail', [])  # type: str
-        addm_group_arg = kwargs.get('addm_group')  # type: str
-        fake_run = kwargs.get('fake_run', False)
-
-        Mails.short(subject=subject, body=subject, send_to=[user_mail])
-
-        addm_group_l = self.addm_groups_validate(addm_group=addm_group_arg)  # type: list
-        # lock=True;  - is not used, to allow other users to run tests on the same worker!
-        tsk_msg = 'tag=t_addm_restart;type=routine;user_name={user_name};addm_group={addm_group} ' \
-                  '| on: "{addm_group}" by: {user_name}'
-        for addm_group in addm_group_l:
-            t_tag = tsk_msg.format(user_name=user_name, addm_group=addm_group)
-            # Add selected routine:
-            Runner.fire_t(TaskADDMService.t_addm_restart, fake_run=fake_run,
-                          t_queue=addm_group + '@tentacle.dq2',
-                          t_args=[t_tag],
-                          t_kwargs=dict(info_string=subject, addm_group=addm_group),
-                          t_routing_key='{}.t_addm_restart'.format(addm_group))
 
     def addm_cmd(self, **kwargs):
         """
@@ -445,11 +381,3 @@ class AddmClean:
             output = ADDMOperations().addm_exec_cmd(ssh=ssh, addm_item=addm_item, cmd_k=cmd_k)
             cmd_outputs.append(output)
         out_q.put(cmd_outputs)
-
-    @staticmethod
-    def tideway_restart(**kwargs):
-        out_q = kwargs.get('out_q')
-        addm_item = kwargs.get('addm_item')
-        ssh = kwargs.get('ssh')
-        output = ADDMOperations().restart_tideway(ssh=ssh, addm_item=addm_item)
-        out_q.put(output)
