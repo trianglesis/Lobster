@@ -111,7 +111,7 @@
                         <td><span class="badge badge-light case-hint">change_user</span></td>
                     </tr>
                     <tr>
-                        <td><i class="far fa-eye"></i></td>
+                        <td><i class="fas fa-user-check"></i></td>
                         <td>{{ case.change_review }}</td>
                         <td><span class="badge badge-light case-hint">change_review</span></td>
                     </tr>
@@ -175,24 +175,23 @@
                     <tfoot></tfoot>
                 </table>
                 </div>
-
                 <div style="display: flex;justify-content: space-between">
                     <a class="btn btn-warning" href="{% url 'test_case_update' pk=case.id %}">Edit</a>
                     <div class="btn-group">
                         <a class="btn btn-outline-info"
                            href="{% url 'test_details' %}?tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
-                           title="Show all tests for this case from latest run">Latest tests</a>
+                           title="Show all tests for this case from latest run"><i class="fas fa-calendar-day"></i> Latest tests</a>
                         <a class="btn btn-outline-danger"
                            href="{% url 'test_details' %}?tst_status=notpass;tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
-                           title="Show all tests for this case from latest run not passed">Latest tests</a>
+                           title="Show all tests for this case from latest run not passed"><i class="fas fa-calendar-day"></i> Latest tests</a>
                     </div>
                     <div class="btn-group">
                     <a class="btn btn-outline-secondary"
                        href="{% url 'test_item_history' %}?tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
-                       title="Show all tests for this case from history...(long)">History tests</a>
+                       title="Show all tests for this case from history...(long)"><i class="fas fa-history"></i> History tests</a>
                     <a class="btn btn-outline-danger"
                        href="{% url 'test_item_history' %}?tst_status=notpass;tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
-                       title="Show all tests for this case from history...(long) not passed">History tests</a>
+                       title="Show all tests for this case from history...(long) not passed"><i class="fas fa-history"></i> History tests</a>
                     </div>
                     <a class="btn btn-outline-warning" href="#">Run test</a>
                     <a class="btn btn-danger disabled" href="#">Delete(TBA?)</a>

@@ -77,7 +77,6 @@ Top 20 long tests {{ BRANCH }}
                 <td class="{{ text_align }}">
                     <div class="btn-group" role="group" aria-label="Level" style="text-align: center;">
                         <a class="btn btn-sm btn-info" title="Test detailed log" style="font-size: 0.7em;" href="{% url 'pattern_logs' %}?branch={{ BRANCH }}{% if patt_row.addm_name %}&addm_name={{ patt_row.addm_name }}{% endif %}{% row_pattern_items patt_row.pattern_library patt_row.pattern_folder_name %}{% log_levels %}">Logs</a>
-                        <a class="btn btn-sm btn-light" title="History" style="font-size: 0.7em;" href="{% url "history_select" %}?branch={{ BRANCH }}&start_date={{ START_DATE|date:'Y-m-d' }}&end_date={{ END_DATE|date:'Y-m-d' }}{% row_pattern_items patt_row.pattern_library patt_row.pattern_folder_name %}{% log_levels %}{% if patt_row.addm_name %}&addm_name={{ patt_row.addm_name }}{% endif %}">History</a>
                     </div>
                 </td>
             </tr>

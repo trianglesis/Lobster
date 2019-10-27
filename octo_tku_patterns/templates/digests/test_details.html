@@ -190,7 +190,7 @@
                         <!-- Draw each tab based on count of unique addm_names  -->
                         {% for addm_actual in addm_names %}
                             <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% elif forloop.counter == 1 %}active{% else %}{% endif %}"
-                               title="{{ forloop.counter }}"
+                               title="{{ addm_actual.addm_name }}"
                                id="{{addm_actual.addm_name}}-tab" data-toggle="tab"
                                href="#{{ addm_actual.addm_name }}" role="tab"
                                aria-controls="{{ addm_actual.addm_name }}"
@@ -203,7 +203,7 @@
                     <!-- Draw each tab content based on count of unique addm_names  -->
                     {% for addm_actual in addm_names %}
                         <div class="tab-pane {% if selector.addm_name == addm_actual.addm_name %}fade show active{% elif forloop.counter == 1 %}fade show active{% endif %}"
-                             title="{{ forloop.counter }}"
+                             title="{{ addm_actual.addm_name }}"
                              id="{{ addm_actual.addm_name }}"
                              role="tabpanel"
                              aria-labelledby="{{ addm_actual.addm_name }}">

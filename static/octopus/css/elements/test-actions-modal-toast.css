@@ -31,24 +31,39 @@ MODAL styles:
 .modal-variables > #tkn_branch {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
+    background-image: url(/static/octicons/svg/git-branch.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 
 }
 
 .modal-variables > #addm_name {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-
+    background-image: url(/static/fontawesome/svgs/solid/server.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 }
 
 .modal-variables > #pattern_library {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
+    background-image: url(/static/octicons/svg/repo.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 
 }
 
 .modal-variables > #pattern_folder_name {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
+    background-image: url(/static/fontawesome/svgs/solid/folder-open.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 
 }
 
@@ -60,6 +75,10 @@ MODAL styles:
 
 .modal-variables > #case_id:before {
     content: 'Case id:';
+    background-image: url(/static/fontawesome/svgs/solid/key.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 }
 
 .modal-variables > #test_id {
@@ -72,12 +91,21 @@ MODAL styles:
 .modal-variables > #tst_class {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
+    background-image: url(/static/fontawesome/svgs/solid/vial.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
+
 
 }
 
 .modal-variables > #tst_name {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
+    background-image: url(/static/fontawesome/svgs/solid/vial.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 
 }
 
@@ -95,6 +123,10 @@ MODAL styles:
 
 .modal-variables > #change_ticket:before {
     content: 'Change ticket: ';
+    background-image: url(/static/fontawesome/svgs/brands/jira.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 }
 
 .modal-variables > #change_review {
@@ -104,6 +136,10 @@ MODAL styles:
 
 .modal-variables > #change_review:before {
     content: 'Change review: ';
+    background-image: url(/static/fontawesome/svgs/solid/user-check.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 }
 
 .modal-variables > #change_user {
@@ -113,6 +149,10 @@ MODAL styles:
 
 .modal-variables > #change_user:before {
     content: 'Change user: ';
+    background-image: url(/static/fontawesome/svgs/solid/user.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 }
 
 .modal-variables > #change {
@@ -122,6 +162,10 @@ MODAL styles:
 
 .modal-variables > #change:before {
     content: 'Change: ';
+    background-image: url(/static/fontawesome/svgs/solid/pencil-ruler.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
 }
 
 .modal-variables > #test_py_path {
