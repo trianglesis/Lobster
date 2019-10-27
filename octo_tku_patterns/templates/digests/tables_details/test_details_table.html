@@ -31,7 +31,7 @@
                                 <li id="tst_status" class="tst_status">{% if not test.tst_status == 'ok' %}{{ test.tst_status }}{% endif %}</li>
                                 <li id="tst_message" class="tst_message">{% if not test.tst_message == ' ... ' %}{{ test.tst_message }}{% endif %}</li>
                             </td>
-                            <td id="fail_message" class="txt-monospace txt-left-prewrap">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
+                            <td id="fail_message" class="txt-monospace txt-left-prewrap fail_message">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
                             <td id="test_date_time" class="txt-center-prewrap">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
                             <td id="addm_name" class="txt-center-prewrap">{{ test.addm_name }}</td>
                             <td class="actions_button">
