@@ -318,13 +318,26 @@ function assignTestCaseUnitTestButtons(caseData) {
     let unit_p4_run = document.getElementById("unit-p4-run");
     let unit_instant_run = document.getElementById("unit-instant-run");
 
+    // Switching visibility of some blocks and block names, when they do not needed:
+    let CaseUnitModalButtons = document.getElementsByClassName("case-unit-modal-buttons");
+    let TestActionsModalName = document.getElementsByClassName("test-actions-modal-name");
+    let SeeLogsHistory = document.getElementById("see-logs-history");
+
     if (caseData.tst_class && caseData.tst_name) {
-        document.getElementsByClassName("case-unit-modal-buttons")[0].style.display = 'block';
-        document.getElementsByClassName("test-actions-modal-name")[0].style.display = 'block';
-        document.getElementById("see-logs-history").style.display = 'block';
-        document.getElementById("unit-wipe-run").style.display = 'block';
-        document.getElementById("unit-p4-run").style.display = 'block';
-        document.getElementById("unit-instant-run").style.display = 'block';
+        if (CaseUnitModalButtons[0]) {
+            CaseUnitModalButtons[0].style.display = 'block';
+        }
+        if (TestActionsModalName[0]) {
+            TestActionsModalName[0].style.display = 'block';
+        }
+        if (SeeLogsHistory) {
+            SeeLogsHistory.style.display = 'block';
+        }
+
+        unit_wipe_run.style.display = 'block';
+        unit_p4_run.style.display = 'block';
+        unit_instant_run.style.display = 'block';
+
         if (unit_wipe_run) {
             unit_wipe_run.setAttribute(
                 'data-cases_ids', caseData.cases_ids);
@@ -348,15 +361,25 @@ function assignTestCaseUnitTestButtons(caseData) {
         }
     } else {
         // In case of page fails to give us test_class+test_name we just mark buttons hidden.
-        document.getElementsByClassName("case-unit-modal-buttons")[0].style.display = "none";
-        document.getElementsByClassName("test-actions-modal-name")[0].style.display = "none";
-        document.getElementById("see-logs-history").style.display = "none";
-        document.getElementById("unit-wipe-run").style.display = "none";
-        document.getElementById("unit-p4-run").style.display = "none";
-        document.getElementById("unit-instant-run").style.display = "none";
+        if (CaseUnitModalButtons[0]) {
+            CaseUnitModalButtons[0].style.display = "none";
+        }
+        if (TestActionsModalName[0]) {
+            TestActionsModalName[0].style.display = "none";
+        }
+        if (SeeLogsHistory) {
+            SeeLogsHistory.style.display = "none";
+        }
+        if (unit_wipe_run) {
+            unit_wipe_run.style.display = "none";
+        }
+        if (unit_p4_run) {
+            unit_p4_run.style.display = "none";
+        }
+        if (unit_instant_run) {
+            unit_instant_run.style.display = "none";
+        }
     }
-
-
 }
 
 /**

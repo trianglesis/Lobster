@@ -2,7 +2,7 @@ $(document).ready(function () {
     let failMessagesCells = document.getElementsByClassName('fail_message');
     let Actual = /(?:Actual|Actual - Expected:)(.*)/g;
     let Expected = /(?:Expected|Expected - Actual:)(.*)/g;
-    let AssertionError = /AssertionError:(.*)/g;
+    let AssertionError = /AssertionError:(.*)/gms;
     let AssertionErrorFound = /AssertionError: Found (.*)/g;
     let AssertionErrorServererror = /AssertionError: Server error (.*)/g;
     let ExecutionFailureCORBA = /ExecutionFailure: ModelCORBA(.*)/g;
