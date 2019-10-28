@@ -1,6 +1,6 @@
 # ========================================
-# /etc/default/celeryd.conf
-# /etc/systemd/system/celerybeat.service
+# vi /etc/default/celeryd.conf
+# vi /etc/systemd/system/celerybeat.service
 # systemctl daemon-reload
 # systemctl restart celerybeat.service
 # ========================================
@@ -15,7 +15,7 @@ User=user
 Group=celery
 EnvironmentFile=-/etc/default/celeryd.conf
 WorkingDirectory=/var/www/octopus
-ExecStart=/bin/sh -c '/var/www/octopus/octo/bin/celery beat -A ${CELERY_APP} --detach \
+ExecStart=/bin/sh -c '/var/www/octopus/venv/bin/celery beat -A ${CELERY_APP} --detach \
  --pidfile=${CELERYBEAT_PID_FILE} \
  --logfile=${CELERYBEAT_LOG_FILE} \
  --loglevel=${CELERYBEAT_LOG_LEVEL} \

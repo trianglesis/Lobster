@@ -1,0 +1,68 @@
+========= COMPILE PYTHON ================================
+
+yum install gcc openssl-devel bzip2-devel libffi-devel
+
+===========
+cd /usr/src
+wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz
+tar xzf Python-3.8.0.tgz
+cd Python-3.8.0
+
+===========
+## ./configure --enable-optimizations --enable-shared
+## https://stackoverflow.com/a/56088070/4915733
+## ./configure --prefix=/usr/local --enable-optimizations --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
+make altinstall
+==========
+## cat /etc/ld.so.conf
+## vi /etc/ld.so.conf.d/libpython3.8.conf
+## Add: /usr/local/lib/
+## Add: /usr/local/lib/libpython3.8.so.1.0
+## /usr/local/lib/python3.8/libpython3.8.so.1.0
+## libpython3.8.so.1: /usr/local/lib/libpython3.8.so.1.0
+
+/sbin/ldconfig -v
+## /var/www/octopus/venv/bin/python3.8
+
+export LD_LIBRARY_PATH=/usr/local/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/libpython3.8.so.1.0
+
+ln -s /usr/local/bin/python3.8 /usr/bin/python3
+ln -s /usr/local/bin/pip3.8 /usr/bin/pip3
+===========
+[root@test ~]# python3.7 -V
+Python 3.7.3
+
+===========
+which python
+rm /usr/src/Python-3.7.3.tgz
+python3.7 -V
+ls /usr/bin/ | grep python
+whereis python
+
+========= WSGI MOD ================================
+pip3 install mod_wsgi
+
+========= VENV ================================
+# https://virtualenv.pypa.io/en/latest/reference/#virtualenv-command
+pip3 install virtualenv
+
+virtualenv --python=/usr/local/bin/python3.7 core
+OR (from added symlink)
+
+cd /var/www/octopus
+virtualenv --python=python3 venv --system-site-packages
+source venv/bin/activate
+
+OR:
+cd /var/www/triangle/ && source core/bin/activate
+deactivate
+
+===========
+rm -rf venv
+virtualenv -p /usr/bin/python3 venv/
+source env/bin/activate
+pip install -r "/var/www/triangle/req373.txt" --ignore-installedlist
+========= WSGI INSTALL ================================
+pip install mod_wsgi
+or in requirements

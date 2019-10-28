@@ -1,6 +1,6 @@
 # ========================================
-# /etc/default/celery_service.conf
-# /etc/systemd/system/celery.service
+# vi /etc/default/celery_service.conf
+# vi /etc/systemd/system/celery.service
 # systemctl daemon-reload
 # systemctl restart celery.service
 # ========================================
