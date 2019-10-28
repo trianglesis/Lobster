@@ -20,62 +20,6 @@ class SelectorRequestsHelpers:
 
     """
 
-    # LEVEL 1 report request TOP:
-    @staticmethod
-    def addm_summary_draw(branch, addm_name):
-        """
-
-        :return:
-        """
-        # tasks_inspection = TasksOperations()
-        addm_items_d = []
-        args_d = dict(branch    = branch,
-                      addm_name = addm_name)
-
-        if 'all_addms' in addm_name:
-            addm_names = ['aardvark', 'bobblehat', 'custard_cream', 'double_decker', 'zythum']
-        else:
-            addm_names = [addm_name]
-
-        for addm_name in addm_names:
-            args_d['addm_name'] = addm_name
-            # Check dict and use correspond query to get all values we need:
-            addm_sorted_tests = PatternsDjangoModelRaw().addm_summary(query_args=args_d)
-
-            for addm_row in addm_sorted_tests:
-                tst_count    = round(addm_row.tests_count)
-                if tst_count and tst_count > 0:
-                    patterns_count = addm_row.patterns_count
-                    addm_v_int       = str(addm_row.addm_v_int)
-                    tst_passed     = round(addm_row.passed)
-                    tst_failed     = round(addm_row.fails)
-                    tst_errors     = round(addm_row.error)
-                    tst_skipped    = round(addm_row.skipped)
-                    passed_percent = round(100 * (tst_passed + tst_skipped) / float(tst_count), 2)
-                else:
-                    patterns_count = 0
-                    addm_v_int       = '99.9'
-                    passed_percent = "N/A"
-                    tst_passed     = "N/A"
-                    tst_failed     = "N/A"
-                    tst_errors     = "N/A"
-                    tst_skipped    = "N/A"
-                    tst_count      = "N/A"
-
-                rows_con = dict(ADDM_CODENAME      = addm_name,
-                                ADDM_VER           = addm_v_int,
-                                PATTERNS_TESTED    = patterns_count,
-                                TESTS_COUNT        = tst_count,
-                                TESTS_PASSED       = passed_percent,
-                                TESTS_FAILED       = tst_failed,
-                                TESTS_ERROR        = tst_errors,
-                                TESTS_SKIPPED      = tst_skipped,
-                                TESTS_PASS_COUNT   = tst_passed,
-                                )
-
-                addm_items_d.append(rows_con)
-        return addm_items_d
-
     @staticmethod
     def worker_inspect_single(worker_name):
         """

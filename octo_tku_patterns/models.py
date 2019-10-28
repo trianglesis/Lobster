@@ -13,56 +13,6 @@ from django import forms
 from django.contrib.auth.models import User
 
 
-# noinspection SpellCheckingInspection
-class TkuPatterns(models.Model):
-    """
-    Table for tku patterns details to store.
-    Use items from here to execute tests and show latest changes for selected date window.
-    Also stores "key patterns" flag.
-
-    """
-    tkn_branch = models.CharField(max_length=10)
-    pattern_library = models.CharField(max_length=120)
-    pattern_folder_name = models.CharField(max_length=120)
-    pattern_file_name = models.CharField(max_length=120)
-
-    pattern_folder_change = models.CharField(max_length=20, blank=True, null=True)
-    # This is converted from p4 tzoffset	-18000
-    pattern_folder_mod_time = models.DateTimeField(auto_now_add=True)
-    change_desc = models.TextField(blank=True, null=True)
-    change_user = models.CharField(max_length=20, blank=True, null=True)
-    change_review = models.CharField(max_length=20, blank=True, null=True)
-    change_ticket = models.CharField(max_length=20, blank=True, null=True)
-
-    pattern_file_path = models.CharField(unique=True, max_length=255)
-    pattern_file_path_depot = models.CharField(unique=True, max_length=255)
-    pattern_folder_path_depot = models.CharField(max_length=255)
-
-    test_py_path = models.CharField(max_length=255, blank=True, null=True)
-    test_py_path_template = models.CharField(max_length=255, blank=True, null=True)  # AKA test_py_path
-
-    test_folder_path = models.CharField(max_length=255, blank=True, null=True)
-    test_folder_path_template = models.CharField(max_length=255, blank=True, null=True)  # AKA test_working_dir
-
-    is_key_pattern = models.NullBooleanField(null=True)
-    test_time_weight = models.CharField(max_length=35, blank=True, null=True)
-    # To indicate when this pattern was updated\inserted last time.
-    # Left it in ITC by default, then will convert to UK or UA:
-    date_time_auto_now = models.DateTimeField(unique=False, auto_now_add=True)
-
-    class Meta:
-        managed = True
-        db_table = 'octo_tku_patterns'
-        unique_together = (('tkn_branch',
-                            'pattern_library',
-                            'pattern_folder_name',
-                            'pattern_file_name',
-                            'pattern_file_path',
-                            'test_folder_path',
-                            'test_py_path',
-                            ))
-
-
 class TestLast(models.Model):
     # Pattern details:
     tkn_branch = models.CharField(max_length=10)
@@ -235,9 +185,6 @@ class TestCases(models.Model):
 
     def __str__(self):
         return 'id:{0}-{1}'.format(self.pk, self.test_case_depot_path)
-
-# Place for other models tables:
-# Table for test cases comments, details, groping and other useful information provided by users
 
 
 class TestCasesDetails(models.Model):

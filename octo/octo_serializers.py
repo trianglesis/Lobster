@@ -1,11 +1,9 @@
 from django.contrib.auth.models import User
 from run_core.models import AddmDev
-from octo_tku_patterns.models import TkuPatterns, TestLast, TestHistory
+from octo_tku_patterns.models import TestLast, TestHistory
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.models import UploadTestsNew as UploadTests
 from rest_framework import routers, serializers, viewsets
-
-DUMMY = ''
 
 
 # Serializers define the API representation.
@@ -13,97 +11,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('url', 'username', 'email', 'is_staff')
-
-
-class TkuPatternsSerializer(serializers.ModelSerializer):
-    class Meta:
-        id = serializers.IntegerField(read_only=True)
-
-        model = TkuPatterns
-        fields = (
-            'tkn_branch',
-            'pattern_library',
-            'pattern_folder_name',
-            'pattern_file_name',
-            'pattern_folder_change',
-            'pattern_folder_mod_time',
-            'change_desc',
-            'change_user',
-            'change_review',
-            'change_ticket',
-            'pattern_file_path',
-            'pattern_file_path_depot',
-            'pattern_folder_path_depot',
-            'test_py_path',
-            'test_py_path_template',
-            'test_folder_path',
-            'test_folder_path_template',
-            'is_key_pattern',
-            'date_time_auto_now',
-        )
-
-
-class TkuPatternsSerializerUsual(serializers.Serializer):
-    class Meta:
-        id                        = serializers.IntegerField(read_only    = True)
-        tkn_branch                = serializers.CharField(max_length      = 10, required     = False)
-        pattern_library           = serializers.CharField(max_length      = 120, required    = False)
-        pattern_folder_name       = serializers.CharField(max_length      = 120, required    = False)
-        pattern_file_name         = serializers.CharField(max_length      = 120, required    = False)
-        pattern_folder_change     = serializers.CharField(allow_blank     = True, allow_null = True, max_length = 20, required  = False)
-        pattern_folder_mod_time   = serializers.DateTimeField(read_only   = True)
-        change_desc               = serializers.CharField(allow_blank     = True, allow_null = True, required   = False, style  = {'base_template': 'textarea.html'})
-        change_user               = serializers.CharField(allow_blank     = True, allow_null = True, max_length = 20, required  = False)
-        change_review             = serializers.CharField(allow_blank     = True, allow_null = True, max_length = 20, required  = False)
-        change_ticket             = serializers.CharField(allow_blank     = True, allow_null = True, max_length = 20, required  = False)
-        pattern_file_path         = serializers.CharField(max_length      = 255, required    = False)
-        pattern_file_path_depot   = serializers.CharField(max_length      = 255)
-        pattern_folder_path_depot = serializers.CharField(max_length      = 255)
-        test_py_path              = serializers.CharField(allow_blank     = True, allow_null = True, max_length = 255, required = False)
-        test_py_path_template     = serializers.CharField(allow_blank     = True, allow_null = True, max_length = 255, required = False)
-        test_folder_path          = serializers.CharField(allow_blank     = True, allow_null = True, max_length = 255, required = False)
-        test_folder_path_template = serializers.CharField(allow_blank     = True, allow_null = True, max_length = 255, required = False)
-        is_key_pattern            = serializers.NullBooleanField(required = False)
-        date_time_auto_now        = serializers.DateTimeField(read_only   = True)
-
-    def create(self, validated_data):
-        """
-        Create and return a new `Snippet` instance, given the validated data.
-        """
-        return TkuPatterns.objects.create(**validated_data)
-        # pass
-
-    def update(self, instance, validated_data):
-        """
-        Update and return an existing `Snippet` instance, given the validated data.
-        """
-        instance.tkn_branch                = validated_data.get('tkn_branch', instance.tkn_branch)
-        instance.pattern_library           = validated_data.get('pattern_library', instance.pattern_library)
-        instance.pattern_folder_name       = validated_data.get('pattern_folder_name', instance.pattern_folder_name)
-        instance.pattern_file_name         = validated_data.get('pattern_file_name', instance.pattern_file_name)
-        instance.pattern_folder_change     = validated_data.get('pattern_folder_change', instance.pattern_folder_change)
-        instance.pattern_folder_mod_time   = validated_data.get('pattern_folder_mod_time', instance.pattern_folder_mod_time)
-        instance.change_desc               = validated_data.get('change_desc', instance.change_desc)
-        instance.change_user               = validated_data.get('change_user', instance.change_user)
-        instance.change_review             = validated_data.get('change_review', instance.change_review)
-        instance.change_ticket             = validated_data.get('change_ticket', instance.change_ticket)
-        instance.pattern_file_path         = validated_data.get('pattern_file_path', instance.pattern_file_path)
-        instance.pattern_file_path_depot   = validated_data.get('pattern_file_path_depot', instance.pattern_file_path_depot)
-        instance.pattern_folder_path_depot = validated_data.get('pattern_folder_path_depot', instance.pattern_folder_path_depot)
-        instance.test_py_path              = validated_data.get('test_py_path', instance.test_py_path)
-        instance.test_py_path_template     = validated_data.get('test_py_path_template', instance.test_py_path_template)
-        instance.test_folder_path          = validated_data.get('test_folder_path', instance.test_folder_path)
-        instance.test_folder_path_template = validated_data.get('test_folder_path_template', instance.test_folder_path_template)
-        instance.is_key_pattern            = validated_data.get('is_key_pattern', instance.is_key_pattern)
-        instance.date_time_auto_now        = validated_data.get('date_time_auto_now', instance.date_time_auto_now)
-        # instance.title = validated_data.get('title', instance.title)
-        # instance.code = validated_data.get('code', instance.code)
-        # instance.linenos = validated_data.get('linenos', instance.linenos)
-        # instance.language = validated_data.get('language', instance.language)
-        # instance.style = validated_data.get('style', instance.style)
-        instance.save()
-        return instance
-        # pass
 
 
 class TestLastSerializer(serializers.HyperlinkedModelSerializer):
@@ -251,10 +158,6 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class TkuPatternsViewSet(viewsets.ModelViewSet):
-    queryset = TkuPatterns.objects.all()
-
-
 class TestLastViewSet(viewsets.ModelViewSet):
     queryset = TestLast.objects.all()
     serializer_class = TestLastSerializer
@@ -284,7 +187,6 @@ class AddmDevViewSet(viewsets.ModelViewSet):
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 
-# router.register(r'tku_patterns', TkuPatternsViewSet)
 router.register(r'tku_packages', TkuPackagesViewSet)
 
 router.register(r'tests_last', TestLastViewSet)

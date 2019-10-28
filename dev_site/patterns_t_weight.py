@@ -16,8 +16,6 @@ if __name__ == "__main__":
 
     django.setup()
 
-    from octo_tku_patterns.models import TkuPatterns
-    from run_core.local_operations import LocalDB
 
 
 

@@ -6,6 +6,7 @@ if __name__ == "__main__":
     import django
     import copy
     import collections
+    import datetime
     from operator import itemgetter
     # PPRINT
     import json
@@ -15,7 +16,7 @@ if __name__ == "__main__":
 
     # from run_core.local_operations import LocalPatternsParse, LocalDownloads
     # from run_core.test_executor import UploadTestExec
-    from octo_tku_patterns.models import TkuPatterns
+    from octo_tku_patterns.models import TestCases, TestHistory
     # from octo_tku_upload.models import TkuPackagesNew as TkuPackages
     from octo_tku_patterns.table_oper import PatternsDjangoModelRaw, PatternsDjangoTableOper
     from octo_tku_patterns.night_test_balancer import BalanceNightTests
@@ -28,6 +29,42 @@ if __name__ == "__main__":
     log.debug("")
     log.debug("")
     log.debug("")
+
+
+    def sel_history_by_latest_all(query_args):
+        """
+        Select last N days test records for pattern:
+
+        :param query_args:
+        :return:
+        """
+        from django.utils import timezone
+        now = datetime.datetime.now(tz=timezone.utc)
+        tomorrow = now + datetime.timedelta(days=1)
+
+        date_from = now - datetime.timedelta(days=int(query_args['last_days']))
+
+        log.debug("Selecting days %s between: %s %s", query_args['last_days'],
+                  date_from.strftime('%Y-%m-%d'), tomorrow.strftime('%Y-%m-%d'))
+
+        query = """SELECT {tb}.id,
+                          {tb}.time_spent_test,
+                          {tb}.test_py_path,
+                          {tb}.test_date_time
+                   FROM {db}.{tb}
+                   WHERE {tb}.test_date_time BETWEEN '{date_from}' AND '{tomorrow}'
+                   AND {tb}.addm_name = 'double_decker'
+                   GROUP BY day({tb}.test_date_time), {tb}.test_py_path
+                   ORDER BY {tb}.test_py_path;
+                   """.format(db='octopus_dev_copy',
+                              tb='octo_test_history',
+                              date_from=date_from.strftime('%Y-%m-%d'),
+                              tomorrow=tomorrow.strftime('%Y-%m-%d'))
+        log.debug("Using query: \n%s", query)
+
+        history_recs = TestHistory.objects.raw(query)
+
+        return history_recs
 
     # Select ADDM
     # addm_group__in=['development']
@@ -207,7 +244,7 @@ if __name__ == "__main__":
     # Next dict of all patterns weight:
     # patterns_weight = dict()
     # # Select all patterns
-    # patterns_selected = TkuPatterns.objects.all()[:10]
+    # patterns_selected = TestCases.objects.all()[:10]
     # log.debug("patterns_selected len %s", len(patterns_selected))
     #
     # # Now select history tests for this pattern for the last n days:
@@ -247,7 +284,8 @@ if __name__ == "__main__":
     patterns_weight = dict()
 
     test_query_args = dict(last_days=30)
-    all_history_weight = PatternsDjangoModelRaw().sel_history_by_latest_all(query_args=test_query_args)
+    # TODO: Change to djangos
+    all_history_weight = sel_history_by_latest_all(query_args=test_query_args)
 
     # Make dict with test.py path as key and sum of test time / days(selected items)
     # If nothing was selected - update pattern row with default value of 10 min or do nothing if value is already exists
@@ -280,7 +318,7 @@ if __name__ == "__main__":
     # go throught dict and update patterns:
     for patt_k, patt_v in patterns_weight.items():
         # 1. Select all patterns with according test.py path:
-        patterns_sel = TkuPatterns.objects.filter(
+        patterns_sel = TestCases.objects.filter(
             test_py_path__exact=patt_k,
         )
         # 1. Iter over each found pattern item with corresponding test.py
@@ -332,9 +370,10 @@ if __name__ == "__main__":
     sel_routine_tests_ship = PatternsDjangoTableOper().sel_tests_dynamical(sel_opts=sel_opts)
     # log.debug("sel_routine_tests_ship len %s", len(sel_routine_tests_ship))
 
-    sel_key_patt_tests = PatternsDjangoTableOper().sel_test_key()
+    # sel_key_patt_tests = PatternsDjangoTableOper()._sel_test_key()
     # log.debug("sel_key_patt_tests len %s", len(sel_key_patt_tests))
-    selected_sum_query = sel_routine_tests_main | sel_routine_tests_ship | sel_key_patt_tests
+    # selected_sum_query = sel_routine_tests_main | sel_routine_tests_ship | sel_key_patt_tests
+    selected_sum_query = sel_routine_tests_main | sel_routine_tests_ship
 
     # selected_sum_query = some_patterns
 

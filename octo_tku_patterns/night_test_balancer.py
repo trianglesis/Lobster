@@ -92,8 +92,9 @@ class BalanceNightTests:
             tkn_main_tests = PatternsDjangoTableOper.sel_tests_dynamical(sel_opts=sel_opts)
             sel_opts.update(date_from=branches_dates.get('tkn_ship'), branch='tkn_ship')                 # 1.2 Select all for TKN_SHIP:
             tkn_ship_tests = PatternsDjangoTableOper.sel_tests_dynamical(sel_opts=sel_opts)
-            sel_key_patt_tests = PatternsDjangoTableOper().sel_test_key()                                # 1.3 Select key patterns tests:
-            sum_tests = tkn_main_tests | tkn_ship_tests | sel_key_patt_tests                             # 2. Summarize all tests and sort:
+            # sel_key_patt_tests = PatternsDjangoTableOper()._sel_test_key()                                # 1.3 Select key patterns tests:
+            # sum_tests = tkn_main_tests | tkn_ship_tests | sel_key_patt_tests                             # 2. Summarize all tests and sort:
+            sum_tests = tkn_main_tests | tkn_ship_tests                             # 2. Summarize all tests and sort:
             sorted_tests_l = self.test_items_sorting(sum_tests, exclude=excluded_seq)
             if not fake_run:
                 TestLast.objects.filter().delete()                                                       # 3. DELETE previous
@@ -102,8 +103,9 @@ class BalanceNightTests:
         else:
             sel_opts.update(date_from=branches_dates.get(branch), branch=branch)                         # 1.2 Select all for TKN_SHIP:
             selected_tests = PatternsDjangoTableOper.sel_tests_dynamical(sel_opts=sel_opts)              # 2. Summarize all tests and sort:
-            sel_key_patt_tests = PatternsDjangoTableOper().sel_test_key(branch=branch)                   # 1.3 Select key patterns tests:
-            sum_tests = selected_tests | sel_key_patt_tests                                              # 2. Summarize all tests and sort:
+            # sel_key_patt_tests = PatternsDjangoTableOper()._sel_test_key(branch=branch)                   # 1.3 Select key patterns tests:
+            # sum_tests = selected_tests | sel_key_patt_tests                                              # 2. Summarize all tests and sort:
+            sum_tests = selected_tests                                              # 2. Summarize all tests and sort:
             sorted_tests_l = self.test_items_sorting(sum_tests, exclude=excluded_seq)
             if not fake_run:
                 TestLast.objects.filter(tkn_branch__exact=branch).delete()                               # 3. DELETE previous

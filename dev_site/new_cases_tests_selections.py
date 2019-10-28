@@ -17,14 +17,11 @@ if __name__ == "__main__":
     from pprint import pformat
 
     django.setup()
-    from django.db.models.query import QuerySet
 
     from run_core.models import Options
     from octo_tku_patterns.models import TestLast
     from octo_tku_patterns.models import TestCases
-    from octo_tku_patterns.models import TkuPatterns
 
-    from octo_tku_patterns.table_oper import PatternsDjangoTableOper
 
     log = logging.getLogger("octo.octologger")
 
@@ -225,11 +222,11 @@ if __name__ == "__main__":
             """
             log.debug("<=Django Model key_select=> Selecting key patterns only. Branch: %s", branch)
             if branch:
-                key_patterns = TkuPatterns.objects.filter(test_py_path__iendswith='test.py',
+                key_patterns = TestCases.objects.filter(test_py_path__iendswith='test.py',
                                                           tkn_branch__exact=branch,
                                                           is_key_pattern__exact=True)
             else:
-                key_patterns = TkuPatterns.objects.filter(test_py_path__iendswith='test.py',
+                key_patterns = TestCases.objects.filter(test_py_path__iendswith='test.py',
                                                           is_key_pattern__exact=True)
             if exclude:
                 key_patterns.exclude(pattern_folder_name__in=exclude)

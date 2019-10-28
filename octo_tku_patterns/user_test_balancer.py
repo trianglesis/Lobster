@@ -8,7 +8,7 @@ from octo.helpers.tasks_oper import TasksOperations, WorkerOperations
 from octo.config_cred import mails
 
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
-from octo_tku_patterns.models import TkuPatterns, TestLast
+from octo_tku_patterns.models import TestCases, TestLast
 
 
 log = logging.getLogger("octo.octologger")
@@ -250,7 +250,7 @@ class OptionalTestsSelect:
 
     @staticmethod
     def select_patterns_by_testpy(test_py_list):
-        patterns_tests = TkuPatterns.objects.filter(
+        patterns_tests = TestCases.objects.filter(
             test_py_path__in=test_py_list).distinct()
         return patterns_tests
 

@@ -347,37 +347,6 @@ class DevAdminViews:
 
     @staticmethod
     @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def dev_select_night_test(request):
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=DEV OCTO AMD=> dev_select_night_test(): %s", user_str)
-
-        unpack_q = loader.get_template(
-            'dev_debug_workbench/dev_helpers/simple_output.html')
-
-        slice_arg = request.GET.get('test_mode')
-        excluded_seq = request.GET.get('excluded_seq', False)
-        included_seq = request.GET.get('included_seq', False)
-
-        if excluded_seq:
-            excluded_seq = excluded_seq.split(',')
-        if included_seq:
-            included_seq = included_seq.split(',')
-
-        log.info("slice_arg %s, excluded_seq %s, included_seq %s", slice_arg, excluded_seq, included_seq)
-
-        sorted_tests_l = PatternsDjangoModelRaw.patterns_for_test_both(
-            slice_arg=slice_arg, excluded_seq=excluded_seq, included_seq=included_seq)
-
-        contxt = dict(
-            # STR_OUTPUT = sorted_tests_l,
-            # LIST_OUTPUT = sorted_tests_l,
-            # KV_OUTPUT = sorted_tests_l,
-            QUERY_OUTPUT=sorted_tests_l,
-            SUBJECT='dev_select_night_test')
-        return HttpResponse(unpack_q.render(contxt, request))
-
-    @staticmethod
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
     def dev_cron_items(request):
         # from octo.models import DjangoCeleryBeatPeriodictask
         from django_celery_beat.models import PeriodicTask

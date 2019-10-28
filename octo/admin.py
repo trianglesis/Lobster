@@ -160,56 +160,6 @@ class UserNamesCorrespondAdmin(admin.ModelAdmin):
 admin.site.register(RoutineExecutionLog)
 
 
-# Octopus Patterns
-# admin.site.register(TkuPatterns)
-@admin.register(TkuPatterns)
-class TkuPatternsAdmin(admin.ModelAdmin):
-    """ https://djangobook.com/mdj2-django-admin/ """
-    show_full_result_count = True
-    readonly_fields = ('date_time_auto_now',)
-    # https://djangoguide.readthedocs.io/en/latest/django/admin.html#editable-fields
-    # list_editable = ('disables',)
-    list_display = ('tkn_branch', 'pattern_library', 'pattern_folder_name',
-                    'pattern_folder_change', 'change_user', 'change_review', 'change_ticket',
-                    'test_time_weight', 'date_time_auto_now')
-
-    list_filter = ('tkn_branch', 'pattern_library', 'date_time_auto_now')
-
-    ordering = ('-date_time_auto_now',)
-
-    search_fields = (
-        'pattern_library', 'pattern_folder_name', 'change_user', 'pattern_folder_change')
-
-    fieldsets = (
-        ('TKN Branch', {
-            'fields': ('tkn_branch',)}),
-
-        ('Pattern file', {
-            # 'description': "Path to pattern file in p4 depot, and Octopus FS, with templates for test execution.",
-            'description': "Pattern object consists of Pattern Library / Pattern Folder / Pattern File .tplpre",
-            'fields': ('pattern_library', 'pattern_folder_name',)
-        }),
-        ('Pattern change', {
-            'description': "Pattern change - info gathered from 'p4 fstat' and 'p4 change' commands",
-            'fields': (
-                ('pattern_folder_change', 'change_user'),
-                ('change_review', 'change_ticket', 'change_desc'),
-            )
-        }),
-        ('Optional Information', {
-            'description': "Pattern and test path on p4 depot, Octopus FS and templates for test execution.",
-            'classes': ('collapse', 'open'),
-            'fields': (
-                ('test_py_path', 'test_py_path_template',),
-                ('test_folder_path', 'test_folder_path_template',),
-                'test_time_weight',
-                'date_time_auto_now',
-            )
-        }),
-    )
-    list_per_page = 500
-
-
 @admin.register(TestCases)
 class TestCasesAdmin(admin.ModelAdmin):
     """ https://djangobook.com/mdj2-django-admin/ """

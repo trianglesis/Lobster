@@ -31,8 +31,8 @@ def patterns_top_small(branch):
     :param branch:
     :return:
     """
-    top_long_t = loader.get_template(
-        'small_blocks/intro_selections/small_long_tests_table.html')
+    top_long_t = loader.get_template('small_blocks/intro_selections/small_long_tests_table.html')
+    # TODO: Change to django's
     top_long = PatternsDjangoModelRaw().select_latest_long_tests(branch)[:6]
 
     if top_long:
@@ -40,33 +40,6 @@ def patterns_top_small(branch):
         return user_patterns_summary_t
     else:
         return ''
-
-
-@register.simple_tag()
-def get_minmax_test_date():
-    dates = dict()
-    branches = ["tkn_ship", "tkn_main"]
-    for branch in branches:
-        minmax_test_date = PatternsDjangoTableOper().latest_tests_minmax_date(branch)
-        test_date = minmax_test_date.get('min_test_date', None)
-        if test_date:
-            last_dates = {branch: test_date}
-        else:
-            last_dates = {branch: '1976-01-01 00:00:00'}
-        dates.update(last_dates)
-    return dates
-
-
-@register.simple_tag()
-def get_max_changes_tku_patterns():
-    max_branches = dict()
-    branches = ["tkn_ship", "tkn_main"]
-    for branch in branches:
-        all_patterns, date_start, latest_date = PatternsDjangoTableOper().select_all_patterns(query_args=dict(branch=branch, everything=True))
-        max_branches.update({branch: dict(
-            change=all_patterns.aggregate(Max('change'))['change__max'],
-            date=all_patterns.aggregate(Max('change_time'))['change_time__max'])})
-    return max_branches
 
 
 @register.simple_tag

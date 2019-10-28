@@ -71,9 +71,10 @@ if __name__ == "__main__":
     sel_routine_tests_ship = PatternsDjangoTableOper().sel_tests_dynamical(sel_opts=sel_opts)
     # log.debug("sel_routine_tests_ship len %s", len(sel_routine_tests_ship))
 
-    sel_key_patt_tests = PatternsDjangoTableOper().sel_test_key()
+    # sel_key_patt_tests = PatternsDjangoTableOper()._sel_test_key()
     # log.debug("sel_key_patt_tests len %s", len(sel_key_patt_tests))
-    selected_sum_query = sel_routine_tests_main | sel_routine_tests_ship | sel_key_patt_tests
+    # selected_sum_query = sel_routine_tests_main | sel_routine_tests_ship | sel_key_patt_tests
+    selected_sum_query = sel_routine_tests_main | sel_routine_tests_ship
 
     # selected_sum_query = some_patterns
 

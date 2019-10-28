@@ -16,19 +16,16 @@ import datetime
 import logging
 import collections
 
-from time import time, sleep
-
 from octo.octo_celery import app
 
 from run_core.models import AddmDev
 
 from run_core.addm_operations import ADDMOperations
 from run_core.p4_operations import PerforceOperations
-from run_core.local_operations import LocalPatternsP4Parse, LocalPatternsParse
+from run_core.local_operations import LocalPatternsP4Parse
 
-from octo_tku_patterns.models import TkuPatterns, TestLast, TestCases, TestCasesDetails
+from octo_tku_patterns.models import TestLast, TestCases, TestCasesDetails
 from octo_tku_patterns.test_executor import TestExecutor
-from octo_tku_patterns.table_oper import PatternsDjangoTableOperDel
 
 from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_oper import TasksOperations
@@ -38,7 +35,6 @@ from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
 
 from octo_tku_patterns.night_test_balancer import BalanceNightTests
-from octo_tku_patterns.user_test_balancer import WorkerGetAvailable, OptionalTestsSelect
 
 log = logging.getLogger("octo.octologger")
 

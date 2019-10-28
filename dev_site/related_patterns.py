@@ -8,7 +8,7 @@ if __name__ == "__main__":
     import ast
     import os
     django.setup()
-    from octo_tku_patterns.models import TkuPatterns
+    from octo_tku_patterns.models import TestCases
 
 
     log = logging.getLogger("octo.octologger")
@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
 
     def select_parse_pattern(patt_folder_name=None):
-        # patterns = TkuPatterns.objects.all().values()
-        patterns_set = TkuPatterns.objects.filter(pattern_folder_name__exact=patt_folder_name).values()
+        # patterns = TestCases.objects.all().values()
+        patterns_set = TestCases.objects.filter(pattern_folder_name__exact=patt_folder_name).values()
         return patterns_set
 
 

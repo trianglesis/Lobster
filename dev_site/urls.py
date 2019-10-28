@@ -30,8 +30,6 @@ urlpatterns = [
     url(r'^dev_addm_custom_cmd/', DevTasksCall.dev_addm_custom_cmd,
         name='dev_addm_custom_cmd'),
 
-    url(r'^dev_select_night_test/', DevViews.dev_select_night_test,
-        name='dev_select_night_test'),
     url(r'^dev_cron_items/', DevViews.dev_cron_items,
         name='dev_cron_items'),
 

@@ -8,7 +8,6 @@ if __name__ == "__main__":
 
     django.setup()
     from run_core.models import ServiceLog
-    from octo_tku_patterns.models import TkuPatterns
 
     log = logging.getLogger("octo.octologger")
     log.info("RUNNING LOCAL TO REMOTE EXECUTION!")
