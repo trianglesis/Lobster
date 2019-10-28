@@ -39,12 +39,8 @@ $(document).ready(function () {
         } else if (cell.innerText.match(AttributeError)) {
             cell.innerText = `${cell.innerText.match(AttributeError)}`
         } else {
-
         }
 
-
     }
-
-
 
 });
