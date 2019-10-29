@@ -40,7 +40,6 @@ class AdminWorkbench(TemplateView):
 
 def fake_function(*args, **kwargs):
     log.debug("Run pseudo task with args=%s kwargs=%s", args, kwargs)
-    sleep(10)
     return dict(
         task_answer = 'Yup, something doing.',
         task_id='8943576894567-4589734589347-i834765783465',
@@ -116,11 +115,14 @@ class TaskOperations(APIView):
         task_id = self.request.POST.get('task_id', None)
         worker_name = self.request.POST.get('worker_name', None)
         # TO RUN:
-        case = self.task_operations(operation_key)
-        log.debug("Running task operation specified: %s", case['doc'])
-        run = case['func']
-        result = run(task_id, worker_name=worker_name)
-        return Response(result)
+        if operation_key:
+            case = self.task_operations(operation_key)
+            log.debug("Running task operation specified: %s", case['doc'])
+            run = case['func']
+            result = run(task_id, worker_name=worker_name)
+            return Response(result)
+        else:
+            return Response(dict(error='No operation_key were specified!'))
 
 
 class ListAllAddmVmREST(APIView):
