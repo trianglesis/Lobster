@@ -101,8 +101,7 @@ class PatternsDjangoModelRaw:
 
         date_from = now - datetime.timedelta(days=int(query_args['last_days']))
 
-        log.debug("Selecting days %s between: %s %s", query_args['last_days'],
-                  date_from.strftime('%Y-%m-%d'), tomorrow.strftime('%Y-%m-%d'))
+        # log.debug("Selecting days %s between: %s %s", query_args['last_days'], date_from.strftime('%Y-%m-%d'), tomorrow.strftime('%Y-%m-%d'))
 
         query = """SELECT {tb}.id,
                           {tb}.time_spent_test,
@@ -117,7 +116,7 @@ class PatternsDjangoModelRaw:
                               tb=self.history_tests_tb,
                               date_from=date_from.strftime('%Y-%m-%d'),
                               tomorrow=tomorrow.strftime('%Y-%m-%d'))
-        log.debug("Using query: \n%s", query)
+        # log.debug("Using query: \n%s", query)
 
         history_recs = TestHistory.objects.raw(query)
 
@@ -197,7 +196,7 @@ class PatternsDjangoTableOper:
             library='pattern_library__exact',
         )
 
-        log.debug("<=Django Model intra_select=> Select sel_opts %s", sel_opts)
+        # log.debug("<=Django Model intra_select=> Select sel_opts %s", sel_opts)
 
         # Select everything valid for test:
         all_patterns = TestCases.objects.filter(test_type__exact='tku_patterns')
@@ -248,7 +247,7 @@ class PatternsDjangoTableOper:
         #           "selected len: %s "
         #           "history_recs.query: \n%s", all_patterns.count(), all_patterns.query)
 
-        log.debug("sel_tests_dynamical queryset explain \n%s", all_patterns.explain())
+        # log.debug("sel_tests_dynamical queryset explain \n%s", all_patterns.explain())
         return all_patterns
 
     @staticmethod
@@ -338,27 +337,26 @@ class PatternsDjangoTableOper:
                 # log.debug("<=Django Model intra_select=> Select date_from: %s", select_d)
                 intra_qs = queryset.filter(**select_d)
             elif option_key == 'tst_status':
-                log.debug("Going to sort selected tests with status '%s' only.", option_value)
+                # log.debug("Going to sort selected tests with status '%s' only.", option_value)
                 if option_value == 'pass':
-                    log.debug("use: pass_only")
+                    # log.debug("use: pass_only")
                     intra_qs = queryset.filter(~Q(tst_status__iregex='FAIL$') & ~Q(tst_status__iregex='ERROR$'))
                 elif option_value == 'fail':
-                    log.debug("use: fail_only")
+                    # log.debug("use: fail_only")
                     intra_qs = queryset.filter(tst_status__iregex='FAIL$')
                 elif option_value == 'notpass':
-                    log.debug("use: not_pass_only")
+                    # log.debug("use: not_pass_only")
                     intra_qs = queryset.filter(
                         Q(tst_status__iregex='FAIL$') | Q(tst_status__iregex='ERROR$') | Q(tst_status__iregex='unexpected'))
                 elif option_value == 'error':
-                    log.debug("use: error_only")
+                    # log.debug("use: error_only")
                     intra_qs = queryset.filter(tst_status__iregex='ERROR$')
                 elif option_value == 'skip':
-                    log.debug("use: skip_only")
+                    # log.debug("use: skip_only")
                     intra_qs = queryset.filter(
                         Q(tst_status__iregex='skipped') | Q(tst_status__iregex='expected failure'))
                 else:
-                    log.warning("Unknown option_value '%s' for '%s' Do not select - return as is.",
-                              option_value, option_key)
+                    log.warning("Unknown option_value '%s' for '%s' Do not select - return as is.", option_value, option_key)
                     intra_qs = queryset
 
             # All other strict options:

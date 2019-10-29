@@ -6,10 +6,10 @@ WIll use same logic from TPL IDE Automation.
 
 import os
 import re
-from time import time
+from time import time, sleep
 
 from run_core.addm_operations import ADDMOperations
-from octo_tku_patterns.models import TestLast, TestHistory, TestCases
+from octo_tku_patterns.models import TestLast, TestHistory
 
 # Python logger
 import logging
@@ -58,6 +58,9 @@ class TestExecutor:
         test_item = kwargs.get('test_item')
         test_output_mode = kwargs.get('test_output_mode')
 
+        isinstance(addm_items, dict), "Addm items should be a dict: %s" % type(addm_items)
+        isinstance(test_item, dict), "Test item should be a dict: %s " % type(test_item)
+
         thread_list = []
         test_outputs = []
         ts = time()
@@ -70,8 +73,7 @@ class TestExecutor:
                 if ssh:
                     args_d = dict(ssh=ssh, test_item=test_item, addm_item=addm_item,
                                   test_function=test_function, test_output_mode=test_output_mode, test_q=test_q)
-                    th_name = 'Test thread: addm {} test {}'.format(addm_item['addm_ip'],
-                                                                    test_item['pattern_folder_name'])  # type: str
+                    th_name = f"Test thread: addm {addm_item['addm_ip']} test {test_item['test_py_path']}"
                     try:
                         test_thread = Thread(target=self.test_exec, name=th_name, kwargs=args_d)
                         test_thread.start()
@@ -83,9 +85,8 @@ class TestExecutor:
                         return msg
                 # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
                 else:
-                    msg = '<=test_run_threads=> SSH Connection could not be established, ' \
-                          'thread skipping for ADDM: {} - {} in {}'.format(addm_item['addm_ip'], addm_item['addm_host'],
-                                                                           addm_item['addm_group'])
+                    msg = f"<=test_run_threads=> SSH Connection could not be established, thread skipping for ADDM: " \
+                          f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
                     log.error(msg)
                     test_outputs.append(msg)
                     # Raise exception? Stop Execution?
@@ -120,46 +121,41 @@ class TestExecutor:
         test_function = args_d.get('test_function', '')
         test_q = args_d.get('test_q')
 
-        pattern_dir = test_item.get('pattern_folder_name')
         test_py_t = test_item.get('test_py_path_template', False)
         test_time_weight = test_item.get('test_time_weight', '')
 
-        test_info = " \"{pt}\"|'{name}' v'{ver}' {ip} - {host} {gr}".format(
-            pt=pattern_dir,
-            name=addm_item['addm_name'],
-            ver=addm_item['addm_v_int'],
-            ip=addm_item['addm_ip'],
-            host=addm_item['addm_host'],
-            gr=addm_item['addm_group'])
+        test_info = f" {test_py_t} | '{addm_item['addm_name']}' v'{addm_item['addm_v_int']}' " \
+                    f"{addm_item['addm_ip']} - {addm_item['addm_host']} {addm_item['addm_group']}"
 
         if test_py_t:
             log.debug("<=TEST=> START t:%s %s", test_time_weight, test_info)
             # Change local Octopus path to remote ADDM path:
             test_py_sync = test_py_t.format(self.addm_vm_test_workspace)
-            test_wd_sync = test_item.get('test_folder_path_template').format(self.addm_vm_test_workspace)
+            test_wd_sync = test_item.get('test_dir_path_template').format(self.addm_vm_test_workspace)
             tkn_branch = test_item.get('tkn_branch')
 
             if test_function:
-                tst_cmd = ". ~/.{branch}_bashrc; cd {wd}; /usr/tideway/bin/python -u {tst_py} --universal_dml=1 --verbose {test_func}"
-                cmd = tst_cmd.format(branch=tkn_branch, wd=test_wd_sync, tst_py=test_py_sync,
-                                     test_func=test_function.replace(" ", "."))
+                cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; /usr/tideway/bin/python -u {test_py_sync}" \
+                      f" --universal_dml=1 --verbose {test_function.replace(' ', '.')}"
             else:
-                tst_cmd = ". ~/.{branch}_bashrc; cd {wd}; /usr/tideway/bin/python -u {tst_py} --universal_dml=1 --verbose"
-                cmd = tst_cmd.format(branch=tkn_branch, wd=test_wd_sync, tst_py=test_py_sync)
+                cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; /usr/tideway/bin/python -u {test_py_sync}" \
+                      f" --universal_dml=1 --verbose"
 
             log.debug("CMD-> '%s'", cmd)
             # Test execution:
-            # cmd = 'ls'
-            # sleep(1)
+            cmd = 'ls'
+            log.debug("Making FAKE TEST %s", cmd)
+            sleep(10)
             _, stdout, stderr = ssh.exec_command(cmd)
             std_out_err_d = self.std_read(out=stdout, err=stderr, mode=test_output_mode, mgs="<=TEST=>")
 
             time_spent_test = time() - ts
             log.debug("<=TEST=> FINISH %s", test_info)
-            update_save = self.parse_test_result(stderr_output=std_out_err_d['stderr_output'],
-                                                 test_item=test_item,
-                                                 addm_item=addm_item,
-                                                 time_spent_test=str(time_spent_test))
+            update_save = 'Fake update table!!!!!'
+            # update_save = self.parse_test_result(stderr_output=std_out_err_d['stderr_output'],
+            #                                      test_item=test_item,
+            #                                      addm_item=addm_item,
+            #                                      time_spent_test=str(time_spent_test))
             # Close previously opened SSH:
             ssh.close()
             # Put test results into a thread queue output:

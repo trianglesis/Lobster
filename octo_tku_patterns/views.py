@@ -76,7 +76,7 @@ class TestRuns:
         :return:
         """
         user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=WEB OCTO AMD=> manual_exec_night_run_task(): %s", user_string)
+        # log.debug("<=WEB OCTO AMD=> manual_exec_night_run_task(): %s", user_string)
         page_widgets = loader.get_template('service/task-action-request-added-started.html')
 
         fake_run = request.GET.get('fake_run', False)
@@ -129,7 +129,7 @@ class Reports:
         """
         patterns_summary = loader.get_template('OLD/top_long_tests.html')
         user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=VIEW SELECTOR=> patterns_top_long(): %s", user_str)
+        # log.debug("<=VIEW SELECTOR=> patterns_top_long(): %s", user_str)
         branch = request.GET.get('branch', 'tkn_main')
         count = request.GET.get('count', 20)
 
@@ -160,7 +160,7 @@ class PatternsService:
         """
         page_widgets = loader.get_template('service/task-action-request-added-started.html')
         user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=WEB OCTO AMD=> sync_patterns(): %s", user_string)
+        # log.debug("<=WEB OCTO AMD=> sync_patterns(): %s", user_string)
         addm_group = request.GET.get('addm_group', None)
 
         addm_set = ADDMOperations().select_addm_set(addm_group=addm_group)
@@ -201,7 +201,7 @@ class PatternsService:
         branch = request.GET.get('branch', False)
         addm_group = request.GET.get('addm_group', None)
         sync_shares = request.GET.get('sync_shares', False)
-        log.debug("<=WEB OCTO AMD=>   user_manual_parse_sync(): %s Group: %s", user_string, addm_group)
+        # log.debug("<=WEB OCTO AMD=>   user_manual_parse_sync(): %s Group: %s", user_string, addm_group)
         if branch:
             info_string = dict(branch=branch, user_name=user_name, addm_group=addm_group)
 
@@ -316,7 +316,8 @@ def tst_status_selector(queryset, sel_opts):
         # log.debug("use: skip_only")
         queryset = queryset.filter(skipped__gte=1)
     else:
-        log.debug("use: TestLatestDigestAll")
+        pass
+        # log.debug("use: TestLatestDigestAll")
         # queryset = TestLatestDigestAll.objects.all()
     return queryset
 
@@ -442,7 +443,7 @@ class TestLastSingleDetailedListView(ListView):
         # UserCheck().logator(self.request, 'info', "<=TestLastSingleDetailedListView=> test single table context")
         # Get unique addm names based on table latest run:
         addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
-        log.debug("Set of addm_names: %s", addm_names)
+        # log.debug("Set of addm_names: %s", addm_names)
 
         if self.request.method == 'GET':
             # log.debug("<=TestLastSingleDetailedListView=> METHOD: GET - show tests items")
@@ -809,8 +810,8 @@ class TestCaseRunTestREST(APIView):
 
     def get(self, request=None):
         task_id = self.request.GET.get('task_id', 'ThisIsNotTheTaskJustSayingYouKnow?')
-        log.debug("<=TestCaseRunTestREST=> GET - retrieve task by task_id: %s", task_id)
-        log.debug("task id by request: %s", task_id)
+        # log.debug("<=TestCaseRunTestREST=> GET - retrieve task by task_id: %s", task_id)
+        # log.debug("task id by request: %s", task_id)
         # Get task status from celery-app
 
         tasks = CeleryTaskmeta.objects.filter(task_id__exact=task_id)
@@ -826,13 +827,13 @@ class TestCaseRunTestREST(APIView):
                 state=res.state,
                 args=res.args,
             )
-            log.debug("Task result: %s", task_res)
+            # log.debug("Task result: %s", task_res)
             return Response([task_res])
 
     def post(self, request=None):
-        log.debug("<=TestCaseRunTestREST=> POST request args: %s", self.request.data)
+        # log.debug("<=TestCaseRunTestREST=> POST request args: %s", self.request.data)
         selector = compose_selector(self.request.data)
-        log.debug("<=TestCaseRunTestREST=> POST running task with args: %s", selector)
+        # log.debug("<=TestCaseRunTestREST=> POST running task with args: %s", selector)
         # json_ = {"tkn_branch": "tkn_main", "pattern_library": "CORE", "pattern_folder_name": "10genMongoDB", "refresh": "1"}
 
         obj = dict(

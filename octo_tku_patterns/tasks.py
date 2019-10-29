@@ -16,10 +16,11 @@ import datetime
 import logging
 import collections
 
+from django.db.models.query import QuerySet
+
 from octo.octo_celery import app
 
 from run_core.models import AddmDev
-
 from run_core.addm_operations import ADDMOperations
 from run_core.p4_operations import PerforceOperations
 from run_core.local_operations import LocalPatternsP4Parse
@@ -30,8 +31,8 @@ from octo_tku_patterns.test_executor import TestExecutor
 from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_helpers import TMail
-
 from octo.helpers.tasks_run import Runner
+
 from octo.tasks import TSupport
 
 from octo_tku_patterns.night_test_balancer import BalanceNightTests
@@ -270,6 +271,7 @@ class PatternRoutineCases:
                               t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
 
                 """ Sync every available ADDM with Rsync """
+                # TODO: Fix: "error": "FileNotFoundError(2, 'No such file or directory')",
                 Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=fake_run,
                               t_queue=_addm_group+'@tentacle.dq2',
                               t_args=[mail_task_arg],
@@ -380,6 +382,7 @@ class TaskPrepare:
         For debug purposes, just run all tasks as fake_task with showing all inputs and outputs: args, kwargs.
         :return:
         """
+
         if os.name == "nt":  # Always fake run on local test env:
             self.fake_run = True
             log.debug("<=TaskPrepare=> Fake run self.options: %s", self.options)
@@ -460,6 +463,7 @@ class TaskPrepare:
             log.debug("<=TaskPrepare=> Will execute p4 sync before run tests")
         else:
             self.p4_synced = True  # Let's think we already synced everything:
+            return self.p4_synced
 
         # Only sync and parse depot, no ADDM Sync here!
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
@@ -473,7 +477,7 @@ class TaskPrepare:
         else:
             # On fake run we just show this p4 sync is finished OK
             self.p4_synced = True
-            # return self.p4_synced
+            return self.p4_synced
 
     def wipe_logs(self, test_items):
         if self.test_balanced:
@@ -495,20 +499,34 @@ class TaskPrepare:
         return deleted
 
     def db_logs_wipe(self, test_item):
+        """
+        Delete previous logs from TestLast table for selected test case(s).
+        Check if test_item is dict or queryset.
+        :param test_item:
+        :return:
+        """
         test_item_deleted = 'None'
+
+        if isinstance(test_item, dict):
+            test_py_path = test_item['test_py_path']
+        elif isinstance(test_item, TestCases):
+            test_py_path = test_item.test_py_path
+        else:
+            return test_item_deleted
+
         try:
             if self.test_function:
                 log.debug("<=TaskPrepare=> Wipe logs for only test unit: %s", self.test_function)
                 test_arg = self.test_function.split(' ')
                 test_item_deleted = TestLast.objects.filter(
-                    test_py_path__exact=test_item['test_py_path'],
+                    test_py_path__exact=test_py_path,
                     tst_class__exact=test_arg[0],
                     tst_name__exact=test_arg[1]).delete()
             else:
                 test_item_deleted = TestLast.objects.filter(
-                    test_py_path__exact=test_item['test_py_path']).delete()
+                    test_py_path__exact=test_py_path).delete()
         except Exception as e:
-            log.error("<=DjangoTableOperDel=> delete_old_solo_test_logs Error: %s", e)
+            log.error("<=TaskPrepare=> db_logs_wipe Error: %s", e)
         return test_item_deleted
 
     def case_selection(self):
@@ -635,6 +653,7 @@ class TaskPrepare:
         :param tests_grouped:
         :return:
         """
+        assert isinstance(tests_grouped, dict), 'Test tests_grouped should be a dict: %s' % type(tests_grouped)
 
         tku_patterns_tests = tests_grouped.get('tku_patterns', {})
         log.debug("<=TaskPrepare=> tku_patterns_tests: %s", tku_patterns_tests)
@@ -650,7 +669,7 @@ class TaskPrepare:
                 self.addm_rsync(addm_set)
 
                 for test_item in branch_cases:
-                    log.debug("<=TaskPrepare=> test_item: %s", test_item)
+                    # log.debug("<=TaskPrepare=> test_item: %s", test_item)
 
                     # 7.1 Fire task for test starting
                     self.mail_status(mail_opts=dict(
@@ -711,7 +730,7 @@ class TaskPrepare:
         """
         # Only if p4 sync correctly OR we forced it to True:
         addm = addm_set.first()
-        if self.p4_synced:
+        if self.p4_synced and self.request.get('refresh'):
             log.debug("<=TaskPrepare=> Adding task to sync addm group: '%s'", addm['addm_group'])
             t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
                     f'fake={self.fake_run};start_time={self.start_time}'
@@ -751,11 +770,13 @@ class TaskPrepare:
     def test_exec(self, addm_set, test_item):
         """
         Fire task of test execution.
-            TODO: Maybe assign soft time limit based on test weight + some minutes?
         :param addm_set:
         :param test_item:
         :return:
         """
+        assert isinstance(test_item, dict), 'Test item should be a dict: %s' % type(test_item)
+        assert isinstance(addm_set, QuerySet), "Addm set should be a QuerySet: %s" % type(addm_set)
+
         addm = addm_set.first()
         log.info("<=TaskPrepare=> Add task - test exec. Not executing now, just log!")
 
@@ -765,6 +786,7 @@ class TaskPrepare:
                 f'refresh={self.refresh};test_py_path={test_item["test_py_path"]}'
 
         # Test task exec:
+        # TODO: Fix: "error": "FileNotFoundError(2, 'No such file or directory')",
         Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(addm_items=list(addm_set), test_item=test_item,

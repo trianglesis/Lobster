@@ -40,7 +40,7 @@ class MainPage(TemplateView):
         addm_digest = AddmDigest.objects.all()
 
         upload_tests = TKUUpdateWorkbenchView.get_queryset(self)
-        log.debug("upload_tests: %s", upload_tests)
+        # log.debug("upload_tests: %s", upload_tests)
 
         selections = dict(
             upload_tests = upload_tests,
