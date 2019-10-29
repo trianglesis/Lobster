@@ -6,13 +6,21 @@
     <tr>
         <thead class="table-light bg-light table-sm">
         <tr>
-            <th scope="col" id="col_addm" class=" bg-light align-right" style="max-width: fit-content">Worker</th>
-            <th scope="col" id="col_active" class=" bg-light text-center" style="max-width: fit-content">Active & reserved</th>
+            <th scope="col" id="col_addm" class="bg-light text-center" style="max-width: fit-content">Worker</th>
+            <th scope="col" id="col_active" class="bg-light text-center" style="max-width: fit-content">Active & reserved</th>
         </tr>
         </thead>
     </tr>
-    <tbody>
-        {% for worker in WORKERS %}
+    <tbody id="worker-table">
+
+        {% comment %}<tr id="worker-row">
+            <td class="bg-light text-dark">
+                <a class="btn btn-sm btn-outline-dark" href="{% url "workers_status_single" %}?worker_name=DUMMY">DUMMY</a>
+            </td>
+            <td class="bg-light text-center text-dark">0</td>
+        </tr>{% endcomment %}
+
+        {% comment %}{% for worker in WORKERS %}
             {% for w_key, w_val in worker.items %}
                 <tr>
                     <td class="bg-light text-dark">
@@ -21,6 +29,6 @@
                     <td class="bg-light text-center text-dark">{{ w_val.all_tasks_len }}</td>
                 </tr>
             {% endfor %}
-        {% endfor %}
+        {% endfor %}{% endcomment %}
     </tbody>
 </table>

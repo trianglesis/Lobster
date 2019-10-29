@@ -115,32 +115,30 @@
             </div>
         </div>
         {# CRON AND CELERY STATUS#}
-        <div class="main-page-cron">
-            <div class="row">
-                <div class="col col-shrink">
-                    <div class="card border-light">
-                        <div class="card-body card-body-sm">
-                            <h5 class="card-title">Cron tasks run today</h5>
-                            <p class="card-text">Showing the task name and arguments to execute.</p>
-                            {% cron_tasks_short_new %}
+        <div class="workers-cron">
+            <div class="row card text-center border-secondary">
+                <div class="card-body card-body-sm">
+                    <div class="row no-gutters">
+                        <div class="col-12 col-sm-6 col-md-8">
+                            <div class="card border-light">
+                                <div class="card-body card-body-sm">{% cron_tasks_short_new %}</div>
+                                <div class="card-footer card-footer-shrink txt-nice">Cron tasks for today {% now "Y-m-d" %}</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="card border-light">
+                                <div class="card-body card-body-sm">{% worker_queues_short %}</div>
+                                <div class="card-footer card-footer-shrink txt-nice">Workers status</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="main-page-celery-queues">
-            <div class="row">
-                <div class="col col-shrink">
-                    <div class="card border-light">
-                        <div class="card-body card-body-sm">
-                            <h5 class="card-title">Available workers queue</h5>
-                            <p class="card-text">All workers are used for test run.</p>
-                            {% worker_queues_short %}
-                        </div>
-                    </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated 3 mins ago</small>
                 </div>
             </div>
         </div>
+
     </div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
         <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
@@ -152,4 +150,6 @@
         <span class="navbar-text">Octopus automation</span>
     </nav>
     <script src="{% static 'octopus/js/upload-test-table-color.js' %}"></script>
+    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
+    <script src="{% static 'octopus/js/interactive-requests/celery-workers-short-inspect-loop.js' %}"></script>
 {% endblock %}

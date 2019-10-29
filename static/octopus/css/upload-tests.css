@@ -33,6 +33,13 @@
     padding-left: .4em;
 }
 
+.btn-sm-er {
+    padding: .1rem .2rem;
+    font-size: .775rem;
+    line-height: 1.2;
+    border-radius: .4rem;
+}
+
 .flex-center {
     display: flex;
     justify-content: center;

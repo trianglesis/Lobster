@@ -15,6 +15,12 @@
     padding: .4em;
 }
 
+.btn-sm-er {
+    padding: .1rem .2rem;
+    font-size: .775rem;
+    line-height: 1.2;
+    border-radius: .4rem;
+}
 
 /*Text styles*/
 .txt-nice {
@@ -66,12 +72,6 @@
 .main-page-upload-ga-digest{
     padding-bottom: 1em;
 }
-.main-page-cron{
-    padding-bottom: 1em;
-}
-.main-page-celery-queues{
-    padding-bottom: 1em;
-}
 
 .addm-digest-table-container tr, td, th {
     padding: .1rem !important;
@@ -94,6 +94,9 @@
     display: none;
 }
 
+.workers-cron {
+    padding-bottom: 50px;
+}
 
 /* Tooltip for tku test in table */
 .popover > div.popover-body > div {

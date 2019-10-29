@@ -28,6 +28,8 @@ from octo_tku_upload.views import ViewTKU
 urlpatterns = [
     # Home
     url(r'^$', MainPage.as_view(), name='home'),
+    url(r'^inspect_workers_short/', CeleryWorkersStatusREST.as_view(), name='inspect_workers_short'),
+
     url(r'^admin/', admin.site.urls),
 
     # REST

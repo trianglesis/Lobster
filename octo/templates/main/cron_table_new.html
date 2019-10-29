@@ -2,11 +2,11 @@
 {% load template_simplify %}
 <table id="cron" class="table table-condensed table-bordered table-hover table-sm">
 <thead>
-    <th class="table-info" scope="col">Name/task</th>
-    <th class="table-info" scope="col">Args/Kwargs</th>
-    <th class="table-info" scope="col">Planned</th>
-    <th class="table-info" scope="col">Total</th>
-    <th class="table-info" scope="col">Changed/Run</th>
+    <th class="table-info text-center" scope="col">Name/task</th>
+    <th class="table-info text-center" scope="col">Args/Kwargs</th>
+    <th class="table-info text-center" scope="col">Planned</th>
+    <th class="table-info text-center" scope="col">Total</th>
+    <th class="table-info text-center" scope="col">Changed/Run</th>
 </thead>
 <tbody>
 {% for DjangoCeleryBeatPeriodictask in periodic_tasks %}
@@ -20,7 +20,7 @@
                     <b>args:</b> {{ DjangoCeleryBeatPeriodictask.args }}<br>
                     <b>kwargs:</b> {{ DjangoCeleryBeatPeriodictask.kwargs }}</td>
                 {% if DjangoCeleryBeatPeriodictask.crontab %}
-                    <td style="font-size:9pt" title="Hour/Minute/Weekday/Date/Month">
+                    <td style="font-size:9pt" title="Hour/Minute/Weekday/Date/Month"><i class="far fa-calendar-alt"></i>
                         {{ DjangoCeleryBeatPeriodictask.crontab.hour }}/
                         {{ DjangoCeleryBeatPeriodictask.crontab.minute }}/
                         {{ DjangoCeleryBeatPeriodictask.crontab.day_of_week }}/
@@ -30,7 +30,7 @@
                     </td>
                 {% endif %}
                 {% if DjangoCeleryBeatPeriodictask.interval %}
-                    <td style="font-size:9pt" title="every:">
+                    <td style="font-size:9pt" title="every:"><i class="far fa-clock"></i> Every:
                         {{ DjangoCeleryBeatPeriodictask.interval.every }} {{ DjangoCeleryBeatPeriodictask.interval.period }}
                         {% if DjangoCeleryBeatPeriodictask.expires  %}Expires: {{ DjangoCeleryBeatPeriodictask.expires  }}{% endif %}
                     </td>

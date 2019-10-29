@@ -39,6 +39,7 @@ class TasksOperations:
             'w_routines@tentacle',
             'w_parsing@tentacle',
         ]
+        self.workers_enabled = Options.objects.filter(option_key__exact='workers_enabled').values('option_value')[0]
 
     @staticmethod
     def task_success(task_itself):
@@ -247,6 +248,14 @@ class TasksOperations:
                 log.error(msg)
                 inspected.append(dict(no_worker=dict(all_tasks=[dict(args='none', name='none')], all_tasks_len=0, error=msg)))
         return inspected
+
+    @staticmethod
+    def get_registered_tasks(workers_list=None):
+        registered = []
+        inspect = app.control.inspect(destination=workers_list)  # :type worker list
+        for worker in workers_list:
+            registered.append(inspect.registered().get(worker, []))
+        return registered
 
     def get_free_worker(self, workers_list):
         """

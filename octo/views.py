@@ -9,13 +9,19 @@ from django.views.generic import TemplateView
 
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import permission_required
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from octo_adm.user_operations import UserCheck
 
 from octo_tku_patterns.model_views import AddmDigest
 from octo_tku_upload.views import TKUUpdateWorkbenchView
 from octo_tku_patterns.views import TestLastDigestListView, TestCasesListView
+
+from octo.helpers.tasks_oper import TasksOperations
 
 # Python logger
 import logging
@@ -101,3 +107,61 @@ def request_access(request):
 
     widgets = dict(SUBJECT = 'Request submitted. You asked for access to: {}'.format(came_from))
     return HttpResponse(page_widgets.render(widgets, request))
+
+
+class CeleryWorkersStatusREST(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request=None):
+        workers_list = self.request.GET.get('workers_list', [])
+        tasks_body = self.request.GET.get('tasks_body', False)
+        if not workers_list:
+            workers_list = TasksOperations().workers_enabled
+            workers_list = workers_list.get('option_value', '').split(',')
+        workers_list = [worker+'@tentacle' for worker in workers_list]
+
+        inspected = TasksOperations().check_active_reserved_short(workers_list, tasks_body)
+        # inspected = [
+        #     {
+        #         "alpha@tentacle": {
+        #             "all_tasks_len": 0
+        #         }
+        #     },
+        #     {
+        #         "beta@tentacle": {
+        #             "all_tasks_len": 0
+        #         }
+        #     },
+        #     {
+        #         "charlie@tentacle": {
+        #             "all_tasks_len": 0
+        #         }
+        #     },
+        #     {
+        #         "delta@tentacle": {
+        #             "all_tasks_len": 0
+        #         }
+        #     },
+        #     {
+        #         "echo@tentacle": {
+        #             "all_tasks_len": 0
+        #         }
+        #     },
+        #     {
+        #         "foxtrot@tentacle": {
+        #             "all_tasks_len": 0
+        #         }
+        #     },
+        #     {
+        #         "w_parsing@tentacle": {
+        #             "all_tasks_len": 0
+        #         }
+        #     },
+        #     {
+        #         "w_routines@tentacle": {
+        #             "all_tasks_len": 0
+        #         }
+        #     }]
+
+        return Response(inspected)

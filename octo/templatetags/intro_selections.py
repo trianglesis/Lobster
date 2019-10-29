@@ -44,18 +44,19 @@ def patterns_top_small(branch):
 
 @register.simple_tag
 def worker_queues_short():
-
     workers_t = loader.get_template('main/workers_queue.html')
-    workers_list = TasksOperations().workers_list[:]
+    workers_list = TasksOperations().workers_enabled
+    workers_list = workers_list.get('option_value', '').split(',')
+    workers_list = [worker+'@tentacle' for worker in workers_list]
+    log.debug("workers_list: %s", workers_list)
     # noinspection PyBroadException
-    # if os.name == "nt":
-    #     return ''
     try:
         inspected = TasksOperations().check_active_reserved_short(workers_list=workers_list)
         workers_short_stat = workers_t.render(dict(WORKERS=inspected))
         return workers_short_stat
     # Update exception based on Null workers
-    except Exception:
+    except Exception as e:
+        log.debug("worker_queues_short e: %s", e)
         return ''
 
 
