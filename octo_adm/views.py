@@ -55,7 +55,7 @@ class TaskOperations(APIView):
         """
         Execute task operations or return task operation status.
         If no args passed - return operations dict to show user all possible variants.
-        :param method:
+
         :param operation_key:
         :return:
         """
@@ -106,7 +106,8 @@ class TaskOperations(APIView):
 
     def post(self, request=None):
         """
-        Run task
+        Run task.
+        Response with task id if possible, or with method return\response?
 
         :param request:
         :return:
