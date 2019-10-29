@@ -1,0 +1,435 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "windows/logs/w_routines_err.log",
+			"settings":
+			{
+				"buffer_size": 197166,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "windows/logs/charlie_err.log",
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "windows/logs/w_parsing_err.log",
+			"settings":
+			{
+				"buffer_size": 3703,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "windows/logs/alpha_err.log",
+			"settings":
+			{
+				"buffer_size": 3041,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"html",
+				"Set Syntax: HTML"
+			],
+			[
+				"line end",
+				"Indentation: Reindent Lines"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 157.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/D/Projects/PycharmProjects/lobster",
+		"/D/Projects/PycharmProjects/lobster/z_DEV",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/mysqld"
+	],
+	"file_history":
+	[
+		"/D/Projects/PycharmProjects/lobster/venv/Lib/site-packages/babel/locale-data/en_KY.dat",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/charlie_err.log",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/w_routines_err.log",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/w_parsing_err.log",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/alpha_err.log",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/alpha_out.log",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/flower_err.log",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/mysqld/SELECT_test_digest_ALL_tkn_branch_ALL_addm_name_ONLY_failed.sql",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/mysqld/SELECT_test_digest_ALL_tkn_branch_ALL_addm_name_ONLY_passed.sql",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/mysqld/SELECT_test_digest_ALL_tkn_branch_ALL_addm_name_ONLY_skipped.sql",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/mysqld/SELECT_test_digest_ALL_tkn_branch_ALL_addm_name.sql",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/mysqld/JOIN_example.sql",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/mysqld/SELECT_test_digest_ALL_tkn_branch_ALL_addm_name_1.sql",
+		"/D/Projects/PycharmProjects/lobster/.git/config",
+		"/C/Users/sanek/.ssh/config",
+		"/E/Downloads/Кредитка.xls - statement_IS_Card.csv",
+		"/E/Downloads/Дебетка.xlsx - statement_IS_Card.csv",
+		"/D/Docs/IBank/Evol/360907_doo_190827_1725.dat",
+		"/C/Users/sanek/AppData/Local/Temp/VbCs2OGdh6k/360907_doo_190827_1725.dat",
+		"/D/Projects/PycharmProjects/triangle/z_DEV/commands.sh",
+		"/E/Downloads/262070129591_20151101_20190823.xls - statement_IS_Card.csv",
+		"/D/Projects/PycharmProjects/lobster/git_commit.sh",
+		"/D/Projects/PycharmProjects/lobster/git_pull.sh",
+		"/D/Projects/PycharmProjects/lobster/git_pull_reset.sh",
+		"/C/Users/sanek/Documents/Cities Skylines HELPS",
+		"/D/Projects/MySettings/Lobster_deployment_settings",
+		"/D/Projects/MySettings/.gitignore",
+		"/D/Projects/MySettings/git_pull_reset.sh",
+		"/D/Projects/PycharmProjects/lobster/.gitignore",
+		"/D/Projects/MySettings/git_pull.sh",
+		"/D/Projects/MySettings/git_commit.sh",
+		"/D/Projects/mysettings-master/git_commit.sh",
+		"/D/Projects/mysettings-master/git_pull.sh"
+	],
+	"find":
+	{
+		"height": 39.0
+	},
+	"find_in_files":
+	{
+		"height": 101.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"<=TaskPrepare=> MAIL when test item and addm set is TRUE",
+			"TSupport",
+			"t_user_mail",
+			"\"view_obj:",
+			"subject",
+			"test_latest_digest_all",
+			"actors_movies",
+			"movies",
+			"pattern_file_path",
+			"pattern_folder_change",
+			"octo_tku_patterns",
+			"test_items_prepared",
+			"patterns_count",
+			",\n",
+			"ctopus_dev_copy_",
+			".exe",
+			"octopus_dev_copy",
+			"PhaP5AHR~g5Bv",
+			"octo_test_cases_details",
+			"octo_options",
+			"collapseTwo",
+			"headingTwo",
+			"collapseOne",
+			"headingOne",
+			"mysettings-master",
+			"PUSH",
+			"11.0",
+			"', '"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"folders":
+	[
+		{
+			"path": "D:\\Projects\\PycharmProjects\\lobster"
+		}
+	],
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "windows/logs/w_routines_err.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 197166,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 1,
+					"file": "windows/logs/charlie_err.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 2,
+					"file": "windows/logs/w_parsing_err.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3703,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 3,
+					"file": "windows/logs/alpha_err.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3041,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			],
+			[
+				0,
+				1,
+				1,
+				2
+			],
+			[
+				1,
+				1,
+				2,
+				2
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.828137372695,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			0.536582565115,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 207.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

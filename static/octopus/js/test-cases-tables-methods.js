@@ -1007,9 +1007,15 @@ function RESTGetCaseByTestPyPath(caseData, modal, event, callThen) {
     return caseItem;
 }
 
+/**
+ * Inspect workers with short version.
+ * @param workerList
+ * @param tasksBody
+ * @param createWorkerRow
+ * @returns {Array}
+ * @constructor
+ */
 function RESTGetCeleryWorkersQueues(workerList, tasksBody, createWorkerRow) {
-    // console.log(`GET user test task by id: ${testButtonDataset.task_id}`);
-    let inspected = [];
     let data = {};
     if (tasksBody) {
         data.task_body = '1';
@@ -1026,8 +1032,8 @@ function RESTGetCeleryWorkersQueues(workerList, tasksBody, createWorkerRow) {
         data: data,
         "beforeSend": function (xhr, settings) {$.ajaxSettings.beforeSend(xhr, settings)},
         "success": function (result) {
-            console.log(`GET result: ${result}`);
-            console.table(result);
+            // console.log(`GET result: ${result}`);
+            // console.table(result);
             if (result) {
                 createWorkerRow(result)
             } else {
@@ -1038,5 +1044,5 @@ function RESTGetCeleryWorkersQueues(workerList, tasksBody, createWorkerRow) {
             console.log("GET TASK ERROR, something goes wrong...");
         },
     });
-    return inspected;
+    return [];
 }
