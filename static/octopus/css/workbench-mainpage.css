@@ -1,4 +1,7 @@
 /*General */
+.table-shrink {
+    margin-bottom: .4em !important;
+}
 .table-shrink td th {
     padding: .1rem !important;
     vertical-align: middle;
@@ -60,18 +63,50 @@
 
 /* Single sections */
 .main-page-content {
-    margin: 0 20px 40px 20px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    grid-template-areas:
+        ". a a a b b b ."
+        ". a a a b b b ."
+        ". a a a b b b ."
+        ". a a a b b b .";
+    grid-auto-rows: minmax(min-content, max-content);
+    height: 100px;
+}
+
+.grid-col-1 {
+    grid-area: a;
+    grid-row: auto;
+}
+.grid-col-2 {
+    grid-area: b;
+    grid-row: auto;
+}
+
+.grid-col-3 {
+    grid-column-start: a;
+    grid-column-end: b;
 }
 
 .main-page-addm-digest {
+    grid-area: a;
     padding-bottom: 1em;
 }
 .main-page-upload-cont-digest{
+    grid-area: b;
     padding-bottom: 1em;
 }
 .main-page-upload-ga-digest{
+    grid-area: c;
     padding-bottom: 1em;
 }
+
+.workers-cron {
+    grid-area: d;
+    padding-bottom: 50px;
+}
+
 
 .addm-digest-table-container tr, td, th {
     padding: .1rem !important;
@@ -94,9 +129,6 @@
     display: none;
 }
 
-.workers-cron {
-    padding-bottom: 50px;
-}
 
 /* Tooltip for tku test in table */
 .popover > div.popover-body > div {
