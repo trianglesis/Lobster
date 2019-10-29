@@ -271,7 +271,6 @@ class PatternRoutineCases:
                               t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
 
                 """ Sync every available ADDM with Rsync """
-                # TODO: Fix: "error": "FileNotFoundError(2, 'No such file or directory')",
                 Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=fake_run,
                               t_queue=_addm_group+'@tentacle.dq2',
                               t_args=[mail_task_arg],
@@ -356,7 +355,7 @@ class TaskPrepare:
         log.info("<=TaskPrepare=> Prepare tests for user: %s - %s", self.user_name, self.user_email)
 
         # It's only single test run can include wiping for test_function.
-        self.test_function = self.selector.get('test_function', None)
+        self.test_function = self.request.get('test_function', None)
 
         # Internal statuses:
         self.silent = False
@@ -420,7 +419,7 @@ class TaskPrepare:
         log.warning("TASK PSEUDO RUNNING in TaskPrepare.run_tku_patterns")
 
         # 0. Init test mail?
-        # self.mail_status(mail_opts=dict(mode='init', view_obj=self.view_obj))
+        self.mail_status(mail_opts=dict(mode='init', view_obj=self.view_obj))
 
         # 1. Select cases for test
         cases_to_test = self.case_selection()
@@ -486,16 +485,19 @@ class TaskPrepare:
         deleted = []
         if self.request.get('wipe'):
             self.wipe = True
-            log.debug("<=TaskPrepare=> Will wipe old logs for selected case(s)")
+            log.info("<=TaskPrepare=> Will wipe old logs for selected case(s)")
         elif self.wipe and self.refresh:
-            log.debug("<=TaskPrepare=> Forced: Will wipe old logs for selected case(s). By: self.refresh = %s", self.refresh)
+            log.info("<=TaskPrepare=> Forced: Will wipe old logs for selected case(s). By: self.refresh = %s", self.refresh)
 
         if self.fake_run:
             return []
 
-        for test_item in test_items:
-            deleted_log = self.db_logs_wipe(test_item)
-            deleted.append(deleted_log)
+        if self.wipe:
+            for test_item in test_items:
+                deleted_log = self.db_logs_wipe(test_item)
+                deleted.append(deleted_log)
+        else:
+            log.info("<=TaskPrepare=> Not wiping previous logs.")
         return deleted
 
     def db_logs_wipe(self, test_item):
@@ -786,7 +788,6 @@ class TaskPrepare:
                 f'refresh={self.refresh};test_py_path={test_item["test_py_path"]}'
 
         # Test task exec:
-        # TODO: Fix: "error": "FileNotFoundError(2, 'No such file or directory')",
         Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(addm_items=list(addm_set), test_item=test_item,
