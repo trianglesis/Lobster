@@ -3,8 +3,7 @@ Keep here admin part of Octopus site
 """
 
 from django.conf.urls import url
-from octo_adm.views import AdminFunctions
-from octo_adm.views import CeleryInteract
+from octo_adm.views import AdminFunctions, CeleryInteract, TaskOperations
 
 
 urlpatterns = [
@@ -77,4 +76,8 @@ urlpatterns = [
     # System command to restart celery workers:
     url(r'^celery_service_restart/', CeleryInteract.celery_service_restart,
         name='celery_service_restart'),
+
+    # NEW:
+    # REST Support for ADMIN functions and tasks:
+    url(r'^task_operation/', TaskOperations.as_view(), name='task_operations'),
 ]

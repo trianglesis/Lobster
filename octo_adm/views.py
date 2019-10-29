@@ -2,13 +2,19 @@
 OCTO ADM - pages and widgets and functions.
 """
 
-import os
 import logging
+from time import sleep
 from django.template import loader
 from django.http import HttpResponse
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
+
+from django.views.generic import TemplateView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from run_core.models import AddmDev
 from run_core.addm_operations import ADDMOperations
@@ -27,9 +33,98 @@ from octo.helpers.tasks_run import Runner
 
 log = logging.getLogger("octo.octologger")
 
-if os.name == "nt":
-    log.warning("On Local test system run Fake=True! Be aware!")
-    fake_run = True
+
+class AdminWorkbench(TemplateView):
+    pass
+
+
+def fake_function(*args, **kwargs):
+    log.debug("Run pseudo task with args=%s kwargs=%s", args, kwargs)
+    sleep(10)
+    return dict(
+        task_answer = 'Yup, something doing.',
+        task_id='8943576894567-4589734589347-i834765783465',
+    )
+
+
+class TaskOperations(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def task_operations(operation_key=None):
+        """
+        Execute task operations or return task operation status.
+        If no args passed - return operations dict to show user all possible variants.
+        :param method:
+        :param operation_key:
+        :return:
+        """
+        operations = dict(
+            tasks_get_registered      = dict(func=fake_function, doc='Show all registered tasks. For all workers, if worker is not specified.', wiki='Show Link to official docs'),
+            tasks_get_active          = dict(func=fake_function, doc='Show all active(running) tasks. For all workers, if worker is not specified.', wiki='Show Link to official docs'),
+            tasks_get_reserved        = dict(func=fake_function, doc='Show all reserved(pending\\queued) tasks. For all workers, if worker is not specified.', wiki='Show Link to official docs'),
+            tasks_get_active_reserved = dict(func=fake_function, doc='Get all active/reserved tasks. For all workers, if worker is not specified.', wiki='Show Link to official docs'),
+            tasks_get_results         = dict(func=fake_function, doc='Get all tasks results, or specified results type.', wiki='Show Link to official docs'),  # Show all tasks results by type? FAILED, SUCCESS?
+            tasks_get_result          = dict(func=fake_function, doc='Get task result, by task ID.', wiki='Show Link to official docs'),  # Show single task result by id?
+
+            task_revoke_by_id    = dict(func=fake_function, doc='Revoke task by task ID.', wiki='Show link to official doc'),
+            task_revoke_active   = dict(func=fake_function, doc='Revoke all active tasks.', wiki='Show link to official doc'),  # Specify worker, revoke all active tasks if None (do not revoke reserved!)
+            task_revoke_reserved = dict(func=fake_function, doc='Revoke all reserved tasks', wiki='Show link to official doc'),  # Specify worker, revoke all reserved tasks if None (do not revoke active!)
+            task_discard_all     = dict(func=fake_function, doc='Discard all tasks.', wiki='Show link to official doc'),  # Strongly admin\support method to cancel all tasks! (Check for user rights!)
+            task_purge_all       = dict(func=fake_function, doc='Purge all tasks.', wiki='Show link to official doc'),  # Strongly admin\support method to cancel all tasks! (Check for user rights!)
+            worker_ping          = dict(func=fake_function, doc='Ping worker. If worker is not specified - ping all.', wiki='Show link to official doc'),
+            worker_heartbeat     = dict(func=fake_function, doc='HeatBeat worker. If worker is not specified - for all.', wiki='Show link to official doc'),  # Check worker is live.
+            worker_restart       = dict(func=fake_function, doc='Restart worker. WARNING: This worker could become unavailable for site system!', wiki='Show link to official doc'),  # Probably could make it down for django and flower!
+        )
+        if operation_key:
+            actions = operations[operation_key]
+        else:
+            actions = operations
+        return actions
+
+    def get(self, request=None):
+        """
+        Show task and doc
+
+        :param request:
+        :return:
+        """
+        operation_key = self.request.GET.get('operation_key', None)
+        if not operation_key:
+            new_all_possible_operations = dict()
+            all_possible_operations = self.task_operations()
+            # all_possible_operations = [item for item in all_possible_operations.items()]
+            for key, value in all_possible_operations.items():
+                # noinspection PyUnresolvedReferences
+                value.pop("func")
+                new_all_possible_operations.update({key: value})
+            return Response(dict(new_all_possible_operations))
+        else:
+            operation = self.task_operations(operation_key=operation_key)
+            operation.pop('func')
+            return Response(operation)
+
+    def post(self, request=None):
+        """
+        Run task
+
+        :param request:
+        :return:
+        """
+        operation_key = self.request.POST.get('operation_key', None)
+        task_id = self.request.POST.get('task_id', None)
+        worker_name = self.request.POST.get('worker_name', None)
+        # TO RUN:
+        case = self.task_operations(operation_key)
+        log.debug("Running task operation specified: %s", case['doc'])
+        run = case['func']
+        result = run(task_id, worker_name=worker_name)
+        return Response(result)
+
+
+class ListAllAddmVmREST(APIView):
+    pass
 
 
 class AdminFunctions:
