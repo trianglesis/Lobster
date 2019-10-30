@@ -67,74 +67,74 @@ class TaskOperationsREST(APIView):
         operations = dict(
             tasks_get_registered      = dict(func=TasksOperations.tasks_get_registered, args='', kwargs='workers',
                                              doc='Show all registered tasks. For all workers, if worker is not specified.',
-                                             goto=goto_+'tasks_get_registered',
+                                             goto=f'{goto_}tasks_get_registered',
                                              wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-registered-tasks'),
             tasks_get_active          = dict(func=TasksOperations.tasks_get_active, args='', kwargs='workers',
                                              doc='Show all active(running) tasks. For all workers, if worker is not specified.',
-                                             goto=goto_+'tasks_get_active',
+                                             goto=f'{goto_}tasks_get_active',
                                              wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-currently-executing-tasks'),
             tasks_get_reserved        = dict(func=TasksOperations.tasks_get_reserved, args='', kwargs='workers',
                                              doc='Show all reserved(pending\\queued) tasks. For all workers, if worker is not specified.',
-                                             goto=goto_+'tasks_get_reserved',
+                                             goto=f'{goto_}tasks_get_reserved',
                                              wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-reserved-tasks'),
             tasks_get_scheduled       = dict(func=TasksOperations.tasks_get_scheduled, args='', kwargs='workers',
                                              doc='Show all scheduled tasks. For all workers, if worker is not specified.',
-                                             goto=goto_+'tasks_get_scheduled',
+                                             goto=f'{goto_}tasks_get_scheduled',
                                              wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-scheduled-eta-tasks'),
             tasks_get_active_reserved = dict(func=TasksOperations.tasks_get_active_reserved, args='', kwargs='workers',
                                              doc='Get all active/reserved tasks. For all workers, if worker is not specified.',
-                                             goto=goto_+'tasks_get_active_reserved',
+                                             goto=f'{goto_}tasks_get_active_reserved',
                                              wiki='Show Link to official docs'),
 
             tasks_get_results         = dict(func=TasksOperations.tasks_get_results, args='', kwargs='task_id',
                                              doc='Get all tasks results, or specified results type.',
-                                             goto=goto_+'tasks_get_results',
+                                             goto=f'{goto_}tasks_get_results',
                                              wiki='Please use /api/v1/octo/celery_task_meta/'),  # Show all tasks results by type? FAILED, SUCCESS?
             task_get_result           = dict(func=TasksOperations.tasks_get_results, args='', kwargs='task_id',
                                              doc='Get task result, by task ID.',
-                                             goto=goto_+'task_get_result',
+                                             goto=f'{goto_}task_get_result',
                                              wiki='Please use /api/v1/octo/celery_task_meta/'),  # Show single task result by id?
 
             task_revoke_by_id           = dict(func=TasksOperations.revoke_task_by_id, args='', kwargs='task_id',
                                                doc='Revoke task by task ID.',
-                                               goto=goto_+'task_revoke_by_id',
+                                               goto=f'{goto_}task_revoke_by_id',
                                                wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
             task_revoke_active          = dict(func=TasksOperations().revoke_tasks_active, args='', kwargs='workers',
                                                doc='Revoke all active tasks.',
-                                               goto=goto_+'task_revoke_active',
+                                               goto=f'{goto_}task_revoke_active',
                                                wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
             task_revoke_reserved        = dict(func=TasksOperations().revoke_tasks_reserved, args='', kwargs='workers',
                                                doc='Revoke all reserved tasks',
-                                               goto=goto_+'task_revoke_reserved',
+                                               goto=f'{goto_}task_revoke_reserved',
                                                wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
             task_revoke_active_reserved = dict(func=TasksOperations().revoke_tasks_active_reserved, args='', kwargs='workers',
                                                doc='Revoke all reserved and active tasks',
-                                               goto=goto_+'task_revoke_active_reserved',
+                                               goto=f'{goto_}task_revoke_active_reserved',
                                                wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
             task_discard_all            = dict(func=TasksOperations.task_discard_all, args='', kwargs='',
                                                doc='This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.',
-                                               goto=goto_+'task_discard_all',
+                                               goto=f'{goto_}task_discard_all',
                                                wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.discard_all'),
             task_purge_all              = dict(func=TasksOperations.task_purge_all, args='', kwargs='',
                                                doc='Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.',
-                                               goto=goto_+'task_purge_all',
+                                               goto=f'{goto_}task_purge_all',
                                                wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.purge'),
 
             workers_summary  = dict(func=TasksOperations.get_workers_summary, args='', kwargs='workers',
                                     doc='Inspect all available workers and see active and reserved tasks.',
-                                    goto=goto_+'workers_summary',
+                                    goto=f'{goto_}workers_summary',
                                     wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#ping'),
             worker_ping      = dict(func=WorkerOperations().worker_ping, args='', kwargs='workers',
                                     doc='Ping worker. If worker is not specified - ping all.',
-                                    goto=goto_+'worker_ping',
+                                    goto=f'{goto_}worker_ping',
                                     wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#ping'),
             worker_heartbeat = dict(func=WorkerOperations().worker_heartbeat, args='', kwargs='workers',
                                     doc='HeatBeat worker. If worker is not specified - for all.',
-                                    goto=goto_+'worker_heartbeat',
+                                    goto=f'{goto_}worker_heartbeat',
                                     wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.heartbeat'),
             worker_restart   = dict(func=WorkerOperations.worker_restart, args='', kwargs='workers',
                                     doc='Restart worker. WARNING: This worker could become unavailable for site system!',
-                                    goto=goto_+'worker_restart',
+                                    goto=f'{goto_}worker_restart',
                                     wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.pool_restart'),
         )
         if operation_key:
@@ -224,24 +224,25 @@ class AdminOperations(APIView):
         :param operation_key:
         :return:
         """
+        goto_ = 'http://'+curr_hostname+'/octo_admin/admin_operations/?operation_key='
         operations = dict(
-            # Related to internal ADDM CMD Commands execution:
-            addm_cleanup  = dict(func=fake_function, args='', kwargs='',
+            addm_cleanup  = dict(func=ADDMCases().clean_addm, args='', kwargs='mode, addm_group',
                                  doc='Run selected ADDM cleanup therapy. Options: (mode=(weekly, daily, tests), addm_group=(alpha,beta,...))',
-                                 wiki='Show Link to official docs'),
-            # TODO: Maybe mode cmd_k values to Octopus database somewhere?
-            addm_cmd_run  = dict(func=fake_function, args='', kwargs='',
+                                 goto=f'{goto_}addm_cleanup',
+                                 wiki='Example: operation_key=addm_cleanup;addm_group=alpha;mode=weekly'),
+            addm_cmd_run  = dict(func=ADDMCases().addm_cmd, args='', kwargs='cmd_k, addm_group',
                                  doc='Run ADDM registered command. Commands should be added to Octopus system. Options: (cmd_k=(TODO: Show all cmd_k?), addm_group=(alpha,beta,...))',
-                                 wiki='Show link to official doc'),
+                                 goto=f'{goto_}addm_cmd_run',
+                                 wiki='Example: operation_key=addm_cmd_run;addm_group=alpha;cmd_k=show_v'),
 
-            # Related to internal routine execution.
             addm_sync_shares = dict(func=fake_function, args='', kwargs='',
                                     doc='Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync. Options: (addm_group=(alpha,beta,...))',
-                                    wiki=''),
+                                    goto=f'{goto_}addm_sync_shares',
+                                    wiki='Example: operation_key=addm_sync_shares;addm_group=alpha'),
             p4_sync_force    = dict(func=fake_function, args='', kwargs='',
                                     doc='Execute routine for perforce "sync -f" will forced sync all files from p4 depot to Octopus FS. Options: (depot_path=//depot/branch/...)',
-                                    wiki=''),
-
+                                    goto=f'{goto_}p4_sync_force',
+                                    wiki='Example: operation_key=p4_sync_force;addm_group=alpha'),
         )
         if operation_key:
             # If no such operation key - show this message:
@@ -283,19 +284,32 @@ class AdminOperations(APIView):
         :return:
         """
         operation_key = self.request.POST.get('operation_key', None)
+        cmd_k = self.request.POST.get('cmd_k', None)
         mode = self.request.POST.get('mode', None)
         addm_group = self.request.POST.get('addm_group', None)
-        cmd_k = self.request.POST.get('cmd_k', None)
-        # TO RUN:
         if operation_key:
-
             case = self.task_operations(operation_key)
-            log.debug("Running task operation specified: %s", case['doc'])
             run = case['func']
-            result = run(mode, worker_name=addm_group, cmd_k=cmd_k)
-            result.update(doc=case['doc'])
-            return Response(result)
+            if case.get('kwargs'):
+                kwargs = dict(workers=None, mode=None, cmd_k=None, subject=case['doc'])
+                # For Debug purposes use fake_run=True
+                kwargs.update(fake_run=True)
 
+                if addm_group:  # Can we request for more than one group at once?
+                    addm_group = addm_group.split(',')
+                    kwargs.update(addm_group=addm_group)
+
+                if mode:
+                    kwargs.update(mode=mode)
+
+                if cmd_k:
+                    kwargs.update(cmd_k=cmd_k)
+
+                log.debug("Running task: %s", kwargs)
+                result = run(**kwargs)
+            else:
+                result = run()
+            return Response(result)
         else:
             return Response(dict(error='No operation_key were specified!'))
 

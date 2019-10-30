@@ -151,15 +151,12 @@ class ADDMCases:
         """
         from octo.tasks import TSupport
         from octo.helpers.tasks_oper import WorkerOperations
-        # TODO: Maybe move this function elsewhere?
 
         addm_group_l = kwargs.get('addm_group', [])
         user_name = kwargs.get('user_name', 'cron')
         fake_run = kwargs.get('fake_run', False)
 
-        # lock=True;  - is not used, to allow other users to run tests on the same worker!
-        t_tag = 'tag=addm_groups_validate;type=routine;user_name={}'.format(user_name)
-
+        t_tag = f'tag=addm_groups_validate;type=routine;user_name={user_name}'
         if not isinstance(addm_group_l, list):
             addm_group_l = addm_group_l.split(',')
 
@@ -167,13 +164,13 @@ class ADDMCases:
             ping_list = WorkerOperations().service_workers_list[:]
             for _worker in addm_group_l:
                 if "@tentacle" not in _worker:
-                    _worker = "{}@tentacle".format(_worker)
+                    _worker = f"{_worker}@tentacle"
                 ping_list.append(_worker)
             worker_up = WorkerOperations().worker_heartbeat(worker_list=ping_list)
             if worker_up.get('down'):
                 log.error("Some workers may be down: %s - sending email!", worker_up)
-                subject = 'Worker is down, cannot run all other tasks. W: {} '.format(worker_up)
-                body = '''Found some workers are DOWN while run (addm_groups_validate) List: {}'''.format(worker_up)
+                subject = f'Worker is down, cannot run all other tasks. W: {worker_up}'
+                body = f'Found some workers are DOWN while run (addm_groups_validate) List: {worker_up}'
                 admin = mails['admin']
                 Mails.short(subject=subject, body=body, send_to=[admin])
                 # Nothing else to do here.
@@ -182,13 +179,14 @@ class ADDMCases:
                 occupy_sec = 2
                 for addm_group in addm_group_l:
                     occupy_sec += 20
-                    t_tag_busy = "{} | sleep {} Check addm group.".format(t_tag, occupy_sec)
-                    addm_val_kw = dict(occupy_sec=occupy_sec, addm_group=addm_group, ping_list=ping_list, user_name=user_name)
+                    t_tag_busy = f"{t_tag} | sleep {occupy_sec} Check addm group."
+                    addm_val_kw = dict(occupy_sec=occupy_sec, addm_group=addm_group,
+                                       ping_list=ping_list, user_name=user_name)
                     Runner.fire_t(TSupport.t_occupy_w, fake_run=fake_run,
                                   t_args=[t_tag_busy, occupy_sec],
                                   t_kwargs=addm_val_kw,
-                                  t_queue=addm_group+'@tentacle.dq2',
-                                  t_routing_key = '{}.t_occupy_w'.format(addm_group))
+                                  t_queue=f'{addm_group}@tentacle.dq2',
+                                  t_routing_key = f'{addm_group}.t_occupy_w')
                 return addm_group_l
 
     def clean_addm(self, **kwargs):
@@ -211,20 +209,23 @@ class ADDMCases:
         subject = kwargs.get('subject', 'Running: t_routine_clean_addm')  # type: str
         user_name = kwargs.get('user_name', 'cron')  # type: str
         user_mail = kwargs.get('user_mail', [])  # type: str
-        addm_group_arg = kwargs.get('addm_group')  # type: str
+        addm_group = kwargs.get('addm_group', [])  # type: list
         fake_run = kwargs.get('fake_run', False)
 
         Mails.short(subject=subject, body=subject, send_to=[user_mail])
 
-        addm_group_l = self.addm_groups_validate(addm_group=addm_group_arg)  # type: list
+        tasks_ids = dict()
+        addm_group_l = self.addm_groups_validate(addm_group=addm_group)  # type: list
         for addm_group in addm_group_l:
-            t_tag = 'tag=addm_cleanup;lvl=user;type=user_run;user_name={};mode={};addm={}"'.format(user_name, mode, addm_group)
-            # Add selected routine:
-            Runner.fire_t(TaskADDMService.t_addm_clean, fake_run=fake_run,
-                          t_args=[t_tag],
-                          t_kwargs=dict(info_string=subject, addm_group=addm_group, mode=mode),
-                          t_queue=addm_group + '@tentacle.dq2',
-                          t_routing_key='{}.t_addm_clean.{}'.format(addm_group, mode))
+            t_tag = f'tag=addm_cleanup;user_name={user_name};mode={mode};addm={addm_group}'
+            task = Runner.fire_t(TaskADDMService.t_addm_clean, fake_run=fake_run,
+                                 t_args=[t_tag],
+                                 t_kwargs=dict(info_string=subject, addm_group=addm_group, mode=mode),
+                                 t_queue=f'{addm_group}@tentacle.dq2',
+                                 t_routing_key=f'{addm_group}.t_addm_clean.{mode}'
+                                 )
+            tasks_ids.update({addm_group: task.id})
+        return tasks_ids
 
     def addm_cmd(self, **kwargs):
         """
@@ -246,29 +247,28 @@ class ADDMCases:
         subject = kwargs.get('subject', 'Running: t_routine_addm_cmd')  # type: str
         user_name = kwargs.get('user_name', 'cron')  # type: str
         user_mail = kwargs.get('user_mail', [])  # type: str
-        addm_group_arg = kwargs.get('addm_group')  # type: str
+        addm_group = kwargs.get('addm_group', [])  # type: list
         fake_run = kwargs.get('fake_run', False)
         log.debug("<=addm_cmd=> kwargs %s", kwargs)
 
         if not user_name == 'cron':
             Mails.short(subject=subject, body=subject, send_to=[user_mail])
 
-        addm_group_l = self.addm_groups_validate(addm_group=addm_group_arg)  # type: list
-        # lock=True;  - is not used, to allow other users to run tests on the same worker!
-        tsk_msg = 'tag=t_addm_cmd_k;type=task;user_name={user_name};addm_group={addm_group};cmd_k={cmd_k} ' \
-                  '| on: "{addm_group}" by: {user_name}'
-
+        tasks_ids = dict()
+        addm_group_l = self.addm_groups_validate(addm_group=addm_group)  # type: list
         for addm_group in addm_group_l:
-            t_tag = tsk_msg.format(user_name=user_name, addm_group=addm_group, cmd_k=cmd_k)
-            # Add selected routine:
+            t_tag = f'tag=t_addm_cmd_k;type=task;user_name={user_name};' \
+                    f'addm_group={addm_group};cmd_k={cmd_k}| on: "{addm_group}" by: {user_name}'
             t_kwargs = dict(info_string=subject, addm_group=addm_group, cmd_k=cmd_k)
             task = Runner.fire_t(TaskADDMService.t_addm_cmd_k, fake_run=fake_run,
-                                 t_queue=addm_group + '@tentacle.dq2',
+                                 t_queue=f'{addm_group}@tentacle.dq2',
                                  t_args=[t_tag],
                                  t_kwargs=t_kwargs,
-                                 t_routing_key='{}.addm_custom_cmd'.format(addm_group))
+                                 t_routing_key=f'{addm_group}.addm_custom_cmd'
+                                 )
             log.debug("<=addm_cmd=> Added task: %s", task)
-        return True
+            tasks_ids.update({addm_group: task.id})
+        return tasks_ids
 
 
 class AddmClean:

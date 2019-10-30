@@ -10,7 +10,6 @@ import logging
 log = logging.getLogger("octo.octologger")
 
 
-
 class Runner:
 
     @staticmethod
@@ -21,8 +20,6 @@ class Runner:
         Based on kwargs
         - will execute task in usual manner.
         - will show debug info or simulate task execution with fake task with sleep timer.
-
-
         :param task:
         :param kwargs:
         :return:
