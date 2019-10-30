@@ -6,6 +6,7 @@ import logging
 from time import sleep
 from django.template import loader
 from django.http import HttpResponse
+from django.conf import settings
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
@@ -33,6 +34,7 @@ from octo_tku_patterns.tasks import TPatternParse
 from octo.helpers.tasks_run import Runner
 
 log = logging.getLogger("octo.octologger")
+curr_hostname = getattr(settings, 'SITE_DOMAIN', None)
 
 
 class AdminWorkbench(TemplateView):
@@ -61,60 +63,78 @@ class TaskOperationsREST(APIView):
         :param operation_key:
         :return:
         """
+        goto_ = 'http://'+curr_hostname+'/octo_admin/task_operation/?operation_key='
         operations = dict(
             tasks_get_registered      = dict(func=TasksOperations.tasks_get_registered, args='', kwargs='workers',
                                              doc='Show all registered tasks. For all workers, if worker is not specified.',
+                                             goto=goto_+'tasks_get_registered',
                                              wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-registered-tasks'),
             tasks_get_active          = dict(func=TasksOperations.tasks_get_active, args='', kwargs='workers',
                                              doc='Show all active(running) tasks. For all workers, if worker is not specified.',
+                                             goto=goto_+'tasks_get_active',
                                              wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-currently-executing-tasks'),
             tasks_get_reserved        = dict(func=TasksOperations.tasks_get_reserved, args='', kwargs='workers',
                                              doc='Show all reserved(pending\\queued) tasks. For all workers, if worker is not specified.',
+                                             goto=goto_+'tasks_get_reserved',
                                              wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-reserved-tasks'),
             tasks_get_scheduled       = dict(func=TasksOperations.tasks_get_scheduled, args='', kwargs='workers',
                                              doc='Show all scheduled tasks. For all workers, if worker is not specified.',
+                                             goto=goto_+'tasks_get_scheduled',
                                              wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-scheduled-eta-tasks'),
             tasks_get_active_reserved = dict(func=TasksOperations.tasks_get_active_reserved, args='', kwargs='workers',
                                              doc='Get all active/reserved tasks. For all workers, if worker is not specified.',
+                                             goto=goto_+'tasks_get_active_reserved',
                                              wiki='Show Link to official docs'),
 
             tasks_get_results         = dict(func=TasksOperations.tasks_get_results, args='', kwargs='task_id',
                                              doc='Get all tasks results, or specified results type.',
+                                             goto=goto_+'tasks_get_results',
                                              wiki='Please use /api/v1/octo/celery_task_meta/'),  # Show all tasks results by type? FAILED, SUCCESS?
             task_get_result           = dict(func=TasksOperations.tasks_get_results, args='', kwargs='task_id',
                                              doc='Get task result, by task ID.',
+                                             goto=goto_+'task_get_result',
                                              wiki='Please use /api/v1/octo/celery_task_meta/'),  # Show single task result by id?
 
             task_revoke_by_id           = dict(func=TasksOperations.revoke_task_by_id, args='', kwargs='task_id',
                                                doc='Revoke task by task ID.',
+                                               goto=goto_+'task_revoke_by_id',
                                                wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
             task_revoke_active          = dict(func=TasksOperations().revoke_tasks_active, args='', kwargs='workers',
                                                doc='Revoke all active tasks.',
+                                               goto=goto_+'task_revoke_active',
                                                wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
             task_revoke_reserved        = dict(func=TasksOperations().revoke_tasks_reserved, args='', kwargs='workers',
                                                doc='Revoke all reserved tasks',
+                                               goto=goto_+'task_revoke_reserved',
                                                wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
             task_revoke_active_reserved = dict(func=TasksOperations().revoke_tasks_active_reserved, args='', kwargs='workers',
                                                doc='Revoke all reserved and active tasks',
+                                               goto=goto_+'task_revoke_active_reserved',
                                                wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
             task_discard_all            = dict(func=TasksOperations.task_discard_all, args='', kwargs='',
                                                doc='This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.',
+                                               goto=goto_+'task_discard_all',
                                                wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.discard_all'),
             task_purge_all              = dict(func=TasksOperations.task_purge_all, args='', kwargs='',
                                                doc='Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.',
+                                               goto=goto_+'task_purge_all',
                                                wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.purge'),
 
             workers_summary  = dict(func=TasksOperations.get_workers_summary, args='', kwargs='workers',
                                     doc='Inspect all available workers and see active and reserved tasks.',
+                                    goto=goto_+'workers_summary',
                                     wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#ping'),
             worker_ping      = dict(func=WorkerOperations().worker_ping, args='', kwargs='workers',
                                     doc='Ping worker. If worker is not specified - ping all.',
+                                    goto=goto_+'worker_ping',
                                     wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#ping'),
             worker_heartbeat = dict(func=WorkerOperations().worker_heartbeat, args='', kwargs='workers',
                                     doc='HeatBeat worker. If worker is not specified - for all.',
+                                    goto=goto_+'worker_heartbeat',
                                     wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.heartbeat'),
             worker_restart   = dict(func=WorkerOperations.worker_restart, args='', kwargs='workers',
                                     doc='Restart worker. WARNING: This worker could become unavailable for site system!',
+                                    goto=goto_+'worker_restart',
                                     wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.pool_restart'),
         )
         if operation_key:
