@@ -48,7 +48,7 @@ def fake_function(*args, **kwargs):
     )
 
 
-class TaskOperations(APIView):
+class TaskOperationsREST(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -64,51 +64,58 @@ class TaskOperations(APIView):
         operations = dict(
             tasks_get_registered      = dict(func=TasksOperations.tasks_get_registered, args='', kwargs='workers',
                                              doc='Show all registered tasks. For all workers, if worker is not specified.',
-                                             wiki='Show Link to official docs'),
+                                             wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-registered-tasks'),
             tasks_get_active          = dict(func=TasksOperations.tasks_get_active, args='', kwargs='workers',
                                              doc='Show all active(running) tasks. For all workers, if worker is not specified.',
-                                             wiki='Show Link to official docs'),
+                                             wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-currently-executing-tasks'),
             tasks_get_reserved        = dict(func=TasksOperations.tasks_get_reserved, args='', kwargs='workers',
                                              doc='Show all reserved(pending\\queued) tasks. For all workers, if worker is not specified.',
-                                             wiki='Show Link to official docs'),
+                                             wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-reserved-tasks'),
+            tasks_get_scheduled       = dict(func=TasksOperations.tasks_get_scheduled, args='', kwargs='workers',
+                                             doc='Show all scheduled tasks. For all workers, if worker is not specified.',
+                                             wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#dump-of-scheduled-eta-tasks'),
             tasks_get_active_reserved = dict(func=TasksOperations.tasks_get_active_reserved, args='', kwargs='workers',
                                              doc='Get all active/reserved tasks. For all workers, if worker is not specified.',
                                              wiki='Show Link to official docs'),
-            tasks_get_results         = dict(func=fake_function, args='', kwargs='task_id',
-                                             doc='Get all tasks results, or specified results type.',
-                                             wiki='Show Link to official docs'),  # Show all tasks results by type? FAILED, SUCCESS?
-            tasks_get_result          = dict(func=fake_function, args='', kwargs='task_id',
-                                             doc='Get task result, by task ID.',
-                                             wiki='Show Link to official docs'),  # Show single task result by id?
 
-            task_revoke_by_id    = dict(func=fake_function, args='', kwargs='task_id',
-                                        doc='Revoke task by task ID.',
-                                        wiki='Show link to official doc'),
-            task_revoke_active   = dict(func=fake_function, args='', kwargs='workers',
-                                        doc='Revoke all active tasks.',
-                                        wiki='Show link to official doc'),  # Specify worker, revoke all active tasks if None (do not revoke reserved!)
-            task_revoke_reserved = dict(func=fake_function, args='', kwargs='workers',
-                                        doc='Revoke all reserved tasks',
-                                        wiki='Show link to official doc'),  # Specify worker, revoke all reserved tasks if None (do not revoke active!)
-            task_discard_all     = dict(func=fake_function, args='', kwargs='',
-                                        doc='Discard all tasks.',
-                                        wiki='Show link to official doc'),  # Strongly admin\support method to cancel all tasks! (Check for user rights!)
-            task_purge_all       = dict(func=fake_function, args='', kwargs='',
-                                        doc='Purge all tasks.',
-                                        wiki='Show link to official doc'),  # Strongly admin\support method to cancel all tasks! (Check for user rights!)
+            tasks_get_results         = dict(func=TasksOperations.tasks_get_results, args='', kwargs='task_id',
+                                             doc='Get all tasks results, or specified results type.',
+                                             wiki='Please use /api/v1/octo/celery_task_meta/'),  # Show all tasks results by type? FAILED, SUCCESS?
+            task_get_result           = dict(func=TasksOperations.tasks_get_results, args='', kwargs='task_id',
+                                             doc='Get task result, by task ID.',
+                                             wiki='Please use /api/v1/octo/celery_task_meta/'),  # Show single task result by id?
+
+            task_revoke_by_id           = dict(func=TasksOperations.revoke_task_by_id, args='', kwargs='task_id',
+                                               doc='Revoke task by task ID.',
+                                               wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
+            task_revoke_active          = dict(func=TasksOperations().revoke_tasks_active, args='', kwargs='workers',
+                                               doc='Revoke all active tasks.',
+                                               wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
+            task_revoke_reserved        = dict(func=TasksOperations().revoke_tasks_reserved, args='', kwargs='workers',
+                                               doc='Revoke all reserved tasks',
+                                               wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
+            task_revoke_active_reserved = dict(func=TasksOperations().revoke_tasks_active_reserved, args='', kwargs='workers',
+                                               doc='Revoke all reserved and active tasks',
+                                               wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks'),
+            task_discard_all            = dict(func=TasksOperations.task_discard_all, args='', kwargs='',
+                                               doc='This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.',
+                                               wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.discard_all'),
+            task_purge_all              = dict(func=TasksOperations.task_purge_all, args='', kwargs='',
+                                               doc='Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.',
+                                               wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.purge'),
 
             workers_summary  = dict(func=TasksOperations.get_workers_summary, args='', kwargs='workers',
                                     doc='Inspect all available workers and see active and reserved tasks.',
-                                    wiki='Show link to official doc'),
+                                    wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#ping'),
             worker_ping      = dict(func=WorkerOperations().worker_ping, args='', kwargs='workers',
                                     doc='Ping worker. If worker is not specified - ping all.',
-                                    wiki='Show link to official doc'),
+                                    wiki='https://docs.celeryproject.org/en/latest/userguide/workers.html#ping'),
             worker_heartbeat = dict(func=WorkerOperations().worker_heartbeat, args='', kwargs='workers',
                                     doc='HeatBeat worker. If worker is not specified - for all.',
-                                    wiki='Show link to official doc'),  # Check worker is live.
+                                    wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.heartbeat'),
             worker_restart   = dict(func=WorkerOperations.worker_restart, args='', kwargs='workers',
                                     doc='Restart worker. WARNING: This worker could become unavailable for site system!',
-                                    wiki='Show link to official doc'),  # Probably could make it down for django and flower!
+                                    wiki='https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.pool_restart'),
         )
         if operation_key:
             actions = operations.get(operation_key, 'No such operation key')
@@ -167,6 +174,8 @@ class TaskOperations(APIView):
 
                 if task_id:  # Only add task id if argument passed with request.
                     kwargs.update(task_id=task_id)
+                else:
+                    kwargs.update(task_id=None)  # Keep arg, but with None.
 
                 # RUN:
                 result = run(**kwargs)
@@ -779,7 +788,7 @@ class CeleryInteract:
         # worker_name = request.GET.get('worker_name', False)
         log.debug("<=SEL OUT=>   discard_all_tasks_waiting(): %s", user_str)
 
-        discarded_tasks = TasksOperations().discard_all_tasks_waiting()
+        discarded_tasks = TasksOperations().task_discard_all()
         subject = "Discard all tasks. ({}) - discarded. On {} request. List refreshed...".format(
             discarded_tasks, user_name)
         # get new items after current task was killed.
@@ -810,7 +819,7 @@ class CeleryInteract:
         workers_status_t = loader.get_template('service/workers_status.html')
         log.debug("<=SEL OUT=>   purge_all_tasks_waiting(): %s", user_str)
         # worker_name = request.GET.get('worker_name', False)
-        purged_tasks = TasksOperations().purge_all_tasks_waiting()
+        purged_tasks = TasksOperations().task_purge_all()
         subject = "Purge all tasks. ({}) - purged. On {} request. List refreshed...".format(purged_tasks, user_name)
 
         # get new items after current task was killed.

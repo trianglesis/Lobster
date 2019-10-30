@@ -6,8 +6,14 @@ import logging
 import sys
 from time import sleep
 
+from celery.result import AsyncResult
+
 from octo.octo_celery import app
 from run_core.models import Options
+from octo.models import CeleryTaskmeta
+from octo.api.serializers import CeleryTaskmetaSerializer
+
+
 log = logging.getLogger("octo.octologger")
 
 
@@ -286,106 +292,9 @@ class TasksOperations:
 
         return excluded_list, included_list
 
-    @staticmethod
-    def revoke_task_by_id(task_id, terminate=False):
-        """
-        Push the button to cancel current task.
-        Tell all (or specific) workers to revoke a task by id.
-        If a task is revoked, the workers will ignore the task and not execute it after all.
-        terminate (bool) – Also terminate the process currently working on the task (if any)
-
-        :param task_id:
-        :param terminate:
-        :return:
-        """
-        # This can kill worker:
-        # app.control.revoke(task_id, destination=None, terminate=terminate, signal='SIGTERM')
-        if terminate:
-            app.control.revoke(task_id, terminate=terminate, signal='SIGTERM')
-        else:
-            app.control.revoke(task_id)
-
-    def revoke_tasks_active(self, worker_name):
-        """
-        Revoke all active tasks one by one by theirs id.
-
-        :return:
-        """
-        tasks_revoked = 0
-        revoked_names = []
-
-        get_all_tasks_statuses = self.get_all_tasks_statuses(worker_name=worker_name)
-        inspect_workers        = get_all_tasks_statuses['inspect_workers']
-        task_active            = inspect_workers['active']
-
-        for worker_k, worker_v in task_active.items():
-            for task in worker_v:
-                self.revoke_task_by_id(task['id'])
-                tasks_revoked += 1
-                revoked_names.append(dict(
-                    task_id=task['id'],
-                    task_name=task['name'],
-                    task_args=task['args'],
-                    task_hostname=task['hostname'],
-                ))
-
-        return tasks_revoked, revoked_names
-
-    def revoke_tasks_reserved(self, worker_name):
-        """
-        Revoke all active tasks one by one by theirs id.
-
-        :return:
-        """
-        tasks_revoked = 0
-        revoked_names = []
-
-        get_all_tasks_statuses = self.get_all_tasks_statuses(worker_name=worker_name)
-        inspect_workers        = get_all_tasks_statuses['inspect_workers']
-        task_active            = inspect_workers['active']
-        task_reserved          = inspect_workers['reserved']
-
-        for worker_k, worker_v in task_active.items():
-            for task in worker_v:
-                self.revoke_task_by_id(task['id'])
-                tasks_revoked += 1
-                revoked_names.append(dict(
-                    task_id=task['id'],
-                    task_name=task['name'],
-                ))
-
-        for worker_k, worker_v in task_reserved.items():
-            for task in worker_v:
-                self.revoke_task_by_id(task['id'])
-                tasks_revoked += 1
-                revoked_names.append(dict(
-                    task_id=task['id'],
-                    task_name=task['name'],
-                ))
-
-        return tasks_revoked, revoked_names
-
-    @staticmethod
-    def discard_all_tasks_waiting():
-        """
-        Discard all waiting tasks. This will ignore all tasks waiting for execution,
-        and they will be deleted from the messaging server.
-        Returns:	the number of tasks discarded.
-        :return:
-        """
-        return app.control.discard_all()
-
-    @staticmethod
-    def purge_all_tasks_waiting():
-        """
-        Discard all waiting tasks. This will ignore all tasks waiting for
-        execution, and they will be deleted from the messaging server.
-        Returns:	the number of tasks discarded.
-        :return:
-        """
-        return app.control.purge()
 
     # VIA REST:
+    # Inspect workers:
     @staticmethod
     def tasks_get_active(**kwargs):
         workers = kwargs.get("workers", ())
@@ -397,7 +306,7 @@ class TasksOperations:
                 tasks.update({worker: w_tasks})
         else:
             inspect = app.control.inspect()
-            tasks = inspect.registered()
+            tasks = inspect.active()
         return tasks
 
     @staticmethod
@@ -411,7 +320,21 @@ class TasksOperations:
                 tasks.update({worker: w_tasks})
         else:
             inspect = app.control.inspect()
-            tasks = inspect.registered()
+            tasks = inspect.reserved()
+        return tasks
+
+    @staticmethod
+    def tasks_get_scheduled(**kwargs):
+        workers = kwargs.get("workers", ())
+        if workers:
+            tasks = dict()
+            inspect = app.control.inspect(workers)
+            for worker in workers:
+                w_tasks = inspect.scheduled().get(worker)
+                tasks.update({worker: w_tasks})
+        else:
+            inspect = app.control.inspect()
+            tasks = inspect.scheduled()
         return tasks
 
     @staticmethod
@@ -458,6 +381,125 @@ class TasksOperations:
             tasks = inspect.registered()
         return tasks
 
+    # Cancel tasks:
+    @staticmethod
+    def revoke_task_by_id(task_id, terminate=False):
+        """
+        Push the button to cancel current task.
+        Tell all (or specific) workers to revoke a task by id.
+        If a task is revoked, the workers will ignore the task and not execute it after all.
+        terminate (bool) – Also terminate the process currently working on the task (if any)
+
+        :param task_id:
+        :param terminate:
+        :return:
+        """
+        if terminate:
+            app.control.revoke(task_id, terminate=terminate, signal='SIGTERM')
+        else:
+            app.control.revoke(task_id)
+
+    def revoke_tasks_active(self, **kwargs):
+        """
+        Revoke all active tasks one by one by theirs id.
+
+        :return:
+        """
+        workers = kwargs.get("workers", None)
+
+        tasks_revoked = 0
+        revoked_names = []
+
+        active_tasks = self.tasks_get_active(workers=workers)
+        for worker_k, worker_v in active_tasks.items():
+            for task in worker_v:
+                self.revoke_task_by_id(task['id'])
+                tasks_revoked += 1
+                revoked_names.append(dict(
+                    task_id=task['id'],
+                    task_name=task['name'],
+                    task_args=task['args'],
+                    task_hostname=task['hostname'],
+                ))
+
+        return {'tasks_revoked': tasks_revoked, 'revoked_names': revoked_names}
+
+    def revoke_tasks_reserved(self, **kwargs):
+        """
+        Revoke all active tasks one by one by theirs id.
+
+        :return:
+        """
+        workers = kwargs.get("workers", None)
+
+        tasks_revoked = 0
+        revoked_names = []
+
+        active_tasks = self.tasks_get_reserved(workers=workers)
+        for worker_k, worker_v in active_tasks.items():
+            for task in worker_v:
+                self.revoke_task_by_id(task['id'])
+                tasks_revoked += 1
+                revoked_names.append(dict(
+                    task_id=task['id'],
+                    task_name=task['name'],
+                    task_args=task['args'],
+                    task_hostname=task['hostname'],
+                ))
+
+        return {'tasks_revoked': tasks_revoked, 'revoked_names': revoked_names}
+
+    def revoke_tasks_active_reserved(self, **kwargs):
+        workers = kwargs.get("workers", None)
+        revoked_active = self.revoke_tasks_active(workers=workers)
+        revoked_reserved = self.revoke_tasks_reserved(workers=workers)
+        return {'revoked_active': revoked_active, 'revoked_reserved': revoked_reserved}
+
+    @staticmethod
+    def task_discard_all():
+        """
+        Discard all waiting tasks. This will ignore all tasks waiting for execution,
+        and they will be deleted from the messaging server.
+        Returns:	the number of tasks discarded.
+        :return:
+        """
+        return app.control.discard_all()
+
+    @staticmethod
+    def task_purge_all():
+        """
+        Discard all waiting tasks. This will ignore all tasks waiting for
+        execution, and they will be deleted from the messaging server.
+        Returns:	the number of tasks discarded.
+        :return:
+        """
+        return app.control.purge()
+
+    # Get task statuses from DB:
+    def tasks_get_results(**kwargs):
+        task_id = kwargs.get('task_id', None)
+
+        if task_id:
+            tasks = CeleryTaskmeta.objects.filter(task_id__exact=task_id)
+        else:
+            tasks = CeleryTaskmeta.objects.all().order_by('-date_done')
+
+        if tasks:
+            serializer = CeleryTaskmetaSerializer(tasks, many=True)
+            return serializer.data
+
+        else:
+            res = AsyncResult(task_id)
+            task_res = dict(
+                task_id=task_id,
+                status=res.status,
+                result=res.result,
+                state=res.state,
+                args=res.args,
+            )
+            # log.debug("Task result: %s", task_res)
+            return [task_res]
+
 
 class WorkerOperations:
     """
@@ -491,15 +533,23 @@ class WorkerOperations:
             destination (Sequence[str]): List of worker names to send this
                 command to.
 
-        :param worker_list:
+        :param kwargs:
         :return:
         """
-        worker_list = kwargs.get("worker_list", None)
-        if worker_list and isinstance(worker_list, list):
-            w_restart = app.control.pool_restart(destination=worker_list)
+        worker_list = kwargs.get("worker_list", None)  # leave old param here, somewhere it still be used!
+        workers = kwargs.get("workers", None)
+        my_modules = ['octo.tasks', 'octo_adm.tasks', 'octo_tku_patterns.tasks', 'octo_tku_upload.tasks']
+
+        # TODO: Remove when ready.
+        if worker_list:
+            workers = worker_list
+
+        if workers and isinstance(workers, list):
+            w_restart = app.control.pool_restart(modules=my_modules, destination=workers, reload=True)
+            log.info("<=WorkerOperations=> Executing worker_restart(%s): w_restart - %s", workers, w_restart)
         else:
-            w_restart = app.control.pool_restart(reload=True)
-        log.debug("<=WorkerOperations=> Executing worker_restart(): w_restart - %s", w_restart)
+            w_restart = app.control.pool_restart(modules=my_modules, reload=True)
+            log.info("<=WorkerOperations=> Executing worker_restart() for all: %s", w_restart)
         return w_restart
 
     def worker_heartbeat(self, **kwargs):
