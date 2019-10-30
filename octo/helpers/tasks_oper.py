@@ -81,23 +81,6 @@ class TasksOperations:
                     active_task_list.append(task_item['id'])
         return active_task_list
 
-    # Wait only active tasks ID till list is empty:
-    def task_active_sum_wait(self, workers_list):
-        """
-        "While" for wait till queue empty of active tasks.
-        Should be self.initiated.
-        Can be broken if worker use an --autoscale option.
-
-        :type workers_list: list
-        :return: bool
-        """
-        log.debug("<=WAIT START=> Will wait worker active tasks list is empty.")
-        while not len(self.get_active_tasks_id(workers_list)) == 0:
-            sleep(1)
-        else:
-            log.debug("<=WAIT STOP=> Worker active task list is empty now!")
-            return True
-
     @staticmethod
     def get_all_tasks_statuses(worker_name):
         """
@@ -142,22 +125,6 @@ class TasksOperations:
         return dict(active = inspect.active(), reserved = inspect.reserved())
 
     @staticmethod
-    def get_active_tasks_list(worker_name):
-        """
-        Get list of currently active tasks list for chosen queue.
-
-        Example: 'active': {'double_decker@OCTOPUS': [], }
-
-        :return: list
-        """
-        inspect      = app.control.inspect()
-        active_tasks = inspect.active()
-        if active_tasks:
-            return active_tasks.get(worker_name, False)
-        else:
-            return []
-
-    @staticmethod
     def get_reserved_tasks_list(worker_name):
         """
         Get list of currently active tasks list for chosen queue.
@@ -176,10 +143,16 @@ class TasksOperations:
         return tasks_res
 
     @staticmethod
-    def get_workers_summary():
-        inspect = app.control.inspect()
-        t_active = inspect.active()
-        t_reserved  = inspect.reserved()
+    def get_workers_summary(**kwargs):
+        if kwargs.get('worker_name'):
+            inspect = app.control.inspect(kwargs.get('worker_name'))
+            t_active = inspect.active()
+            t_reserved  = inspect.reserved()
+        else:
+            inspect = app.control.inspect()
+            t_active = inspect.active()
+            t_reserved  = inspect.reserved()
+
         return t_active, t_reserved
 
     def check_active_reserved(self, workers_list=None):
@@ -412,6 +385,79 @@ class TasksOperations:
         """
         return app.control.purge()
 
+    # VIA REST:
+    @staticmethod
+    def tasks_get_active(**kwargs):
+        workers = kwargs.get("workers", ())
+        if workers:
+            tasks = dict()
+            inspect = app.control.inspect(workers)
+            for worker in workers:
+                w_tasks = inspect.active().get(worker)
+                tasks.update({worker: w_tasks})
+        else:
+            inspect = app.control.inspect()
+            tasks = inspect.registered()
+        return tasks
+
+    @staticmethod
+    def tasks_get_reserved(**kwargs):
+        workers = kwargs.get("workers", ())
+        if workers:
+            tasks = dict()
+            inspect = app.control.inspect(workers)
+            for worker in workers:
+                w_tasks = inspect.reserved().get(worker)
+                tasks.update({worker: w_tasks})
+        else:
+            inspect = app.control.inspect()
+            tasks = inspect.registered()
+        return tasks
+
+    @staticmethod
+    def tasks_get_active_reserved(**kwargs):
+        """
+        If workers arguments is passed = inspect only workers selected.
+        Then make dict with active, reserved tasks for each worker.
+
+        If no worker passed - inspect all.
+        :param kwargs:
+        :return:
+        """
+        workers = kwargs.get("workers", ())
+        if workers:
+            tasks = dict()
+            inspect = app.control.inspect(workers)
+            for worker in workers:
+                w_active = inspect.active().get(worker)
+                w_reserved = inspect.reserved().get(worker)
+                tasks.update({worker: {"active": w_active, "reserved": w_reserved}})
+        else:
+            inspect = app.control.inspect()
+            active = inspect.active()
+            reserved = inspect.reserved()
+            tasks = {'active': active, 'reserved': reserved}
+        return tasks
+
+    @staticmethod
+    def tasks_get_registered(**kwargs):
+        """
+        operation_key=tasks_get_registered;workers=alpha,charlie
+        :param kwargs:
+        :return:
+        """
+        workers = kwargs.get("workers", ())
+        if workers:
+            tasks = dict()
+            inspect = app.control.inspect(workers)
+            for worker in workers:
+                w_tasks = inspect.registered().get(worker)
+                tasks.update({worker: w_tasks})
+        else:
+            inspect = app.control.inspect()
+            tasks = inspect.registered()
+        return tasks
+
 
 class WorkerOperations:
     """
@@ -433,7 +479,7 @@ class WorkerOperations:
         return worker_up
 
     @staticmethod
-    def worker_restart(worker_list=None):
+    def worker_restart(**kwargs):
         """
         Control.pool_restart(modules=None, reload=False, reloader=None, destination=None, **kwargs)[source]
         Restart the execution pools of all or specific workers.
@@ -448,6 +494,7 @@ class WorkerOperations:
         :param worker_list:
         :return:
         """
+        worker_list = kwargs.get("worker_list", None)
         if worker_list and isinstance(worker_list, list):
             w_restart = app.control.pool_restart(destination=worker_list)
         else:
@@ -455,7 +502,7 @@ class WorkerOperations:
         log.debug("<=WorkerOperations=> Executing worker_restart(): w_restart - %s", w_restart)
         return w_restart
 
-    def worker_heartbeat(self, worker_list=None):
+    def worker_heartbeat(self, **kwargs):
         """
         Check if worker is listen to.
         Heartbeat return None
@@ -464,18 +511,24 @@ class WorkerOperations:
         :param worker_list:
         :return:
         """
+        worker_list = kwargs.get("worker_list", None)  # leave old param here, somewhere it still be used!
+        workers = kwargs.get("workers", None)
         worker_up = dict()
 
-        if worker_list and isinstance(worker_list, list):
-            app.control.heartbeat(destination=worker_list)
-            w_ping = app.control.ping(destination=worker_list, timeout=10)
+        # TODO: Remove when ready.
+        if worker_list:
+            workers = worker_list
 
-            if len(w_ping) != len(worker_list):
+        if workers and isinstance(workers, list):
+            app.control.heartbeat(destination=workers)
+            w_ping = app.control.ping(destination=workers, timeout=10)
+
+            if len(w_ping) != len(workers):
                 down = []
-                for w_can in worker_list:
+                for w_can in workers:
                     if not any([ping.get(w_can) for ping in w_ping]):
                         down.append(w_can)
-                worker_up.update(status='down', workers_passed=worker_list, workers_resolved=w_ping, down=down)
+                worker_up.update(status='down', workers_passed=workers, workers_resolved=w_ping, down=down)
                 log.error("<=WorkerOperations=> worker_heartbeat(): -> workers down %s", down)
                 return worker_up
 
@@ -486,7 +539,7 @@ class WorkerOperations:
 
         return worker_up
 
-    def worker_ping(self, worker_list=None):
+    def worker_ping(self, **kwargs):
         """
         Ping return answer: [{'alpha@tentacle': {'ok': 'pong'}}]
          {'charlie@tentacle': 'pong', 'alpha@tentacle': 'pong',
@@ -501,16 +554,22 @@ class WorkerOperations:
         :param worker_list:
         :return:
         """
+        worker_list = kwargs.get("worker_list", None)  # leave old param here, somewhere it still be used!
+        workers = kwargs.get("workers", None)
         worker_up = dict()
 
-        if worker_list and isinstance(worker_list, list):
-            w_ping = app.control.ping(destination=worker_list, timeout=20)
-            if len(w_ping) != len(worker_list):
+        # TODO: Remove when ready.
+        if worker_list:
+            workers = worker_list
+
+        if workers and isinstance(workers, list):
+            w_ping = app.control.ping(destination=workers, timeout=20)
+            if len(w_ping) != len(workers):
                 down = []
-                for w_can in worker_list:
+                for w_can in workers:
                     if not any([ping.get(w_can) for ping in w_ping]):
                         down.append(w_can)
-                worker_up.update(status='down', workers_passed=worker_list, workers_resolved=w_ping, down=down)
+                worker_up.update(status='down', workers_passed=workers, workers_resolved=w_ping, down=down)
                 log.error("<=worker_ping=> workers down: %s", down)
                 return worker_up
         else:

@@ -23,6 +23,7 @@ from octo.models import CeleryTaskmeta
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_oper import TasksOperations, WorkerOperations, NewTaskOper
 
+
 from octo_adm.user_operations import UserCheck
 from octo_adm.request_service import SelectorRequestsHelpers
 from octo_adm.tasks import TaskADDMService, ADDMCases
@@ -39,6 +40,7 @@ class AdminWorkbench(TemplateView):
 
 
 def fake_function(*args, **kwargs):
+    # Show doc for function executed? This can be helpful for bootstrap toast info on Front side!
     log.debug("Run pseudo task with args=%s kwargs=%s", args, kwargs)
     return dict(
         task_answer = 'Yup, something doing.',
@@ -60,24 +62,56 @@ class TaskOperations(APIView):
         :return:
         """
         operations = dict(
-            tasks_get_registered      = dict(func=fake_function, doc='Show all registered tasks. For all workers, if worker is not specified.', wiki='Show Link to official docs'),
-            tasks_get_active          = dict(func=fake_function, doc='Show all active(running) tasks. For all workers, if worker is not specified.', wiki='Show Link to official docs'),
-            tasks_get_reserved        = dict(func=fake_function, doc='Show all reserved(pending\\queued) tasks. For all workers, if worker is not specified.', wiki='Show Link to official docs'),
-            tasks_get_active_reserved = dict(func=fake_function, doc='Get all active/reserved tasks. For all workers, if worker is not specified.', wiki='Show Link to official docs'),
-            tasks_get_results         = dict(func=fake_function, doc='Get all tasks results, or specified results type.', wiki='Show Link to official docs'),  # Show all tasks results by type? FAILED, SUCCESS?
-            tasks_get_result          = dict(func=fake_function, doc='Get task result, by task ID.', wiki='Show Link to official docs'),  # Show single task result by id?
+            tasks_get_registered      = dict(func=TasksOperations.tasks_get_registered, args='', kwargs='workers',
+                                             doc='Show all registered tasks. For all workers, if worker is not specified.',
+                                             wiki='Show Link to official docs'),
+            tasks_get_active          = dict(func=TasksOperations.tasks_get_active, args='', kwargs='workers',
+                                             doc='Show all active(running) tasks. For all workers, if worker is not specified.',
+                                             wiki='Show Link to official docs'),
+            tasks_get_reserved        = dict(func=TasksOperations.tasks_get_reserved, args='', kwargs='workers',
+                                             doc='Show all reserved(pending\\queued) tasks. For all workers, if worker is not specified.',
+                                             wiki='Show Link to official docs'),
+            tasks_get_active_reserved = dict(func=TasksOperations.tasks_get_active_reserved, args='', kwargs='workers',
+                                             doc='Get all active/reserved tasks. For all workers, if worker is not specified.',
+                                             wiki='Show Link to official docs'),
+            tasks_get_results         = dict(func=fake_function, args='', kwargs='task_id',
+                                             doc='Get all tasks results, or specified results type.',
+                                             wiki='Show Link to official docs'),  # Show all tasks results by type? FAILED, SUCCESS?
+            tasks_get_result          = dict(func=fake_function, args='', kwargs='task_id',
+                                             doc='Get task result, by task ID.',
+                                             wiki='Show Link to official docs'),  # Show single task result by id?
 
-            task_revoke_by_id    = dict(func=fake_function, doc='Revoke task by task ID.', wiki='Show link to official doc'),
-            task_revoke_active   = dict(func=fake_function, doc='Revoke all active tasks.', wiki='Show link to official doc'),  # Specify worker, revoke all active tasks if None (do not revoke reserved!)
-            task_revoke_reserved = dict(func=fake_function, doc='Revoke all reserved tasks', wiki='Show link to official doc'),  # Specify worker, revoke all reserved tasks if None (do not revoke active!)
-            task_discard_all     = dict(func=fake_function, doc='Discard all tasks.', wiki='Show link to official doc'),  # Strongly admin\support method to cancel all tasks! (Check for user rights!)
-            task_purge_all       = dict(func=fake_function, doc='Purge all tasks.', wiki='Show link to official doc'),  # Strongly admin\support method to cancel all tasks! (Check for user rights!)
-            worker_ping          = dict(func=fake_function, doc='Ping worker. If worker is not specified - ping all.', wiki='Show link to official doc'),
-            worker_heartbeat     = dict(func=fake_function, doc='HeatBeat worker. If worker is not specified - for all.', wiki='Show link to official doc'),  # Check worker is live.
-            worker_restart       = dict(func=fake_function, doc='Restart worker. WARNING: This worker could become unavailable for site system!', wiki='Show link to official doc'),  # Probably could make it down for django and flower!
+            task_revoke_by_id    = dict(func=fake_function, args='', kwargs='task_id',
+                                        doc='Revoke task by task ID.',
+                                        wiki='Show link to official doc'),
+            task_revoke_active   = dict(func=fake_function, args='', kwargs='workers',
+                                        doc='Revoke all active tasks.',
+                                        wiki='Show link to official doc'),  # Specify worker, revoke all active tasks if None (do not revoke reserved!)
+            task_revoke_reserved = dict(func=fake_function, args='', kwargs='workers',
+                                        doc='Revoke all reserved tasks',
+                                        wiki='Show link to official doc'),  # Specify worker, revoke all reserved tasks if None (do not revoke active!)
+            task_discard_all     = dict(func=fake_function, args='', kwargs='',
+                                        doc='Discard all tasks.',
+                                        wiki='Show link to official doc'),  # Strongly admin\support method to cancel all tasks! (Check for user rights!)
+            task_purge_all       = dict(func=fake_function, args='', kwargs='',
+                                        doc='Purge all tasks.',
+                                        wiki='Show link to official doc'),  # Strongly admin\support method to cancel all tasks! (Check for user rights!)
+
+            workers_summary  = dict(func=TasksOperations.get_workers_summary, args='', kwargs='workers',
+                                    doc='Inspect all available workers and see active and reserved tasks.',
+                                    wiki='Show link to official doc'),
+            worker_ping      = dict(func=WorkerOperations().worker_ping, args='', kwargs='workers',
+                                    doc='Ping worker. If worker is not specified - ping all.',
+                                    wiki='Show link to official doc'),
+            worker_heartbeat = dict(func=WorkerOperations().worker_heartbeat, args='', kwargs='workers',
+                                    doc='HeatBeat worker. If worker is not specified - for all.',
+                                    wiki='Show link to official doc'),  # Check worker is live.
+            worker_restart   = dict(func=WorkerOperations.worker_restart, args='', kwargs='workers',
+                                    doc='Restart worker. WARNING: This worker could become unavailable for site system!',
+                                    wiki='Show link to official doc'),  # Probably could make it down for django and flower!
         )
         if operation_key:
-            actions = operations[operation_key]
+            actions = operations.get(operation_key, 'No such operation key')
         else:
             actions = operations
         return actions
@@ -101,27 +135,138 @@ class TaskOperations(APIView):
             return Response(dict(new_all_possible_operations))
         else:
             operation = self.task_operations(operation_key=operation_key)
-            operation.pop('func')
+            # If there is a dict, if no - there is no such operation key:
+            if isinstance(operation, dict):
+                operation.pop('func')
             return Response(operation)
 
     def post(self, request=None):
         """
         Run task.
-        Response with task id if possible, or with method return\response?
+        Response with task id if possible, or with method return \ response?
 
         :param request:
         :return:
         """
         operation_key = self.request.POST.get('operation_key', None)
         task_id = self.request.POST.get('task_id', None)
-        worker_name = self.request.POST.get('worker_name', None)
+        workers = self.request.POST.get('workers', None)
         # TO RUN:
         if operation_key:
             case = self.task_operations(operation_key)
+            run = case['func']
+            if case.get('kwargs'):
+                kwargs = dict()  # Update this set with passed arguments and values from request.
+                # Compose arguments:
+                if workers:  # Split workers "list" only if argument is present in request, otherwise just pass None.
+                    workers = workers.split(',')
+                    workers = [worker+'@tentacle' for worker in workers]
+                    kwargs.update(workers=workers)
+                else:
+                    kwargs.update(workers=None)  # Keep arg, but with None.
+
+                if task_id:  # Only add task id if argument passed with request.
+                    kwargs.update(task_id=task_id)
+
+                # RUN:
+                result = run(**kwargs)
+            else:
+                result = run()
+
+            return Response(result)
+        else:
+            return Response(dict(error='No operation_key were specified!'))
+
+
+class AdminOperations(APIView):
+    """
+        TODO: Add admin/superuser check later.
+    """
+
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def task_operations(operation_key=None):
+        """
+        Execute task operations or return task operation status.
+        If no args passed - return operations dict to show user all possible variants.
+
+        :param operation_key:
+        :return:
+        """
+        operations = dict(
+            # Related to internal ADDM CMD Commands execution:
+            addm_cleanup  = dict(func=fake_function, args='', kwargs='',
+                                 doc='Run selected ADDM cleanup therapy. Options: (mode=(weekly, daily, tests), addm_group=(alpha,beta,...))',
+                                 wiki='Show Link to official docs'),
+            # TODO: Maybe mode cmd_k values to Octopus database somewhere?
+            addm_cmd_run  = dict(func=fake_function, args='', kwargs='',
+                                 doc='Run ADDM registered command. Commands should be added to Octopus system. Options: (cmd_k=(TODO: Show all cmd_k?), addm_group=(alpha,beta,...))',
+                                 wiki='Show link to official doc'),
+
+            # Related to internal routine execution.
+            addm_sync_shares = dict(func=fake_function, args='', kwargs='',
+                                    doc='Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync. Options: (addm_group=(alpha,beta,...))',
+                                    wiki=''),
+            p4_sync_force    = dict(func=fake_function, args='', kwargs='',
+                                    doc='Execute routine for perforce "sync -f" will forced sync all files from p4 depot to Octopus FS. Options: (depot_path=//depot/branch/...)',
+                                    wiki=''),
+
+        )
+        if operation_key:
+            # If no such operation key - show this message:
+            actions = operations.get(operation_key, 'No such operation key')
+        else:
+            actions = operations
+        return actions
+
+    def get(self, request=None):
+        """
+        Show admin task/function and doc
+
+        :param request:
+        :return:
+        """
+        operation_key = self.request.GET.get('operation_key', None)
+        if not operation_key:
+            new_all_possible_operations = dict()
+            all_possible_operations = self.task_operations()
+            for key, value in all_possible_operations.items():
+                # noinspection PyUnresolvedReferences
+                value.pop("func")
+                new_all_possible_operations.update({key: value})
+            return Response(dict(new_all_possible_operations))
+        else:
+            operation = self.task_operations(operation_key=operation_key)
+            # If there is a dict, if no - there is no such operation key:
+            if isinstance(operation, dict):
+                operation.pop('func')
+            return Response(operation)
+
+    def post(self, request=None):
+        """
+        Run task.
+        Response with task id if possible, or with method return\response?
+        operation_key=p4_sync_force;mode=mode;addm_group=addm_group;cmd_k=cmd_k
+
+        :param request:
+        :return:
+        """
+        operation_key = self.request.POST.get('operation_key', None)
+        mode = self.request.POST.get('mode', None)
+        addm_group = self.request.POST.get('addm_group', None)
+        cmd_k = self.request.POST.get('cmd_k', None)
+        # TO RUN:
+        if operation_key:
+
+            case = self.task_operations(operation_key)
             log.debug("Running task operation specified: %s", case['doc'])
             run = case['func']
-            result = run(task_id, worker_name=worker_name)
+            result = run(mode, worker_name=addm_group, cmd_k=cmd_k)
+            result.update(doc=case['doc'])
             return Response(result)
+
         else:
             return Response(dict(error='No operation_key were specified!'))
 

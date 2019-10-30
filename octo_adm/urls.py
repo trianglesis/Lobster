@@ -3,7 +3,7 @@ Keep here admin part of Octopus site
 """
 
 from django.conf.urls import url
-from octo_adm.views import AdminFunctions, CeleryInteract, TaskOperations
+from octo_adm.views import AdminFunctions, CeleryInteract, TaskOperations, AdminOperations
 
 
 urlpatterns = [
@@ -80,4 +80,5 @@ urlpatterns = [
     # NEW:
     # REST Support for ADMIN functions and tasks:
     url(r'^task_operation/', TaskOperations.as_view(), name='task_operations'),
+    url(r'^admin_operations/', AdminOperations.as_view(), name='admin_operations'),
 ]

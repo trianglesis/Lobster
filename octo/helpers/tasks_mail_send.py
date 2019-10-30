@@ -15,10 +15,6 @@ import logging
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
 
-if os.name == "nt":
-    log.warning("On Local test system run Fake=True! Be aware!")
-    fake_run = True
-
 
 class Mails:
 
