@@ -4,6 +4,8 @@ OCTO ADM - pages and widgets and functions.
 
 import logging
 from time import sleep
+from datetime import datetime
+
 from django.template import loader
 from django.http import HttpResponse
 from django.conf import settings
@@ -215,8 +217,15 @@ class AdminOperations(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @staticmethod
-    def task_operations(operation_key=None):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.start_time = datetime.now().strftime('%Y-%m-%d_%H-%M')
+        self.user_name = ''
+        self.admin_users = ''
+        self.power_users = ''
+        self.fake_run = True
+
+    def task_operations(self, operation_key=None):
         """
         Execute task operations or return task operation status.
         If no args passed - return operations dict to show user all possible variants.
@@ -235,14 +244,28 @@ class AdminOperations(APIView):
                                  goto=f'{goto_}addm_cmd_run',
                                  wiki='Example: operation_key=addm_cmd_run;addm_group=alpha;cmd_k=show_v'),
 
-            addm_sync_shares = dict(func=fake_function, args='', kwargs='',
+            addm_sync_shares = dict(func=self.addm_sync_shares, args='', kwargs='addm_group',
                                     doc='Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync. Options: (addm_group=(alpha,beta,...))',
                                     goto=f'{goto_}addm_sync_shares',
                                     wiki='Example: operation_key=addm_sync_shares;addm_group=alpha'),
-            p4_sync_force    = dict(func=fake_function, args='', kwargs='',
-                                    doc='Execute routine for perforce "sync -f" will forced sync all files from p4 depot to Octopus FS. Options: (depot_path=//depot/branch/...)',
-                                    goto=f'{goto_}p4_sync_force',
-                                    wiki='Example: operation_key=p4_sync_force;addm_group=alpha'),
+
+            p4_info       = dict(func=self.p4_info, args='', kwargs='',
+                                 doc='Show current p4 depot status and details for account and workspace.',
+                                 goto=f'{goto_}p4_info',
+                                 wiki='Example: operation_key=p4_info'),
+            p4_sync       = dict(func=self.p4_sync, args='', kwargs='',
+                                 doc='Runs "sync" and parse local FS. Get max change (if not - #312830 from 2015), "filelog" the diff, "sync -f" '
+                                     'then parse FS -> p4 clean -> p4 sync -> parse local -> insert in DB or shorter run: compare diff and add only update changes.',
+                                 goto=f'{goto_}p4_sync',
+                                 wiki='Example: operation_key=p4_sync'),
+            p4_sync_force = dict(func=self.p4_sync_force, args='', kwargs='',
+                                 doc='Execute routine for perforce "sync -f" will forced sync all files from p4 depot to Octopus FS. Options: (depot_path=//depot/branch/...)',
+                                 goto=f'{goto_}p4_sync_force',
+                                 wiki='Example: operation_key=p4_sync_force'),
+            cases_weight  = dict(func=self.cases_weight, args='', kwargs='',
+                                 doc='Calculate ETA for test cases based on previous execution logs for last 30 days.',
+                                 goto=f'{goto_}cases_weight',
+                                 wiki='Example: operation_key=cases_weight'),
         )
         if operation_key:
             # If no such operation key - show this message:
@@ -284,9 +307,20 @@ class AdminOperations(APIView):
         :return:
         """
         operation_key = self.request.POST.get('operation_key', None)
+        self.fake_run = self.request.POST.get('fake_run')
+
+        self.user_name = self.request.user.get_username()
+        log.debug("self.user_name: %s", self.user_name)
+
+        self.admin_users = self.request.user.groups.filter(name='admin_users').exists()
+        self.power_users = self.request.user.groups.filter(name='power_users').exists()
+        log.debug("self.admin_users: %s", self.admin_users)
+        log.debug("self.power_users: %s", self.power_users)
+
         cmd_k = self.request.POST.get('cmd_k', None)
         mode = self.request.POST.get('mode', None)
         addm_group = self.request.POST.get('addm_group', None)
+
         if operation_key:
             case = self.task_operations(operation_key)
             run = case['func']
@@ -312,6 +346,40 @@ class AdminOperations(APIView):
             return Response(result)
         else:
             return Response(dict(error='No operation_key were specified!'))
+
+    def parse_full(self, *args, **kwargs):
+        pass
+
+    def p4_info(self, *args, **kwargs):
+        t_tag = f'tag=t_p4_info;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        t_p4_info = Runner.fire_t(TPatternParse.t_p4_info, fake_run=self.fake_run, t_args=[t_tag])
+        return {'task': t_p4_info.id}
+
+    def p4_sync(self, *args, **kwargs):
+        # Only sync and parse depot, no ADDM Sync here!
+        t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        p4_sync_task = Runner.fire_t(TPatternParse.t_p4_sync, fake_run=self.fake_run, t_args=[t_tag])
+        return {'task': p4_sync_task.id}
+
+    def p4_sync_force(self, *args, **kwargs):
+        t_tag = f'tag=t_p4_sync_force;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        t_p4_sync_force = Runner.fire_t(TPatternParse.t_p4_sync_force, fake_run=self.fake_run, t_args=[t_tag])
+        return {'task': t_p4_sync_force.id}
+
+    def addm_sync_shares(self, *args, **kwargs):
+        addm_group = kwargs.get('addm_group')
+        addm_set = ADDMOperations.select_addm_set(addm_group=addm_group)
+        t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_name={self.user_name};fake={self.fake_run};'
+        t_addm_rsync_threads = Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=self.fake_run,
+                                             t_args=[t_tag], t_kwargs=dict(addm_items=list(addm_set)),
+                                             t_queue=f'{addm_group}@tentacle.dq2',
+                                             t_routing_key=f'TExecTest.t_addm_rsync_threads.{addm_group}')
+        return {'task': t_addm_rsync_threads.id}
+
+    def cases_weight(self, *args, **kwargs):
+        t_tag = f'tag=t_pattern_weight_index;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        t_pattern_weight_index = Runner.fire_t(TPatternParse.t_pattern_weight_index, fake_run=self.fake_run, t_args=[t_tag])
+        return {'task': t_pattern_weight_index.id}
 
 
 class ListAllAddmVmREST(APIView):

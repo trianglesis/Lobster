@@ -586,6 +586,7 @@ class LocalPatternsP4Parse:
             log.warning("Change / synced files lists are NOT equal!")
 
         self.parse_and_changes_routine(sync_force=False, full=True, p4_conn=p4_conn)
+        return {'files_synced_plan': _files_synced_plan, 'files_synced_actually': _files_synced_actually}
 
 
 class LocalDownloads:

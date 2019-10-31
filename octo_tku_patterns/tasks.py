@@ -445,7 +445,7 @@ class TaskPrepare:
 
     def sync_depot(self):
         """
-        Run p4 sync.
+        Run p4 sync. Do not lock other runs for addm sync.
         If this function called - then surely wipe latest logs for selected tests.
 
         When this called - we have already a probably outdated list of cases to test,
