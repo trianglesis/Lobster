@@ -124,8 +124,13 @@ class TestExecutor:
         test_py_t = test_item.get('test_py_path_template', False)
         test_time_weight = test_item.get('test_time_weight', '')
 
+        modern_addms = ['fishfinger']
         test_info = f" {test_py_t} | '{addm_item['addm_name']}' v'{addm_item['addm_v_int']}' " \
                     f"{addm_item['addm_ip']} - {addm_item['addm_host']} {addm_item['addm_group']}"
+
+        bin_python = '/usr/tideway/bin/python'
+        if addm_item['addm_name'] in modern_addms:
+            bin_python = '/usr/tideway/bin/python3'
 
         if test_py_t:
             log.debug("<=TEST=> START t:%s %s", test_time_weight, test_info)
@@ -135,10 +140,10 @@ class TestExecutor:
             tkn_branch = test_item.get('tkn_branch')
 
             if test_function:
-                cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; /usr/tideway/bin/python -u {test_py_sync}" \
+                cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; {bin_python} -u {test_py_sync}" \
                       f" --universal_dml=1 --verbose {test_function.replace('+', '.')}"
             else:
-                cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; /usr/tideway/bin/python -u {test_py_sync}" \
+                cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; {bin_python} -u {test_py_sync}" \
                       f" --universal_dml=1 --verbose"
 
             log.debug("CMD-> '%s'", cmd)
