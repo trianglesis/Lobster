@@ -11,7 +11,7 @@
 			"file": "logs/w_routines_err.log",
 			"settings":
 			{
-				"buffer_size": 3601,
+				"buffer_size": 3055,
 				"line_ending": "Windows"
 			}
 		},
@@ -35,7 +35,7 @@
 			"file": "logs/alpha_err.log",
 			"settings":
 			{
-				"buffer_size": 3331,
+				"buffer_size": 3050,
 				"line_ending": "Windows"
 			}
 		},
@@ -43,7 +43,7 @@
 			"file": "logs/w_parsing_err.log",
 			"settings":
 			{
-				"buffer_size": 3517,
+				"buffer_size": 6831,
 				"line_ending": "Windows"
 			}
 		},
@@ -51,7 +51,7 @@
 			"file": "logs/charlie_err.log",
 			"settings":
 			{
-				"buffer_size": 3245,
+				"buffer_size": 2978,
 				"line_ending": "Windows"
 			}
 		}
@@ -168,7 +168,6 @@
 	},
 	"file_history":
 	[
-
 	],
 	"find":
 	{
@@ -189,7 +188,6 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -230,15 +228,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3601,
+						"buffer_size": 3055,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3600,
-								3600
+								1409,
+								1409
 							]
 						],
 						"settings":
@@ -248,7 +246,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 294.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -322,15 +320,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3331,
+						"buffer_size": 3050,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								843,
+								843
 							]
 						],
 						"settings":
@@ -340,7 +338,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 210.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -358,7 +356,43 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3517,
+						"buffer_size": 6831,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5147,
+								5152
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 645.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 5,
+					"file": "logs/charlie_err.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2978,
 						"regions":
 						{
 						},
@@ -377,42 +411,6 @@
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 0,
-			"sheets":
-			[
-				{
-					"buffer": 5,
-					"file": "logs/charlie_err.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3245,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 15.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 5,
@@ -467,7 +465,7 @@
 		"rows":
 		[
 			0.0,
-			0.712178990837,
+			0.516040779455,
 			1.0
 		]
 	},
@@ -489,7 +487,6 @@
 		"last_filter": "",
 		"selected_items":
 		[
-
 		],
 		"width": 0.0
 	},
@@ -511,7 +508,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 0,
+	"selected_group": 2,
 	"settings":
 	{
 	},

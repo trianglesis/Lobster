@@ -56,6 +56,13 @@ class TaskOperationsREST(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.start_time = datetime.now().strftime('%Y-%m-%d_%H-%M')
+        self.user_name = ''
+        self.admin_users = ''
+        self.power_users = ''
+
     @staticmethod
     def task_operations(operation_key=None):
         """
