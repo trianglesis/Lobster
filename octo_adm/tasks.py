@@ -212,6 +212,8 @@ class ADDMCases:
         addm_group = kwargs.get('addm_group', [])  # type: list
         fake_run = kwargs.get('fake_run', False)
 
+        log.debug("clean_addm kwargs: %s", kwargs)
+
         Mails.short(subject=subject, body=subject, send_to=[user_mail])
 
         tasks_ids = dict()

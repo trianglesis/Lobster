@@ -21,19 +21,20 @@ from rest_framework.permissions import IsAuthenticated
 
 from run_core.models import AddmDev
 from run_core.addm_operations import ADDMOperations
+from run_core.p4_operations import PerforceOperations
+from run_core.local_operations import LocalPatternsP4Parse
+
 from octo.models import CeleryTaskmeta
 
+from octo.helpers.tasks_run import Runner
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_oper import TasksOperations, WorkerOperations, NewTaskOper
-
 
 from octo_adm.user_operations import UserCheck
 from octo_adm.request_service import SelectorRequestsHelpers
 from octo_adm.tasks import TaskADDMService, ADDMCases
 
 from octo_tku_patterns.tasks import TPatternParse
-
-from octo.helpers.tasks_run import Runner
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'SITE_DOMAIN', None)
@@ -226,10 +227,20 @@ class AdminOperations(APIView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.operation_key = ''
+        self.p4_conn = ''
         self.start_time = datetime.now().strftime('%Y-%m-%d_%H-%M')
+        self.is_authenticated = ''
+        # metadata:
         self.user_name = ''
+        self.user_email = ''
         self.admin_users = ''
         self.power_users = ''
+        # options:
+        self.mode = ''
+        self.cmd_k = ''
+        self.subject = ''
+        self.addm_group = ''
         self.fake_run = True
 
     def task_operations(self, operation_key=None):
@@ -242,11 +253,11 @@ class AdminOperations(APIView):
         """
         goto_ = 'http://'+curr_hostname+'/octo_admin/admin_operations/?operation_key='
         operations = dict(
-            addm_cleanup  = dict(func=ADDMCases().clean_addm, args='', kwargs='mode, addm_group',
+            addm_cleanup  = dict(func=self.addm_cleanup, args='', kwargs='mode, addm_group',
                                  doc='Run selected ADDM cleanup therapy. Options: (mode=(weekly, daily, tests), addm_group=(alpha,beta,...))',
                                  goto=f'{goto_}addm_cleanup',
                                  wiki='Example: operation_key=addm_cleanup;addm_group=alpha;mode=weekly'),
-            addm_cmd_run  = dict(func=ADDMCases().addm_cmd, args='', kwargs='cmd_k, addm_group',
+            addm_cmd_run  = dict(func=self.addm_cmd_run, args='', kwargs='cmd_k, addm_group',
                                  doc='Run ADDM registered command. Commands should be added to Octopus system. Options: (cmd_k=(TODO: Show all cmd_k?), addm_group=(alpha,beta,...))',
                                  goto=f'{goto_}addm_cmd_run',
                                  wiki='Example: operation_key=addm_cmd_run;addm_group=alpha;cmd_k=show_v'),
@@ -281,6 +292,26 @@ class AdminOperations(APIView):
             actions = operations
         return actions
 
+    def metadata_options_set(self):
+        self.operation_key = self.request.POST.get('operation_key', None)
+        self.fake_run = self.request.POST.get('fake_run', True)  # TODO: Debug, remove default True
+
+        self.is_authenticated = self.request.user.is_authenticated
+        self.user_name = self.request.user.get_username()
+        self.user_email = self.request.user.email
+
+        self.cmd_k = self.request.POST.get('cmd_k', None)
+        self.mode = self.request.POST.get('mode', None)
+        self.addm_group = self.request.POST.get('addm_group', None)
+
+        self.admin_users = self.request.user.groups.filter(name='admin_users').exists()
+        self.power_users = self.request.user.groups.filter(name='power_users').exists()
+
+        user_status = f'{self.user_name} {self.user_email} admin_users={self.admin_users} power_users={self.power_users}'
+        log.info("<=AdminOperations=> Request: %s", user_status)
+        request_options = f'operation_key:{self.operation_key} fake_run:{self.fake_run} cmd_k:{self.cmd_k} mode:{self.mode} addm_group:{self.addm_group}'
+        log.debug("<=AdminOperations=> request_options: %s", request_options)
+
     def get(self, request=None):
         """
         Show admin task/function and doc
@@ -313,80 +344,72 @@ class AdminOperations(APIView):
         :param request:
         :return:
         """
-        operation_key = self.request.POST.get('operation_key', None)
-        self.fake_run = self.request.POST.get('fake_run')
-
-        self.user_name = self.request.user.get_username()
-        log.debug("self.user_name: %s", self.user_name)
-
-        self.admin_users = self.request.user.groups.filter(name='admin_users').exists()
-        self.power_users = self.request.user.groups.filter(name='power_users').exists()
-        log.debug("self.admin_users: %s", self.admin_users)
-        log.debug("self.power_users: %s", self.power_users)
-
-        cmd_k = self.request.POST.get('cmd_k', None)
-        mode = self.request.POST.get('mode', None)
-        addm_group = self.request.POST.get('addm_group', None)
-
-        if operation_key:
-            case = self.task_operations(operation_key)
+        self.metadata_options_set()
+        if self.operation_key:
+            case = self.task_operations(self.operation_key)
             run = case['func']
-            if case.get('kwargs'):
-                kwargs = dict(workers=None, mode=None, cmd_k=None, subject=case['doc'])
-                # For Debug purposes use fake_run=True
-                kwargs.update(fake_run=True)
-
-                if addm_group:  # Can we request for more than one group at once?
-                    addm_group = addm_group.split(',')
-                    kwargs.update(addm_group=addm_group)
-
-                if mode:
-                    kwargs.update(mode=mode)
-
-                if cmd_k:
-                    kwargs.update(cmd_k=cmd_k)
-
-                log.debug("Running task: %s", kwargs)
-                result = run(**kwargs)
-            else:
-                result = run()
+            result = run()
             return Response(result)
         else:
             return Response(dict(error='No operation_key were specified!'))
 
-    def parse_full(self, *args, **kwargs):
-        pass
+    def parse_full(self):
+        self.p4_conn = PerforceOperations().p4_initialize(debug=True)
+        msg = LocalPatternsP4Parse().parse_and_changes_routine(
+            sync_force=False, full=True, p4_conn=self.p4_conn)
+        return msg
 
-    def p4_info(self, *args, **kwargs):
+    def cases_weight(self):
+        t_tag = f'tag=t_pattern_weight_index;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        t_pattern_weight_index = Runner.fire_t(TPatternParse.t_pattern_weight_index, fake_run=self.fake_run, t_args=[t_tag])
+        return {'task': t_pattern_weight_index.id}
+
+    def p4_info(self):
         t_tag = f'tag=t_p4_info;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_info = Runner.fire_t(TPatternParse.t_p4_info, fake_run=self.fake_run, t_args=[t_tag])
         return {'task': t_p4_info.id}
 
-    def p4_sync(self, *args, **kwargs):
+    def p4_sync(self):
         # Only sync and parse depot, no ADDM Sync here!
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         p4_sync_task = Runner.fire_t(TPatternParse.t_p4_sync, fake_run=self.fake_run, t_args=[t_tag])
         return {'task': p4_sync_task.id}
 
-    def p4_sync_force(self, *args, **kwargs):
+    def p4_sync_force(self):
         t_tag = f'tag=t_p4_sync_force;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_sync_force = Runner.fire_t(TPatternParse.t_p4_sync_force, fake_run=self.fake_run, t_args=[t_tag])
         return {'task': t_p4_sync_force.id}
 
-    def addm_sync_shares(self, *args, **kwargs):
-        addm_group = kwargs.get('addm_group')
-        addm_set = ADDMOperations.select_addm_set(addm_group=addm_group)
-        t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_name={self.user_name};fake={self.fake_run};'
+    def addm_cleanup(self):
+        clean_out = ADDMCases().clean_addm(
+            mode=self.mode,
+            subject=self.subject,
+            user_name=self.user_name,
+            user_mail=self.user_email,
+            addm_group=self.addm_group,
+            fake_run=self.fake_run,
+        )
+        return {self.mode: clean_out}
+
+    def addm_cmd_run(self):
+        cmd_out = ADDMCases().addm_cmd(
+            cmd_k=self.cmd_k,
+            subject=self.subject,
+            user_name=self.user_name,
+            user_mail=self.user_email,
+            addm_group=self.addm_group,
+            fake_run=self.fake_run,
+        )
+        return {self.cmd_k: cmd_out}
+
+    def addm_sync_shares(self):
+        addm_set = ADDMOperations.select_addm_set(addm_group=self.addm_group)
+        t_tag = f'tag=t_addm_rsync_threads;addm_group={self.addm_group};user_name={self.user_name};fake={self.fake_run};'
         t_addm_rsync_threads = Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=self.fake_run,
                                              t_args=[t_tag], t_kwargs=dict(addm_items=list(addm_set)),
-                                             t_queue=f'{addm_group}@tentacle.dq2',
-                                             t_routing_key=f'TExecTest.t_addm_rsync_threads.{addm_group}')
+                                             t_queue=f'{self.addm_group}@tentacle.dq2',
+                                             t_routing_key=f'TExecTest.t_addm_rsync_threads.{self.addm_group}')
         return {'task': t_addm_rsync_threads.id}
-
-    def cases_weight(self, *args, **kwargs):
-        t_tag = f'tag=t_pattern_weight_index;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
-        t_pattern_weight_index = Runner.fire_t(TPatternParse.t_pattern_weight_index, fake_run=self.fake_run, t_args=[t_tag])
-        return {'task': t_pattern_weight_index.id}
 
 
 class ListAllAddmVmREST(APIView):

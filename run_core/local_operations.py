@@ -544,7 +544,8 @@ class LocalPatternsP4Parse:
         log.debug("Test cases has been selected to get latest changes!")
         """ Get perforce data for each and then save if new"""
         self.compare_changes_multi(test_cases, sync_force=sync_force, p4_conn=p4_conn)
-        log.debug("Test cases changes compared and refreshed!")
+        msg = "Test cases changes compared and refreshed!"
+        return msg
 
     def last_changes_get(self):
         """
