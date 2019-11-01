@@ -475,8 +475,8 @@ class TasksOperations:
         """
         return app.control.purge()
 
-    # Get task statuses from DB:
-    def tasks_get_results(**kwargs):
+    def tasks_get_results(self, **kwargs):
+        log.debug("args: %s kwargs %s", 'args', kwargs)
         task_id = kwargs.get('task_id', None)
 
         if task_id:

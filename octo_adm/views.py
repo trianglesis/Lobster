@@ -26,6 +26,7 @@ from run_core.p4_operations import PerforceOperations
 from run_core.local_operations import LocalPatternsP4Parse
 
 from octo.models import CeleryTaskmeta
+from octo.api.serializers import ShortResultsSetPagination
 
 from octo.helpers.tasks_run import Runner
 from octo.helpers.tasks_mail_send import Mails
@@ -227,7 +228,7 @@ class TaskOperationsREST(APIView):
         Please use /api/v1/octo/celery_task_meta/
         :return
         """
-        resp = TasksOperations().tasks_get_results(task_id=None)
+        resp = TasksOperations().tasks_get_results(task_id=self.task_id)
         return {'response': resp}
 
     def task_get_result(self):
@@ -341,10 +342,6 @@ class TaskOperationsREST(APIView):
 
 
 class AdminOperationsREST(APIView):
-    """
-        TODO: Add admin/superuser check later.
-    """
-
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -541,12 +538,14 @@ class AdminOperationsREST(APIView):
 
 
 class ListAllAddmVmREST(viewsets.ModelViewSet):
-    queryset = AddmDev.objects.all().order_by('-addm_group')
+    queryset = AddmDev.objects.all().order_by('addm_group')
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = AddmDevSerializer
+    pagination_class = ShortResultsSetPagination
 
     def get_queryset(self):
+
         disables = self.request.GET.get('disables', None)
         addm_name = self.request.GET.get('addm_name', None)
         addm_group = self.request.GET.get('addm_group', None)
@@ -554,7 +553,7 @@ class ListAllAddmVmREST(viewsets.ModelViewSet):
 
         queryset = AddmDev.objects.all()
         if disables:
-            queryset = self.queryset.filter(disables__isnull=True)
+            queryset = self.queryset.filter(disables__isnull=False)
         if addm_name:
             queryset = self.queryset.filter(addm_name__exact=addm_name)
         if addm_group:
@@ -562,7 +561,7 @@ class ListAllAddmVmREST(viewsets.ModelViewSet):
         if branch_lock:
             queryset = self.queryset.filter(branch_lock__exact=branch_lock)
 
-        return queryset
+        return queryset.order_by('addm_group')
 
 
 class AdminFunctions:

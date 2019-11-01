@@ -11,8 +11,6 @@ router.register(r'octo_test_cases_details', TestCasesDetailsSerializerViewSet)
 router.register(r'tests_last', TestLastViewSet)
 router.register(r'tests_history', TestHistoryViewSet)
 
-# Not needed now?
-router.register(r'case_actions', TestCaseActionsViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

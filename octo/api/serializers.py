@@ -2,6 +2,7 @@
 https://www.django-rest-framework.org/tutorial/quickstart/
 """
 
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import serializers
 
 from octo.models import CeleryTaskmeta
@@ -13,6 +14,24 @@ import logging
 log = logging.getLogger("octo.octologger")
 
 User = get_user_model()
+
+
+class LargeResultsSetPagination(PageNumberPagination):
+    page_size = 1000
+    page_size_query_param = 'page_size'
+    max_page_size = 3000
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+
+class ShortResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 50
 
 
 class CeleryTaskmetaSerializer(serializers.ModelSerializer):
