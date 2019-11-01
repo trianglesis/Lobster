@@ -306,7 +306,6 @@ class TaskOperationsREST(APIView):
         :return
         """
         workers = self.workers
-        # TODO: Refactor
         resp = TasksOperations().get_workers_summary(worker_name=workers)
         return {'response': resp}
 

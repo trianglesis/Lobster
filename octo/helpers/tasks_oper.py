@@ -159,7 +159,7 @@ class TasksOperations:
             t_active = inspect.active()
             t_reserved  = inspect.reserved()
 
-        return t_active, t_reserved
+        return {'active': t_active, 'reserved': t_reserved}
 
     def check_active_reserved(self, workers_list=None):
         """
@@ -395,9 +395,10 @@ class TasksOperations:
         :return:
         """
         if terminate:
-            app.control.revoke(task_id, terminate=terminate, signal='SIGTERM')
+            resp = app.control.revoke(task_id, terminate=terminate, signal='SIGTERM')
         else:
-            app.control.revoke(task_id)
+            resp = app.control.revoke(task_id)
+        return resp
 
     def revoke_tasks_active(self, **kwargs):
         """
@@ -411,16 +412,17 @@ class TasksOperations:
         revoked_names = []
 
         active_tasks = self.tasks_get_active(workers=workers)
-        for worker_k, worker_v in active_tasks.items():
-            for task in worker_v:
-                self.revoke_task_by_id(task['id'])
-                tasks_revoked += 1
-                revoked_names.append(dict(
-                    task_id=task['id'],
-                    task_name=task['name'],
-                    task_args=task['args'],
-                    task_hostname=task['hostname'],
-                ))
+        if active_tasks:
+            for worker_k, worker_v in active_tasks.items():
+                for task in worker_v:
+                    self.revoke_task_by_id(task['id'])
+                    tasks_revoked += 1
+                    revoked_names.append(dict(
+                        task_id=task['id'],
+                        task_name=task['name'],
+                        task_args=task['args'],
+                        task_hostname=task['hostname'],
+                    ))
 
         return {'tasks_revoked': tasks_revoked, 'revoked_names': revoked_names}
 
@@ -436,16 +438,17 @@ class TasksOperations:
         revoked_names = []
 
         active_tasks = self.tasks_get_reserved(workers=workers)
-        for worker_k, worker_v in active_tasks.items():
-            for task in worker_v:
-                self.revoke_task_by_id(task['id'])
-                tasks_revoked += 1
-                revoked_names.append(dict(
-                    task_id=task['id'],
-                    task_name=task['name'],
-                    task_args=task['args'],
-                    task_hostname=task['hostname'],
-                ))
+        if active_tasks:
+            for worker_k, worker_v in active_tasks.items():
+                for task in worker_v:
+                    self.revoke_task_by_id(task['id'])
+                    tasks_revoked += 1
+                    revoked_names.append(dict(
+                        task_id=task['id'],
+                        task_name=task['name'],
+                        task_args=task['args'],
+                        task_hostname=task['hostname'],
+                    ))
 
         return {'tasks_revoked': tasks_revoked, 'revoked_names': revoked_names}
 
@@ -623,7 +626,7 @@ class WorkerOperations:
                 log.error("<=worker_ping=> workers down: %s", down)
                 return worker_up
         else:
-            w_ping = app.control.ping(timeout=20)
+            w_ping = app.control.ping(timeout=5)
         worker_up = self.ping_check(w_ping, worker_up)
 
         return worker_up
