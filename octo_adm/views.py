@@ -58,7 +58,7 @@ class CeleryInspect(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CeleryInspect, self).get_context_data(**kwargs)
-        worker = self.request.GET.get('worker', None)
+        worker = self.request.GET.get('worker', 'all-workers')
         context.update(
             worker=worker,
             objects={},
@@ -143,13 +143,16 @@ class TaskOperationsREST(APIView):
         if self.request.POST:
             self.operation_key = self.request.POST.get('operation_key', None)
             self.fake_run = self.request.POST.get('fake_run', True)  # TODO: Debug, remove default True
-            self.task_id = self.request.POST.get('task_id', None)
-            self.workers = self.request.POST.get('workers', None)
+            self.task_id = self.request.POST.get('task_id', 'None')
+            workers = self.request.POST.get('workers', '')
+            if workers:
+                workers = workers.split(',')
+                self.workers = [f'{worker}@tentacle' for worker in workers]
         elif self.request.GET:
             self.operation_key = self.request.GET.get('operation_key', None)
             self.fake_run = self.request.GET.get('fake_run', True)  # TODO: Debug, remove default True
-            self.task_id = self.request.GET.get('task_id', None)
-            self.workers = self.request.GET.get('workers', None)
+            self.task_id = self.request.GET.get('task_id', '')
+            self.workers = self.request.GET.get('workers', [])
 
         self.is_authenticated = self.request.user.is_authenticated
         self.user_name = self.request.user.get_username()

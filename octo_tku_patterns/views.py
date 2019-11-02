@@ -754,57 +754,9 @@ class TestCasesDetailsCreateView(CreateView):
 
 # Operations:
 @method_decorator(login_required, name='dispatch')
-class TestCaseRunTest(TemplateView):
+class TestCaseRunTestREST(APIView):
     __url_path = '/octo_tku_patterns/test_execute_web/'
     __url_path_alt = '/octo_tku_patterns/user_test_add/'
-    template_name = 'actions/test_added.html'
-    context_object_name = 'objects'
-    title = 'Test added!'
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.context = super(TestCaseRunTest, self).get_context_data(**kwargs)
-
-    def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestCaseRunTest=> get_context_data")
-        if self.request.method == 'GET':
-            selector = compose_selector(self.request.GET)
-            self.context.update(selector=selector)
-
-            context = self.context.copy()
-            context.pop('view')  # Buffer IO cannot be pickled for celery task.
-            obj = dict(
-                context=context,
-                request=self.request.GET,
-                user_name=self.request.user.username,
-                user_email=self.request.user.email,
-            )
-            t_tag = f'tag=t_test_prep;user_name={self.request.user.username};'
-            t_queue = 'w_routines@tentacle.dq2'
-            t_routing_key = 'routines.TRoutine.t_test_prep'
-            task_added = TPatternRoutine.t_test_prep.apply_async(
-                args=[t_tag],
-                kwargs=dict(obj=obj),
-                queue=t_queue,
-                routing_key=t_routing_key,
-            )
-
-            # On NT this call will stop, initial task will run fake:
-            # task_added = Runner.fire_t(TPatternRoutine.t_test_prep,
-            #                            t_args=[t_tag],
-            #                            t_kwargs=dict(object=obj),
-            #                            t_queue='w_routines@tentacle.dq2',
-            #                            t_routing_key='routines.TRoutine.t_test_prep'
-            #                            )
-
-            self.context.update(task_added='c72d9fa4-6f8e-4b27-b461-ead76b323bcb')
-            self.context.update(subject='User test...')
-
-            return self.context
-
-
-class TestCaseRunTestREST(APIView):
-    __url_path = '/octo_tku_patterns/user_test_add/'
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -831,10 +783,12 @@ class TestCaseRunTestREST(APIView):
             return Response([task_res])
 
     def post(self, request=None):
-        # log.debug("<=TestCaseRunTestREST=> POST request args: %s", self.request.data)
         selector = compose_selector(self.request.data)
-        # log.debug("<=TestCaseRunTestREST=> POST running task with args: %s", selector)
         # json_ = {"tkn_branch": "tkn_main", "pattern_library": "CORE", "pattern_folder_name": "10genMongoDB", "refresh": "1"}
+        if any(value for value in selector.values()):
+            pass
+        else:
+            return Response(dict(task_id='Cannot run test without any selection'))
 
         obj = dict(
             context=dict(selector=selector),

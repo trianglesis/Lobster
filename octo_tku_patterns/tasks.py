@@ -542,9 +542,20 @@ class TaskPrepare:
 
         # TODO: Not actually select ALL if we don't get/understand request args?
         # TODO: Sort only pattern test cases?
-        queryset = TestCases.objects.all()
-        # Most common and usual way to select cases for tests:
-        log.debug("self.selector: %s", self.selector)
+        if any(value for value in self.selector.values()):
+            queryset = TestCases.objects.all()
+        else:
+            queryset = TestCases.objects.last()
+
+        # # Most common and usual way to select cases for tests:
+        # log.debug("self.selector: %s", self.selector)
+        # for key, value in self.selector.items():
+        #     if value:
+        #         log.debug("True val for key: %s val: %s", key, value)
+        #     else:
+        #         log.debug("False val for key: %s val: %s", key, value)
+        # log.debug("self.selector value: %s", any(value for value in self.selector.values()))
+
         if self.selector.get('cases_ids'):
             id_list = self.selector['cases_ids'].split(',')
             log.debug("<=TaskPrepare=> Selecting cases by id: %s", id_list)
