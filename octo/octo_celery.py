@@ -53,13 +53,13 @@ app.conf.update(
     task_serializer='pickle',
     result_serializer='json',
     # Do not set! Or logic will not wait of task OK: # task_ignore_result=True,
-    task_track_started = True,
+    # task_track_started = True,
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#result-backend
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#database-url-examples
     # https://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#keeping-results
     # 1406, "Data too long for column 'result' at row 1" - it's not so important to keep it in DB
-    result_backend = cred['result_backend'],
+    # result_backend = cred['result_backend'],
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#beat-scheduler
     beat_scheduler='django_celery_beat.schedulers:DatabaseScheduler',
@@ -180,12 +180,12 @@ if not os.name == "nt":
         destination=[
             'w_routines@tentacle',
             'alpha@tentacle',
-            'beta@tentacle',
+            # 'beta@tentacle',
             'charlie@tentacle',
-            'delta@tentacle',
-            'echo@tentacle',
-            'foxtrot@tentacle',
-            'w_development@tentacle',
+            # 'delta@tentacle',
+            # 'echo@tentacle',
+            # 'foxtrot@tentacle',
+            # 'w_development@tentacle',
         ])
 else:
     app.control.cancel_consumer(

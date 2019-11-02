@@ -1,7 +1,7 @@
 {% extends "main/main.html" %}
 {% block page_title %}
     {% if not SUBJECT %}
-        Last tests
+        Inspect Celery
     {% else %}
         {{ SUBJECT }}
     {% endif %}
@@ -80,27 +80,27 @@
             </nav>
             <div class="tab-content" id="nav-tabContent">
               <div class="tab-pane fade show active" id="nav-active" role="tabpanel" aria-labelledby="nav-active-tab">
-                  <div id="active-"{{ worker }}>
+                  <div id="active">
                     <p>Active tasks for worker: {{ worker }}</p>
                   </div>
               </div>
               <div class="tab-pane fade" id="nav-reserved" role="tabpanel" aria-labelledby="nav-reserved-tab">
-                  <div id="reserved-"{{ worker }}>
+                  <div id="reserved">
                     <p>Reserved tasks for worker: {{ worker }}</p>
                   </div>
               </div>
               <div class="tab-pane fade" id="nav-active-reserved" role="tabpanel" aria-labelledby="nav-active-reserved-tab">
-                  <div id="active-reserved-"{{ worker }}>
+                  <div id="active-reserved">
                     <p>Active & reserved tasks for worker: {{ worker }}</p>
                   </div>
               </div>
               <div class="tab-pane fade" id="nav-scheduled" role="tabpanel" aria-labelledby="nav-scheduled-tab">
-                  <div id="scheduled-"{{ worker }}>
+                  <div id="scheduled">
                     <p>Scheduled tasks for worker: {{ worker }}</p>
                   </div>
               </div>
               <div class="tab-pane fade" id="nav-registered" role="tabpanel" aria-labelledby="nav-registered-tab">
-                  <div id="registered-"{{ worker }}>
+                  <div id="registered">
                     <p>Registered tasks for worker: {{ worker }}</p>
                   </div>
               </div>

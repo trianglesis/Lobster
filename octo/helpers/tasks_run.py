@@ -61,8 +61,8 @@ class Runner:
             return task.apply_async(**task_options)
         else:
             to_sleep = kwargs.get('to_sleep', 10)
-            log.debug("<=Runner Fire Task=> FAKE: About to fire a task Name %s", task.name)
-            log.debug("<=Runner Fire Task=> FAKE: Task passed arguments: \n\t\t t_queue=%s \n\t\t t_args=%s \n\t\t t_kwargs=%s "
+            log.info("<=Runner Fire Task=> FAKE: About to fire a task Name %s", task.name)
+            log.info("<=Runner Fire Task=> FAKE: Task passed arguments: \n\t\t t_queue=%s \n\t\t t_args=%s \n\t\t t_kwargs=%s "
                       "\n\t\t t_routing_key=%s", t_queue, t_args, t_kwargs, t_routing_key)
             if not os.name == 'nt':
                 return TSupport.fake_task.apply_async(

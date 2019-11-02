@@ -265,14 +265,17 @@ class TasksOperations:
     @staticmethod
     def tasks_get_reserved(**kwargs):
         workers = kwargs.get("workers", ())
+        # log.debug("workers %s", workers)
         if workers:
             tasks = dict()
             inspect = app.control.inspect(workers)
+            # log.debug("inspect %s %s", workers, inspect)
             for worker in workers:
                 w_tasks = inspect.reserved().get(worker)
                 tasks.update({worker: w_tasks})
         else:
             inspect = app.control.inspect()
+            # log.debug("inspect %s", inspect)
             tasks = inspect.reserved()
         return tasks
 
@@ -436,7 +439,7 @@ class TasksOperations:
         task_id = kwargs.get('task_id', None)
 
         if task_id:
-            tasks = CeleryTaskmeta.objects.filter(task_id__exact=task_id)
+            tasks = CeleryTaskmeta.objects.filter(task_id__exact=task_id).order_by('-date_done')
         else:
             tasks = CeleryTaskmeta.objects.all().order_by('-date_done')
 

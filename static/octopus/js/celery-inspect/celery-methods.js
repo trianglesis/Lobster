@@ -45,7 +45,7 @@ function RESTCeleryTaskPOST(tabsDataset, nextFunc) {
         "success": function (result) {
             console.log(`POST result: ${result}`);
             if (result) {
-                nextFunc(result)
+                nextFunc(tabsDataset, result)
             } else {
                 console.log("Task POST send, but haven't been added. No task_id in result!")
             }
