@@ -54,49 +54,53 @@
     </nav>
     {# CONTENT #}
     <div class="celery-content">
-
-        {% if worker %}
-            <div class="celery-workers-tabs">
-                <nav>
-                  <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link active" id="nav-home-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-active" role="tab"
-                       aria-controls="nav-active" aria-selected="true">Active tasks</a>
-                    <a class="nav-item nav-link" id="nav-reserved-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-reserved" role="tab"
-                       aria-controls="nav-reserved" aria-selected="false">Reserved Tasks</a>
-                    <a class="nav-item nav-link" id="nav-active-reserved-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-active-reserved" role="tab"
-                       aria-controls="nav-active-reserved" aria-selected="false">Active & reserved</a>
-                    <a class="nav-item nav-link" id="nav-scheduled-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-scheduled" role="tab"
-                       aria-controls="nav-scheduled" aria-selected="false">Scheduled Tasks</a>
-                    <a class="nav-item nav-link" id="nav-registered-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-registered" role="tab"
-                       aria-controls="nav-registered" aria-selected="false">Registered Tasks</a>
+        {% comment %}
+        If worker - show tabs for one worker and use data-worker as selectable for JS
+        If not worker - show everything in the same tabs, JS check when data-worker is undefined and also query for all.
+        {% endcomment %}
+        <div class="celery-workers-tabs">
+            <nav>
+              <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-item nav-link active" id="nav-home-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-active" role="tab"
+                   aria-controls="nav-active" aria-selected="true">Active tasks</a>
+                <a class="nav-item nav-link" id="nav-reserved-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-reserved" role="tab"
+                   aria-controls="nav-reserved" aria-selected="false">Reserved Tasks</a>
+                <a class="nav-item nav-link" id="nav-active-reserved-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-active-reserved" role="tab"
+                   aria-controls="nav-active-reserved" aria-selected="false">Active & reserved</a>
+                <a class="nav-item nav-link" id="nav-scheduled-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-scheduled" role="tab"
+                   aria-controls="nav-scheduled" aria-selected="false">Scheduled Tasks</a>
+                <a class="nav-item nav-link" id="nav-registered-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-registered" role="tab"
+                   aria-controls="nav-registered" aria-selected="false">Registered Tasks</a>
+              </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+              <div class="tab-pane fade show active" id="nav-active" role="tabpanel" aria-labelledby="nav-active-tab">
+                  <div id="active-"{{ worker }}>
+                    <p>Active tasks for worker: {{ worker }}</p>
                   </div>
-                </nav>
-                <div class="tab-content" id="nav-tabContent">
-                  <div class="tab-pane fade show active" id="nav-active" role="tabpanel" aria-labelledby="nav-active-tab">Active tasks for worker: {{ worker }}</div>
-                  <div class="tab-pane fade" id="nav-reserved" role="tabpanel" aria-labelledby="nav-reserved-tab">Reserved tasks for worker: {{ worker }}</div>
-                  <div class="tab-pane fade" id="nav-active-reserved" role="tabpanel" aria-labelledby="nav-active-reserved-tab">Active & reserved tasks for worker: {{ worker }}</div>
-                  <div class="tab-pane fade" id="nav-scheduled" role="tabpanel" aria-labelledby="nav-scheduled-tab">Scheduled tasks for worker: {{ worker }}</div>
-                  <div class="tab-pane fade" id="nav-registered" role="tabpanel" aria-labelledby="nav-registered-tab">Registered tasks for worker: {{ worker }}</div>
-                </div>
-            </div>
-
-        {% else %}
-            Run inspection for all workers?
-
-            <div class="celery-workers-tabs">
-                <nav>
-                  <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">FirstWorker</a>
-                    <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">SecondWorker</a>
+              </div>
+              <div class="tab-pane fade" id="nav-reserved" role="tabpanel" aria-labelledby="nav-reserved-tab">
+                  <div id="reserved-"{{ worker }}>
+                    <p>Reserved tasks for worker: {{ worker }}</p>
                   </div>
-                </nav>
-                <div class="tab-content" id="nav-tabContent">
-                  <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">FirstWorkerData</div>
-                  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">SecondWorkerData</div>
-                </div>
+              </div>
+              <div class="tab-pane fade" id="nav-active-reserved" role="tabpanel" aria-labelledby="nav-active-reserved-tab">
+                  <div id="active-reserved-"{{ worker }}>
+                    <p>Active & reserved tasks for worker: {{ worker }}</p>
+                  </div>
+              </div>
+              <div class="tab-pane fade" id="nav-scheduled" role="tabpanel" aria-labelledby="nav-scheduled-tab">
+                  <div id="scheduled-"{{ worker }}>
+                    <p>Scheduled tasks for worker: {{ worker }}</p>
+                  </div>
+              </div>
+              <div class="tab-pane fade" id="nav-registered" role="tabpanel" aria-labelledby="nav-registered-tab">
+                  <div id="registered-"{{ worker }}>
+                    <p>Registered tasks for worker: {{ worker }}</p>
+                  </div>
+              </div>
             </div>
-
-        {% endif %}
+        </div>
 
 
     </div>

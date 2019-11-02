@@ -48,6 +48,10 @@ class AdminWorkbench(TemplateView):
 
 
 class CeleryInspect(TemplateView):
+    """
+    If worker - show tabs for one worker and use data-worker as selectable for JS
+    If not worker - show everything in the same tabs, JS check when data-worker is undefined and also query for all.
+    """
     __url_path = '/octo_admin/celery_inspect/'
     template_name = 'celery_workbench/celery_inspect.html'
     context_object_name = 'objects'
