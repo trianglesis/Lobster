@@ -14,13 +14,13 @@
 
             <div class="btn-group btn-group-sm" role="group" aria-label="Level" style="float: right">
                 <div class="btn-group btn-group-sm" role="group" aria-label="Level" style="float: right">
-                    <a role="button" aria-pressed="true" class="btn btn-sm btn-danger" href="{% url "celery_tasks_result" %}?task_status=FAILURE" title="Sort failed tasks">FAILURE</a>
-                    <a role="button" aria-pressed="true" class="btn btn-sm btn-warning" href="{% url "celery_tasks_result" %}?task_status=REVOKED" title="Sort revoked tasks">REVOKED</a>
-                    <a role="button" aria-pressed="true" class="btn btn-sm btn-dark" href="{% url "celery_tasks_result" %}?task_status=RETRY" title="Sort tasks retried">RETRY</a>
-                    <a role="button" aria-pressed="true" class="btn btn-sm btn-success" href="{% url "celery_tasks_result" %}?task_status=SUCCESS" title="Sort all successed tasks LONG!">SUCCESS</a>
-                    <a role="button" aria-pressed="true" class="btn btn-sm btn-light" href="{% url "celery_tasks_result" %}?task_status=PENDING" title="Sort pending">PENDING</a>
-                    <a role="button" aria-pressed="true" class="btn btn-sm btn-secondary" href="{% url "celery_tasks_result" %}?task_status=STARTED" title="Sort started">STARTED</a>
-                    <a role="button" aria-pressed="true" class="btn btn-sm btn-info" href="{% url "celery_tasks_result" %}?task_status=RECIEVED" title="Sort recieved">RECIEVED</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-danger" href="#celery_tasks_result?task_status=FAILURE" title="Sort failed tasks">FAILURE</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-warning" href="#celery_tasks_result?task_status=REVOKED" title="Sort revoked tasks">REVOKED</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-dark" href="#celery_tasks_result?task_status=RETRY" title="Sort tasks retried">RETRY</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-success" href="#celery_tasks_result?task_status=SUCCESS" title="Sort all successed tasks LONG!">SUCCESS</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-light" href="#celery_tasks_result?task_status=PENDING" title="Sort pending">PENDING</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-secondary" href="#celery_tasks_result?task_status=STARTED" title="Sort started">STARTED</a>
+                    <a role="button" aria-pressed="true" class="btn btn-sm btn-info" href="#celery_tasks_result?task_status=RECIEVED" title="Sort recieved">RECIEVED</a>
                 </div>
             </div>
         </div>

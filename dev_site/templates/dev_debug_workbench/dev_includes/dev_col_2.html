@@ -35,8 +35,6 @@
                 <li class="list-group-item">
                     <div class="btn-group-sm">
                         <div class="text-dark">Version cmd - do not affect ADDM in any way, only version.</div>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}">BLANK</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?cmd_k=show_v;addm_group=foxtrot">foxtrot version CMD</a>
                     </div>
                 </li>
             </ul>
@@ -62,23 +60,23 @@
                             </div>
                         </div>
                         <p></p>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=show_v">show_v</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_tpl">wipe_tpl</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_log">wipe_log</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_sync_log">wipe_sync_log</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_syslog">wipe_syslog</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_pool">wipe_pool</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_record">wipe_record</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_pattern_management">tw_pattern_management</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=_upload_unzip">_upload_unzip</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=product_content">product_content</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_model_wipe">tw_model_wipe</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_tax_import">tw_tax_import</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=test_kill">test_kill</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_scan_control">tw_scan_control</a>
-                        <a role="button" class="btn btn-sm btn-outline-danger" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tideway_restart">tideway_restart</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=show_v">show_v</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_tpl">wipe_tpl</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_log">wipe_log</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_sync_log">wipe_sync_log</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_syslog">wipe_syslog</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_pool">wipe_pool</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_record">wipe_record</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=tw_pattern_management">tw_pattern_management</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=_upload_unzip">_upload_unzip</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=product_content">product_content</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=tw_model_wipe">tw_model_wipe</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=tw_tax_import">tw_tax_import</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=test_kill">test_kill</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=tw_scan_control">tw_scan_control</a>
+                        <a role="button" class="btn btn-sm btn-outline-danger" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=tideway_restart">tideway_restart</a>
                     </div>
                     <div class="text-info">Live:</div>
                     <div class="btn-group-sm">
@@ -94,23 +92,23 @@
                             </div>
                         </div>
                         <p></p>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=show_v">show_v</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_tpl">wipe_tpl</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_log">wipe_log</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_sync_log">wipe_sync_log</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_syslog">wipe_syslog</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_pool">wipe_pool</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=wipe_record">wipe_record</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_pattern_management">tw_pattern_management</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=_upload_unzip">_upload_unzip</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=product_content">product_content</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_model_wipe">tw_model_wipe</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_tax_import">tw_tax_import</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=test_kill">test_kill</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tw_scan_control">tw_scan_control</a>
-                        <a role="button" class="btn btn-sm btn-outline-danger" href="{% url 'addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tideway_restart">tideway_restart</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=show_v">show_v</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_tpl">wipe_tpl</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_log">wipe_log</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_sync_log">wipe_sync_log</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_syslog">wipe_syslog</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_pool">wipe_pool</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=wipe_record">wipe_record</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=tw_pattern_management">tw_pattern_management</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=_upload_unzip">_upload_unzip</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=product_content">product_content</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=tw_model_wipe">tw_model_wipe</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=tw_tax_import">tw_tax_import</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=test_kill">test_kill</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=tw_scan_control">tw_scan_control</a>
+                        <a role="button" class="btn btn-sm btn-outline-danger" href="#addm_custom_cmd?addm_group=foxtrot;cmd_k=tideway_restart">tideway_restart</a>
                     </div>
                 </li>
             </ul>
@@ -137,10 +135,10 @@
                             </div>
                         </div>
                         <p></p>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group=foxtrot">weekly</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_cleanup' %}?mode=daily;addm_group=foxtrot">daily</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_cleanup' %}?mode=tests;addm_group=foxtrot">tests</a>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_cleanup' %}?addm_group=foxtrot">None</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_cleanup?mode=weekly;addm_group=foxtrot">weekly</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_cleanup?mode=daily;addm_group=foxtrot">daily</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_cleanup?mode=tests;addm_group=foxtrot">tests</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#addm_cleanup?addm_group=foxtrot">None</a>
                     </div>
                 </li>
             </ul>
@@ -174,7 +172,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'dev_addm_custom_cmd' %}?addm_group=foxtrot;cmd_k=tideway_restart">Run as part of cmd_k</a>
+                        <a role="button" class="btn btn-sm btn-outline-info" href="#dev_addm_custom_cmd?addm_group=foxtrot;cmd_k=tideway_restart">Run as part of cmd_k</a>
                     </div>
                 </li>
             </ul>

@@ -18,10 +18,6 @@
         <h6 class="card-subtitle mb-2 text-muted">Run celery workers funcs</h6>
             <p class="card-text text-info">Celery processing</p>
             <ul>
-                <li>octo_adm.views.AdminFunctions#tasks_inspection_web: <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'tasks_statuses' %}">Get raw date from all workers</a></li>
-                <li>views.CeleryInteract#workers_status: <a role="button" class="btn btn-sm btn-outline-info" href="{% url "workers_status" %}">Tasks work status details</a></li>
-                <li>octo_adm.views.AdminFunctions#workers_active_reserved: <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'workers_active_reserved' %}">Get empty workers and status</a></li>
-                <li>octo_adm.views.AdminFunctions#workers_raw: <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'workers_raw' %}">Get raw data from balancing workers</a></li>
             </ul>
       </div>
     </div>
@@ -32,7 +28,7 @@
         <h6 class="card-subtitle mb-2 text-muted">Internal core code options</h6>
             <p class="card-text text-info">TEST ITEMS:</p>
             <ul>
-                <li><a role="button" class="btn btn-sm btn-outline-info" href="{% url 'tasks_statuses' %}">All tasks statuses</a></li>
+                <li><a role="button" class="btn btn-sm btn-outline-info" href="#tasks_statuses">All tasks statuses</a></li>
             </ul>
       </div>
     </div>

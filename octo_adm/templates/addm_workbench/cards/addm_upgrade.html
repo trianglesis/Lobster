@@ -39,10 +39,10 @@
                                     </div>
                                     {% with 'alpha beta delta charlie echo foxtrot' as addm_group_list %}
                                         {% for addm in addm_group_list.split %}
-                                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tw_tax_import for {{ addm }}" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group={{ addm }}">{{ addm }}</a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tw_tax_import for {{ addm }}" href="#addm_custom_cmd?cmd_k=tw_tax_import;addm_group={{ addm }}">{{ addm }}</a>
                                         {% endfor %}
                                         {% with addm_group_list.split as addm_list  %}
-                                            <a role="button" class="btn btn-sm btn-outline-danger" title="Run tw_tax_import" href="{% url 'addm_custom_cmd' %}?cmd_k=tw_tax_import;addm_group={{ addm_list|join:"," }}">Update taxonomy all</a>
+                                            <a role="button" class="btn btn-sm btn-outline-danger" title="Run tw_tax_import" href="#addm_custom_cmd?cmd_k=tw_tax_import;addm_group={{ addm_list|join:"," }}">Update taxonomy all</a>
                                         {% endwith %}
                                     {% endwith %}
                                 </div>
@@ -83,7 +83,7 @@
                             {% if power_user_bool %}
                                 {% with 'alpha beta delta charlie echo foxtrot' as addm_group_list %}
                                 {% for addm in addm_group_list.split %}
-                                    <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_sync_shares' %}?addm_group={{ addm }}">{{ addm }} {% select_icon 'sync' 20 'left' 0.4 %}</a>
+                                    <a role="button" class="btn btn-sm btn-outline-info" href="#addm_sync_shares?addm_group={{ addm }}">{{ addm }} {% select_icon 'sync' 20 'left' 0.4 %}</a>
                                 {% endfor %}
                                 {% endwith %}
                             {% else %}

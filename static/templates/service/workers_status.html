@@ -19,18 +19,18 @@
                     <div class="btn-group btn-group-sm" aria-label="Tasks actions" style="float: right">
                     {% if staff_user_bool %}
                         <div class="btn-group btn-group-sm" style="float: right">
-                            <a role="button" class="btn btn-sm btn-light" href="{% url 'discard_all_tasks' %}" title="Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Discard waiting tasks</a>
-                            <a role="button" class="btn btn-sm btn-light" href="{% url 'purge_all_tasks' %}" title="Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Purge waiting tasks</a>
-                            <a role="button" class="btn btn-sm btn-danger" href="{% url 'worker_revoke_tasks' %}{% if WORKER_NAME %}?worker_name={{ WORKER_NAME }}{% endif %}" title="(CAUTION) Revoke and terminate all active tasks and tests for each addm AND also all reserved!">Revoke active + reserved</a>
-                            <a role="button" class="btn btn-sm btn-warning" href="{% url 'revoke_tasks_active' %}" title="(CAUTION) Revoke all active tasks and tests for each addm">Revoke all active</a>
+                            <a role="button" class="btn btn-sm btn-light" href="#discard_all_tasks" title="Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Discard waiting tasks</a>
+                            <a role="button" class="btn btn-sm btn-light" href="#purge_all_tasks" title="Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Purge waiting tasks</a>
+                            <a role="button" class="btn btn-sm btn-danger" href="#worker_revoke_tasks{% if WORKER_NAME %}?worker_name={{ WORKER_NAME }}{% endif %}" title="(CAUTION) Revoke and terminate all active tasks and tests for each addm AND also all reserved!">Revoke active + reserved</a>
+                            <a role="button" class="btn btn-sm btn-warning" href="#revoke_tasks_active" title="(CAUTION) Revoke all active tasks and tests for each addm">Revoke all active</a>
                         </div>
                         <div class="btn-group btn-group-sm" style="padding-left: 1em;float: right">
-                            <a role="button" class="btn btn-sm btn-info" href="{% url 'workers_restart' %}" title="Worker restart - if anything goes wrong and workers page didn't show usual workers. Or when you revoke tasks but it has no effect.">Workers restart</a>
-                            <a role="button" class="btn btn-sm btn-warning" href="{% url 'celery_worker_heartbeat' %}" title="Worker heartbeat will be executed. This usually restart worker's consumers.">Workers heartbeat</a>
-                            <a role="button" class="btn btn-sm btn-warning" href="{% url 'celery_worker_ping' %}" title="Worker ping will be executed. This usually woke up worker's consumers.">Workers ping</a>
+                            <a role="button" class="btn btn-sm btn-info" href="#workers_restart" title="Worker restart - if anything goes wrong and workers page didn't show usual workers. Or when you revoke tasks but it has no effect.">Workers restart</a>
+                            <a role="button" class="btn btn-sm btn-warning" href="#celery_worker_heartbeat" title="Worker heartbeat will be executed. This usually restart worker's consumers.">Workers heartbeat</a>
+                            <a role="button" class="btn btn-sm btn-warning" href="#celery_worker_ping" title="Worker ping will be executed. This usually woke up worker's consumers.">Workers ping</a>
                         </div>
                     {% elif power_user_bool %}
-                        <a role="button" class="btn btn-sm btn-warning" href="{% url 'revoke_tasks_active' %}" title="(CAUTION) Revoke all active tasks and tests for each addm">Revoke all active</a>
+                        <a role="button" class="btn btn-sm btn-warning" href="#revoke_tasks_active" title="(CAUTION) Revoke all active tasks and tests for each addm">Revoke all active</a>
                     {% endif %}
                     </div>
                 </div>
@@ -99,14 +99,14 @@
                                             <li>hostname: {{ worker_item_d.TASKS_ITEMS.TASK_HOSTNAME }}</li>
                                             <li>args: <cite class="font-weight-light">{{ worker_item_d.TASKS_ITEMS.TASK_ARGS }}</cite></li>
                                             <li>
-                                                <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'revoke_task_by_id' %}?task_id={{ worker_item_d.TASKS_ITEMS.TASK_ID }}{% spaceless %}
+                                                <a role="button" class="btn btn-sm btn-outline-warning" href="#revoke_task_by_id?task_id={{ worker_item_d.TASKS_ITEMS.TASK_ID }}{% spaceless %}
                                                 {% endspaceless %}{% if WORKER_NAME %}&worker_name={{ WORKER_NAME }}{% endif %}" title="Cancel task (Tell all (or specific) workers to revoke a task by id. {% spaceless %}
                                                 {% endspaceless %} If a task is revoked, the workers will ignore the task and not execute it after all.)">Revoke task</a>
                                             {% if staff_user_bool %}
-                                                <a role="button" class="btn btn-sm btn-danger" href="{% url 'revoke_task_by_id' %}?task_id={{ worker_item_d.TASKS_ITEMS.TASK_ID }}{% spaceless %}
+                                                <a role="button" class="btn btn-sm btn-danger" href="#revoke_task_by_id?task_id={{ worker_item_d.TASKS_ITEMS.TASK_ID }}{% spaceless %}
                                                 {% endspaceless %}{% if WORKER_NAME %}&worker_name={{ WORKER_NAME }}{% endif %}&terminate=True" title="Cancel task (Tell all (or specific) workers to revoke a task by id. {% spaceless %}
                                                 {% endspaceless %} If a task is revoked, the workers will ignore the task and not execute it after all.)">Revoke task and terminate proc</a>
-                                                <a role="button" class="btn btn-sm btn-warning" href="{% url 'celery_worker_ping' %}?worker_name={{ WORKER_NAME }}" title="Ping worker">Ping worker</a>
+                                                <a role="button" class="btn btn-sm btn-warning" href="#celery_worker_ping?worker_name={{ WORKER_NAME }}" title="Ping worker">Ping worker</a>
                                             {% endif %}
                                             </li>
                                         </ul>
@@ -124,8 +124,8 @@
                     {% for reserved_worker_item_d in WORKERS_RESERVED_TASKS %}
                         <li>Worker: <b>{{ reserved_worker_item_d.WORKER }}</b> / Tasks: <b>{{ reserved_worker_item_d.TASKS_COUNT }}</b>
                             <div class="btn-group btn-group-sm" style="padding-left: 1em;">
-                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'celery_worker_ping' %}?worker_name={{ reserved_worker_item_d.WORKER }}" title="Ping worker">Ping</a>
-                                <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'celery_worker_heartbeat' %}?worker_name={{ reserved_worker_item_d.WORKER }}" title="Worker heartbeat will be executed. This usually restart worker's consumers.">Heartbeat</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="#celery_worker_ping?worker_name={{ reserved_worker_item_d.WORKER }}" title="Ping worker">Ping</a>
+                                <a role="button" class="btn btn-sm btn-outline-info" href="#celery_worker_heartbeat?worker_name={{ reserved_worker_item_d.WORKER }}" title="Worker heartbeat will be executed. This usually restart worker's consumers.">Heartbeat</a>
                             </div>
                         </li>
                         <ul>

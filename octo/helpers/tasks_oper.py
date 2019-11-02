@@ -67,26 +67,6 @@ class TasksOperations:
             log.info(msg)
         return self.task_success(task_itself)
 
-    # Get only active tasks ID in list:
-    @staticmethod
-    def get_active_tasks_id(workers_list):
-        """
-        Get all active tasks from selected workers.
-        Put each task id in list.
-        Return list with all active tasks ids.
-
-        :type workers_list: list
-        :return: list
-        """
-        active_task_list = []
-        inspect_w = app.control.inspect(workers_list)
-        active_tasks = inspect_w.active()
-        for worker_key, tasks_list in active_tasks.items():
-            for task_item in tasks_list:
-                if task_item['id'] not in active_task_list:
-                    active_task_list.append(task_item['id'])
-        return active_task_list
-
     @staticmethod
     def get_all_tasks_statuses(worker_name):
         """
@@ -129,24 +109,6 @@ class TasksOperations:
             worker_k = '{}@tentacle'.format(worker)
         inspect = app.control.inspect([worker_k])
         return dict(active = inspect.active(), reserved = inspect.reserved())
-
-    @staticmethod
-    def get_reserved_tasks_list(worker_name):
-        """
-        Get list of currently active tasks list for chosen queue.
-
-        Example: 'active': {'double_decker@OCTOPUS': [],}
-
-        :return:
-        """
-        tasks_res = []
-        inspect        = app.control.inspect()
-        reserved_tasks = inspect.reserved()
-        if reserved_tasks:
-            if reserved_tasks.get(worker_name, False):
-                tasks_res = reserved_tasks[worker_name]
-
-        return tasks_res
 
     @staticmethod
     def get_workers_summary(**kwargs):
@@ -228,14 +190,6 @@ class TasksOperations:
                 inspected.append(dict(no_worker=dict(all_tasks=[dict(args='none', name='none')], all_tasks_len=0, error=msg)))
         return inspected
 
-    @staticmethod
-    def get_registered_tasks(workers_list=None):
-        registered = []
-        inspect = app.control.inspect(destination=workers_list)  # :type worker list
-        for worker in workers_list:
-            registered.append(inspect.registered().get(worker, []))
-        return registered
-
     def get_free_worker(self, workers_list):
         """
         Using list of workers get state of each, sort out busy workers or
@@ -291,7 +245,6 @@ class TasksOperations:
                 included_list.remove(candidate)
 
         return excluded_list, included_list
-
 
     # VIA REST:
     # Inspect workers:

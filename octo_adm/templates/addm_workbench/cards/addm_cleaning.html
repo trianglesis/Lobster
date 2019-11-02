@@ -72,10 +72,10 @@
                                 {% if power_user_bool %}
                                     {% with 'alpha beta delta charlie echo foxtrot' as addm_group_list %}
                                         {% for addm in addm_group_list.split %}
-                                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tideway restart for {{ addm }}" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group={{ addm }}">{{ addm }}{% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tideway restart for {{ addm }}" href="#addm_cleanup?mode=weekly;addm_group={{ addm }}">{{ addm }}{% select_icon 'rocket' 20 'left' 0.4 %}</a>
                                         {% endfor %}
                                         {% with addm_group_list.split as addm_list  %}
-                                            <a role="button" class="btn btn-sm btn-outline-danger" title="Run tideway restart for all" href="{% url 'addm_cleanup' %}?mode=weekly;addm_group={{ addm_list|join:"," }}">Wipe weekly all{% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                            <a role="button" class="btn btn-sm btn-outline-danger" title="Run tideway restart for all" href="#addm_cleanup?mode=weekly;addm_group={{ addm_list|join:"," }}">Wipe weekly all{% select_icon 'rocket' 20 'left' 0.4 %}</a>
                                         {% endwith %}
                                     {% endwith %}
                                 {% else %}
@@ -142,10 +142,10 @@
 
                                     {% with 'alpha beta delta charlie echo foxtrot' as addm_group_list %}
                                         {% for addm in addm_group_list.split %}
-                                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tideway restart for {{ addm }}" href="{% url 'addm_cleanup' %}?mode=daily;addm_group={{ addm }}">{{ addm }}{% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tideway restart for {{ addm }}" href="#addm_cleanup?mode=daily;addm_group={{ addm }}">{{ addm }}{% select_icon 'rocket' 20 'left' 0.4 %}</a>
                                         {% endfor %}
                                         {% with addm_group_list.split as addm_list  %}
-                                            <a role="button" class="btn btn-sm btn-outline-danger" title="Run tideway restart for all" href="{% url 'addm_cleanup' %}?mode=daily;addm_group={{ addm_list|join:"," }}">Wipe daily all{% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                            <a role="button" class="btn btn-sm btn-outline-danger" title="Run tideway restart for all" href="#addm_cleanup?mode=daily;addm_group={{ addm_list|join:"," }}">Wipe daily all{% select_icon 'rocket' 20 'left' 0.4 %}</a>
                                         {% endwith %}
                                     {% endwith %}
 
@@ -234,10 +234,10 @@
 
                                     {% with 'alpha beta delta charlie echo foxtrot' as addm_group_list %}
                                         {% for addm in addm_group_list.split %}
-                                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tideway restart for {{ addm }}" href="{% url 'addm_cleanup' %}?mode=tests;addm_group={{ addm }}">{{ addm }}{% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                            <a role="button" class="btn btn-sm btn-outline-info" title="Run tideway restart for {{ addm }}" href="#addm_cleanup?mode=tests;addm_group={{ addm }}">{{ addm }}{% select_icon 'rocket' 20 'left' 0.4 %}</a>
                                         {% endfor %}
                                         {% with addm_group_list.split as addm_list  %}
-                                            <a role="button" class="btn btn-sm btn-outline-danger" title="Run tideway restart for all" href="{% url 'addm_cleanup' %}?mode=tests;addm_group={{ addm_list|join:"," }}">Wipe tests leftovers for all{% select_icon 'rocket' 20 'left' 0.4 %}</a>
+                                            <a role="button" class="btn btn-sm btn-outline-danger" title="Run tideway restart for all" href="#addm_cleanup?mode=tests;addm_group={{ addm_list|join:"," }}">Wipe tests leftovers for all{% select_icon 'rocket' 20 'left' 0.4 %}</a>
                                         {% endwith %}
                                     {% endwith %}
 

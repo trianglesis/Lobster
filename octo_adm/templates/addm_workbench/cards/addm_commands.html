@@ -22,35 +22,35 @@
                     <td id="row_addm_group">{{ addm }}</td>
                     <td id="row_info" class="text-center table-light align-middle text-sm-left">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Info">
-                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=show_v">show_v</a>
+                            <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=show_v">show_v</a>
                         </div>
                     </td>
                     <td id="row_wipe" class="text-center table-light align-middle text-sm-center">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Wiping">
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=wipe_tpl">*tpl</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=wipe_log">*log</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=wipe_sync_log">sync log</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=wipe_syslog">syslog</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=wipe_pool">Pool data</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=wipe_record">Rec data</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=tw_model_wipe">tw_model_wipe</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=wipe_tpl">*tpl</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=wipe_log">*log</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=wipe_sync_log">sync log</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=wipe_syslog">syslog</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=wipe_pool">Pool data</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=wipe_record">Rec data</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=tw_model_wipe">tw_model_wipe</a>
                         </div>
                     </td>
                     <td id="row_codebase" class="text-center table-light align-middle text-sm-center">
                         <div class="btn-group btn-group-sm" role="group" aria-label="CodeBase">
-                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=tw_pattern_management">tw_pattern_management</a>
-                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=tw_tax_import">tw_tax_import</a>
-                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=_upload_unzip">_upload_unzip</a>
-                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=product_content">product_content</a>
-                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
-                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
+                            <a role="button" class="btn btn-sm btn-outline-primary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=tw_pattern_management">tw_pattern_management</a>
+                            <a role="button" class="btn btn-sm btn-outline-primary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=tw_tax_import">tw_tax_import</a>
+                            <a role="button" class="btn btn-sm btn-outline-primary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=_upload_unzip">_upload_unzip</a>
+                            <a role="button" class="btn btn-sm btn-outline-primary" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=product_content">product_content</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
                         </div>
                     </td>
                     <td id="row_service" class="text-center table-light align-middle text-sm-center">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Service">
-                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=test_kill">test_kill</a>
-                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=tw_scan_control">tw_scan_control</a>
-                            <a role="button" class="btn btn-sm btn-outline-danger" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm }};cmd_k=tideway_restart">tideway_restart</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=test_kill">test_kill</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=tw_scan_control">tw_scan_control</a>
+                            <a role="button" class="btn btn-sm btn-outline-danger" href="#addm_custom_cmd?addm_group={{ addm }};cmd_k=tideway_restart">tideway_restart</a>
                         </div>
                     </td>
                 </tr>
@@ -61,35 +61,35 @@
                     <td id="row_addm_group">All</td>
                     <td id="row_info" class="text-center table-light align-middle text-sm-left">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Info">
-                            <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=show_v">show_v</a>
+                            <a role="button" class="btn btn-sm btn-outline-info" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=show_v">show_v</a>
                         </div>
                     </td>
                     <td id="row_wipe" class="text-center table-light align-middle text-sm-center">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Wiping">
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=wipe_tpl">*tpl</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=wipe_log">*log</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=wipe_sync_log">sync log</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=wipe_syslog">syslog</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=wipe_pool">Pool data</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=wipe_record">Rec data</a>
-                            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=tw_model_wipe">tw_model_wipe</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=wipe_tpl">*tpl</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=wipe_log">*log</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=wipe_sync_log">sync log</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=wipe_syslog">syslog</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=wipe_pool">Pool data</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=wipe_record">Rec data</a>
+                            <a role="button" class="btn btn-sm btn-outline-secondary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=tw_model_wipe">tw_model_wipe</a>
                         </div>
                     </td>
                     <td id="row_codebase" class="text-center table-light align-middle text-sm-center">
                         <div class="btn-group btn-group-sm" role="group" aria-label="CodeBase">
-                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=tw_pattern_management">tw_pattern_management</a>
-                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=tw_tax_import">tw_tax_import</a>
-                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=_upload_unzip">_upload_unzip</a>
-                            <a role="button" class="btn btn-sm btn-outline-primary" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=product_content">product_content</a>
-                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
-                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
+                            <a role="button" class="btn btn-sm btn-outline-primary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=tw_pattern_management">tw_pattern_management</a>
+                            <a role="button" class="btn btn-sm btn-outline-primary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=tw_tax_import">tw_tax_import</a>
+                            <a role="button" class="btn btn-sm btn-outline-primary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=_upload_unzip">_upload_unzip</a>
+                            <a role="button" class="btn btn-sm btn-outline-primary" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=product_content">product_content</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=sync_prod_cont_python">sync_prod_cont_python</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=sync_prod_cont_data">sync_prod_cont_data</a>
                         </div>
                     </td>
                     <td id="row_service" class="text-center table-light align-middle text-sm-center">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Service">
-                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=test_kill">test_kill</a>
-                            <a role="button" class="btn btn-sm btn-outline-warning" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=tw_scan_control">tw_scan_control</a>
-                            <a role="button" class="btn btn-sm btn-outline-danger" href="{% url 'addm_custom_cmd' %}?addm_group={{ addm_list|join:"," }};cmd_k=tideway_restart">tideway_restart</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=test_kill">test_kill</a>
+                            <a role="button" class="btn btn-sm btn-outline-warning" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=tw_scan_control">tw_scan_control</a>
+                            <a role="button" class="btn btn-sm btn-outline-danger" href="#addm_custom_cmd?addm_group={{ addm_list|join:"," }};cmd_k=tideway_restart">tideway_restart</a>
                         </div>
                     </td>
                 </tr>
