@@ -1,0 +1,45 @@
+/* Navigate on test reports NAV BAR */
+.test-report-navbar {
+    background-color: #e3f2fd;
+    /*margin: 1%;*/
+    margin: 20px 10px 20px 10px;
+}
+/*Navbar left part content*/
+.nav-reports-left {
+    display: flex;
+    justify-content: flex-start !important;
+}
+/*Navbar right part content*/
+.nav-reports-right {
+    display: flex;
+    justify-content: flex-end !important;
+}
+
+.dropdown-menu-right {
+    right: 0;
+}
+
+/*Change branch here*/
+.digest-branch {
+    padding-left: 10px;
+
+}
+/*Digest levels breadcrumbs*/
+.digest-breadcrumbs {
+    padding-left: 10px;
+
+}
+/*History browse*/
+.digest-history {
+    padding-left: 10px;
+}
+.case-info-view{
+    padding-left: 4rem;
+}
+.selection-state {
+    padding-left: 2rem;
+}
+/*Navbar right part content*/
+.digest-test-log-levels {
+    padding-left: 10px;
+}

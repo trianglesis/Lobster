@@ -29,8 +29,12 @@ urlpatterns = [
 
     # NEW:
     url(r'^admin_workbench/', AdminWorkbench.as_view(), name='admin_workbench'),
-    url(r'^celery_workbench/', CeleryWorkbench.as_view(), name='celery_workbench'),
     url(r'^addm_workbench/', AddmWorkbench.as_view(), name='addm_workbench'),
+
+    # Celery related:
+    url(r'^celery_workbench/', CeleryWorkbench.as_view(), name='celery_workbench'),
+    url(r'^celery_inspect/', CeleryInspect.as_view(), name='celery_inspect'),
+
     # REST Support for ADMIN functions and tasks:
     url(r'^task_operation/', TaskOperationsREST.as_view(), name='task_operations'),
     url(r'^admin_operations/', AdminOperationsREST.as_view(), name='admin_operations'),

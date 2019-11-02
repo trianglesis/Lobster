@@ -47,6 +47,24 @@ class AdminWorkbench(TemplateView):
     pass
 
 
+class CeleryInspect(TemplateView):
+    __url_path = '/octo_admin/celery_inspect/'
+    template_name = 'celery_workbench/celery_inspect.html'
+    context_object_name = 'objects'
+
+    def get_context_data(self, **kwargs):
+        context = super(CeleryInspect, self).get_context_data(**kwargs)
+        worker = self.request.GET.get('worker', None)
+        context.update(
+            worker=worker,
+            objects={},
+        )
+        return context
+
+    # Inspect one worker
+    # Inspect all workers
+
+
 class CeleryWorkbench(TemplateView):
     pass
 

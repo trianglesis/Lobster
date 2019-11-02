@@ -25,6 +25,7 @@
             <div id="toastStack" style="position: absolute;z-index: 2"></div>
         </div>
     </div>
+    {% comment %}NAV BAR{% endcomment %}
     <nav class="navbar navbar-light test-report-navbar">
     {% spaceless %}
         <!-- Navbar content -->
@@ -171,6 +172,7 @@
         </div>
     {% endspaceless %}
     </nav>
+    {% comment %}Test reports{% endcomment %}
     <div class="report-content">
         {% if test_detail %}
             {% if selector.addm_name %}

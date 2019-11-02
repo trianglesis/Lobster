@@ -1,0 +1,144 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Last tests
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    {# STYLES #}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/navbar-secondary.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/celery-inspect.css' %}"/>
+    <div aria-live="polite" aria-atomic="true" style="position: relative">
+        <!-- Position it -->
+        <div style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 2"></div>
+        </div>
+    </div>
+    {% comment %}NAV BAR{% endcomment %}
+    <nav class="navbar navbar-light test-report-navbar">
+    {% spaceless %}
+        <!-- Navbar content -->
+        <!-- Navbar left part content -->
+        <div class="nav-reports-left">
+            <!-- Digest levels breadcrumbs: -->
+            <div class="digest-breadcrumbs">
+                <nav class="nav nav-pills">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                        {# URL back to ADDM should contain tkn_branch, - to know what page to open previuosly #}
+                        <a class="btn btn-sm btn-info" href="#"><i class="fas fa-step-backward"></i> Admin Workbench</a>
+                        <a class="btn btn-sm btn-info active" href="#" title="You are here..."><i class="fas fa-play"></i> Celery Inspect</a>
+                    </div>
+                </nav>
+            </div>
+            <!-- Change branch here: -->
+            <div class="digest-branch"></div>
+            <div class="selection-state"></div>
+        </div>
+        <!-- Navbar right part content -->
+        <div class="nav-reports-right digest-test-log-levels">
+            <a class="btn btn-sm btn-warning">Revoke active</a>
+            <a class="btn btn-sm btn-warning">Revoke reserved</a>
+            <a class="btn btn-sm btn-warning">Revoke all</a>
+            <a class="btn btn-sm btn-danger">Tasks discard</a>
+            <a class="btn btn-sm btn-danger">Tasks purge</a>
+        </div>
+    {% endspaceless %}
+    </nav>
+    {# CONTENT #}
+    <div class="celery-content">
+
+        {% if worker %}
+            <div class="celery-workers-tabs">
+                <nav>
+                  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" id="nav-home-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-active" role="tab"
+                       aria-controls="nav-active" aria-selected="true">Active tasks</a>
+                    <a class="nav-item nav-link" id="nav-reserved-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-reserved" role="tab"
+                       aria-controls="nav-reserved" aria-selected="false">Reserved Tasks</a>
+                    <a class="nav-item nav-link" id="nav-active-reserved-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-active-reserved" role="tab"
+                       aria-controls="nav-active-reserved" aria-selected="false">Active & reserved</a>
+                    <a class="nav-item nav-link" id="nav-scheduled-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-scheduled" role="tab"
+                       aria-controls="nav-scheduled" aria-selected="false">Scheduled Tasks</a>
+                    <a class="nav-item nav-link" id="nav-registered-tab" data-worker="{{ worker }}" data-toggle="tab" href="#nav-registered" role="tab"
+                       aria-controls="nav-registered" aria-selected="false">Registered Tasks</a>
+                  </div>
+                </nav>
+                <div class="tab-content" id="nav-tabContent">
+                  <div class="tab-pane fade show active" id="nav-active" role="tabpanel" aria-labelledby="nav-active-tab">Active tasks for worker: {{ worker }}</div>
+                  <div class="tab-pane fade" id="nav-reserved" role="tabpanel" aria-labelledby="nav-reserved-tab">Reserved tasks for worker: {{ worker }}</div>
+                  <div class="tab-pane fade" id="nav-active-reserved" role="tabpanel" aria-labelledby="nav-active-reserved-tab">Active & reserved tasks for worker: {{ worker }}</div>
+                  <div class="tab-pane fade" id="nav-scheduled" role="tabpanel" aria-labelledby="nav-scheduled-tab">Scheduled tasks for worker: {{ worker }}</div>
+                  <div class="tab-pane fade" id="nav-registered" role="tabpanel" aria-labelledby="nav-registered-tab">Registered tasks for worker: {{ worker }}</div>
+                </div>
+            </div>
+
+        {% else %}
+            Run inspection for all workers?
+
+            <div class="celery-workers-tabs">
+                <nav>
+                  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">FirstWorker</a>
+                    <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">SecondWorker</a>
+                  </div>
+                </nav>
+                <div class="tab-content" id="nav-tabContent">
+                  <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">FirstWorkerData</div>
+                  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">SecondWorkerData</div>
+                </div>
+            </div>
+
+        {% endif %}
+
+
+    </div>
+    {% comment %}Nav sticky bottom{% endcomment %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Admin Workbench</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Celery Inspect</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled">Restart</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled"><i class="fas fa-expand-arrows-alt"></i> Workers: or worker name</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    {# JS #}
+
+    {% comment %}DEBUG{% endcomment %}
+    <div class="debug-context">
+        {% if request.GET.debug %}
+            <p>DEBUG enabled</p>
+            <p>actual addm_names: {{ addm_names }}</p>
+            <p>Selector: {{ selector }}</p>
+            <ul>
+                {% for sel_k, sel_v in selector.items %}
+                    {% if sel_v %}
+                        <li class="text-success">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% else %}
+                        <li class="text-warning">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}
