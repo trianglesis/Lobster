@@ -34,6 +34,7 @@
                     <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
                         {# URL back to ADDM should contain tkn_branch, - to know what page to open previuosly #}
                         <a class="btn btn-sm btn-info" href="#"><i class="fas fa-step-backward"></i> Admin Workbench</a>
+                        <a class="btn btn-sm btn-info" href="#"><i class="fas fa-step-backward"></i> Celery Workbench</a>
                         <a class="btn btn-sm btn-info active" href="#" title="You are here..."><i class="fas fa-play"></i> Celery Inspect</a>
                     </div>
                 </nav>
@@ -60,20 +61,20 @@
         {% endcomment %}
         <div class="celery-workers-tabs">
             <nav>
-              <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                <a class="nav-item nav-link active" id="nav-active-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_active"
+              <div class="nav nav-pills" id="nav-tab" role="tablist">
+                <a class="nav-item btn btn-sm btn-outline-success active" id="nav-active-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_active"
                    data-toggle="tab" href="#nav-active" role="tab"
                    aria-controls="nav-active" aria-selected="true">Active tasks</a>
-                <a class="nav-item nav-link" id="nav-reserved-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_reserved"
+                <a class="nav-item btn btn-sm btn-outline-secondary" id="nav-reserved-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_reserved"
                    data-toggle="tab" href="#nav-reserved" role="tab"
                    aria-controls="nav-reserved" aria-selected="false">Reserved Tasks</a>
-                <a class="nav-item nav-link" id="nav-active-reserved-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_active_reserved"
+                <a class="nav-item btn btn-sm btn-outline-warning" id="nav-active-reserved-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_active_reserved"
                    data-toggle="tab" href="#nav-active-reserved" role="tab"
                    aria-controls="nav-active-reserved" aria-selected="false">Active & reserved</a>
-                <a class="nav-item nav-link" id="nav-scheduled-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_scheduled"
+                <a class="nav-item btn btn-sm btn-outline-light" id="nav-scheduled-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_scheduled"
                    data-toggle="tab" href="#nav-scheduled" role="tab"
                    aria-controls="nav-scheduled" aria-selected="false">Scheduled Tasks</a>
-                <a class="nav-item nav-link" id="nav-registered-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_registered"
+                <a class="nav-item btn btn-sm btn-outline-light" id="nav-registered-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_registered"
                    data-toggle="tab" href="#nav-registered" role="tab"
                    aria-controls="nav-registered" aria-selected="false">Registered Tasks</a>
               </div>
@@ -108,12 +109,12 @@
         </div>
 
         <div id="worker-card" style="display: none">
-            <div class="card">
-                <h6 class="card-header card-header-shrink">WorkerName</h6>
+            <div class="card border-light tasks-card">
+                <h6 class="card-header card-header-shrink"><span class="badge badge-info"></span></h6>
                 <div class="card-body card-body-shrink">
-                    <table id="task-table" class="table-bordered table-sm text-center" style="width: 100%;">
+                    <table id="task-table" class="table-bordered table-hover table-sm" style="width: 100%;">
                         <thead>
-                            <tr>
+                            <tr class="text-center">
                                 <td>id</td>
                                 <td>name</td>
                                 <td>args</td>
@@ -124,14 +125,17 @@
                         <tbody>
                         </tbody>
                     </table>
+                    <div class="worker-buttons">
+                        <a href="#" class="badge badge-info">Active tasks</a>
+                        <a href="#" class="badge badge-info">Reserved tasks</a>
+                        <a href="#" class="badge badge-success">Ping worker</a>
+                        <a href="#" class="badge badge-success">Heartbeat worker</a>
+                        <a href="#" class="badge badge-warning">Revoke tasks</a>
+                    </div>
                 </div>
-                <div class="card-footer card-footer-shrink">
-                    <a href="#" class="btn btn-sm btn-outline-info">Active tasks</a>
-                    <a href="#" class="btn btn-sm btn-outline-info">Reserved tasks</a>
-                    <a href="#" class="btn btn-sm btn-outline-info">Ping worker</a>
-                    <a href="#" class="btn btn-sm btn-outline-info">Heartbeat worker</a>
-                    <a href="#" class="btn btn-sm btn-outline-warning">Revoke tasks</a>
-                </div>
+{#                <div class="card-footer card-footer-shrink">#}
+
+{#                </div>#}
             </div>
         </div>
     </div>

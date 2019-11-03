@@ -1,0 +1,291 @@
+{% extends "main/main.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        ADDM Workbench
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    {# STYLES #}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/navbar-secondary.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/admin_workbenches/admin-workbench.css' %}"/>
+    <div aria-live="polite" aria-atomic="true" style="position: relative">
+        <!-- Position it -->
+        <div style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 2"></div>
+        </div>
+    </div>
+    {% comment %}NAV BAR{% endcomment %}
+    <nav class="navbar navbar-light test-report-navbar">
+    {% spaceless %}
+        <!-- Navbar content -->
+        <!-- Navbar left part content -->
+        <div class="nav-reports-left">
+            <!-- Digest levels breadcrumbs: -->
+            <div class="digest-breadcrumbs">
+                <nav class="nav nav-pills">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                        {# URL back to ADDM should contain tkn_branch, - to know what page to open previuosly #}
+                        <a class="btn btn-sm btn-info" href="#"><i class="fas fa-step-backward"></i> Admin Workbench</a>
+                        <a class="btn btn-sm btn-info" href="#" title="You are here..."><i class="fas fa-play"></i> ADDM Workbench</a>
+                    </div>
+                </nav>
+            </div>
+            <!-- Change branch here: -->
+            <div class="digest-branch"></div>
+            <div class="selection-state"></div>
+        </div>
+        <!-- Navbar right part content -->
+        <div class="nav-reports-right digest-test-log-levels">
+        </div>
+    {% endspaceless %}
+    </nav>
+    {# CONTENT #}
+    {# CONTENT #}
+    <div class="addm-content">
+        <div class="card-deck">
+            <div class="card">
+                <div class="card-header">ADDM Preparations</div>
+                <div class="card-body">
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted"></small>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">ADDM CMD</div>
+                <div class="card-body">
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted"></small>
+                </div>
+            </div>
+            <div class="card border-warning">
+                <div class="card-header bg-warning">ADDM Servicing</div>
+                <div class="card-body">
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted"></small>
+                </div>
+            </div>
+        </div>
+        <div class="addm-vms-tabs">
+            <nav>
+                <div class="nav nav-pills flex-column flex-sm-row" id="nav-tab" role="tablist">
+                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link active"
+                       id="nav-all-addm-tab"
+                       href="#all-addm"
+                       aria-controls="all-addm"
+                       data-toggle="tab" role="tab" aria-selected="true">All</a>
+                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
+                       id="nav-addm-tkn_main-tab"
+                       href="#addm-tkn_main"
+                       aria-controls="nav-addm-tkn_main"
+                       data-toggle="tab" role="tab" aria-selected="false">Lock 'tkn_main'</a>
+                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
+                       id="nav-addm_tkn_ship-tab"
+                       href="#addm_tkn_ship"
+                       aria-controls="nav-addm_tkn_ship"
+                       data-toggle="tab" role="tab" aria-selected="false">Lock 'tkn_ship'</a>
+                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
+                       id="nav-enabled-addm-tab"
+                       href="#enabled-addm"
+                       aria-controls="nav-enabled-addm"
+                       data-toggle="tab" role="tab" aria-selected="false">Enabled</a>
+                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
+                       id="nav-aus-addm-tab"
+                       href="#aus-addm"
+                       aria-controls="nav-aus-addm"
+                       data-toggle="tab" role="tab" aria-selected="false">AUS</a>
+                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
+                       id="nav-pune-addm-tab"
+                       href="#pune-addm"
+                       aria-controls="nav-pune-addm"
+                       data-toggle="tab" role="tab" aria-selected="false">PUNE</a>
+                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
+                       id="nav-disabled-addm-tab"
+                       href="#disabled-addm"
+                       aria-controls="nav-disabled-addm"
+                       data-toggle="tab" role="tab" aria-selected="false">Disabled</a>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="all-addm" role="tabpanel" aria-labelledby="all-addm-tab">
+                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-addm-all">
+                        <thead>
+                            <tr>
+                                <th>group</th>
+                                <th>host</th>
+                                <th>etc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>group</td>
+                                <td>host</td>
+                                <td>etc</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <small>* Table of all ADDMs</small>
+                </div>
+                <div class="tab-pane fade" id="addm-tkn_main" role="tabpanel" aria-labelledby="addm-tkn_main-tab">
+                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-addm-tkn_main">
+                        <thead>
+                            <tr>
+                                <th>group</th>
+                                <th>host</th>
+                                <th>etc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>group</td>
+                                <td>host</td>
+                                <td>etc</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <small>* Table of ADDMS locked on branch</small>
+                </div>
+                <div class="tab-pane fade" id="addm_tkn_ship" role="tabpanel" aria-labelledby="addm_tkn_ship-tab">
+                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-addm_tkn_ship">
+                        <thead>
+                            <tr>
+                                <th>group</th>
+                                <th>host</th>
+                                <th>etc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>group</td>
+                                <td>host</td>
+                                <td>etc</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <small>* Table of ADDMS locked on branch</small>
+                </div>
+                <div class="tab-pane fade" id="enabled-addm" role="tabpanel" aria-labelledby="enabled-addm-tab">
+                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-enabled-addm">
+                        <thead>
+                            <tr>
+                                <th>group</th>
+                                <th>host</th>
+                                <th>etc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>group</td>
+                                <td>host</td>
+                                <td>etc</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <small>* Table of all enabled ADDMs</small>
+                </div>
+                <div class="tab-pane fade" id="aus-addm" role="tabpanel" aria-labelledby="aus-addm-tab">
+                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-aus-addm">
+                        <thead>
+                            <tr>
+                                <th>group</th>
+                                <th>host</th>
+                                <th>etc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>group</td>
+                                <td>host</td>
+                                <td>etc</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <small>* Disabled ADDMS</small>
+                </div>
+                <div class="tab-pane fade" id="pune-addm" role="tabpanel" aria-labelledby="pune-addm-tab">
+                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-pune-addm">
+                        <thead>
+                            <tr>
+                                <th>group</th>
+                                <th>host</th>
+                                <th>etc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>group</td>
+                                <td>host</td>
+                                <td>etc</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <small>* Disabled ADDMS</small>
+                </div>
+                <div class="tab-pane fade" id="disabled-addm" role="tabpanel" aria-labelledby="disabled-addm-tab">
+                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-disabled-addm">
+                        <thead>
+                            <tr>
+                                <th>group</th>
+                                <th>host</th>
+                                <th>etc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>group</td>
+                                <td>host</td>
+                                <td>etc</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <small>* Disabled ADDMS</small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {% comment %}Nav sticky bottom{% endcomment %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
+        <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Admin Workbench</a>
+            </li>
+        </ul>
+        <span class="navbar-text">Octopus automation</span>
+    </nav>
+    {# JS #}
+{#    <script src="{% static 'octopus/js/celery-inspect/celery-methods.js' %}"></script>#}
+{#    <script src="{% static 'octopus/js/celery-inspect/celery-inspect.js' %}"></script>#}
+    {% comment %}DEBUG{% endcomment %}
+    <div class="debug-context">
+        {% if request.GET.debug %}
+            <p>DEBUG enabled</p>
+            <p>actual addm_names: {{ addm_names }}</p>
+            <p>Selector: {{ selector }}</p>
+            <ul>
+                {% for sel_k, sel_v in selector.items %}
+                    {% if sel_v %}
+                        <li class="text-success">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% else %}
+                        <li class="text-warning">{{ sel_k }} = "{{ sel_v }}"</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}

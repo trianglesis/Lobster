@@ -2,7 +2,7 @@
 
 .celery-content {
     padding: 10px 10px 10px 10px;
-    font-size: 1em;
+    font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
     /*font-family: 'Catamaran', sans-serif;*/
     /*font-family: 'Open Sans', sans-serif;*/
@@ -24,4 +24,12 @@
 }
 .card-footer-shrink {
     padding: .2em;
+}
+
+.tasks-card {
+    margin-top: 2em;
+}
+
+.worker-buttons {
+    float: right;
 }

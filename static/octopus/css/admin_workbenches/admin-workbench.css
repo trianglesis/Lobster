@@ -1,0 +1,30 @@
+.table-shrink {
+    margin-bottom: .4em !important;
+}
+.table-shrink td th {
+    padding: .1rem !important;
+    vertical-align: middle;
+}
+.col-shrink {
+    padding-right: .2em;
+    padding-left: .2em;
+}
+
+.admin-content {
+    padding: 0 10px 20px 10px;
+    margin-bottom: 100px;
+}
+.addm-content {
+    padding: 0 10px 20px 10px;
+    margin-bottom: 100px;
+}
+.celery-admin-content {
+    padding: 0 10px 20px 10px;
+    margin-bottom: 100px;
+}
+.addm-vms-tabs {
+    padding-top: 1em;
+}
+.addm-items-table {
+    width: 100%;
+}

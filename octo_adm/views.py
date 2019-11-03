@@ -26,7 +26,7 @@ from run_core.p4_operations import PerforceOperations
 from run_core.local_operations import LocalPatternsP4Parse
 
 from octo.models import CeleryTaskmeta
-from octo.api.serializers import ShortResultsSetPagination
+from octo.api.serializers import StandardResultsSetPagination
 
 from octo.helpers.tasks_run import Runner
 from octo.helpers.tasks_mail_send import Mails
@@ -44,7 +44,21 @@ curr_hostname = getattr(settings, 'SITE_DOMAIN', None)
 
 
 class AdminWorkbench(TemplateView):
-    pass
+    __url_path = '/octo_admin/admin/'
+    template_name = 'admin_workbench/octo_admin_workbench.html'
+    context_object_name = 'objects'
+
+
+class AddmWorkbench(TemplateView):
+    __url_path = '/octo_admin/addm/'
+    template_name = 'addm_workbench/addm_workbench.html'
+    context_object_name = 'objects'
+
+
+class CeleryWorkbench(TemplateView):
+    __url_path = '/octo_admin/celery/'
+    template_name = 'celery_workbench/celery_workbench.html'
+    context_object_name = 'objects'
 
 
 class CeleryInspect(TemplateView):
@@ -67,23 +81,6 @@ class CeleryInspect(TemplateView):
 
     # Inspect one worker
     # Inspect all workers
-
-
-class CeleryWorkbench(TemplateView):
-    pass
-
-
-class AddmWorkbench(TemplateView):
-    pass
-
-
-def fake_function(*args, **kwargs):
-    # Show doc for function executed? This can be helpful for bootstrap toast info on Front side!
-    log.debug("Run pseudo task with args=%s kwargs=%s", args, kwargs)
-    return dict(
-        task_answer = 'Yup, something doing.',
-        task_id='8943576894567-4589734589347-i834765783465',
-    )
 
 
 class TaskOperationsREST(APIView):
@@ -211,109 +208,109 @@ class TaskOperationsREST(APIView):
         :return
         """
         workers = self.workers
-        # resp = TasksOperations.tasks_get_registered(workers=workers)
-        resp = {
-            "charlie@tentacle": [
-                "octo.tasks.fake_task",
-                "octo.tasks.t_long_mail",
-                "octo.tasks.t_occupy_w",
-                "octo.tasks.t_user_mail [routing_key=TSupport.t_user_mail]",
-                "octo.tasks.t_user_test [routing_key=TSupport.t_user_mail]",
-                "octo.tasks.test_task_get_worker_minimal [routing_key=routines.test_task_get_worker_minimal]",
-                "octo.tasks.test_task_heartbeat_ping_workers [routing_key=routines.test_task_heartbeat_ping_workers]",
-                "octo_adm.tasks.t_addm_clean",
-                "octo_adm.tasks.t_addm_cmd_k",
-                "octo_adm.tasks.t_routine_addm_cmd [routing_key=routines.TRoutine.t_routine_addm_cmd]",
-                "octo_adm.tasks.t_routine_clean_addm [routing_key=routines.TRoutine.t_routine_clean_addm]",
-                "octo_tku_patterns.tasks.t_addm_rsync_threads [routing_key=parsing.TExecTest.make_addm_sync_threads.addm_group]",
-                "octo_tku_patterns.tasks.t_p4_info [routing_key=parsing.perforce.TExecTest.t_p4_info]",
-                "octo_tku_patterns.tasks.t_p4_sync [routing_key=parsing.perforce.TExecTest.t_p4_sync_NEW]",
-                "octo_tku_patterns.tasks.t_p4_sync_force [routing_key=parsing.perforce.TExecTest.t_p4_sync_force]",
-                "octo_tku_patterns.tasks.t_pattern_weight_index [routing_key=routines.t_pattern_weight_index]",
-                "octo_tku_patterns.tasks.t_routine_night_tests [routing_key=routines.TRoutine.t_routine_night_tests]",
-                "octo_tku_patterns.tasks.t_test_exec_threads [routing_key=addm_group.TExecTest.t_test_exec_threads.pattern_folder]",
-                "octo_tku_patterns.tasks.t_test_prep [routing_key=routines.TRoutine.t_test_prep]",
-                "octo_tku_upload.tasks.t_parse_tku [routing_key=parsing.TUploadExec.t_parse_tku]",
-                "octo_tku_upload.tasks.t_routine_tku_upload [routing_key=routines.TRoutine.t_routine_tku_upload_test_new]",
-                "octo_tku_upload.tasks.t_tku_sync [routing_key=worker_tentacle.TExecTest.t_tku_sync.addm_group]",
-                "octo_tku_upload.tasks.t_upload_exec_threads [routing_key=worker_tentacle.TExecTest.t_upload_exec_threads.addm_group]"
-            ],
-            "w_parsing@tentacle": [
-                "octo.tasks.fake_task",
-                "octo.tasks.t_long_mail",
-                "octo.tasks.t_occupy_w",
-                "octo.tasks.t_user_mail [routing_key=TSupport.t_user_mail]",
-                "octo.tasks.t_user_test [routing_key=TSupport.t_user_mail]",
-                "octo.tasks.test_task_get_worker_minimal [routing_key=routines.test_task_get_worker_minimal]",
-                "octo.tasks.test_task_heartbeat_ping_workers [routing_key=routines.test_task_heartbeat_ping_workers]",
-                "octo_adm.tasks.t_addm_clean",
-                "octo_adm.tasks.t_addm_cmd_k",
-                "octo_adm.tasks.t_routine_addm_cmd [routing_key=routines.TRoutine.t_routine_addm_cmd]",
-                "octo_adm.tasks.t_routine_clean_addm [routing_key=routines.TRoutine.t_routine_clean_addm]",
-                "octo_tku_patterns.tasks.t_addm_rsync_threads [routing_key=parsing.TExecTest.make_addm_sync_threads.addm_group]",
-                "octo_tku_patterns.tasks.t_p4_info [routing_key=parsing.perforce.TExecTest.t_p4_info]",
-                "octo_tku_patterns.tasks.t_p4_sync [routing_key=parsing.perforce.TExecTest.t_p4_sync_NEW]",
-                "octo_tku_patterns.tasks.t_p4_sync_force [routing_key=parsing.perforce.TExecTest.t_p4_sync_force]",
-                "octo_tku_patterns.tasks.t_pattern_weight_index [routing_key=routines.t_pattern_weight_index]",
-                "octo_tku_patterns.tasks.t_routine_night_tests [routing_key=routines.TRoutine.t_routine_night_tests]",
-                "octo_tku_patterns.tasks.t_test_exec_threads [routing_key=addm_group.TExecTest.t_test_exec_threads.pattern_folder]",
-                "octo_tku_patterns.tasks.t_test_prep [routing_key=routines.TRoutine.t_test_prep]",
-                "octo_tku_upload.tasks.t_parse_tku [routing_key=parsing.TUploadExec.t_parse_tku]",
-                "octo_tku_upload.tasks.t_routine_tku_upload [routing_key=routines.TRoutine.t_routine_tku_upload_test_new]",
-                "octo_tku_upload.tasks.t_tku_sync [routing_key=worker_tentacle.TExecTest.t_tku_sync.addm_group]",
-                "octo_tku_upload.tasks.t_upload_exec_threads [routing_key=worker_tentacle.TExecTest.t_upload_exec_threads.addm_group]"
-            ],
-            "w_routines@tentacle": [
-                "octo.tasks.fake_task",
-                "octo.tasks.t_long_mail",
-                "octo.tasks.t_occupy_w",
-                "octo.tasks.t_user_mail [routing_key=TSupport.t_user_mail]",
-                "octo.tasks.t_user_test [routing_key=TSupport.t_user_mail]",
-                "octo.tasks.test_task_get_worker_minimal [routing_key=routines.test_task_get_worker_minimal]",
-                "octo.tasks.test_task_heartbeat_ping_workers [routing_key=routines.test_task_heartbeat_ping_workers]",
-                "octo_adm.tasks.t_addm_clean",
-                "octo_adm.tasks.t_addm_cmd_k",
-                "octo_adm.tasks.t_routine_addm_cmd [routing_key=routines.TRoutine.t_routine_addm_cmd]",
-                "octo_adm.tasks.t_routine_clean_addm [routing_key=routines.TRoutine.t_routine_clean_addm]",
-                "octo_tku_patterns.tasks.t_addm_rsync_threads [routing_key=parsing.TExecTest.make_addm_sync_threads.addm_group]",
-                "octo_tku_patterns.tasks.t_p4_info [routing_key=parsing.perforce.TExecTest.t_p4_info]",
-                "octo_tku_patterns.tasks.t_p4_sync [routing_key=parsing.perforce.TExecTest.t_p4_sync_NEW]",
-                "octo_tku_patterns.tasks.t_p4_sync_force [routing_key=parsing.perforce.TExecTest.t_p4_sync_force]",
-                "octo_tku_patterns.tasks.t_pattern_weight_index [routing_key=routines.t_pattern_weight_index]",
-                "octo_tku_patterns.tasks.t_routine_night_tests [routing_key=routines.TRoutine.t_routine_night_tests]",
-                "octo_tku_patterns.tasks.t_test_exec_threads [routing_key=addm_group.TExecTest.t_test_exec_threads.pattern_folder]",
-                "octo_tku_patterns.tasks.t_test_prep [routing_key=routines.TRoutine.t_test_prep]",
-                "octo_tku_upload.tasks.t_parse_tku [routing_key=parsing.TUploadExec.t_parse_tku]",
-                "octo_tku_upload.tasks.t_routine_tku_upload [routing_key=routines.TRoutine.t_routine_tku_upload_test_new]",
-                "octo_tku_upload.tasks.t_tku_sync [routing_key=worker_tentacle.TExecTest.t_tku_sync.addm_group]",
-                "octo_tku_upload.tasks.t_upload_exec_threads [routing_key=worker_tentacle.TExecTest.t_upload_exec_threads.addm_group]"
-            ],
-            "alpha@tentacle": [
-                "octo.tasks.fake_task",
-                "octo.tasks.t_long_mail",
-                "octo.tasks.t_occupy_w",
-                "octo.tasks.t_user_mail [routing_key=TSupport.t_user_mail]",
-                "octo.tasks.t_user_test [routing_key=TSupport.t_user_mail]",
-                "octo.tasks.test_task_get_worker_minimal [routing_key=routines.test_task_get_worker_minimal]",
-                "octo.tasks.test_task_heartbeat_ping_workers [routing_key=routines.test_task_heartbeat_ping_workers]",
-                "octo_adm.tasks.t_addm_clean",
-                "octo_adm.tasks.t_addm_cmd_k",
-                "octo_adm.tasks.t_routine_addm_cmd [routing_key=routines.TRoutine.t_routine_addm_cmd]",
-                "octo_adm.tasks.t_routine_clean_addm [routing_key=routines.TRoutine.t_routine_clean_addm]",
-                "octo_tku_patterns.tasks.t_addm_rsync_threads [routing_key=parsing.TExecTest.make_addm_sync_threads.addm_group]",
-                "octo_tku_patterns.tasks.t_p4_info [routing_key=parsing.perforce.TExecTest.t_p4_info]",
-                "octo_tku_patterns.tasks.t_p4_sync [routing_key=parsing.perforce.TExecTest.t_p4_sync_NEW]",
-                "octo_tku_patterns.tasks.t_p4_sync_force [routing_key=parsing.perforce.TExecTest.t_p4_sync_force]",
-                "octo_tku_patterns.tasks.t_pattern_weight_index [routing_key=routines.t_pattern_weight_index]",
-                "octo_tku_patterns.tasks.t_routine_night_tests [routing_key=routines.TRoutine.t_routine_night_tests]",
-                "octo_tku_patterns.tasks.t_test_exec_threads [routing_key=addm_group.TExecTest.t_test_exec_threads.pattern_folder]",
-                "octo_tku_patterns.tasks.t_test_prep [routing_key=routines.TRoutine.t_test_prep]",
-                "octo_tku_upload.tasks.t_parse_tku [routing_key=parsing.TUploadExec.t_parse_tku]",
-                "octo_tku_upload.tasks.t_routine_tku_upload [routing_key=routines.TRoutine.t_routine_tku_upload_test_new]",
-                "octo_tku_upload.tasks.t_tku_sync [routing_key=worker_tentacle.TExecTest.t_tku_sync.addm_group]",
-                "octo_tku_upload.tasks.t_upload_exec_threads [routing_key=worker_tentacle.TExecTest.t_upload_exec_threads.addm_group]"
-            ]
-        }
+        resp = TasksOperations.tasks_get_registered(workers=workers)
+        # resp = {
+        #     "charlie@tentacle": [
+        #         "octo.tasks.fake_task",
+        #         "octo.tasks.t_long_mail",
+        #         "octo.tasks.t_occupy_w",
+        #         "octo.tasks.t_user_mail [routing_key=TSupport.t_user_mail]",
+        #         "octo.tasks.t_user_test [routing_key=TSupport.t_user_mail]",
+        #         "octo.tasks.test_task_get_worker_minimal [routing_key=routines.test_task_get_worker_minimal]",
+        #         "octo.tasks.test_task_heartbeat_ping_workers [routing_key=routines.test_task_heartbeat_ping_workers]",
+        #         "octo_adm.tasks.t_addm_clean",
+        #         "octo_adm.tasks.t_addm_cmd_k",
+        #         "octo_adm.tasks.t_routine_addm_cmd [routing_key=routines.TRoutine.t_routine_addm_cmd]",
+        #         "octo_adm.tasks.t_routine_clean_addm [routing_key=routines.TRoutine.t_routine_clean_addm]",
+        #         "octo_tku_patterns.tasks.t_addm_rsync_threads [routing_key=parsing.TExecTest.make_addm_sync_threads.addm_group]",
+        #         "octo_tku_patterns.tasks.t_p4_info [routing_key=parsing.perforce.TExecTest.t_p4_info]",
+        #         "octo_tku_patterns.tasks.t_p4_sync [routing_key=parsing.perforce.TExecTest.t_p4_sync_NEW]",
+        #         "octo_tku_patterns.tasks.t_p4_sync_force [routing_key=parsing.perforce.TExecTest.t_p4_sync_force]",
+        #         "octo_tku_patterns.tasks.t_pattern_weight_index [routing_key=routines.t_pattern_weight_index]",
+        #         "octo_tku_patterns.tasks.t_routine_night_tests [routing_key=routines.TRoutine.t_routine_night_tests]",
+        #         "octo_tku_patterns.tasks.t_test_exec_threads [routing_key=addm_group.TExecTest.t_test_exec_threads.pattern_folder]",
+        #         "octo_tku_patterns.tasks.t_test_prep [routing_key=routines.TRoutine.t_test_prep]",
+        #         "octo_tku_upload.tasks.t_parse_tku [routing_key=parsing.TUploadExec.t_parse_tku]",
+        #         "octo_tku_upload.tasks.t_routine_tku_upload [routing_key=routines.TRoutine.t_routine_tku_upload_test_new]",
+        #         "octo_tku_upload.tasks.t_tku_sync [routing_key=worker_tentacle.TExecTest.t_tku_sync.addm_group]",
+        #         "octo_tku_upload.tasks.t_upload_exec_threads [routing_key=worker_tentacle.TExecTest.t_upload_exec_threads.addm_group]"
+        #     ],
+        #     "w_parsing@tentacle": [
+        #         "octo.tasks.fake_task",
+        #         "octo.tasks.t_long_mail",
+        #         "octo.tasks.t_occupy_w",
+        #         "octo.tasks.t_user_mail [routing_key=TSupport.t_user_mail]",
+        #         "octo.tasks.t_user_test [routing_key=TSupport.t_user_mail]",
+        #         "octo.tasks.test_task_get_worker_minimal [routing_key=routines.test_task_get_worker_minimal]",
+        #         "octo.tasks.test_task_heartbeat_ping_workers [routing_key=routines.test_task_heartbeat_ping_workers]",
+        #         "octo_adm.tasks.t_addm_clean",
+        #         "octo_adm.tasks.t_addm_cmd_k",
+        #         "octo_adm.tasks.t_routine_addm_cmd [routing_key=routines.TRoutine.t_routine_addm_cmd]",
+        #         "octo_adm.tasks.t_routine_clean_addm [routing_key=routines.TRoutine.t_routine_clean_addm]",
+        #         "octo_tku_patterns.tasks.t_addm_rsync_threads [routing_key=parsing.TExecTest.make_addm_sync_threads.addm_group]",
+        #         "octo_tku_patterns.tasks.t_p4_info [routing_key=parsing.perforce.TExecTest.t_p4_info]",
+        #         "octo_tku_patterns.tasks.t_p4_sync [routing_key=parsing.perforce.TExecTest.t_p4_sync_NEW]",
+        #         "octo_tku_patterns.tasks.t_p4_sync_force [routing_key=parsing.perforce.TExecTest.t_p4_sync_force]",
+        #         "octo_tku_patterns.tasks.t_pattern_weight_index [routing_key=routines.t_pattern_weight_index]",
+        #         "octo_tku_patterns.tasks.t_routine_night_tests [routing_key=routines.TRoutine.t_routine_night_tests]",
+        #         "octo_tku_patterns.tasks.t_test_exec_threads [routing_key=addm_group.TExecTest.t_test_exec_threads.pattern_folder]",
+        #         "octo_tku_patterns.tasks.t_test_prep [routing_key=routines.TRoutine.t_test_prep]",
+        #         "octo_tku_upload.tasks.t_parse_tku [routing_key=parsing.TUploadExec.t_parse_tku]",
+        #         "octo_tku_upload.tasks.t_routine_tku_upload [routing_key=routines.TRoutine.t_routine_tku_upload_test_new]",
+        #         "octo_tku_upload.tasks.t_tku_sync [routing_key=worker_tentacle.TExecTest.t_tku_sync.addm_group]",
+        #         "octo_tku_upload.tasks.t_upload_exec_threads [routing_key=worker_tentacle.TExecTest.t_upload_exec_threads.addm_group]"
+        #     ],
+        #     "w_routines@tentacle": [
+        #         "octo.tasks.fake_task",
+        #         "octo.tasks.t_long_mail",
+        #         "octo.tasks.t_occupy_w",
+        #         "octo.tasks.t_user_mail [routing_key=TSupport.t_user_mail]",
+        #         "octo.tasks.t_user_test [routing_key=TSupport.t_user_mail]",
+        #         "octo.tasks.test_task_get_worker_minimal [routing_key=routines.test_task_get_worker_minimal]",
+        #         "octo.tasks.test_task_heartbeat_ping_workers [routing_key=routines.test_task_heartbeat_ping_workers]",
+        #         "octo_adm.tasks.t_addm_clean",
+        #         "octo_adm.tasks.t_addm_cmd_k",
+        #         "octo_adm.tasks.t_routine_addm_cmd [routing_key=routines.TRoutine.t_routine_addm_cmd]",
+        #         "octo_adm.tasks.t_routine_clean_addm [routing_key=routines.TRoutine.t_routine_clean_addm]",
+        #         "octo_tku_patterns.tasks.t_addm_rsync_threads [routing_key=parsing.TExecTest.make_addm_sync_threads.addm_group]",
+        #         "octo_tku_patterns.tasks.t_p4_info [routing_key=parsing.perforce.TExecTest.t_p4_info]",
+        #         "octo_tku_patterns.tasks.t_p4_sync [routing_key=parsing.perforce.TExecTest.t_p4_sync_NEW]",
+        #         "octo_tku_patterns.tasks.t_p4_sync_force [routing_key=parsing.perforce.TExecTest.t_p4_sync_force]",
+        #         "octo_tku_patterns.tasks.t_pattern_weight_index [routing_key=routines.t_pattern_weight_index]",
+        #         "octo_tku_patterns.tasks.t_routine_night_tests [routing_key=routines.TRoutine.t_routine_night_tests]",
+        #         "octo_tku_patterns.tasks.t_test_exec_threads [routing_key=addm_group.TExecTest.t_test_exec_threads.pattern_folder]",
+        #         "octo_tku_patterns.tasks.t_test_prep [routing_key=routines.TRoutine.t_test_prep]",
+        #         "octo_tku_upload.tasks.t_parse_tku [routing_key=parsing.TUploadExec.t_parse_tku]",
+        #         "octo_tku_upload.tasks.t_routine_tku_upload [routing_key=routines.TRoutine.t_routine_tku_upload_test_new]",
+        #         "octo_tku_upload.tasks.t_tku_sync [routing_key=worker_tentacle.TExecTest.t_tku_sync.addm_group]",
+        #         "octo_tku_upload.tasks.t_upload_exec_threads [routing_key=worker_tentacle.TExecTest.t_upload_exec_threads.addm_group]"
+        #     ],
+        #     "alpha@tentacle": [
+        #         "octo.tasks.fake_task",
+        #         "octo.tasks.t_long_mail",
+        #         "octo.tasks.t_occupy_w",
+        #         "octo.tasks.t_user_mail [routing_key=TSupport.t_user_mail]",
+        #         "octo.tasks.t_user_test [routing_key=TSupport.t_user_mail]",
+        #         "octo.tasks.test_task_get_worker_minimal [routing_key=routines.test_task_get_worker_minimal]",
+        #         "octo.tasks.test_task_heartbeat_ping_workers [routing_key=routines.test_task_heartbeat_ping_workers]",
+        #         "octo_adm.tasks.t_addm_clean",
+        #         "octo_adm.tasks.t_addm_cmd_k",
+        #         "octo_adm.tasks.t_routine_addm_cmd [routing_key=routines.TRoutine.t_routine_addm_cmd]",
+        #         "octo_adm.tasks.t_routine_clean_addm [routing_key=routines.TRoutine.t_routine_clean_addm]",
+        #         "octo_tku_patterns.tasks.t_addm_rsync_threads [routing_key=parsing.TExecTest.make_addm_sync_threads.addm_group]",
+        #         "octo_tku_patterns.tasks.t_p4_info [routing_key=parsing.perforce.TExecTest.t_p4_info]",
+        #         "octo_tku_patterns.tasks.t_p4_sync [routing_key=parsing.perforce.TExecTest.t_p4_sync_NEW]",
+        #         "octo_tku_patterns.tasks.t_p4_sync_force [routing_key=parsing.perforce.TExecTest.t_p4_sync_force]",
+        #         "octo_tku_patterns.tasks.t_pattern_weight_index [routing_key=routines.t_pattern_weight_index]",
+        #         "octo_tku_patterns.tasks.t_routine_night_tests [routing_key=routines.TRoutine.t_routine_night_tests]",
+        #         "octo_tku_patterns.tasks.t_test_exec_threads [routing_key=addm_group.TExecTest.t_test_exec_threads.pattern_folder]",
+        #         "octo_tku_patterns.tasks.t_test_prep [routing_key=routines.TRoutine.t_test_prep]",
+        #         "octo_tku_upload.tasks.t_parse_tku [routing_key=parsing.TUploadExec.t_parse_tku]",
+        #         "octo_tku_upload.tasks.t_routine_tku_upload [routing_key=routines.TRoutine.t_routine_tku_upload_test_new]",
+        #         "octo_tku_upload.tasks.t_tku_sync [routing_key=worker_tentacle.TExecTest.t_tku_sync.addm_group]",
+        #         "octo_tku_upload.tasks.t_upload_exec_threads [routing_key=worker_tentacle.TExecTest.t_upload_exec_threads.addm_group]"
+        #     ]
+        # }
         return {'response': resp}
 
     def tasks_get_active(self):
@@ -323,83 +320,83 @@ class TaskOperationsREST(APIView):
         :return
         """
         workers = self.workers
-        # resp = TasksOperations.tasks_get_active(workers=workers)
-        resp = {
-            "w_parsing@tentacle": [],
-            "alpha@tentacle": [
-                {
-                    "id": "477ea6dd-1725-4b1f-96ed-85c679bbc4c0",
-                    "name": "octo.tasks.fake_task",
-                    "args": "['fire_t', 10]",
-                    "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_main;addm_group=alpha;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 3, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_main', 'pattern_library': 'STORAGE', 'pattern_folder_name': 'NetApp_REST', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE', 'test_case_dir': '', 'change': '781310', 'change_desc': '@ - RFE | DRDC1-13510 | CARGILL (Esc 135354): Enhancement request for NetApp storage to add CIFS System name\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': 'DRDC1-13510', 'change_time': datetime.datetime(2019, 9, 30, 13, 27, 24, tzinfo=<UTC>), 'test_case_depot_path': '//addm/tkn_main/tku_patterns/STORAGE/NetApp_...', ...}}}",
-                    "type": "octo.tasks.fake_task",
-                    "hostname": "alpha@tentacle",
-                    "time_start": 1572727361.2668045,
-                    "acknowledged": True,
-                    "delivery_info": {
-                        "exchange": "",
-                        "routing_key": "alpha@tentacle.dq2",
-                        "priority": None,
-                        "redelivered": False
-                    },
-                    "worker_pid": 2626027249888
-                },
-                {
-                    "id": "477ea6dd-1725-4b1f-96ed-85c679bbc4c0",
-                    "name": "octo.tasks.fake_task",
-                    "args": "['fire_t', 10]",
-                    "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_main;addm_group=alpha;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 3, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_main', 'pattern_library': 'STORAGE', 'pattern_folder_name': 'NetApp_REST', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE', 'test_case_dir': '', 'change': '781310', 'change_desc': '@ - RFE | DRDC1-13510 | CARGILL (Esc 135354): Enhancement request for NetApp storage to add CIFS System name\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': 'DRDC1-13510', 'change_time': datetime.datetime(2019, 9, 30, 13, 27, 24, tzinfo=<UTC>), 'test_case_depot_path': '//addm/tkn_main/tku_patterns/STORAGE/NetApp_...', ...}}}",
-                    "type": "octo.tasks.fake_task",
-                    "hostname": "alpha@tentacle",
-                    "time_start": 1572727361.2668045,
-                    "acknowledged": True,
-                    "delivery_info": {
-                        "exchange": "",
-                        "routing_key": "alpha@tentacle.dq2",
-                        "priority": None,
-                        "redelivered": False
-                    },
-                    "worker_pid": 2626027249888
-                }
-            ],
-            "w_routines@tentacle": [],
-            "charlie@tentacle": [
-                {
-                    "id": "2af39cc0-7cd7-4a93-8ce6-b239b6efa156",
-                    "name": "octo.tasks.fake_task",
-                    "args": "['fire_t', 10]",
-                    "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_ship;addm_group=charlie;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 1148, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_ship', 'pattern_library': 'CORE', 'pattern_folder_name': 'BrocadeNetworkAdvisor', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE', 'test_case_dir': '', 'change': '780999', 'change_desc': 'Merging\n\n//addm/tkn_main/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n\nto //addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': '', 'change_time': datetime.datetime(2019, 9, 26, 15, 54, 51, tzinfo=<UTC>), 'test_case_de...', ...}}}",
-                    "type": "octo.tasks.fake_task",
-                    "hostname": "charlie@tentacle",
-                    "time_start": 1572727361.8308136,
-                    "acknowledged": True,
-                    "delivery_info": {
-                        "exchange": "",
-                        "routing_key": "charlie@tentacle.dq2",
-                        "priority": None,
-                        "redelivered": False
-                    },
-                    "worker_pid": 2560315772704
-                },
-                {
-                    "id": "2af39cc0-7cd7-4a93-8ce6-b239b6efa156",
-                    "name": "octo.tasks.fake_task",
-                    "args": "['fire_t', 10]",
-                    "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_ship;addm_group=charlie;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 1148, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_ship', 'pattern_library': 'CORE', 'pattern_folder_name': 'BrocadeNetworkAdvisor', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE', 'test_case_dir': '', 'change': '780999', 'change_desc': 'Merging\n\n//addm/tkn_main/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n\nto //addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': '', 'change_time': datetime.datetime(2019, 9, 26, 15, 54, 51, tzinfo=<UTC>), 'test_case_de...', ...}}}",
-                    "type": "octo.tasks.fake_task",
-                    "hostname": "charlie@tentacle",
-                    "time_start": 1572727361.8308136,
-                    "acknowledged": True,
-                    "delivery_info": {
-                        "exchange": "",
-                        "routing_key": "charlie@tentacle.dq2",
-                        "priority": None,
-                        "redelivered": False
-                    },
-                    "worker_pid": 2560315772704
-                }
-            ]
-        }
+        resp = TasksOperations.tasks_get_active(workers=workers)
+        # resp = {
+        #     "w_parsing@tentacle": [],
+        #     "alpha@tentacle": [
+        #         {
+        #             "id": "477ea6dd-1725-4b1f-96ed-85c679bbc4c0",
+        #             "name": "octo.tasks.fake_task",
+        #             "args": "['fire_t', 10]",
+        #             "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_main;addm_group=alpha;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 3, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_main', 'pattern_library': 'STORAGE', 'pattern_folder_name': 'NetApp_REST', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE', 'test_case_dir': '', 'change': '781310', 'change_desc': '@ - RFE | DRDC1-13510 | CARGILL (Esc 135354): Enhancement request for NetApp storage to add CIFS System name\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': 'DRDC1-13510', 'change_time': datetime.datetime(2019, 9, 30, 13, 27, 24, tzinfo=<UTC>), 'test_case_depot_path': '//addm/tkn_main/tku_patterns/STORAGE/NetApp_...', ...}}}",
+        #             "type": "octo.tasks.fake_task",
+        #             "hostname": "alpha@tentacle",
+        #             "time_start": 1572727361.2668045,
+        #             "acknowledged": True,
+        #             "delivery_info": {
+        #                 "exchange": "",
+        #                 "routing_key": "alpha@tentacle.dq2",
+        #                 "priority": None,
+        #                 "redelivered": False
+        #             },
+        #             "worker_pid": 2626027249888
+        #         },
+        #         {
+        #             "id": "477ea6dd-1725-4b1f-96ed-85c679bbc4c0",
+        #             "name": "octo.tasks.fake_task",
+        #             "args": "['fire_t', 10]",
+        #             "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_main;addm_group=alpha;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 3, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_main', 'pattern_library': 'STORAGE', 'pattern_folder_name': 'NetApp_REST', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE', 'test_case_dir': '', 'change': '781310', 'change_desc': '@ - RFE | DRDC1-13510 | CARGILL (Esc 135354): Enhancement request for NetApp storage to add CIFS System name\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': 'DRDC1-13510', 'change_time': datetime.datetime(2019, 9, 30, 13, 27, 24, tzinfo=<UTC>), 'test_case_depot_path': '//addm/tkn_main/tku_patterns/STORAGE/NetApp_...', ...}}}",
+        #             "type": "octo.tasks.fake_task",
+        #             "hostname": "alpha@tentacle",
+        #             "time_start": 1572727361.2668045,
+        #             "acknowledged": True,
+        #             "delivery_info": {
+        #                 "exchange": "",
+        #                 "routing_key": "alpha@tentacle.dq2",
+        #                 "priority": None,
+        #                 "redelivered": False
+        #             },
+        #             "worker_pid": 2626027249888
+        #         }
+        #     ],
+        #     "w_routines@tentacle": [],
+        #     "charlie@tentacle": [
+        #         {
+        #             "id": "2af39cc0-7cd7-4a93-8ce6-b239b6efa156",
+        #             "name": "octo.tasks.fake_task",
+        #             "args": "['fire_t', 10]",
+        #             "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_ship;addm_group=charlie;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 1148, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_ship', 'pattern_library': 'CORE', 'pattern_folder_name': 'BrocadeNetworkAdvisor', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE', 'test_case_dir': '', 'change': '780999', 'change_desc': 'Merging\n\n//addm/tkn_main/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n\nto //addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': '', 'change_time': datetime.datetime(2019, 9, 26, 15, 54, 51, tzinfo=<UTC>), 'test_case_de...', ...}}}",
+        #             "type": "octo.tasks.fake_task",
+        #             "hostname": "charlie@tentacle",
+        #             "time_start": 1572727361.8308136,
+        #             "acknowledged": True,
+        #             "delivery_info": {
+        #                 "exchange": "",
+        #                 "routing_key": "charlie@tentacle.dq2",
+        #                 "priority": None,
+        #                 "redelivered": False
+        #             },
+        #             "worker_pid": 2560315772704
+        #         },
+        #         {
+        #             "id": "2af39cc0-7cd7-4a93-8ce6-b239b6efa156",
+        #             "name": "octo.tasks.fake_task",
+        #             "args": "['fire_t', 10]",
+        #             "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_ship;addm_group=charlie;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 1148, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_ship', 'pattern_library': 'CORE', 'pattern_folder_name': 'BrocadeNetworkAdvisor', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE', 'test_case_dir': '', 'change': '780999', 'change_desc': 'Merging\n\n//addm/tkn_main/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n\nto //addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': '', 'change_time': datetime.datetime(2019, 9, 26, 15, 54, 51, tzinfo=<UTC>), 'test_case_de...', ...}}}",
+        #             "type": "octo.tasks.fake_task",
+        #             "hostname": "charlie@tentacle",
+        #             "time_start": 1572727361.8308136,
+        #             "acknowledged": True,
+        #             "delivery_info": {
+        #                 "exchange": "",
+        #                 "routing_key": "charlie@tentacle.dq2",
+        #                 "priority": None,
+        #                 "redelivered": False
+        #             },
+        #             "worker_pid": 2560315772704
+        #         }
+        #     ]
+        # }
         return {'response': resp}
 
     def tasks_get_reserved(self):
@@ -409,49 +406,49 @@ class TaskOperationsREST(APIView):
         :return
         """
         workers = self.workers
-        # resp = TasksOperations.tasks_get_reserved(workers=workers)
-        resp = {
-            "w_routines@tentacle": [],
-            "w_parsing@tentacle": [],
-            "charlie@tentacle": [
-                {
-                    "id": "ec200d27-5f3b-47e3-a473-1c8a5831d5b8",
-                    "name": "octo.tasks.fake_task",
-                    "args": "['fire_t', 10]",
-                    "kwargs": "{'t_args': ['tag=t_user_mail;mode=start;addm_group=charlie;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'start', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 12, 'addm_host': 'vl-aus-rem-qa6n', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.106', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'charlie', 'disables': None, 'branch_lock': 'tkn_ship', 'description': None, 'vm_cluster': None, 'vm_id': None}, {'id': 13, 'addm_host': 'vl-aus-rem-qa6p', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.107', 'addm_v_code': 'ADDM_11_1', 'addm_v_int': '11.1',...}}}",
-                    "type": "octo.tasks.fake_task",
-                    "hostname": "charlie@tentacle",
-                    "time_start": None,
-                    "acknowledged": False,
-                    "delivery_info": {
-                        "exchange": "",
-                        "routing_key": "charlie@tentacle.dq2",
-                        "priority": None,
-                        "redelivered": False
-                    },
-                    "worker_pid": None
-                }
-            ],
-            "alpha@tentacle": [
-                {
-                    "id": "82aa9fb0-2190-4661-b052-1d8d2677ceef",
-                    "name": "octo.tasks.fake_task",
-                    "args": "['fire_t', 10]",
-                    "kwargs": "{'t_args': ['tag=t_user_mail;mode=start;addm_group=alpha;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/BrocadeSANSwitches/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'start', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 6, 'addm_host': 'vl-aus-tkudev-38', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.118', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'alpha', 'disables': None, 'branch_lock': 'tkn_main', 'description': None, 'vm_cluster': 'tku_cluster', 'vm_id': 'vim.VirtualMachine:vm-69'}, {'id': 7, 'addm_host': 'vl-aus-tkudev-39', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.119', 'addm_v_code': 'ADDM_11_1',..., ...}}",
-                    "type": "octo.tasks.fake_task",
-                    "hostname": "alpha@tentacle",
-                    "time_start": None,
-                    "acknowledged": False,
-                    "delivery_info": {
-                        "exchange": "",
-                        "routing_key": "alpha@tentacle.dq2",
-                        "priority": None,
-                        "redelivered": False
-                    },
-                    "worker_pid": None
-                }
-            ]
-        }
+        resp = TasksOperations.tasks_get_reserved(workers=workers)
+        # resp = {
+        #     "w_routines@tentacle": [],
+        #     "w_parsing@tentacle": [],
+        #     "charlie@tentacle": [
+        #         {
+        #             "id": "ec200d27-5f3b-47e3-a473-1c8a5831d5b8",
+        #             "name": "octo.tasks.fake_task",
+        #             "args": "['fire_t', 10]",
+        #             "kwargs": "{'t_args': ['tag=t_user_mail;mode=start;addm_group=charlie;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'start', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 12, 'addm_host': 'vl-aus-rem-qa6n', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.106', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'charlie', 'disables': None, 'branch_lock': 'tkn_ship', 'description': None, 'vm_cluster': None, 'vm_id': None}, {'id': 13, 'addm_host': 'vl-aus-rem-qa6p', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.107', 'addm_v_code': 'ADDM_11_1', 'addm_v_int': '11.1',...}}}",
+        #             "type": "octo.tasks.fake_task",
+        #             "hostname": "charlie@tentacle",
+        #             "time_start": None,
+        #             "acknowledged": False,
+        #             "delivery_info": {
+        #                 "exchange": "",
+        #                 "routing_key": "charlie@tentacle.dq2",
+        #                 "priority": None,
+        #                 "redelivered": False
+        #             },
+        #             "worker_pid": None
+        #         }
+        #     ],
+        #     "alpha@tentacle": [
+        #         {
+        #             "id": "82aa9fb0-2190-4661-b052-1d8d2677ceef",
+        #             "name": "octo.tasks.fake_task",
+        #             "args": "['fire_t', 10]",
+        #             "kwargs": "{'t_args': ['tag=t_user_mail;mode=start;addm_group=alpha;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/BrocadeSANSwitches/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'start', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 6, 'addm_host': 'vl-aus-tkudev-38', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.118', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'alpha', 'disables': None, 'branch_lock': 'tkn_main', 'description': None, 'vm_cluster': 'tku_cluster', 'vm_id': 'vim.VirtualMachine:vm-69'}, {'id': 7, 'addm_host': 'vl-aus-tkudev-39', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.119', 'addm_v_code': 'ADDM_11_1',..., ...}}",
+        #             "type": "octo.tasks.fake_task",
+        #             "hostname": "alpha@tentacle",
+        #             "time_start": None,
+        #             "acknowledged": False,
+        #             "delivery_info": {
+        #                 "exchange": "",
+        #                 "routing_key": "alpha@tentacle.dq2",
+        #                 "priority": None,
+        #                 "redelivered": False
+        #             },
+        #             "worker_pid": None
+        #         }
+        #     ]
+        # }
         return {'response': resp}
 
     def tasks_get_scheduled(self):
@@ -461,13 +458,13 @@ class TaskOperationsREST(APIView):
         :return
         """
         workers = self.workers
-        # resp = TasksOperations.tasks_get_scheduled(workers=workers)
-        resp = {
-            "w_parsing@tentacle": [],
-            "charlie@tentacle": [],
-            "w_routines@tentacle": [],
-            "alpha@tentacle": []
-        }
+        resp = TasksOperations.tasks_get_scheduled(workers=workers)
+        # resp = {
+        #     "w_parsing@tentacle": [],
+        #     "charlie@tentacle": [],
+        #     "w_routines@tentacle": [],
+        #     "alpha@tentacle": []
+        # }
         return {'response': resp}
 
     def tasks_get_active_reserved(self):
@@ -885,7 +882,7 @@ class ListAllAddmVmREST(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = AddmDevSerializer
-    pagination_class = ShortResultsSetPagination
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
 

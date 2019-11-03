@@ -7,11 +7,19 @@ from django.conf.urls import url, include
 from octo_adm.views import *
 
 router = DefaultRouter()
-router.register(r'addm_sets', ListAllAddmVmREST)
+router.register(r'list_addms', ListAllAddmVmREST)
 
 urlpatterns = [
     # REST model views
-    url(r'^', include(router.urls)),
+    url(r'^api/v1/', include(router.urls)),
+
+    url(r'^admin/', AdminWorkbench.as_view(), name='admin_workbench'),
+    url(r'^addm/', AddmWorkbench.as_view(), name='addm_workbench'),
+    # Celery related:
+    url(r'^celery/', CeleryWorkbench.as_view(), name='celery_workbench'),
+    url(r'^celery_inspect/', CeleryInspect.as_view(), name='celery_inspect'),
+
+
     # Admin
     url(r'^old_addm_workbench/', AdminFunctions.addm_workbench_widgets, name='old_addm_workbench'),
 
@@ -28,12 +36,9 @@ urlpatterns = [
     url(r'^celery_service_restart/', CeleryInteract.celery_service_restart, name='celery_service_restart'),
 
     # NEW:
-    url(r'^admin_workbench/', AdminWorkbench.as_view(), name='admin_workbench'),
+
     url(r'^addm_workbench/', AddmWorkbench.as_view(), name='addm_workbench'),
 
-    # Celery related:
-    url(r'^celery_workbench/', CeleryWorkbench.as_view(), name='celery_workbench'),
-    url(r'^celery_inspect/', CeleryInspect.as_view(), name='celery_inspect'),
 
     # REST Support for ADMIN functions and tasks:
     url(r'^task_operation/', TaskOperationsREST.as_view(), name='task_operations'),

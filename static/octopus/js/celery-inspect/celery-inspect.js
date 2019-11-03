@@ -2,9 +2,13 @@
  *
  */
 
+let tabsDataset = {'operation_key': 'tasks_get_active'};
+RESTCeleryTaskPOST(tabsDataset, modifyCeleryTabContent);
+
 $(document).ready(function () {
     eventListenerCeleryTabs(fillCeleryTabs)
 });
+
 
 function fillCeleryTabs(tabsDataset) {
     if (tabsDataset.workers === 'all-workers') {
@@ -12,7 +16,6 @@ function fillCeleryTabs(tabsDataset) {
         delete tabsDataset['workers'];
         console.table(tabsDataset);
     }
-
     RESTCeleryTaskPOST(tabsDataset, modifyCeleryTabContent);
 }
 
@@ -20,48 +23,14 @@ function fillTabTaskTable(tabNode, worker_card, RESTResult) {
     let argsShow = ['id', 'name', 'args', 'time_start', 'type'];
     // let tasks = unpackActiveReserved(RESTResult.response);
 
-    for (const [w_key, w_value] of Object.entries(RESTResult.response)) {
+    if (RESTResult.response) {
+        for (const [w_key, w_value] of Object.entries(RESTResult.response)) {
 
-
-        let workerCardBase = worker_card.children[0].cloneNode(true);
-        let cardHeader = workerCardBase.childNodes[1];  // Header
-        let cardBody = workerCardBase.childNodes[3];  // Body
-
-        cardHeader.innerText = `${w_key}`;  // worker name
-
-        if (w_value && w_value.length > 0) {
-            let taskTableBody = cardBody.firstElementChild.tBodies[0];  // Task table
-            for (let task of w_value) {
-                let task_row  = document.createElement('tr');
-                for (const [key, val] of Object.entries(task)) {
-                    if (argsShow.includes(key)) {
-                        let key_td = document.createElement('td');
-                        key_td.innerText = `${val}`;
-                        task_row.appendChild(key_td);
-                    }
-                    taskTableBody.appendChild(task_row);
-                }
-            }
-        }
-        tabNode.appendChild(workerCardBase)
-    }
-}
-
-function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
-    let argsShow = ['id', 'name', 'args', 'time_start', 'type'];
-    // let tasks = unpackActiveReserved(RESTResult.response);
-
-    for (const [ins_key, ins_value] of Object.entries(RESTResult.response)) {
-
-        console.log(`stat: ${ins_key}`);
-        for (const [w_key, w_value] of Object.entries(ins_value)) {
-
-            if (w_value.length > 0 ) {
             let workerCardBase = worker_card.children[0].cloneNode(true);
             let cardHeader = workerCardBase.childNodes[1];  // Header
             let cardBody = workerCardBase.childNodes[3];  // Body
 
-            cardHeader.innerText = `${w_key}`;  // worker name
+            cardHeader.childNodes[0].innerText = `${w_key}`;  // worker name
 
             if (w_value && w_value.length > 0) {
                 let taskTableBody = cardBody.firstElementChild.tBodies[0];  // Task table
@@ -76,11 +45,75 @@ function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
                         taskTableBody.appendChild(task_row);
                     }
                 }
+            } else {
+                cardBody.firstElementChild.remove();
+                cardBody.innerText = 'Queue is empty.'
             }
             tabNode.appendChild(workerCardBase)
+        }
+    } else {
+        console.log("Workers are probably irresponsible, cannot get all tasks!");
+        let workerCardBase = worker_card.children[0].cloneNode(true);
+        let cardHeader = workerCardBase.childNodes[1];  // Header
+        let cardBody = workerCardBase.childNodes[3];  // Body
+        cardHeader.innerText = `Worker cannot be inspected`;
+        cardBody.innerText = `Celery workers could become irresponsible, so Django cannot inspect them. 
+    It does not mean tasks are not running, we only cannot inspect them.
+    Please restart Django App and Celery workers or ask Admin for support.`;
+        tabNode.appendChild(workerCardBase);
+    }
+}
+
+function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
+    let argsShow = ['id', 'name', 'args', 'time_start', 'type'];
+    // let tasks = unpackActiveReserved(RESTResult.response);
+
+    for (const [ins_key, ins_value] of Object.entries(RESTResult.response)) {
+        if (ins_value) {
+            console.log(`stat: ${ins_key}`);
+            for (const [w_key, w_value] of Object.entries(ins_value)) {
+
+                if (w_value.length > 0) {
+                    let workerCardBase = worker_card.children[0].cloneNode(true);
+                    let cardHeader = workerCardBase.childNodes[1];  // Header
+                    let cardBody = workerCardBase.childNodes[3];  // Body
+
+                    cardHeader.childNodes[0].innerText = `${w_key}`;  // worker name
+
+                    if (w_value && w_value.length > 0) {
+                        let taskTableBody = cardBody.firstElementChild.tBodies[0];  // Task table
+                        for (let task of w_value) {
+                            let task_row = document.createElement('tr');
+                            for (const [key, val] of Object.entries(task)) {
+                                if (argsShow.includes(key)) {
+                                    let key_td = document.createElement('td');
+                                    key_td.innerText = `${val}`;
+                                    task_row.appendChild(key_td);
+                                }
+                                taskTableBody.appendChild(task_row);
+                            }
+                        }
+                    }
+                    tabNode.appendChild(workerCardBase)
+                }
             }
+        } else {
+            console.log("Workers are probably irresponsible, cannot get all tasks!");
+            let workerCardBase = worker_card.children[0].cloneNode(true);
+            let cardHeader = workerCardBase.childNodes[1];  // Header
+            let cardBody = workerCardBase.childNodes[3];  // Body
+            cardHeader.innerText = `Worker cannot be inspected`;
+            cardBody.innerText = `Celery workers could become irresponsible, so Django cannot inspect them. 
+            It does not mean tasks are not running, we only cannot inspect them.
+            Please restart Django App and Celery workers or ask Admin for support.`;
+            tabNode.appendChild(workerCardBase);
         }
     }
+}
+
+function fillWorkerButtons() {
+    // TODO: Assign worker names to buttons of each worker card
+
 }
 
 function modifyCeleryTabContent(tabsDataset, RESTResult) {
