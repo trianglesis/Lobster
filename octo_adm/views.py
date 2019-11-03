@@ -343,10 +343,44 @@ class TaskOperationsREST(APIView):
                         "redelivered": False
                     },
                     "worker_pid": 2626027249888
+                },
+                {
+                    "id": "477ea6dd-1725-4b1f-96ed-85c679bbc4c0",
+                    "name": "octo.tasks.fake_task",
+                    "args": "['fire_t', 10]",
+                    "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_main;addm_group=alpha;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 3, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_main', 'pattern_library': 'STORAGE', 'pattern_folder_name': 'NetApp_REST', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/NetApp_REST', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE', 'test_case_dir': '', 'change': '781310', 'change_desc': '@ - RFE | DRDC1-13510 | CARGILL (Esc 135354): Enhancement request for NetApp storage to add CIFS System name\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': 'DRDC1-13510', 'change_time': datetime.datetime(2019, 9, 30, 13, 27, 24, tzinfo=<UTC>), 'test_case_depot_path': '//addm/tkn_main/tku_patterns/STORAGE/NetApp_...', ...}}}",
+                    "type": "octo.tasks.fake_task",
+                    "hostname": "alpha@tentacle",
+                    "time_start": 1572727361.2668045,
+                    "acknowledged": True,
+                    "delivery_info": {
+                        "exchange": "",
+                        "routing_key": "alpha@tentacle.dq2",
+                        "priority": None,
+                        "redelivered": False
+                    },
+                    "worker_pid": 2626027249888
                 }
             ],
             "w_routines@tentacle": [],
             "charlie@tentacle": [
+                {
+                    "id": "2af39cc0-7cd7-4a93-8ce6-b239b6efa156",
+                    "name": "octo.tasks.fake_task",
+                    "args": "['fire_t', 10]",
+                    "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_ship;addm_group=charlie;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 1148, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_ship', 'pattern_library': 'CORE', 'pattern_folder_name': 'BrocadeNetworkAdvisor', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE', 'test_case_dir': '', 'change': '780999', 'change_desc': 'Merging\n\n//addm/tkn_main/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n\nto //addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/tests/test.py\n', 'change_user': 'pthiyaga', 'change_review': '', 'change_ticket': '', 'change_time': datetime.datetime(2019, 9, 26, 15, 54, 51, tzinfo=<UTC>), 'test_case_de...', ...}}}",
+                    "type": "octo.tasks.fake_task",
+                    "hostname": "charlie@tentacle",
+                    "time_start": 1572727361.8308136,
+                    "acknowledged": True,
+                    "delivery_info": {
+                        "exchange": "",
+                        "routing_key": "charlie@tentacle.dq2",
+                        "priority": None,
+                        "redelivered": False
+                    },
+                    "worker_pid": 2560315772704
+                },
                 {
                     "id": "2af39cc0-7cd7-4a93-8ce6-b239b6efa156",
                     "name": "octo.tasks.fake_task",
