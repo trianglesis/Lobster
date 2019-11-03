@@ -107,7 +107,28 @@
             </div>
         </div>
 
-
+        <div id="worker-card" style="display: none">
+            <div class="card">
+                <h6 class="card-header card-header-shrink">WorkerName</h6>
+                <div class="card-body card-body-shrink">
+                    <table id="task-table">
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody>
+                            <tr></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer card-footer-shrink">
+                    <a href="#" class="btn btn-sm btn-outline-info">Active tasks</a>
+                    <a href="#" class="btn btn-sm btn-outline-info">Reserved tasks</a>
+                    <a href="#" class="btn btn-sm btn-outline-info">Ping worker</a>
+                    <a href="#" class="btn btn-sm btn-outline-info">Heartbeat worker</a>
+                    <a href="#" class="btn btn-sm btn-outline-warning">Revoke tasks</a>
+                </div>
+            </div>
+        </div>
     </div>
     {% comment %}Nav sticky bottom{% endcomment %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">

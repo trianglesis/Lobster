@@ -11,15 +11,7 @@
 			"file": "windows/logs/w_routines_err.log",
 			"settings":
 			{
-				"buffer_size": 197166,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "windows/logs/charlie_err.log",
-			"settings":
-			{
-				"buffer_size": 0,
+				"buffer_size": 734,
 				"line_ending": "Windows"
 			}
 		},
@@ -27,7 +19,7 @@
 			"file": "windows/logs/w_parsing_err.log",
 			"settings":
 			{
-				"buffer_size": 3703,
+				"buffer_size": 733,
 				"line_ending": "Windows"
 			}
 		},
@@ -35,7 +27,15 @@
 			"file": "windows/logs/alpha_err.log",
 			"settings":
 			{
-				"buffer_size": 3041,
+				"buffer_size": 729,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "windows/logs/charlie_err.log",
+			"settings":
+			{
+				"buffer_size": 731,
 				"line_ending": "Windows"
 			}
 		}
@@ -143,6 +143,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"<=TaskPrepare=> HERE: for test item make test task",
+			"self.selector ALL",
 			"<=TaskPrepare=> MAIL when test item and addm set is TRUE",
 			"TSupport",
 			"t_user_mail",
@@ -194,7 +196,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -203,49 +205,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 197166,
+						"buffer_size": 734,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 0,
-			"sheets":
-			[
-				{
-					"buffer": 1,
-					"file": "windows/logs/charlie_err.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 0,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
+								177,
+								177
 							]
 						],
 						"settings":
@@ -258,28 +226,22 @@
 					},
 					"stack_index": 2,
 					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 0,
-			"sheets":
-			[
+				},
 				{
-					"buffer": 2,
+					"buffer": 1,
 					"file": "windows/logs/w_parsing_err.log",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3703,
+						"buffer_size": 733,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								733,
+								733
 							]
 						],
 						"settings":
@@ -300,20 +262,48 @@
 			"sheets":
 			[
 				{
-					"buffer": 3,
+					"buffer": 2,
 					"file": "windows/logs/alpha_err.log",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3041,
+						"buffer_size": 729,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								729,
+								729
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "windows/logs/charlie_err.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 731,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								731,
+								731
 							]
 						],
 						"settings":
@@ -349,34 +339,21 @@
 				1
 			],
 			[
-				1,
-				0,
-				2,
-				1
-			],
-			[
 				0,
 				1,
 				1,
-				2
-			],
-			[
-				1,
-				1,
-				2,
 				2
 			]
 		],
 		"cols":
 		[
 			0.0,
-			0.828137372695,
 			1.0
 		],
 		"rows":
 		[
 			0.0,
-			0.536582565115,
+			0.5,
 			1.0
 		]
 	},

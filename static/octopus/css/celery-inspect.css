@@ -2,11 +2,26 @@
 
 .celery-content {
     padding: 10px 10px 10px 10px;
-    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
     font-size: 1em;
-    text-align: center;
+    font-family: 'Maven Pro', sans-serif;
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    /*font-family: 'BenchNine', sans-serif;*/
+    /*font-family: 'Assistant', sans-serif;*/
+    /*font-family: 'Nunito', sans-serif;*/
 }
 
 .celery-workers-tabs {
 
+}
+
+.card-header-shrink {
+    padding: .2em;
+}
+.card-body-shrink {
+    padding: .2em;
+}
+.card-footer-shrink {
+    padding: .2em;
 }
