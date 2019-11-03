@@ -477,93 +477,93 @@ class TaskOperationsREST(APIView):
         :return
         """
         workers = self.workers
-        # resp = TasksOperations.tasks_get_active_reserved(workers=workers)
-        resp = {
-            "active": {
-                "alpha@tentacle": [
-                    {
-                        "id": "82aa9fb0-2190-4661-b052-1d8d2677ceef",
-                        "name": "octo.tasks.fake_task",
-                        "args": "['fire_t', 10]",
-                        "kwargs": "{'t_args': ['tag=t_user_mail;mode=start;addm_group=alpha;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/BrocadeSANSwitches/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'start', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 6, 'addm_host': 'vl-aus-tkudev-38', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.118', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'alpha', 'disables': None, 'branch_lock': 'tkn_main', 'description': None, 'vm_cluster': 'tku_cluster', 'vm_id': 'vim.VirtualMachine:vm-69'}, {'id': 7, 'addm_host': 'vl-aus-tkudev-39', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.119', 'addm_v_code': 'ADDM_11_1',..., ...}}",
-                        "type": "octo.tasks.fake_task",
-                        "hostname": "alpha@tentacle",
-                        "time_start": 1572727381.3611205,
-                        "acknowledged": True,
-                        "delivery_info": {
-                            "exchange": "",
-                            "routing_key": "alpha@tentacle.dq2",
-                            "priority": None,
-                            "redelivered": False
-                        },
-                        "worker_pid": 2626027249888
-                    }
-                ],
-                "w_parsing@tentacle": [],
-                "charlie@tentacle": [
-                    {
-                        "id": "ec200d27-5f3b-47e3-a473-1c8a5831d5b8",
-                        "name": "octo.tasks.fake_task",
-                        "args": "['fire_t', 10]",
-                        "kwargs": "{'t_args': ['tag=t_user_mail;mode=start;addm_group=charlie;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'start', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 12, 'addm_host': 'vl-aus-rem-qa6n', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.106', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'charlie', 'disables': None, 'branch_lock': 'tkn_ship', 'description': None, 'vm_cluster': None, 'vm_id': None}, {'id': 13, 'addm_host': 'vl-aus-rem-qa6p', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.107', 'addm_v_code': 'ADDM_11_1', 'addm_v_int': '11.1',...}}}",
-                        "type": "octo.tasks.fake_task",
-                        "hostname": "charlie@tentacle",
-                        "time_start": 1572727381.8880484,
-                        "acknowledged": True,
-                        "delivery_info": {
-                            "exchange": "",
-                            "routing_key": "charlie@tentacle.dq2",
-                            "priority": None,
-                            "redelivered": False
-                        },
-                        "worker_pid": 2560316563680
-                    }
-                ],
-                "w_routines@tentacle": []
-            },
-            "reserved": {
-                "w_parsing@tentacle": [],
-                "charlie@tentacle": [
-                    {
-                        "id": "50096f4f-40c0-4170-a75f-39fe23b6eae8",
-                        "name": "octo.tasks.fake_task",
-                        "args": "['fire_t', 10]",
-                        "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_ship;addm_group=charlie;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 1184, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_ship', 'pattern_library': 'CORE', 'pattern_folder_name': 'CitrixXen', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE', 'test_case_dir': '', 'change': '780768', 'change_desc': 'INTERNAL | Fix test\n', 'change_user': 'vturchin', 'change_review': '', 'change_ticket': '', 'change_time': datetime.datetime(2019, 9, 25, 5, 59, 53, tzinfo=<UTC>), 'test_case_depot_path': '//addm/tkn_ship/tku_patterns/CORE/CitrixXen', 'test_py_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen/tests/test.py', 'test_...', ...}}}",
-                        "type": "octo.tasks.fake_task",
-                        "hostname": "charlie@tentacle",
-                        "time_start": None,
-                        "acknowledged": False,
-                        "delivery_info": {
-                            "exchange": "",
-                            "routing_key": "charlie@tentacle.dq2",
-                            "priority": None,
-                            "redelivered": False
-                        },
-                        "worker_pid": None
-                    }
-                ],
-                "w_routines@tentacle": [],
-                "alpha@tentacle": [
-                    {
-                        "id": "1759096e-8597-4d8e-89c3-c01d8adfa200",
-                        "name": "octo.tasks.fake_task",
-                        "args": "['fire_t', 10]",
-                        "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_main;addm_group=alpha;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/BrocadeSANSwitches/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 4, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_main', 'pattern_library': 'STORAGE', 'pattern_folder_name': 'BrocadeSANSwitches', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/BrocadeSANSwitches', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE', 'test_case_dir': '', 'change': '780988', 'change_desc': 'Merging\n\n//addm/tkn_main/tku_patterns/CORE/BrocadeNetworkAdvisor/BrocadeNetworkAdvisor.tplpre\n\nto //addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/BrocadeNetworkAdvisor.tplpre\n\n\n@776308 - RFE | DRDC1-13065 | TRINITY_HEALTH (Esc 129636) Discover Brocade Storage with the re-branded Connectrix software,...', ...}}}",
-                        "type": "octo.tasks.fake_task",
-                        "hostname": "alpha@tentacle",
-                        "time_start": None,
-                        "acknowledged": False,
-                        "delivery_info": {
-                            "exchange": "",
-                            "routing_key": "alpha@tentacle.dq2",
-                            "priority": None,
-                            "redelivered": False
-                        },
-                        "worker_pid": None
-                    }
-                ]
-            }
-        }
+        resp = TasksOperations.tasks_get_active_reserved(workers=workers)
+        # resp = {
+        #     "active": {
+        #         "alpha@tentacle": [
+        #             {
+        #                 "id": "82aa9fb0-2190-4661-b052-1d8d2677ceef",
+        #                 "name": "octo.tasks.fake_task",
+        #                 "args": "['fire_t', 10]",
+        #                 "kwargs": "{'t_args': ['tag=t_user_mail;mode=start;addm_group=alpha;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/BrocadeSANSwitches/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'start', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 6, 'addm_host': 'vl-aus-tkudev-38', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.118', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'alpha', 'disables': None, 'branch_lock': 'tkn_main', 'description': None, 'vm_cluster': 'tku_cluster', 'vm_id': 'vim.VirtualMachine:vm-69'}, {'id': 7, 'addm_host': 'vl-aus-tkudev-39', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.119', 'addm_v_code': 'ADDM_11_1',..., ...}}",
+        #                 "type": "octo.tasks.fake_task",
+        #                 "hostname": "alpha@tentacle",
+        #                 "time_start": 1572727381.3611205,
+        #                 "acknowledged": True,
+        #                 "delivery_info": {
+        #                     "exchange": "",
+        #                     "routing_key": "alpha@tentacle.dq2",
+        #                     "priority": None,
+        #                     "redelivered": False
+        #                 },
+        #                 "worker_pid": 2626027249888
+        #             }
+        #         ],
+        #         "w_parsing@tentacle": [],
+        #         "charlie@tentacle": [
+        #             {
+        #                 "id": "ec200d27-5f3b-47e3-a473-1c8a5831d5b8",
+        #                 "name": "octo.tasks.fake_task",
+        #                 "args": "['fire_t', 10]",
+        #                 "kwargs": "{'t_args': ['tag=t_user_mail;mode=start;addm_group=charlie;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'start', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 12, 'addm_host': 'vl-aus-rem-qa6n', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.106', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'charlie', 'disables': None, 'branch_lock': 'tkn_ship', 'description': None, 'vm_cluster': None, 'vm_id': None}, {'id': 13, 'addm_host': 'vl-aus-rem-qa6p', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.107', 'addm_v_code': 'ADDM_11_1', 'addm_v_int': '11.1',...}}}",
+        #                 "type": "octo.tasks.fake_task",
+        #                 "hostname": "charlie@tentacle",
+        #                 "time_start": 1572727381.8880484,
+        #                 "acknowledged": True,
+        #                 "delivery_info": {
+        #                     "exchange": "",
+        #                     "routing_key": "charlie@tentacle.dq2",
+        #                     "priority": None,
+        #                     "redelivered": False
+        #                 },
+        #                 "worker_pid": 2560316563680
+        #             }
+        #         ],
+        #         "w_routines@tentacle": []
+        #     },
+        #     "reserved": {
+        #         "w_parsing@tentacle": [],
+        #         "charlie@tentacle": [
+        #             {
+        #                 "id": "50096f4f-40c0-4170-a75f-39fe23b6eae8",
+        #                 "name": "octo.tasks.fake_task",
+        #                 "args": "['fire_t', 10]",
+        #                 "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_ship;addm_group=charlie;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 1184, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_ship', 'pattern_library': 'CORE', 'pattern_folder_name': 'CitrixXen', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE', 'test_case_dir': '', 'change': '780768', 'change_desc': 'INTERNAL | Fix test\n', 'change_user': 'vturchin', 'change_review': '', 'change_ticket': '', 'change_time': datetime.datetime(2019, 9, 25, 5, 59, 53, tzinfo=<UTC>), 'test_case_depot_path': '//addm/tkn_ship/tku_patterns/CORE/CitrixXen', 'test_py_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/CitrixXen/tests/test.py', 'test_...', ...}}}",
+        #                 "type": "octo.tasks.fake_task",
+        #                 "hostname": "charlie@tentacle",
+        #                 "time_start": None,
+        #                 "acknowledged": False,
+        #                 "delivery_info": {
+        #                     "exchange": "",
+        #                     "routing_key": "charlie@tentacle.dq2",
+        #                     "priority": None,
+        #                     "redelivered": False
+        #                 },
+        #                 "worker_pid": None
+        #             }
+        #         ],
+        #         "w_routines@tentacle": [],
+        #         "alpha@tentacle": [
+        #             {
+        #                 "id": "1759096e-8597-4d8e-89c3-c01d8adfa200",
+        #                 "name": "octo.tasks.fake_task",
+        #                 "args": "['fire_t', 10]",
+        #                 "kwargs": "{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_main;addm_group=alpha;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/BrocadeSANSwitches/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 4, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_main', 'pattern_library': 'STORAGE', 'pattern_folder_name': 'BrocadeSANSwitches', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/BrocadeSANSwitches', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE', 'test_case_dir': '', 'change': '780988', 'change_desc': 'Merging\n\n//addm/tkn_main/tku_patterns/CORE/BrocadeNetworkAdvisor/BrocadeNetworkAdvisor.tplpre\n\nto //addm/tkn_ship/tku_patterns/CORE/BrocadeNetworkAdvisor/BrocadeNetworkAdvisor.tplpre\n\n\n@776308 - RFE | DRDC1-13065 | TRINITY_HEALTH (Esc 129636) Discover Brocade Storage with the re-branded Connectrix software,...', ...}}}",
+        #                 "type": "octo.tasks.fake_task",
+        #                 "hostname": "alpha@tentacle",
+        #                 "time_start": None,
+        #                 "acknowledged": False,
+        #                 "delivery_info": {
+        #                     "exchange": "",
+        #                     "routing_key": "alpha@tentacle.dq2",
+        #                     "priority": None,
+        #                     "redelivered": False
+        #                 },
+        #                 "worker_pid": None
+        #             }
+        #         ]
+        #     }
+        # }
         return {'response': resp}
 
     def tasks_get_results(self):
