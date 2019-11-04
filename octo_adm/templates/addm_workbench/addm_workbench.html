@@ -31,7 +31,7 @@
             <!-- Digest levels breadcrumbs: -->
             <div class="digest-breadcrumbs">
                 <nav class="nav nav-pills">
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                    <div class="btn-group btn-group-sm" role="group">
                         <a class="btn btn-sm btn-info" href="{% url 'admin_workbench' %}"><i class="fas fa-step-backward"></i> Admin Workbench</a>
                         <a class="btn btn-sm btn-info" href="{% url 'addm_workbench' %}" title="You are here..."><i class="fas fa-play"></i> ADDM Workbench</a>
                     </div>
@@ -53,22 +53,54 @@
             <div class="card">
                 <div class="card-header">ADDM Preparations</div>
                 <div class="card-body">
-                    <div class="card-text">Vcenter operations, data sync between ADDMs and so on.</div>
+                    <div class="card-text">V-center operations, data sync between ADDMs and so on.</div>
+                    <div class="card">
+                        <div class="card-header">Addm batch operations:</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <span class="card-text fl-left">Cleanup</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-info" id="addm_cleanup" href="#">Routines</a></div>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="card-text fl-left">Run custom cmd:</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-info" id="addm_cmd_run" href="#">CMD Run</a></div>
+                                </li>
+                            <li class="list-group-item">
+                                <span class="card-text fl-left">Sync ADDM:</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-info" id="addm_sync_shares" href="#">Sync shares</a></div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted">Control test enviroments and data on it</small>
+                    <small class="text-muted">Control test environments and data on it</small>
                 </div>
             </div>
             <div class="card">
                 <div class="card-header">ADDM Operations</div>
                 <div class="card-body">
-                    <div class="card-text">Custom ADDM commands to run. Service restart, version check.</div>
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'old_addm_workbench' %}">ADDM Workbench (old)</a>
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'addm_buttons_page' %}">ADDM Buttons (old)</a>
-                    <div class="card-text">ADDM models:</div>
-                    <div class="btn-group">
-                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmdev/">ADDM Admin model</a>
-                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmdevproxy/">ADDM Proxy model</a>
+                    <div class="card">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <span class="card-text fl-left">ADDM Tables old:</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'old_addm_workbench' %}">ADDM Workbench</a>
+                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'addm_buttons_page' %}">ADDM Buttons</a>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="card-text fl-left">ADDM models:</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmdev/">ADDM Admin</a>
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmdevproxy/">ADDM Proxy</a>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -79,9 +111,21 @@
                 <div class="card-header bg-warning">ADDM Servicing</div>
                 <div class="card-body">
                     <div class="card-text">Reboot ADDM vms, revert snapshots, etc.</div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <span class="card-text fl-left"></span>
+                            <div class="btn-group fl-right"></div>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="card-text fl-left"></span>
+                            <div class="btn-group fl-right"></div>
+                        </li>
+                        <li class="list-group-item">
+                        </li>
+                    </ul>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted">Maintanance operations, such as restarts, upgrades.</small>
+                    <small class="text-muted">Maintenance operations, such as restarts, upgrades.</small>
                 </div>
             </div>
         </div>

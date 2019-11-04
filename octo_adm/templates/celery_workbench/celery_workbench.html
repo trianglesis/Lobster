@@ -31,7 +31,7 @@
             <!-- Digest levels breadcrumbs: -->
             <div class="digest-breadcrumbs">
                 <nav class="nav nav-pills">
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                    <div class="btn-group btn-group-sm" role="group">
                         <a class="btn btn-sm btn-info" href="{% url 'admin_workbench' %}"><i class="fas fa-step-backward"></i> Admin Workbench</a>
                         <a class="btn btn-sm btn-info" href="{% url 'celery_workbench' %}" title="You are here..."><i class="fas fa-play"></i> Celery Workbench</a>
                     </div>
@@ -52,7 +52,7 @@
         <div class="card-deck">
             <div class="card">
                 <div class="card-header">Workers live:</div>
-                <div class="card-body text-center">
+                <div class="card-body">
                     <a class="btn btn-sm btn-info active" href="{% url 'celery_inspect' %}">Celery Inspect</a>
                     <div class="card-text">Tasks queues summary:</div>
                     {% worker_queues_short %}
@@ -65,17 +65,38 @@
             </div>
             <div class="card">
                 <div class="card-header">Workers and celery details</div>
-                <div class="card-body text-center">
-                    <div class="card-text">Interactive CRON view</div>
-                    <a class="btn btn-sm btn-outline-info" href="{% url 'celery_beat_crontabschedules' %}">Celery CRON</a>
-                    <div class="card-text">Django Celery Beat:</div>
-                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/periodictask/">Periodic tasks</a>
-                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/crontabschedule/">Cron schedules</a>
-                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/intervalschedule/">Interval schedules</a>
-                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/solarschedule/">Solar schedules</a>
-                    <div class="card-text">Celery Tasks meta:</div>
-                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo/celerytaskmeta/">Celery tasks meta</a>
-                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo/celerytasksetmeta/">Celery alt tasks meta</a>
+                <div class="card-body">
+                    <div class="card">
+                        <div class="card-header">Featured</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <span class="card-text fl-left">Interactive CRON view</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'celery_beat_crontabschedules' %}">Celery CRON</a>
+                                </div>
+                            </li>
+                            <li class="list-group-item text-center">
+                                <div class="card-text">Django Celery Beat:</div>
+                                <div class="btn-group">
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/periodictask/">Periodic tasks</a>
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/crontabschedule/">Cron schedules</a>
+                                </div>
+                            </li>
+                            <li class="list-group-item text-center">
+                                <div class="btn-group">
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/intervalschedule/">Interval schedules</a>
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/solarschedule/">Solar schedules</a>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="card-text fl-left">Celery Tasks meta:</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo/celerytaskmeta/">Celery tasks meta</a>
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo/celerytasksetmeta/">Celery alt tasks meta</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">Check tasks, workers, and models</small>
@@ -84,15 +105,20 @@
             <div class="card border-warning">
                 <div class="card-header bg-warning">Celery servicing</div>
                 <div class="card-body">
-                    <a class="btn btn-sm btn-outline-warning" href="{% url 'reset_cron_last_run' %}">Celery cron reset last run</a>
-                    <div style="padding-left:1%;padding-right:1%;margin-top:1em">
-                        <div class="alert alert-secondary" role="alert">
-                            Danger zone: restart system services
-                            <a role="button" class="btn btn-sm btn-danger" href="{% url 'celery_service_restart' %}"
-                               title="systemctl reload httpd.service && systemctl restart celery.service && systemctl restart celerybeat.service && systemctl restart flower.service">Celery service restart + apache + flower</a>
-                        </div>
+                    <div class="card">
+                        <div class="card-header">Danger zone: restart system services</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item text-center">
+                                <a class="btn btn-sm btn-outline-warning" href="{% url 'reset_cron_last_run' %}">Celery cron reset last run</a>
+                            </li>
+                            <li class="list-group-item text-center">
+                                <div class="alert alert-secondary" role="alert">
+                                    <a role="button" class="btn btn-sm btn-danger" href="{% url 'celery_service_restart' %}"
+                                       title="systemctl reload httpd.service && systemctl restart celery.service && systemctl restart celerybeat.service && systemctl restart flower.service">Celery service restart + apache + flower</a>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
-
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">Warning: restart/reload all services</small>

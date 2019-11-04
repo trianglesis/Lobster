@@ -10,9 +10,24 @@
     padding-left: .2em;
 }
 
+.fl-left {
+    float: left;
+}
+.fl-right {
+    float: right;
+}
+
 .admin-content {
     padding: 0 10px 20px 10px;
     margin-bottom: 100px;
+    font-size: 1em;
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    /*font-family: 'BenchNine', sans-serif;*/
+    /*font-family: 'Assistant', sans-serif;*/
+    font-family: 'Maven Pro', sans-serif;
+    /*font-family: 'Nunito', sans-serif;*/
 }
 .admin-buttons {
     padding-top: 2em;
@@ -21,10 +36,26 @@
 .addm-content {
     padding: 0 10px 20px 10px;
     margin-bottom: 100px;
+    font-size: 1em;
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    /*font-family: 'BenchNine', sans-serif;*/
+    /*font-family: 'Assistant', sans-serif;*/
+    font-family: 'Maven Pro', sans-serif;
+    /*font-family: 'Nunito', sans-serif;*/
 }
 .celery-admin-content {
     padding: 0 10px 20px 10px;
     margin-bottom: 100px;
+    font-size: 1em;
+    /*font-family: 'Catamaran', sans-serif;*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*font-family: 'Jaldi', sans-serif;*/
+    /*font-family: 'BenchNine', sans-serif;*/
+    /*font-family: 'Assistant', sans-serif;*/
+    font-family: 'Maven Pro', sans-serif;
+    /*font-family: 'Nunito', sans-serif;*/
 }
 .addm-vms-tabs {
     padding-top: 2em;
@@ -82,4 +113,9 @@
 
 .addm-setup, .addm-discovery, .addm-model, .addm-appliance {
     display: flex;
+}
+
+td > a {
+    padding: .2em !important;
+    font-size: .7em;
 }

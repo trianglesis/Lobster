@@ -31,7 +31,7 @@
             <!-- Digest levels breadcrumbs: -->
             <div class="digest-breadcrumbs">
                 <nav class="nav nav-pills">
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
+                    <div class="btn-group btn-group-sm" role="group">
                         <a class="btn btn-sm btn-info" href="{% url 'admin_workbench' %}" title="You are here..."><i class="fas fa-play"></i> Admin Workbench</a>
                     </div>
                 </nav>
@@ -101,33 +101,126 @@
             <div class="card">
                 <div class="card-header">Octopus Internal</div>
                 <div class="card-body text-center">
-                    <div class="row no-gutters">
+                    <div class="row">
                         <div class="col-md-4">
-                            <div class="card-text">Internal Options</div>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}run_core/options/">Options</a>
-                            <div class="card-text">User adprod nicknames</div>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}run_core/usernamescorrespond/">User ADPROD names</a>
-                            <div class="card-text">Django Auth Users and groups</div>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}auth/group/">Groups</a>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}auth/user/">Users</a>
+                            <div class="card">
+                                <div class="card-header"></div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">Perforce operations:</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-info" id="p4_info" href="#">P4 Info</a>
+                                            <a class="btn btn-sm btn-outline-info" id="p4_sync" href="#">P4 Sync and parse</a>
+                                            <a class="btn btn-sm btn-outline-info" id="p4_sync_force" href="#">P4 Sync force</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="card-text">Admin models: Upload tests:</div>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_upload/tkupackagesnew/">TKU Packages</a>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_upload/uploadtestsnew/">TKU Upload tests</a>
-                            <div class="card-text">Admin models: ADDM table:</div>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}run_core/addmdev/">ADDM Admin model</a>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}run_core/addmdevproxy/">ADDM Proxy model</a>
-                            <div class="card-text">Admin models: Cron tasks:</div>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}django_celery_beat/periodictask/">Periodic tasks</a>
+                            <div class="card">
+                                <div class="card-header"></div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">Local operations:</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-info" id="parse_full" href="#">Parse local test data</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="card-text">Admin models: Test cases:</div>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_patterns/testcases/">Test cases</a>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_patterns/testcasesdetails/">Test cases details(groups)</a>
-                            <div class="card-text">Admin models: Test Logs:</div>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_patterns/testhistory/">Test history</a>
-                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_patterns/testlast/">Test last</a>
+                            <div class="card">
+                                <div class="card-header"></div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">Statistical:</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-info" id="cases_weight" href="#">Calculate cases weight</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-text"><h3>Admin views:</h3></div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Options and users</div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">Options table:</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}run_core/options/">Options</a>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">User adprod:</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}run_core/usernamescorrespond/">Usernames</a>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">Auth Users Groups</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}auth/group/">Groups</a>
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}auth/user/">Users</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Test result admin views</div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">Test cases:</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_patterns/testcases/">Cases</a>
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_patterns/testcasesdetails/">Case group</a>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">Test logs:</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_patterns/testlast/">Last tests</a>
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_patterns/testhistory/">History tests</a>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">Upload logs:</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_upload/tkupackagesnew/">TKU Packages</a>
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}octo_tku_upload/uploadtestsnew/">TKU Tests</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Test environments and planning</div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="fl-left">ADDM VM</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}run_core/addmdev/">ADDM Admin model</a>
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}run_core/addmdevproxy/">ADDM Proxy model</a>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="fl-left">Cron</span>
+                                        <div class="btn-group fl-right">
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin:index' %}django_celery_beat/periodictask/">Periodic tasks</a>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
