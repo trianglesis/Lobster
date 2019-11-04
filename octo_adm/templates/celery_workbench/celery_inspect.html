@@ -32,10 +32,9 @@
             <div class="digest-breadcrumbs">
                 <nav class="nav nav-pills">
                     <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
-                        {# URL back to ADDM should contain tkn_branch, - to know what page to open previuosly #}
-                        <a class="btn btn-sm btn-info" href="#"><i class="fas fa-step-backward"></i> Admin Workbench</a>
-                        <a class="btn btn-sm btn-info" href="#"><i class="fas fa-step-backward"></i> Celery Workbench</a>
-                        <a class="btn btn-sm btn-info active" href="#" title="You are here..."><i class="fas fa-play"></i> Celery Inspect</a>
+                        <a class="btn btn-sm btn-info" href="{% url 'admin_workbench' %}"><i class="fas fa-step-backward"></i> Admin Workbench</a>
+                        <a class="btn btn-sm btn-info" href="{% url 'celery_workbench' %}"><i class="fas fa-step-backward"></i> Celery Workbench</a>
+                        <a class="btn btn-sm btn-info active" href="{% url 'celery_inspect' %}" title="You are here..."><i class="fas fa-play"></i> Celery Inspect</a>
                     </div>
                 </nav>
             </div>
@@ -147,16 +146,13 @@
                 <a class="nav-link" href="{% url 'home' %}">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Admin Workbench</a>
+                <a class="nav-link" href="{% url 'admin_workbench' %}">Admin Workbench</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'celery_workbench' %}">Celery Workbench</a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="#">Celery Inspect</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled">Restart</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled"><i class="fas fa-expand-arrows-alt"></i> Workers: or worker name</a>
+                <a class="nav-link" href="{% url 'celery_inspect' %}">Celery Inspect</a>
             </li>
         </ul>
         <span class="navbar-text">Octopus automation</span>

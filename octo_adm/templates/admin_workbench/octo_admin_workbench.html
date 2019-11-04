@@ -32,8 +32,7 @@
             <div class="digest-breadcrumbs">
                 <nav class="nav nav-pills">
                     <div class="btn-group btn-group-sm" role="group" aria-label="Browse test digest report levels">
-                        {# URL back to ADDM should contain tkn_branch, - to know what page to open previuosly #}
-                        <a class="btn btn-sm btn-info" href="#" title="You are here..."><i class="fas fa-play"></i> Admin Workbench</a>
+                        <a class="btn btn-sm btn-info" href="{% url 'admin_workbench' %}" title="You are here..."><i class="fas fa-play"></i> Admin Workbench</a>
                     </div>
                 </nav>
             </div>
@@ -52,6 +51,14 @@
             <div class="card">
                 <div class="card-header">Celery</div>
                 <div class="card-body">
+                    <div class="general-celery-workbench">
+                        <div class="alert alert-light general-celery-workbench text-center" role="alert">
+                            <h4 class="alert-heading">General Celery workbench</h4>
+                            <div class="card-text">Inspecting celery workers, restart, cancel, revoke etc.</div>
+                            <hr>
+                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'celery_workbench' %}">{% select_icon 'dashboard' 18 'right' 0.2 %}Celery workbench</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted"></small>
@@ -60,6 +67,15 @@
             <div class="card">
                 <div class="card-header">ADDM</div>
                 <div class="card-body">
+                    <div class="general-addm-workbench">
+                        <div class="alert alert-light general-celery-workbench text-center" role="alert">
+                            <h4 class="alert-heading">General ADDM workbench</h4>
+                            <div class="card-text">Service tasks, views and actions on ADDM test machines.</div>
+                            <hr>
+                            <a class="btn btn-sm btn-outline-info" href="{% url 'addm_workbench' %}">ADDM Workbench</a>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="card-footer">
                     <small class="text-muted"></small>
@@ -68,6 +84,25 @@
             <div class="card border-warning">
                 <div class="card-header bg-warning">Octopus Servicing</div>
                 <div class="card-body">
+                    <div class="card-text">Service tasks for Octopus maintaining.</div>
+
+                    <div class="card-text">Internal Options</div>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/options/">Options</a>
+                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/usernamescorrespond/">User ADPROD names</a>
+                    </div>
+                    <div class="card-text">Admin models: Upload tests:</div>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo_tku_upload/tkupackagesnew/">TKU Packages</a>
+                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo_tku_upload/uploadtestsnew/">TKU Upload tests</a>
+                    </div>
+                    <div class="card-text">Admin models: Test cases:</div>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo_tku_patterns/testcases/">Test cases</a>
+                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo_tku_patterns/testcasesdetails/">Test cases details(groups)</a>
+                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo_tku_patterns/testhistory/">Test history</a>
+                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo_tku_patterns/testlast/">Test last</a>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted"></small>
@@ -83,8 +118,8 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'home' %}">Home</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Admin Workbench</a>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'admin_workbench' %}">Admin Workbench</a>
             </li>
         </ul>
         <span class="navbar-text">Octopus automation</span>
