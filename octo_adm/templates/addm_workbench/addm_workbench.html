@@ -86,11 +86,9 @@
             </div>
         </div>
         <div>
-
             {% regroup objects|dictsort:'branch_lock' by branch_lock as branch_lock_addms %}
             {% regroup objects|dictsort:'vm_cluster' by vm_cluster as addm_vm_cluster %}
         </div>
-
         <div class="addm-vms-tabs">
             <nav>
                 <div class="nav nav-pills flex-column flex-sm-row" id="nav-tab" role="tablist">
@@ -145,6 +143,59 @@
                 {# {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.0.list %} tkn_branch group #}
             </div>
         </div>
+        <div class="modal fade bd-example-modal" id="addmButtonsModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">ADDM Buttons</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="modal-details"></div>
+                        <div class="card-text">ADDM Appliance</div>
+                        <div class="btn-group addm-setup">
+                            <a class="btn btn-sm btn-outline-info addm-btn" title="ADDM SetupHome" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupHome">Setup</a>
+                            <a class="btn btn-sm btn-outline-info addm-btn" title="ADDM SetupApplianceInfo" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupApplianceInfo">Info</a>
+                            <a class="btn btn-sm btn-outline-info addm-btn" title="ADDM SetupLogging" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupLogging">Log</a>
+                            <a class="btn btn-sm btn-outline-info addm-btn" title="ADDM SetupUpgrade" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupUpgrade">Upgr</a>
+                        </div>
+                        <div class="card-text">ADDM Discovery</div>
+                        <div class="btn-group addm-discovery">
+                            <a class="btn btn-sm btn-outline-primary addm-btn" title="ADDM SetupDiscoveryOptions" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupDiscoveryOptions">Disc.Opt</a>
+                            <a class="btn btn-sm btn-outline-primary addm-btn" title="ADDM DiscoveryStats" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/DiscoveryStats">Disc.St.</a>
+                            <a class="btn btn-sm btn-outline-primary addm-btn" title="ADDM DiscoveryHome" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/DiscoveryHome">Disc.Home</a>
+                            <a class="btn btn-sm btn-outline-primary addm-btn" title="ADDM DiscoveryKnowledgeManagement" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/DiscoveryKnowledgeManagement">TKU</a>
+                        </div>
+                        <div class="card-text">ADDM Model</div>
+                        <div class="btn-group addm-model">
+                            <a class="btn btn-sm btn-outline-warning addm-btn" title="ADDM SetupModelTaxonomy" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupModelTaxonomy">Taxonomy</a>
+                            <a class="btn btn-sm btn-outline-warning addm-btn" title="ADDM SetupModelMaintenance" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupModelMaintenance">Model</a>
+                            <a class="btn btn-sm btn-outline-warning addm-btn" title="ADDM SetupSyncTargetOverview" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupSyncTargetOverview">CMDB Sync</a>
+                        </div>
+                        <div class="card-text">ADDM Appliance service</div>
+                        <div class="btn-group addm-appliance">
+                            <a class="btn btn-sm btn-outline-dark addm-btn" title="ADDM ApplianceSupport" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/ApplianceSupport">Appliance Support</a>
+                            <a class="btn btn-sm btn-outline-dark addm-btn" title="ADDM SetupApplianceControl" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupApplianceControl">Appliance Control</a>
+                            <a class="btn btn-sm btn-outline-dark addm-btn" title="ADDM SetupDiskUtils" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupDiskUtils">HDD</a>
+                            <a class="btn btn-sm btn-outline-dark addm-btn" title="ADDM SetupApplianceBaseline" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupApplianceBaseline">Baseline</a>
+                            <a class="btn btn-sm btn-outline-dark addm-btn" title="ADDM SetupApplianceJVMSize" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupApplianceJVMSize">JVM</a>
+                            <a class="btn btn-sm btn-outline-dark addm-btn" title="ADDM SetupNTP" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupNTP">NTP</a>
+                            <a class="btn btn-sm btn-outline-dark addm-btn" title="ADDM SetupApplianceBaselineActions" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupApplianceBaselineActions">Act</a>
+                            <a class="btn btn-sm btn-outline-dark addm-btn" title="ADDM SetupApplianceMail" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupApplianceMail">Mail</a>
+                            <a class="btn btn-sm btn-outline-dark addm-btn" title="ADDM SetupApplianceBaselineOptions" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupApplianceBaselineOptions">Mail to's</a>
+                        </div>
+                        <div class="btn-group">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     {% comment %}Nav sticky bottom{% endcomment %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
@@ -163,8 +214,8 @@
         <span class="navbar-text">Octopus automation</span>
     </nav>
     {# JS #}
-{#    <script src="{% static 'octopus/js/celery-inspect/celery-methods.js' %}"></script>#}
-{#    <script src="{% static 'octopus/js/celery-inspect/celery-inspect.js' %}"></script>#}
+    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
+    <script src="{% static 'octopus/js/admin-workbench/addm-btn.js' %}"></script>
     {% comment %}DEBUG{% endcomment %}
     <div class="debug-context">
         {% if request.GET.debug %}
