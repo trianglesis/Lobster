@@ -1,0 +1,101 @@
+<table class="table table-hover table-sm table-shrink">
+    <thead class="table-light">
+        <tr>
+            <td>#</td>
+            <td>Group</td>
+            <td>Branch</td>
+            <td>Name</td>
+            <td>V.</td>
+            <td>Host</td>
+            <td>IP</td>
+            <td>full v.</td>
+            <td>Location</td>
+            <td>Buttons</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for addm in addm_set %}
+            <tr class="addm-group-color-{{ addm.addm_group }}">
+                <td id="num">{{ forloop.counter }}</td>
+                {# user view #}
+                <td id="addm_group">{{ addm.addm_group }}</td>
+                <td id="branch_lock"><span class="{{ addm.branch_lock }}">{{ addm.branch_lock }}</span></td>
+                <td id="addm_name">{{ addm.addm_name }}</td>
+                <td id="addm_v_int">{{ addm.addm_v_int }}</td>
+                <td id="addm_host">{{ addm.addm_host }}</td>
+                <td id="addm_ip">{{ addm.addm_ip }}</td>
+                <td id="addm_full_version">{{ addm.addm_full_version }}</td>
+                <td id="vm_cluster">{{ addm.vm_cluster }}</td>
+                <td id="buttons">
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target=".bd-example-modal">Large modal</button>
+                </td>
+                {# Service: #}
+                <td id="id" style="display: none">{{ addm.id }}</td>
+                <td id="vm_id" style="display: none">{{ addm.vm_id }}</td>
+                <td id="description" style="display: none">{{ addm.description }}</td>
+                <td id="addm_v_code" style="display: none">{{ addm.addm_v_code }}</td>
+                <td id="addm_branch" style="display: none">{{ addm.addm_branch }}</td>
+                <td id="addm_owner" style="display: none">{{ addm.addm_owner }}</td>
+                <td id="disables" style="display: none">{{ addm.disables }}</td>
+                {# Security hidden #}
+{#                <td id="tideway_user">{{ addm.tideway_user }}</td>#}
+{#                <td id="tideway_pdw">{{ addm.tideway_pdw }}</td>#}
+{#                <td id="root_user">{{ addm.root_user }}</td>#}
+{#                <td id="root_pwd">{{ addm.root_pwd }}</td>#}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="modal fade bd-example-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">ADDM Buttons</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-text">ADDM Appliance</div>
+                <div class="btn-group addm-setup">
+                    <a class="btn btn-sm btn-outline-info" title="ADDM SetupHome" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupHome">Setup</a>
+                    <a class="btn btn-sm btn-outline-info" title="ADDM SetupApplianceInfo" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceInfo">Info</a>
+                    <a class="btn btn-sm btn-outline-info" title="ADDM SetupLogging" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupLogging">Log</a>
+                    <a class="btn btn-sm btn-outline-info" title="ADDM SetupUpgrade" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupUpgrade">Upgr</a>
+                </div>
+                <div class="card-text">ADDM Discovery</div>
+                <div class="btn-group addm-discovery">
+                    <a class="btn btn-sm btn-outline-primary" title="ADDM SetupDiscoveryOptions" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupDiscoveryOptions">Disc.Opt</a>
+                    <a class="btn btn-sm btn-outline-primary" title="ADDM DiscoveryStats" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/DiscoveryStats">Disc.St.</a>
+                    <a class="btn btn-sm btn-outline-primary" title="ADDM DiscoveryHome" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/DiscoveryHome">Disc.Home</a>
+                    <a class="btn btn-sm btn-outline-primary" title="ADDM DiscoveryKnowledgeManagement" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/DiscoveryKnowledgeManagement">TKU</a>
+                </div>
+                <div class="card-text">ADDM Model</div>
+                <div class="btn-group addm-model">
+                    <a class="btn btn-sm btn-outline-warning" title="ADDM SetupModelTaxonomy" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupModelTaxonomy">Taxonomy</a>
+                    <a class="btn btn-sm btn-outline-warning" title="ADDM SetupModelMaintenance" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupModelMaintenance">Model</a>
+                    <a class="btn btn-sm btn-outline-warning" title="ADDM SetupSyncTargetOverview" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupSyncTargetOverview">CMDB Sync</a>
+                </div>
+                <div class="card-text">ADDM Appliance service</div>
+                <div class="btn-group addm-appliance">
+                    <a class="btn btn-sm btn-outline-dark" title="ADDM ApplianceSupport" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/ApplianceSupport">Appliance Support</a>
+                    <a class="btn btn-sm btn-outline-dark" title="ADDM SetupApplianceControl" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceControl">Appliance Control</a>
+                    <a class="btn btn-sm btn-outline-dark" title="ADDM SetupDiskUtils" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupDiskUtils">HDD</a>
+                    <a class="btn btn-sm btn-outline-dark" title="ADDM SetupApplianceBaseline" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceBaseline">Baseline</a>
+                    <a class="btn btn-sm btn-outline-dark" title="ADDM SetupApplianceJVMSize" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceJVMSize">JVM</a>
+                    <a class="btn btn-sm btn-outline-dark" title="ADDM SetupNTP" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupNTP">NTP</a>
+                    <a class="btn btn-sm btn-outline-dark" title="ADDM SetupApplianceBaselineActions" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceBaselineActions">Act</a>
+                    <a class="btn btn-sm btn-outline-dark" title="ADDM SetupApplianceMail" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceMail">Mail</a>
+                    <a class="btn btn-sm btn-outline-dark" title="ADDM SetupApplianceBaselineOptions" target="_blank" href="http://{{ addm.addm_host }}.bmc.com/ui/SetupApplianceBaselineOptions">Mail to's</a>
+                </div>
+                <div class="btn-group">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

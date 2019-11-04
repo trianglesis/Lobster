@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -49,10 +49,12 @@ class AdminWorkbench(TemplateView):
     context_object_name = 'objects'
 
 
-class AddmWorkbench(TemplateView):
+class AddmWorkbench(ListView):
     __url_path = '/octo_admin/addm/'
     template_name = 'addm_workbench/addm_workbench.html'
     context_object_name = 'objects'
+    model = AddmDev
+    # queryset = AddmDev.objects.all().order_by('addm_group')
 
 
 class CeleryWorkbench(TemplateView):

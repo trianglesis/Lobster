@@ -52,35 +52,33 @@
         <div class="card-deck">
             <div class="card">
                 <div class="card-header">Workers live:</div>
-                <div class="card-body">
-                    <div class="card-text">Show actual info of workers active and reserved queues.</div>
+                <div class="card-body text-center">
+                    <a class="btn btn-sm btn-info active" href="{% url 'celery_inspect' %}">Celery Inspect</a>
+                    <div class="card-text">Tasks queues summary:</div>
+                    {% worker_queues_short %}
+                    <div class="card-text">Inspect worker, get tasks.</div>
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'workers_status' %}">{% select_icon 'dashboard' 18 'right' 0.2 %}Celery Workers (old)</a>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted"></small>
+                    <small class="text-muted">Showing all queues in short view as amount of tasks.</small>
                 </div>
             </div>
             <div class="card">
                 <div class="card-header">Workers and celery details</div>
-                <div class="card-body">
-                    <div class="card-text">Inspect worker, get tasks.</div>
-                    <a class="btn btn-sm btn-info active" href="{% url 'celery_inspect' %}">Celery Inspect</a>
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'workers_status' %}">{% select_icon 'dashboard' 18 'right' 0.2 %}Celery Workers (old)</a>
+                <div class="card-body text-center">
+                    <div class="card-text">Interactive CRON view</div>
                     <a class="btn btn-sm btn-outline-info" href="{% url 'celery_beat_crontabschedules' %}">Celery CRON</a>
                     <div class="card-text">Django Celery Beat:</div>
-                    <div class="btn-group">
-                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/periodictask/">Periodic tasks</a>
-                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/crontabschedule/">Cron schedules</a>
-                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/intervalschedule/">Interval schedules</a>
-                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/solarschedule/">Solar schedules</a>
-                    </div>
+                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/periodictask/">Periodic tasks</a>
+                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/crontabschedule/">Cron schedules</a>
+                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/intervalschedule/">Interval schedules</a>
+                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}django_celery_beat/solarschedule/">Solar schedules</a>
                     <div class="card-text">Celery Tasks meta:</div>
-                    <div class="btn-group">
-                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo/celerytaskmeta/">Celery tasks meta</a>
-                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo/celerytasksetmeta/">Celery alt tasks meta</a>
-                    </div>
+                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo/celerytaskmeta/">Celery tasks meta</a>
+                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}octo/celerytasksetmeta/">Celery alt tasks meta</a>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted"></small>
+                    <small class="text-muted">Check tasks, workers, and models</small>
                 </div>
             </div>
             <div class="card border-warning">
@@ -97,7 +95,7 @@
 
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted"></small>
+                    <small class="text-muted">Warning: restart/reload all services</small>
                 </div>
             </div>
         </div>
@@ -120,6 +118,8 @@
         <span class="navbar-text">Octopus automation</span>
     </nav>
     {# JS #}
+    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
+    <script src="{% static 'octopus/js/interactive-requests/celery-workers-short-inspect-loop.js' %}"></script>
 {#    <script src="{% static 'octopus/js/celery-inspect/celery-methods.js' %}"></script>#}
 {#    <script src="{% static 'octopus/js/celery-inspect/celery-inspect.js' %}"></script>#}
     {% comment %}DEBUG{% endcomment %}

@@ -40,7 +40,8 @@ class AddmDevAdmin(admin.ModelAdmin):
     # list_editable = ('disables', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'addm_full_version')
 
     list_display = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock',
-                    'addm_v_code', 'disables', 'tideway_user', 'tideway_pdw', 'addm_branch', 'addm_full_version')
+                    'addm_v_code', 'disables', 'tideway_user', 'tideway_pdw', 'addm_branch', 'addm_full_version',
+                    'vm_cluster', 'vm_id')
     list_filter = ('addm_name', 'addm_group', 'branch_lock', 'addm_full_version', 'vm_cluster')
     ordering = ('addm_group',)
     search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'addm_v_code')
@@ -74,6 +75,8 @@ class AddmDevAdmin(admin.ModelAdmin):
                 ('tideway_user', 'tideway_pdw'),
                 ('root_user', 'root_pwd'),
                 'addm_owner',
+                'vm_cluster',
+                'vm_id',
                 'description',
             )
         }),

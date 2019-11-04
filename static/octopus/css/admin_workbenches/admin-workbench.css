@@ -14,6 +14,10 @@
     padding: 0 10px 20px 10px;
     margin-bottom: 100px;
 }
+.admin-buttons {
+    padding-top: 2em;
+}
+
 .addm-content {
     padding: 0 10px 20px 10px;
     margin-bottom: 100px;
@@ -23,8 +27,59 @@
     margin-bottom: 100px;
 }
 .addm-vms-tabs {
-    padding-top: 1em;
+    padding-top: 2em;
 }
+
 .addm-items-table {
     width: 100%;
+}
+
+.addm-group-color-alpha {
+    background-color: rgba(158, 247, 214, 0.46);
+}
+
+.addm-group-color-beta {
+    background-color: rgba(181, 198, 201, 0.45);
+}
+
+.addm-group-color-charlie {
+    background-color: rgba(198, 174, 201, 0.45);
+}
+
+.addm-group-color-delta {
+    background-color: rgba(201, 159, 152, 0.45);
+}
+
+.addm-group-color-echo {
+    background-color: rgba(201, 181, 156, 0.45);
+}
+
+.addm-group-color-foxtrot {
+    background-color: rgba(245, 173, 38, 0.45);
+}
+
+.addm-group-color-golf {
+    background-color: rgba(176, 201, 126, 0.45);
+}
+
+.addm-group-color-z_old {
+    background-color: rgba(0, 0, 0, 0.55);
+
+}
+
+#branch_lock > .tkn_main{
+    background-image: url('/static/octicons/svg/git-branch.svg');
+    background-repeat: no-repeat;
+    background-size: .8em;
+    padding-left: 1em;
+}
+#branch_lock > .tkn_ship{
+    background-image: url('/static/octicons/svg/git-merge.svg');
+    background-repeat: no-repeat;
+    background-size: .8em;
+    padding-left: 1em;
+}
+
+.addm-setup, .addm-discovery, .addm-model, .addm-appliance {
+    display: flex;
 }

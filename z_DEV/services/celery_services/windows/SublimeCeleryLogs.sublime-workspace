@@ -11,7 +11,7 @@
 			"file": "logs/w_routines_err.log",
 			"settings":
 			{
-				"buffer_size": 3055,
+				"buffer_size": 3218,
 				"line_ending": "Windows"
 			}
 		},
@@ -35,7 +35,7 @@
 			"file": "logs/alpha_err.log",
 			"settings":
 			{
-				"buffer_size": 3050,
+				"buffer_size": 3213,
 				"line_ending": "Windows"
 			}
 		},
@@ -43,7 +43,7 @@
 			"file": "logs/w_parsing_err.log",
 			"settings":
 			{
-				"buffer_size": 6831,
+				"buffer_size": 3081,
 				"line_ending": "Windows"
 			}
 		},
@@ -51,7 +51,7 @@
 			"file": "logs/charlie_err.log",
 			"settings":
 			{
-				"buffer_size": 2978,
+				"buffer_size": 3215,
 				"line_ending": "Windows"
 			}
 		}
@@ -228,15 +228,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3055,
+						"buffer_size": 3218,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1409,
-								1409
+								0,
+								0
 							]
 						],
 						"settings":
@@ -320,15 +320,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3050,
+						"buffer_size": 3213,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								843,
-								843
+								0,
+								0
 							]
 						],
 						"settings":
@@ -356,15 +356,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6831,
+						"buffer_size": 3081,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5147,
-								5152
+								0,
+								0
 							]
 						],
 						"settings":
@@ -374,7 +374,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 645.0,
+						"translation.y": 561.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
@@ -392,7 +392,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2978,
+						"buffer_size": 3215,
 						"regions":
 						{
 						},

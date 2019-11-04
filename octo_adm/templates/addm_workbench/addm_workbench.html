@@ -56,11 +56,11 @@
                     <div class="card-text">Vcenter operations, data sync between ADDMs and so on.</div>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted"></small>
+                    <small class="text-muted">Control test enviroments and data on it</small>
                 </div>
             </div>
             <div class="card">
-                <div class="card-header">ADDM data</div>
+                <div class="card-header">ADDM Operations</div>
                 <div class="card-body">
                     <div class="card-text">Custom ADDM commands to run. Service restart, version check.</div>
                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'old_addm_workbench' %}">ADDM Workbench (old)</a>
@@ -72,7 +72,7 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted"></small>
+                    <small class="text-muted">Execute custom commands on ADDMs</small>
                 </div>
             </div>
             <div class="card border-warning">
@@ -81,10 +81,16 @@
                     <div class="card-text">Reboot ADDM vms, revert snapshots, etc.</div>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted"></small>
+                    <small class="text-muted">Maintanance operations, such as restarts, upgrades.</small>
                 </div>
             </div>
         </div>
+        <div>
+
+            {% regroup objects|dictsort:'branch_lock' by branch_lock as branch_lock_addms %}
+            {% regroup objects|dictsort:'vm_cluster' by vm_cluster as addm_vm_cluster %}
+        </div>
+
         <div class="addm-vms-tabs">
             <nav>
                 <div class="nav nav-pills flex-column flex-sm-row" id="nav-tab" role="tablist">
@@ -104,11 +110,6 @@
                        aria-controls="nav-addm_tkn_ship"
                        data-toggle="tab" role="tab" aria-selected="false">Lock 'tkn_ship'</a>
                     <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
-                       id="nav-enabled-addm-tab"
-                       href="#enabled-addm"
-                       aria-controls="nav-enabled-addm"
-                       data-toggle="tab" role="tab" aria-selected="false">Enabled</a>
-                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
                        id="nav-aus-addm-tab"
                        href="#aus-addm"
                        aria-controls="nav-aus-addm"
@@ -118,152 +119,33 @@
                        href="#pune-addm"
                        aria-controls="nav-pune-addm"
                        data-toggle="tab" role="tab" aria-selected="false">PUNE</a>
-                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
-                       id="nav-disabled-addm-tab"
-                       href="#disabled-addm"
-                       aria-controls="nav-disabled-addm"
-                       data-toggle="tab" role="tab" aria-selected="false">Disabled</a>
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="all-addm" role="tabpanel" aria-labelledby="all-addm-tab">
-                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-addm-all">
-                        <thead>
-                            <tr>
-                                <th>group</th>
-                                <th>host</th>
-                                <th>etc</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>group</td>
-                                <td>host</td>
-                                <td>etc</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=objects|dictsort:'addm_group' %}
                     <small>* Table of all ADDMs</small>
                 </div>
                 <div class="tab-pane fade" id="addm-tkn_main" role="tabpanel" aria-labelledby="addm-tkn_main-tab">
-                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-addm-tkn_main">
-                        <thead>
-                            <tr>
-                                <th>group</th>
-                                <th>host</th>
-                                <th>etc</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>group</td>
-                                <td>host</td>
-                                <td>etc</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <small>* Table of ADDMS locked on branch</small>
+                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.1.list %}
+                    <small>* Table of ADDMS locked on branch 'tkn_main' </small>
                 </div>
                 <div class="tab-pane fade" id="addm_tkn_ship" role="tabpanel" aria-labelledby="addm_tkn_ship-tab">
-                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-addm_tkn_ship">
-                        <thead>
-                            <tr>
-                                <th>group</th>
-                                <th>host</th>
-                                <th>etc</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>group</td>
-                                <td>host</td>
-                                <td>etc</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <small>* Table of ADDMS locked on branch</small>
-                </div>
-                <div class="tab-pane fade" id="enabled-addm" role="tabpanel" aria-labelledby="enabled-addm-tab">
-                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-enabled-addm">
-                        <thead>
-                            <tr>
-                                <th>group</th>
-                                <th>host</th>
-                                <th>etc</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>group</td>
-                                <td>host</td>
-                                <td>etc</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <small>* Table of all enabled ADDMs</small>
+                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.2.list %}
+                    <small>* Table of ADDMS locked on branch 'tkn_ship' </small>
                 </div>
                 <div class="tab-pane fade" id="aus-addm" role="tabpanel" aria-labelledby="aus-addm-tab">
-                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-aus-addm">
-                        <thead>
-                            <tr>
-                                <th>group</th>
-                                <th>host</th>
-                                <th>etc</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>group</td>
-                                <td>host</td>
-                                <td>etc</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <small>* Disabled ADDMS</small>
+                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=addm_vm_cluster.1.list|dictsort:'addm_group' %}
+                    <small>* Located at AUS TKU CLuster ADDMS</small>
                 </div>
                 <div class="tab-pane fade" id="pune-addm" role="tabpanel" aria-labelledby="pune-addm-tab">
-                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-pune-addm">
-                        <thead>
-                            <tr>
-                                <th>group</th>
-                                <th>host</th>
-                                <th>etc</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>group</td>
-                                <td>host</td>
-                                <td>etc</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <small>* Disabled ADDMS</small>
+                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=addm_vm_cluster.0.list|dictsort:'addm_group' %}
+                    <small>* Located at PUNE ADDMS</small>
                 </div>
-                <div class="tab-pane fade" id="disabled-addm" role="tabpanel" aria-labelledby="disabled-addm-tab">
-                    <table class="table table-hover table-sm table-striped table-shrink addm-items-table" id="table-disabled-addm">
-                        <thead>
-                            <tr>
-                                <th>group</th>
-                                <th>host</th>
-                                <th>etc</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>group</td>
-                                <td>host</td>
-                                <td>etc</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <small>* Disabled ADDMS</small>
-                </div>
+                {# {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.0.list %} tkn_branch group #}
             </div>
-
         </div>
     </div>
-
     {% comment %}Nav sticky bottom{% endcomment %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
         <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
