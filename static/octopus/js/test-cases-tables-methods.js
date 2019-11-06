@@ -745,6 +745,15 @@ function getToastDraftMultipleCases() {
     return toastBase
 }
 
+function getToastDraft(btnDataSet) {
+    let toastDraft = document.getElementById('toastDraft'); // Get draft toast from page foot
+    let toastBase = toastDraft.children[0].cloneNode(true);  // Toast object
+    toastBase.setAttribute('data-delay', 30000); // 30 sec. Wait to task mod
+    // Assign new toast copy a value ID based on item ID (case id or case unique attrs)
+    toastBase.id = `${btnDataSet.operation_key}-${btnDataSet.addm_group}`;
+    return toastBase
+}
+
 /**
  * Fill new toast copy body with attributes from case to show which test has been started and what pattern.
  * @param toastBase
@@ -821,11 +830,21 @@ function fillToastBodyWithTestAttributes(toastBase, caseFullData) {
     return toastBase
 }
 
+function fillToastBodyWithTaskDetails(btnDataSet, toastBase) {
+    let div = document.createElement('div');  // toast-body
+    div.setAttribute('id', 'taskOperationType');
+    if (btnDataSet.operation_key && btnDataSet.addm_group) {
+        div.innerText = `Adding: ${JSON.stringify(btnDataSet)}`;
+        toastBase.childNodes[3].appendChild(div);
+    }
+    return toastBase
+}
+
 /**
  * Already published toast now modifying with task id from POST request
  * @param caseFullData
  */
-function toastModifyPre(caseFullData) {
+function toastModifyCaseDataPre(caseFullData) {
     // console.log("toastModifyPre: caseFullData");
     // console.table(caseFullData);
     let toastPublished = document.getElementById(caseFullData.toastId);
@@ -833,6 +852,17 @@ function toastModifyPre(caseFullData) {
     task_id.setAttribute('id', 'task_id');
     task_id.innerText = `task: ${caseFullData.task_id}`;
     toastPublished.childNodes[3].appendChild(task_id);
+}
+
+function toastModifyOtherTasksPre(toastReady, task_id, message) {
+    let div = document.createElement('div');  // toast-body
+    div.setAttribute('id', 'task_id');
+    if (task_id) {
+        div.innerText = `task: ${task_id}`;
+    } else {
+        div.innerText = `${message}`;
+    }
+    toastReady.childNodes[3].appendChild(div);
 }
 
 /**
@@ -859,6 +889,21 @@ function toastModifySuccess(caseFullData) {
     toastPublished.childNodes[3].appendChild(task_status);
 }
 
+function toastModifyOtherTaskSuccess(toastReady, task) {
+    let task_status = document.createElement('div');  // toast-body
+    task_status.setAttribute('id', 'task_status');
+    if (task.state) {
+        task_status.innerText = `task: ${task.status} - ${task.state}`;
+    } else {
+        if (task.status === 'FAILURE') {
+            task_status.innerText = `task: ${task.status} - please check!`;
+        } else {
+            task_status.innerText = `task: ${task.status} - wait in queue...`;
+        }
+    }
+    toastReady.childNodes[3].appendChild(task_status);
+}
+
 /**
  * Get published toast by it's ID. We're assigning id by case_id, so it should be same.
  * @param toastReady
@@ -874,6 +919,11 @@ function appendToastToStack(toastReady) {
  */
 function showToast(toastID) {
     $('#actionsModal').modal('hide');
+    $('#' + toastID).toast('show')
+}
+
+function showToastTask(modalID, toastID) {
+    $('#' + modalID).modal('hide');
     $('#' + toastID).toast('show')
 }
 
@@ -894,6 +944,12 @@ function showToastHideModal(toastID) {
 function waitResult(caseFullData, testButtonDataset) {
     setTimeout(function () {
         new RESTGetTask(caseFullData, testButtonDataset);
+    }, 5000);
+}
+
+function waitResultTask(toastReady, taskID) {
+    setTimeout(function () {
+        new RESTGetTaskGeneric(toastReady, taskID);
     }, 5000);
 }
 
@@ -921,7 +977,7 @@ function RESTPostTask(caseFullData, testButtonDataset) {
                 // console.log("testButtonDataset after POST: ");
                 // console.table(testButtonDataset);
                 // On success - run get task status:
-                toastModifyPre(caseFullData, testButtonDataset);
+                toastModifyCaseDataPre(caseFullData, testButtonDataset);
                 waitResult(caseFullData, testButtonDataset);
             } else {
                 console.log("Task POST send, but haven't been added. No task_id in result!")
@@ -970,6 +1026,28 @@ function RESTGetTask(caseFullData, testButtonDataset) {
         },
     });
     return testButtonDataset;
+}
+
+function RESTGetTaskGeneric(toastReady, taskID) {
+    $.ajax({
+        "type": "GET",
+        "dataType": "json",
+        contentType: "application/json; charset=utf-8",
+        "url": "/octo_tku_patterns/user_test_add/",
+        data: {task_id: taskID},
+        "beforeSend": function (xhr, settings) {$.ajaxSettings.beforeSend(xhr, settings)},
+        "success": function (result) {
+            let task = result[0];
+            if (task && task.status) {
+                toastModifyOtherTaskSuccess(toastReady, task);
+            } else {
+                console.log("Task GET failed, no task found or no status");
+            }
+        },
+        "error": function () {
+            console.log("GET TASK ERROR, something goes wrong...");
+        },
+    });
 }
 
 /**

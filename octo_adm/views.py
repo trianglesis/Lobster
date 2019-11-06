@@ -852,7 +852,7 @@ class AdminOperationsREST(APIView):
             addm_group=self.addm_group,
             fake_run=self.fake_run,
         )
-        return {self.mode: clean_out}
+        return {'task_id': clean_out}
 
     def addm_cmd_run(self):
         """ Run ADDM registered command. Commands should be added to Octopus system. Options: (cmd_k=(), addm_group=() Example: operation_key=addm_cmd_run;addm_group=alpha;cmd_k=show_v
@@ -865,7 +865,7 @@ class AdminOperationsREST(APIView):
             addm_group=self.addm_group,
             fake_run=self.fake_run,
         )
-        return {self.cmd_k: cmd_out}
+        return {'task_id': cmd_out}
 
     def addm_sync_shares(self):
         """ Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync. Options: addm_group=() Example: operation_key=addm_sync_shares;addm_group=alpha
@@ -876,7 +876,7 @@ class AdminOperationsREST(APIView):
                                              t_args=[t_tag], t_kwargs=dict(addm_items=list(addm_set)),
                                              t_queue=f'{self.addm_group}@tentacle.dq2',
                                              t_routing_key=f'TExecTest.t_addm_rsync_threads.{self.addm_group}')
-        return {'task': t_addm_rsync_threads.id}
+        return {'task_id': t_addm_rsync_threads.id}
 
 
 class ListAllAddmVmREST(viewsets.ModelViewSet):

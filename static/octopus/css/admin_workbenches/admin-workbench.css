@@ -9,6 +9,13 @@
     padding-right: .2em;
     padding-left: .2em;
 }
+.toast {
+    max-width: 550px!important;
+    width: 550px!important;
+}
+.taskOperationType {
+    word-wrap: break-word;
+}
 
 .fl-left {
     float: left;
@@ -118,4 +125,21 @@
 td > a {
     padding: .2em !important;
     font-size: .7em;
+}
+
+
+/* Modal Addm Cleanup */
+.addm-clean {
+    padding-bottom: 1em;
+    display: flex;
+}
+
+.addm-cmd-run{
+    padding-bottom: 1em;
+    display: flex;
+}
+
+.addm-rsync {
+    padding-bottom: 1em;
+    display: flex;
 }
