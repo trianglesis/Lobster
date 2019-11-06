@@ -1,7 +1,7 @@
 """
 OCTO ADM - pages and widgets and functions.
 """
-import datetime
+from datetime import datetime
 import logging
 
 from django.db.models import Max
@@ -9,12 +9,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse
 from django.template import loader
+from django.conf import settings
 
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.dates import ArchiveIndexView, DayArchiveView, \
     TodayArchiveView, DayMixin, MonthMixin, YearMixin
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from octo.helpers.tasks_helpers import TMail
 from octo.helpers.tasks_run import Runner
@@ -23,10 +28,12 @@ from octo_adm.user_operations import UserCheck
 
 from octo_tku_upload.table_oper import UploadTKUTableOper
 from octo_tku_upload.tasks import TUploadExec, TUploadRoutine
+from octo_tku_upload.api.serializers import TkuPackagesNewSerializer, UploadTestsNewSerializer
 from octo_tku_upload.models import *
 
 
 log = logging.getLogger("octo.octologger")
+curr_hostname = getattr(settings, 'SITE_DOMAIN', None)
 
 
 class ViewTKU:
@@ -124,9 +131,9 @@ class UploadTKU:
                       t_kwargs=dict(user_name=user_name, user_email=user_email, tku_type=tku_type,
                                     addm_group=addm_group, mode=mode, tku_wget=tku_wget))
 
-        TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.datetime.now(),
-                       user_name=user_name, addm_group=addm_group, mode=mode,
-                       tku_type=tku_type, tku_wget=tku_wget, user_email=user_email)
+        TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.now(),
+                         user_name=user_name, addm_group=addm_group, mode=mode,
+                         tku_type=tku_type, tku_wget=tku_wget, user_email=user_email)
         return HttpResponse(page_widgets.render(widgets, request))
 
     @staticmethod
@@ -185,22 +192,22 @@ class UploadTKU:
         return HttpResponse(page_widgets.render(dict(SUBJECT=subject), request))
 
 
-def compose_selector(self):
+def compose_selector(request_data):
     selector = dict()
     selector.update(
         # Packages:
         # package_type already in
         # tku_type already in
-        addm_version=self.request.GET.get('addm_version', None),
-        zip_type=self.request.GET.get('zip_type', None),
-        tku_name=self.request.GET.get('tku_name', None),
+        addm_version=request_data.get('addm_version', None),
+        zip_type=request_data.get('zip_type', None),
+        tku_name=request_data.get('tku_name', None),
         # Tests:
-        test_mode=self.request.GET.get('test_mode', None),
-        tku_type=self.request.GET.get('tku_type', None),
-        mode_key=self.request.GET.get('mode_key', None),
-        addm_name=self.request.GET.get('addm_name', None),
-        package_type=self.request.GET.get('package_type', None),
-        upload_test_status=self.request.GET.get('upload_test_status', None),
+        test_mode=request_data.get('test_mode', None),
+        tku_type=request_data.get('tku_type', None),
+        mode_key=request_data.get('mode_key', None),
+        addm_name=request_data.get('addm_name', None),
+        package_type=request_data.get('package_type', None),
+        upload_test_status=request_data.get('upload_test_status', None),
     )
     return selector
 
@@ -223,7 +230,7 @@ def upload_case_query_selector(queryset, sel_opts):
         # log.debug("queryset sort: test_mode %s", sel_opts.get('test_mode'))
         queryset = queryset.filter(test_mode__exact=sel_opts.get('test_mode'))
     if sel_opts.get('tku_type'):
-        # log.debug("queryset sort: tku_type %s", sel_opts.get('tku_type'))
+        log.debug("queryset sort: tku_type %s", sel_opts.get('tku_type'))
         queryset = queryset.filter(tku_type__exact=sel_opts.get('tku_type'))
     if sel_opts.get('mode_key'):
         # log.debug("queryset sort: mode_key %s", sel_opts.get('mode_key'))
@@ -248,17 +255,17 @@ class TKUUpdateWorkbenchView(TemplateView):
     context_object_name = 'objects'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TKUUpdateWorkbenchView=> TKU Upload workbench")
+        # UserCheck().logator(self.request, 'info', "<=TKUUpdateWorkbenchView=> TKU Upload workbench")
         context = super(TKUUpdateWorkbenchView, self).get_context_data(**kwargs)
         context.update(
-            selector=compose_selector(self),
+            selector=compose_selector(self.request.GET),
             selector_str='',
             objects=self.get_queryset(),
         )
         return context
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=TKUUpdateWorkbenchView=> TKU Workbench queries")
+        # UserCheck().logator(self.request, 'info', "<=TKUUpdateWorkbenchView=> TKU Workbench queries")
 
         # Select packages for workbench:
         packages_qs = TkuPackagesNew.objects.all()
@@ -349,14 +356,14 @@ class TKUPackagesListView(ListView):
     allow_empty = True
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TKUPackagesListView=> test cases table context")
+        # UserCheck().logator(self.request, 'info', "<=TKUPackagesListView=> test cases table context")
         context = super(TKUPackagesListView, self).get_context_data(**kwargs)
-        context.update(selector=compose_selector(self), selector_str='')
+        context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=TKUPackagesListView=> test cases table queryset")
-        sel_opts = compose_selector(self)
+        # UserCheck().logator(self.request, 'info', "<=TKUPackagesListView=> test cases table queryset")
+        sel_opts = compose_selector(self.request.GET)
         queryset = TkuPackagesNew.objects.all()
         queryset = upload_case_query_selector(queryset, sel_opts)
         return queryset.order_by('-updated_at')
@@ -372,15 +379,14 @@ class UploadTestArchiveIndexView(ArchiveIndexView):
     template_name = 'digests/upload_tests_index.html'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info',
-                            "<=UploadTestArchiveIndexView=> upload test history index")
+        # UserCheck().logator(self.request, 'info', "<=UploadTestArchiveIndexView=> upload test history index")
         context = super(UploadTestArchiveIndexView, self).get_context_data(**kwargs)
-        context.update(selector=compose_selector(self), selector_str='')
+        context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
 
     def get_queryset(self):
         # UserCheck().logator(self.request, 'info', "<=UploadTestArchiveIndexView=> get_queryset")
-        sel_opts = compose_selector(self)
+        sel_opts = compose_selector(self.request.GET)
         queryset = UploadTestsNew.objects.all()
         queryset = upload_case_query_selector(queryset, sel_opts)
         # log.debug("UploadTestArchiveIndexView queryset explain \n%s", queryset.explain())
@@ -397,14 +403,14 @@ class UploadTestDayArchiveView(DayArchiveView):
     template_name = 'digests/upload_tests_daily.html'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=UploadTestDayArchiveView=> upload test history by day")
+        # UserCheck().logator(self.request, 'info', "<=UploadTestDayArchiveView=> upload test history by day")
         context = super(UploadTestDayArchiveView, self).get_context_data(**kwargs)
-        context.update(selector=compose_selector(self), selector_str='')
+        context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
 
     def get_queryset(self):
         # UserCheck().logator(self.request, 'info', "<=UploadTestDayArchiveView=> get_queryset")
-        sel_opts = compose_selector(self)
+        sel_opts = compose_selector(self.request.GET)
         self.queryset = UploadTestsNew.objects.all()
         queryset = upload_case_query_selector(self.queryset, sel_opts)
         # log.debug("UploadTestDayArchiveView queryset explain \n%s", queryset.explain())
@@ -422,16 +428,230 @@ class UploadTestTodayArchiveView(TodayArchiveView):
     template_name = 'digests/upload_tests_today.html'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info',
-                            "<=UploadTestTodayArchiveView=> upload test history today")
+        # UserCheck().logator(self.request, 'info', "<=UploadTestTodayArchiveView=> upload test history today")
         context = super(UploadTestTodayArchiveView, self).get_context_data(**kwargs)
-        context.update(selector=compose_selector(self), selector_str='')
+        context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
 
     def get_queryset(self):
         # UserCheck().logator(self.request, 'info', "<=UploadTestTodayArchiveView=> get_queryset")
-        sel_opts = compose_selector(self)
+        sel_opts = compose_selector(self.request.GET)
         queryset = UploadTestsNew.objects.all()
         queryset = upload_case_query_selector(queryset, sel_opts)
         # log.debug("UploadTestTodayArchiveView queryset explain \n%s", queryset.explain())
         return queryset.order_by('-addm_name')
+
+
+class TKUOperationsREST(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.operation_key = ''
+        self.start_time = datetime.now().strftime('%Y-%m-%d_%H-%M')
+        self.is_authenticated = ''
+        # metadata:
+        self.user_name = ''
+        self.user_email = ''
+        self.admin_users = ''
+        self.power_users = ''
+        self.task_id = ''
+        #  options:
+        self.addm_version = ''
+        self.zip_type = ''
+        self.tku_name = ''
+
+        self.test_mode = ''
+        self.tku_type = ''
+        self.mode_key = ''
+        self.tku_wget = ''
+        self.addm_name = ''
+        self.addm_group = ''
+        self.package_type = ''
+        self.upload_test_status = ''
+
+        self.fake_run = False
+        self.goto_ = 'http://'+curr_hostname+'/octo_tku_upload/tku_operations/?operation_key='
+
+    def task_operations(self):
+        """
+        Execute task operations or return task operation status.
+        If no args passed - return operations dict to show user all possible variants.
+
+        :return:
+        """
+        operations = dict(
+            tku_install_test=self.tku_install_test,
+            tku_sync_packages=self.tku_sync_packages,
+            tku_parse_packages=self.tku_parse_packages,
+            show_latest_tku_type=self.show_latest_tku_type,
+            select_latest_tku_type=self.select_latest_tku_type,
+            show_latest_upload_test_logs=self.show_latest_upload_test_logs,
+        )
+        if self.operation_key:
+            actions = operations.get(self.operation_key, 'No such operation key')
+        else:
+            actions = operations
+        return actions
+
+    def metadata_options_set(self):
+        if self.request.POST:
+            self.operation_key = self.request.POST.get('operation_key', None)
+            self.fake_run = self.request.POST.get('fake_run', True)  # TODO: Debug, remove default True
+            self.task_id = self.request.POST.get('task_id', 'ThisIsNotTheTaskJustSayingYouKnow?')
+
+            self.addm_version = self.request.POST.get('addm_version', None)
+            self.zip_type = self.request.POST.get('zip_type', None)
+            self.tku_name = self.request.POST.get('tku_name', None)
+            self.test_mode = self.request.POST.get('test_mode', None)
+            self.tku_type = self.request.POST.get('tku_type', None)
+            self.mode_key = self.request.POST.get('mode_key', None)
+            self.addm_name = self.request.POST.get('addm_name', None)
+            self.package_type = self.request.POST.get('package_type', None)
+            self.upload_test_status = self.request.POST.get('upload_test_status', None)
+
+        elif self.request.GET:
+            self.operation_key = self.request.GET.get('operation_key', None)
+            self.fake_run = self.request.GET.get('fake_run', True)  # TODO: Debug, remove default True
+            self.task_id = self.request.GET.get('task_id', '')
+
+            self.addm_version = self.request.GET.get('addm_version', None)
+            self.zip_type = self.request.GET.get('zip_type', None)
+            self.tku_name = self.request.GET.get('tku_name', None)
+            self.test_mode = self.request.GET.get('test_mode', None)
+            self.tku_type = self.request.GET.get('tku_type', None)
+            self.mode_key = self.request.GET.get('mode_key', None)
+            self.addm_name = self.request.GET.get('addm_name', None)
+            self.package_type = self.request.GET.get('package_type', None)
+            self.upload_test_status = self.request.GET.get('upload_test_status', None)
+
+        self.is_authenticated = self.request.user.is_authenticated
+        self.user_name = self.request.user.get_username()
+        self.user_email = self.request.user.email
+
+        self.admin_users = self.request.user.groups.filter(name='admin_users').exists()
+        self.power_users = self.request.user.groups.filter(name='power_users').exists()
+
+        user_status = f'{self.user_name} {self.user_email} admin_users={self.admin_users} power_users={self.power_users}'
+        log.info("<=TaskOperationsREST=> Request: %s", user_status)
+        request_options = f'operation_key:{self.operation_key} tku_type:{self.tku_type} task_id:{self.task_id}'
+        log.debug("<=TaskOperationsREST=> request_options: %s", request_options)
+
+    def get(self, request=None):
+        """
+        Show task and doc
+
+        :param request:
+        :return:
+        """
+        self.metadata_options_set()
+        if not self.operation_key:
+            new_all_possible_operations = dict()
+            all_possible_operations = self.task_operations()
+            # all_possible_operations = [item for item in all_possible_operations.items()]
+            for key, value in all_possible_operations.items():
+                new_all_possible_operations.update({key: {'doc': value.__doc__.replace('\n', '').replace(' '*4, ' '), 'goto': self.goto_+key}})
+            return Response(dict(new_all_possible_operations))
+        else:
+            operation = self.task_operations()
+            if callable(operation):
+                response = {self.operation_key: {'doc': operation.__doc__.replace('\n', '').replace(' '*4, ' '), 'goto': self.goto_+self.operation_key}}
+            else:
+                response = operation
+            return Response(response)
+
+    def post(self, request=None):
+        """
+        Run task.
+        Response with task id if possible, or with method return \ response?
+        :param request:
+        :return:
+        """
+        self.metadata_options_set()
+        if self.operation_key:
+            run = self.task_operations()
+            result = run()
+            return Response(result)
+        else:
+            return Response(dict(error='No operation_key were specified!'))
+
+    def tku_install_test(self):
+        """
+        Run test of TKU Upload with selected 'tku_packages' or 'test_mode'. If test_mode selected - will run
+        predefined internal logic, of 'tku_package' selected - will install TKU as usual knowledge update without
+        additional steps or preparations.
+        :return:
+        """
+        t_tag = f'tag=upload_routine;lock=True;type=routine;user_name={self.user_name};tku_type={self.tku_type}| ' \
+                f'on: "{self.addm_group}" by: {self.user_name}'
+        Runner.fire_t(TUploadRoutine.t_routine_tku_upload, fake_run=self.fake_run,
+                      t_args=[t_tag],
+                      t_kwargs=dict(user_name=self.user_name, user_email=self.user_email, tku_type=self.tku_type,
+                                    addm_group=self.addm_group, mode=self.mode_key, tku_wget=self.tku_wget))
+        task = TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.now(),
+                                user_name=self.user_name, addm_group=self.addm_group, mode=self.mode_key,
+                                tku_type=self.tku_type, tku_wget=self.tku_wget, user_email=self.user_email)
+        return Response({'task': task.id})
+
+    def tku_sync_packages(self):
+        """
+        Run internal routine to get latest tku packages from buildhub server via WGET. Parse downloaded content
+        and update packages table with new or re-built packages. Can sync only one TKU by tku_type:(tkn_ship_continuous, ga_candidate, tkn_main_continuous)
+        :return:
+        """
+        task = Runner.fire_t(TUploadExec.t_tku_sync, fake_run=self.fake_run, t_kwargs=dict(tku_type=self.tku_type), t_args=['tag=t_tku_sync;'])
+        return Response({'task': task.id})
+
+    def tku_parse_packages(self):
+        """
+        Parse local TKU packages directory and update local database with new packages if found.
+
+        :return:
+        """
+        t_tag = 'run_tku_parse'
+        options = dict(user_name=self.user_name, tku_type=self.tku_type)
+        Runner.fire_t(TUploadExec.t_parse_tku, fake_run=self.fake_run, t_args=[t_tag], t_kwargs=options)
+
+    def show_latest_tku_type(self):
+        """
+        Show latest tku packages for tku_type:(tkn_ship_continuous, tkn_main_continuous, ga_candidate, released_tkn)
+        and sort addm_version if arg was provided addm_version:(11.3)
+        Only provide package data and release details. Show ga_candidate if no tku_type provided.
+        Example:
+        (operation_key=show_latest_tku_type;tku_type=ga_candidate)
+        (operation_key=show_latest_tku_type;tku_type=released_tkn)
+        (operation_key=show_latest_tku_type;tku_type=tkn_ship_continuous)
+        (operation_key=show_latest_tku_type;tku_type=tkn_main_continuous)
+        :return: set with latest known TKU Package details
+        """
+        selector = compose_selector(self.request.POST)
+        queryset = TkuPackagesNew.objects.all()
+        queryset = upload_case_query_selector(queryset, selector)
+        queryset = queryset.latest('tku_type', 'updated_at')
+        serializer = TkuPackagesNewSerializer(queryset)
+        return serializer.data
+
+    def select_latest_tku_type(self):
+        """
+        Select latest tku packages for tku_type:(tkn_ship_continuous, tkn_main_continuous, ga_candidate, released_tkn)
+        and sort addm_version if arg was provided addm_version:(11.3)
+        Example:
+        (operation_key=select_latest_tku_type;tku_type=ga_candidate)
+        (operation_key=select_latest_tku_type;tku_type=released_tkn)
+        (operation_key=select_latest_tku_type;tku_type=tkn_ship_continuous)
+        (operation_key=select_latest_tku_type;tku_type=tkn_main_continuous)
+        :return: set with latest selected TKU Package and link to download? (TBA)
+        """
+        packages_qs = TkuPackagesNew.objects.all()
+        max_package = packages_qs.filter(tku_type__exact=self.tku_type).latest('tku_type', 'updated_at')
+        packages = packages_qs.filter(package_type__exact=max_package.package_type)
+        serializer = TkuPackagesNewSerializer(packages, many=True)
+        return serializer.data
+
+    def show_latest_upload_test_logs(self):
+        """
+        Show latest logs for selected tku 'package_type' if any.
+        :return: set of tests for selected tku package type
+        """
+        queryset = ''
