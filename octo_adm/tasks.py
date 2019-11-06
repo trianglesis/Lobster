@@ -149,6 +149,7 @@ class ADDMCases:
         :param kwargs:
         :return:
         """
+        import os
         from octo.tasks import TSupport
         from octo.helpers.tasks_oper import WorkerOperations
 
@@ -159,6 +160,10 @@ class ADDMCases:
         t_tag = f'tag=addm_groups_validate;type=routine;user_name={user_name}'
         if not isinstance(addm_group_l, list):
             addm_group_l = addm_group_l.split(',')
+
+        # Windows is continuously lost workers, ignore it!
+        if os.name == 'nt':
+            return addm_group_l
 
         if isinstance(addm_group_l, list):
             ping_list = WorkerOperations().service_workers_list[:]
@@ -214,8 +219,14 @@ class ADDMCases:
 
         Mails.short(subject=subject, body=subject, send_to=[user_mail])
 
+        _addm_groups = []
+        addm_set = ADDMOperations.select_addm_set(addm_group=addm_group)
+        for addm_ in addm_set.values('addm_group').distinct():
+            _addm_groups.append(addm_.get('addm_group'))
+
         tasks_ids = dict()
-        addm_group_l = self.addm_groups_validate(addm_group=addm_group)  # type: list
+        addm_group_l = self.addm_groups_validate(addm_group=_addm_groups)  # type: list
+        log.debug("addm_group_l: %s", addm_group_l)
         for addm_group in addm_group_l:
             t_tag = f'tag=addm_cleanup;user_name={user_name};mode={mode};addm={addm_group}'
             task = Runner.fire_t(TaskADDMService.t_addm_clean, fake_run=fake_run,
@@ -254,8 +265,13 @@ class ADDMCases:
         if not user_name == 'cron':
             Mails.short(subject=subject, body=subject, send_to=[user_mail])
 
+        _addm_groups = []
+        addm_set = ADDMOperations.select_addm_set(addm_group=addm_group)
+        for addm_ in addm_set.values('addm_group').distinct():
+            _addm_groups.append(addm_.get('addm_group'))
+
         tasks_ids = dict()
-        addm_group_l = self.addm_groups_validate(addm_group=addm_group)  # type: list
+        addm_group_l = self.addm_groups_validate(addm_group=_addm_groups)  # type: list
         for addm_group in addm_group_l:
             t_tag = f'tag=t_addm_cmd_k;type=task;user_name={user_name};' \
                     f'addm_group={addm_group};cmd_k={cmd_k}| on: "{addm_group}" by: {user_name}'
@@ -268,6 +284,36 @@ class ADDMCases:
                                  )
             log.debug("<=addm_cmd=> Added task: %s", task)
             tasks_ids.update({addm_group: task.id})
+        return tasks_ids
+
+    def addm_sync_shares(self, **kwargs):
+        from octo_tku_patterns.tasks import TPatternParse
+        subject = kwargs.get('subject', 'Running: addm_sync_shares')  # type: str
+        user_name = kwargs.get('user_name', 'cron')  # type: str
+        user_mail = kwargs.get('user_mail', [])  # type: str
+        addm_group = kwargs.get('addm_group', [])  # type: list
+        fake_run = kwargs.get('fake_run', False)
+        log.debug("<=addm_cmd=> kwargs %s", kwargs)
+
+        if not user_name == 'cron':
+            Mails.short(subject=subject, body=subject, send_to=[user_mail])
+
+        _addm_groups = []
+        addm_prep_groups = ADDMOperations.select_addm_set(addm_group=addm_group)
+        for addm_ in addm_prep_groups.values('addm_group').distinct():
+            _addm_groups.append(addm_.get('addm_group'))
+
+        tasks_ids = dict()
+        addm_group_l = self.addm_groups_validate(addm_group=_addm_groups)  # type: list
+        for addm_group in addm_group_l:
+            addm_set = ADDMOperations.select_addm_set(addm_group=addm_group)
+            t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_name={user_name};fake={fake_run};'
+            # TODO: Check on live env
+            t_addm_rsync_threads = Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=fake_run,
+                                                 t_args=[t_tag], t_kwargs=dict(addm_items=addm_set),
+                                                 t_queue=f'{addm_group}@tentacle.dq2',
+                                                 t_routing_key=f'TExecTest.t_addm_rsync_threads.{addm_group}')
+            tasks_ids.update({addm_group: t_addm_rsync_threads.id})
         return tasks_ids
 
 

@@ -246,7 +246,7 @@ class ADDMOperations:
         selected_addms_l = []
         if not addm_set:
             if addm_group:
-                if addm_group == 'use_all':
+                if addm_group == 'all':
                     addm_set = AddmDev.objects.filter(disables__isnull=True).values()
                 elif isinstance(addm_group, list):
                     for addm_group_item in addm_group:

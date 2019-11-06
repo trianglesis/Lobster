@@ -49,14 +49,9 @@ $(document).ready(function () {
         let modal = document.getElementById("addmCleanupButtons");
         let addmButtons = modal.getElementsByClassName('addm-btn');
         for (let btn of addmButtons) {
-            btn.addEventListener("click", function () {
-                btn.dataset.operation_key = 'addm_cleanup';
-                let toastBase = getToastDraft(btn.dataset);
-                let toastReady = fillToastBodyWithTaskDetails(btn.dataset, toastBase);
-                appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
-                AdminOperationsADDM(btn.dataset, toastReady);
-                showToastTask('addmCleanupButtons', toastReady.id); // Make toast visible
-            });
+            btn.dataset.operation_key = 'addm_cleanup';
+            btn.removeEventListener('click', buttonActivation);
+            btn.addEventListener("click", buttonActivation);
         }
     });
 });
@@ -72,11 +67,8 @@ $(document).ready(function () {
         for (let btn of addmButtons) {
             btn.addEventListener("click", function () {
                 btn.dataset.operation_key = 'addm_cmd_run';
-                let toastBase = getToastDraft(btn.dataset);
-                let toastReady = fillToastBodyWithTaskDetails(btn.dataset, toastBase);
-                appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
-                AdminOperationsADDM(btn.dataset, toastReady);
-                showToastTask('addmCMDRun', toastReady.id); // Make toast visible
+                btn.removeEventListener('click', buttonActivation);
+                btn.addEventListener("click", buttonActivation);
             });
         }
     });
@@ -93,11 +85,8 @@ $(document).ready(function () {
         for (let btn of addmButtons) {
             btn.addEventListener("click", function () {
                 btn.dataset.operation_key = 'addm_sync_shares';
-                let toastBase = getToastDraft(btn.dataset);
-                let toastReady = fillToastBodyWithTaskDetails(btn.dataset, toastBase);
-                appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
-                AdminOperationsADDM(btn.dataset, toastReady);
-                showToastTask('addmSYNCButtons', toastReady.id); // Make toast visible
+                btn.removeEventListener('click', buttonActivation);
+                btn.addEventListener("click", buttonActivation);
             });
         }
     });
@@ -139,4 +128,13 @@ function AdminOperationsADDM(btnDataset, toastReady) {
         },
     });
     return btnDataset;
+}
+
+function buttonActivation(event) {
+    let btn = event.currentTarget;
+    let toastBase = getToastDraft(btn.dataset);
+    let toastReady = fillToastBodyWithTaskDetails(btn.dataset, toastBase);
+    appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+    AdminOperationsADDM(btn.dataset, toastReady);
+    showToastTask('addmCleanupButtons', toastReady.id); // Make toast visible
 }

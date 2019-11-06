@@ -841,9 +841,12 @@ class AdminOperationsREST(APIView):
         return {'task': t_p4_sync_force.id}
 
     def addm_cleanup(self):
-        """ Run selected ADDM cleanup therapy. mode=[weekly, daily, tests], addm_group=() Example: operation_key=addm_cleanup;addm_group=alpha;mode=weekly
+        """ Run selected ADDM cleanup therapy.
+        mode=[weekly, daily, tests], addm_group=()
+        Example: operation_key=addm_cleanup;addm_group=alpha;mode=weekly
         :return: mode: task.id
         """
+        # TODO: Retest with addm_group=all
         clean_out = ADDMCases().clean_addm(
             mode=self.mode,
             subject=self.subject,
@@ -855,8 +858,11 @@ class AdminOperationsREST(APIView):
         return {'task_id': clean_out}
 
     def addm_cmd_run(self):
-        """ Run ADDM registered command. Commands should be added to Octopus system. Options: (cmd_k=(), addm_group=() Example: operation_key=addm_cmd_run;addm_group=alpha;cmd_k=show_v
+        """ Run ADDM registered command. Commands should be added to Octopus system.
+        Options: (cmd_k=(), addm_group=()
+        Example: operation_key=addm_cmd_run;addm_group=alpha;cmd_k=show_v
         :return cmd_k: task.id """
+        # TODO: Retest with addm_group=all
         cmd_out = ADDMCases().addm_cmd(
             cmd_k=self.cmd_k,
             subject=self.subject,
@@ -868,15 +874,19 @@ class AdminOperationsREST(APIView):
         return {'task_id': cmd_out}
 
     def addm_sync_shares(self):
-        """ Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync. Options: addm_group=() Example: operation_key=addm_sync_shares;addm_group=alpha
+        """ Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync.
+        Options: addm_group=()
+        Example: operation_key=addm_sync_shares;addm_group=alpha
         :return task: task.id"""
-        addm_set = ADDMOperations.select_addm_set(addm_group=self.addm_group)
-        t_tag = f'tag=t_addm_rsync_threads;addm_group={self.addm_group};user_name={self.user_name};fake={self.fake_run};'
-        t_addm_rsync_threads = Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=self.fake_run,
-                                             t_args=[t_tag], t_kwargs=dict(addm_items=list(addm_set)),
-                                             t_queue=f'{self.addm_group}@tentacle.dq2',
-                                             t_routing_key=f'TExecTest.t_addm_rsync_threads.{self.addm_group}')
-        return {'task_id': t_addm_rsync_threads.id}
+        # TODO: Retest with addm_group=all
+        sync_out = ADDMCases().addm_sync_shares(
+            subject=self.subject,
+            user_name=self.user_name,
+            user_mail=self.user_email,
+            addm_group=self.addm_group,
+            fake_run=self.fake_run,
+        )
+        return {'task_id': sync_out}
 
 
 class ListAllAddmVmREST(viewsets.ModelViewSet):
