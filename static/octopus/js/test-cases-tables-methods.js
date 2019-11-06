@@ -854,11 +854,11 @@ function toastModifyCaseDataPre(caseFullData) {
     toastPublished.childNodes[3].appendChild(task_id);
 }
 
-function toastModifyOtherTasksPre(toastReady, task_id, message) {
+function toastModifyOtherTasksPre(toastReady, tasksSet, message) {
     let div = document.createElement('div');  // toast-body
     div.setAttribute('id', 'task_id');
-    if (task_id) {
-        div.innerText = `task: ${task_id}`;
+    if (tasksSet) {
+        div.innerText = `task: ${JSON.stringify(tasksSet)}`;
     } else {
         div.innerText = `${message}`;
     }
@@ -897,8 +897,10 @@ function toastModifyOtherTaskSuccess(toastReady, task) {
     } else {
         if (task.status === 'FAILURE') {
             task_status.innerText = `task: ${task.status} - please check!`;
-        } else {
+        } else if (task.status) {
             task_status.innerText = `task: ${task.status} - wait in queue...`;
+        } else if (task) {
+            task_status.innerText = `out: ${JSON.stringify(task)}`;
         }
     }
     toastReady.childNodes[3].appendChild(task_status);
@@ -949,8 +951,11 @@ function waitResult(caseFullData, testButtonDataset) {
 
 function waitResultTask(toastReady, taskID) {
     setTimeout(function () {
-        new RESTGetTaskGeneric(toastReady, taskID);
-    }, 5000);
+        for (const [key, task_id] of Object.entries(taskID)) {
+            console.log(`Getting tasks statuses: ${key} ${task_id}`);
+            new RESTGetTaskGeneric(toastReady, task_id);
+        }
+    }, 15000);
 }
 
 /**
@@ -1030,21 +1035,24 @@ function RESTGetTask(caseFullData, testButtonDataset) {
 
 function RESTGetTaskGeneric(toastReady, taskID) {
     $.ajax({
-        "type": "GET",
-        "dataType": "json",
-        contentType: "application/json; charset=utf-8",
-        "url": "/octo_tku_patterns/user_test_add/",
-        data: {task_id: taskID},
+        type: "POST",
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/octo_admin/task_operation/",
+        data: {operation_key: 'get_task_status_by_id', task_id: taskID},
         "beforeSend": function (xhr, settings) {$.ajaxSettings.beforeSend(xhr, settings)},
         "success": function (result) {
-            let task = result[0];
+            console.log(result);
+            let task = result.response;
             if (task && task.status) {
                 toastModifyOtherTaskSuccess(toastReady, task);
             } else {
+                toastModifyOtherTaskSuccess(toastReady, task);
                 console.log("Task GET failed, no task found or no status");
             }
         },
         "error": function () {
+            toastModifyOtherTaskSuccess(toastReady, "GET TASK ERROR, something goes wrong...");
             console.log("GET TASK ERROR, something goes wrong...");
         },
     });

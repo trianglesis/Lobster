@@ -20,6 +20,9 @@ from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+from celery.result import AsyncResult
+from octo.api.serializers import CeleryTaskmetaSerializer
+
 from run_core.models import AddmDev
 from run_core.addm_operations import ADDMOperations
 from run_core.p4_operations import PerforceOperations
@@ -114,6 +117,7 @@ class TaskOperationsREST(APIView):
         :return:
         """
         operations = dict(
+            get_task_status_by_id=self.get_task_status_by_id,
             tasks_get_registered=self.tasks_get_registered,
             tasks_get_active=self.tasks_get_active,
             tasks_get_reserved=self.tasks_get_reserved,
@@ -142,7 +146,7 @@ class TaskOperationsREST(APIView):
         if self.request.POST:
             self.operation_key = self.request.POST.get('operation_key', None)
             self.fake_run = self.request.POST.get('fake_run', True)  # TODO: Debug, remove default True
-            self.task_id = self.request.POST.get('task_id', 'None')
+            self.task_id = self.request.POST.get('task_id', 'ThisIsNotTheTaskJustSayingYouKnow?')
             workers = self.request.POST.get('workers', '')
             if workers:
                 workers = workers.split(',')
@@ -202,6 +206,30 @@ class TaskOperationsREST(APIView):
             return Response(result)
         else:
             return Response(dict(error='No operation_key were specified!'))
+
+    def get_task_status_by_id(self):
+        """
+        Get current status of task by it's id. If tack is running, show AsyncResult, if task is in the DB
+        show DB result.
+        Example: task_id=637b710f-4501-4414-b0fb-d4bc3d64bcc8;operation_key=get_task_status_by_id
+        :return: task status
+        """
+        tasks = CeleryTaskmeta.objects.filter(task_id__exact=self.task_id)
+        if tasks:
+            log.debug("tasks from DB: %s", tasks)
+            serializer = CeleryTaskmetaSerializer(tasks, many=True)
+            return {'response': serializer.data}
+        else:
+            res = AsyncResult(self.task_id)
+            task_res = dict(
+                task_id=self.task_id,
+                status=res.status,
+                result=res.result,
+                state=res.state,
+                args=res.args,
+            )
+            log.debug("Task Async result: %s", task_res)
+            return {'response': task_res}
 
     def tasks_get_registered(self):
         """
