@@ -102,6 +102,10 @@
                                 </div>
                             </li>
                             <li class="list-group-item">
+                                <span class="card-text fl-left">ADDM table CopyPaste:</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-info" id="addm_sync_shares" data-toggle="modal" data-target="#addmTableStale">Stale Table</a>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -172,11 +176,11 @@
                     <small>* Table of all ADDMs</small>
                 </div>
                 <div class="tab-pane fade" id="addm-tkn_main" role="tabpanel" aria-labelledby="addm-tkn_main-tab">
-                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.1.list %}
+                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.0.list|dictsort:'addm_group' %}
                     <small>* Table of ADDMS locked on branch 'tkn_main' </small>
                 </div>
                 <div class="tab-pane fade" id="addm_tkn_ship" role="tabpanel" aria-labelledby="addm_tkn_ship-tab">
-                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.2.list %}
+                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.1.list|dictsort:'addm_group' %}
                     <small>* Table of ADDMS locked on branch 'tkn_ship' </small>
                 </div>
                 <div class="tab-pane fade" id="aus-addm" role="tabpanel" aria-labelledby="aus-addm-tab">
@@ -190,7 +194,6 @@
                 {# {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.0.list %} tkn_branch group #}
             </div>
         </div>
-
     </div>
     {% comment %}Nav sticky bottom{% endcomment %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
@@ -210,6 +213,7 @@
     </nav>
     {# INCLUDES #}
     {% include 'digests/includes/toast_popup.html' %}
+    {% include 'addm_workbench/includes/modal_addm_table_stale.html' with addm_set=objects|dictsort:'addm_group' %}
     {% include 'addm_workbench/includes/modal_addm_ui_buttons.html' %}
     {% include 'addm_workbench/includes/modal_addm_cleanup.html' %}
     {% include 'addm_workbench/includes/modal_addm_cmd_run.html' %}

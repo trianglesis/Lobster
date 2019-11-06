@@ -2,6 +2,7 @@
     <thead class="table-light">
         <tr>
             <td>#</td>
+            <td></td>
             <td>Group</td>
             <td>Branch</td>
             <td>Name</td>
@@ -18,6 +19,7 @@
             <tr class="addm-group-color-{{ addm.addm_group }}">
                 <td id="num">{{ forloop.counter }}</td>
                 {# user view #}
+                <td id="disables">{% if addm.disables %}off{% endif %}</td>
                 <td id="addm_group">{{ addm.addm_group }}</td>
                 <td id="branch_lock"><span class="{{ addm.branch_lock }}">{{ addm.branch_lock }}</span></td>
                 <td id="addm_name">{{ addm.addm_name }}</td>
@@ -36,7 +38,6 @@
                 <td id="addm_v_code" style="display: none">{{ addm.addm_v_code }}</td>
                 <td id="addm_branch" style="display: none">{{ addm.addm_branch }}</td>
                 <td id="addm_owner" style="display: none">{{ addm.addm_owner }}</td>
-                <td id="disables" style="display: none">{{ addm.disables }}</td>
                 {# Security hidden #}
 {#                <td id="tideway_user">{{ addm.tideway_user }}</td>#}
 {#                <td id="tideway_pdw">{{ addm.tideway_pdw }}</td>#}

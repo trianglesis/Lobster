@@ -1,0 +1,62 @@
+<div class="modal fade bd-example-modal" id="addmTableStale" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ADDM Table for copy paste</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover table-sm table-shrink">
+                    <thead class="table-light">
+                    <tr>
+                        <td>#</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for addm in addm_set %}
+                        <tr class="addm-group-color-{{ addm.addm_group }}">
+                            <td>|{{ forloop.counter }}</td>
+                            {# user view #}
+                            <td>|{{ addm.addm_group }}</td>
+                            <td>|{{ addm.addm_host }}.bmc.com</td>
+                            <td>|{{ addm.addm_ip }}</td>
+                            <td>|{{ addm.addm_full_version }}</td>
+                            <td>|{{ addm.addm_name }}</td>
+                            <td>|{{ addm.vm_cluster }}</td>
+                            <td>|{{ addm.branch_lock }}</td>
+                            <td>|{% if addm.disables %}disabled{% endif %}</td>
+                            {# Service: #}
+                            <td style="display: none">{{ addm.addm_v_int }}</td>
+                            <td style="display: none">{{ addm.id }}</td>
+                            <td style="display: none">{{ addm.vm_id }}</td>
+                            <td style="display: none">{{ addm.description }}</td>
+                            <td style="display: none">{{ addm.addm_v_code }}</td>
+                            <td style="display: none">{{ addm.addm_branch }}</td>
+                            <td style="display: none">{{ addm.addm_owner }}</td>
+                            {# Security hidden #}
+                            {#                <td id="tideway_user">{{ addm.tideway_user }}</td>#}
+                            {#                <td id="tideway_pdw">{{ addm.tideway_pdw }}</td>#}
+                            {#                <td id="root_user">{{ addm.root_user }}</td>#}
+                            {#                <td id="root_pwd">{{ addm.root_pwd }}</td>#}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
