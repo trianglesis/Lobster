@@ -9,6 +9,9 @@ from time import time
 from time import sleep
 from datetime import datetime
 
+from queue import Queue
+from threading import Thread
+
 from django.db.models import Max
 from run_core.addm_operations import ADDMOperations
 from run_core.models import AddmDev
@@ -68,6 +71,148 @@ class UploadTestExec:
         self.warnings_re = re.compile(r"Pattern\smodule\s(?P<module>\S+)\s+Warnings:\s+(?P<error>.+)")
         self.errors_re = re.compile(r"Pattern\smodule\s(?P<module>\S+)\s+Errors:\s+(?P<error>.+)")
 
+    def upload_preparations_threads(self, **kwargs):
+        addm_group = kwargs.get('addm_group', None)
+        addm_items = kwargs.get('addm_items', None)
+        mode = kwargs.get('mode', None)
+
+        thread_list = []
+        test_outputs = []
+        ts = time()
+        test_q = Queue()
+        start_time = datetime.now()
+        log.debug("upload_preparations_threads Starting... %s", start_time)
+
+        if not addm_items:
+            addm_items = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
+
+        for addm_item in addm_items:
+            msg = f"ADDM Prepare for upload test for: {addm_item['addm_v_int']}:{addm_item['addm_name']} mode: {mode}"
+            log.debug(msg)
+        #     # Open SSH connection:
+        #     ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
+        #     if ssh and ssh.get_transport().is_active():
+        #         m = f"<=upload_preparations_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
+        #         log.info(m)
+        #         kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time,  mode=mode, test_q=test_q)
+        #         th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
+        #         try:
+        #             test_thread = Thread(target=self.upload_preparations, name=th_name, kwargs=kwargs)
+        #             test_thread.start()
+        #             thread_list.append(test_thread)
+        #         except Exception as e:
+        #             msg = f"Thread test fail with error: {e}"
+        #             log.error(msg)
+        #             # raise Exception(msg)
+        #             return msg
+        #     # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
+        #     else:
+        #         msg = f"<=upload_preparations_threads=> SSH Connection could not be established thread skipping for ADDM: " \
+        #               f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
+        #         log.error(msg)
+        #         test_outputs.append(msg)
+        #         # Send mail with this error? BUT not for the multiple tasks!!!
+        #
+        # for test_th in thread_list:
+        #     test_th.join()
+        #     test_outputs.append(test_q.get())
+        return f'upload_unzip_threads Took {time() - ts}'
+
+    def upload_unzip_threads(self, **kwargs):
+        addm_group = kwargs.get('addm_group', None)
+        addm_items = kwargs.get('addm_items', None)
+        packages = kwargs.get('packages', None)
+
+        thread_list = []
+        test_outputs = []
+        ts = time()
+        test_q = Queue()
+        start_time = datetime.now()
+        log.debug("upload_unzip_threads Starting... %s", start_time)
+
+        if not addm_items:
+            addm_items = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
+
+        for addm_item in addm_items:
+            # Get ADDM related package zip list from packages:
+            package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
+            tku_zip_list = [package.zip_file_path for package in package_]
+            msg = f"Unzipping for: {addm_item['addm_v_int']}:{addm_item['addm_name']} zip list: {len(tku_zip_list)} - {tku_zip_list}"
+            log.debug(msg)
+        #     # Open SSH connection:
+        #     ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
+        #     if ssh and ssh.get_transport().is_active():
+        #         m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
+        #         log.info(m)
+        #         kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time,  tku_zip_list=tku_zip_list, test_q=test_q)
+        #         th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
+        #         try:
+        #             test_thread = Thread(target=self.addm_op.upload_unzip, name=th_name, kwargs=kwargs)
+        #             test_thread.start()
+        #             thread_list.append(test_thread)
+        #         except Exception as e:
+        #             msg = f"Thread test fail with error: {e}"
+        #             log.error(msg)
+        #             # raise Exception(msg)
+        #             return msg
+        #     # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
+        #     else:
+        #         msg = f"<=upload_unzip_threads=> SSH Connection could not be established thread skipping for ADDM: " \
+        #               f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
+        #         log.error(msg)
+        #         test_outputs.append(msg)
+        #         # Send mail with this error? BUT not for the multiple tasks!!!
+        #
+        # for test_th in thread_list:
+        #     test_th.join()
+        #     test_outputs.append(test_q.get())
+        return f'upload_unzip_threads Took {time() - ts}'
+
+    def install_tku_threads(self, **kwargs):
+        addm_group = kwargs.get('addm_group', None)
+        addm_items = kwargs.get('addm_items', None)
+
+        thread_list = []
+        test_outputs = []
+        ts = time()
+        test_q = Queue()
+        start_time = datetime.now()
+        log.debug("install_tku_threads Starting... %s", start_time)
+
+        if not addm_items:
+            addm_items = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
+        for addm_item in addm_items:
+            msg = f"ADDM Install TKU for: {addm_item['addm_v_int']}:{addm_item['addm_name']}"
+            log.debug(msg)
+        #     # Open SSH connection:
+        #     ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
+        #     if ssh and ssh.get_transport().is_active():
+        #         m = f"<=install_tku_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
+        #         log.info(m)
+        #         kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time, test_q=test_q)
+        #         th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
+        #         try:
+        #             test_thread = Thread(target=self.install_activate, name=th_name, kwargs=kwargs)
+        #             test_thread.start()
+        #             thread_list.append(test_thread)
+        #         except Exception as e:
+        #             msg = f"Thread test fail with error: {e}"
+        #             log.error(msg)
+        #             # raise Exception(msg)
+        #             return msg
+        #     # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
+        #     else:
+        #         msg = f"<=install_tku_threads=> SSH Connection could not be established thread skipping for ADDM: " \
+        #               f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
+        #         log.error(msg)
+        #         test_outputs.append(msg)
+        #         # Send mail with this error? BUT not for the multiple tasks!!!
+        #
+        # for test_th in thread_list:
+        #     test_th.join()
+        #     test_outputs.append(test_q.get())
+        return f'upload_unzip_threads Took {time() - ts}'
+
     # noinspection PyCompatibility
     def upload_run_threads(self, **kwargs):
         """
@@ -76,9 +221,6 @@ class UploadTestExec:
         test args to test_exec(). Execute each test.
 
         """
-        from queue import Queue
-        from threading import Thread
-
         thread_list = []
         test_outputs = []
         ts = time()
@@ -332,7 +474,6 @@ class UploadTestExec:
             log.info("<=install_activate=> PASSED: SSH Is active")
 
         # TODO: Add installation proc for tideway-devices-4.3.2019.09.1-777877.ga.noarch.drpm
-
         if float(addm_item['addm_v_int']) > 11.1:
             # noinspection SpellCheckingInspection
             cmd = ('/usr/tideway/bin/tw_pattern_management -p system  '

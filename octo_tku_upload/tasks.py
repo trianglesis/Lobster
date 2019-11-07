@@ -12,6 +12,8 @@ from octo_tku_upload.test_executor import UploadTestExec
 
 from run_core.local_operations import LocalDownloads
 from run_core.models import AddmDev
+from run_core.addm_operations import ADDMOperations
+
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 
 from octo.helpers.tasks_oper import TasksOperations
@@ -70,6 +72,18 @@ class TUploadExec:
     def t_parse_tku(t_tag, **kwargs):
         log.debug("Tag: %s, kwargs %s", t_tag, kwargs)
         return LocalDownloads().only_parse_tku(**kwargs)
+
+    @staticmethod
+    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @exception
+    def t_upload_addm_prep(t_tag, **kwargs):
+        log.debug("t_upload_addm_prep - add here addm preparation routine in threads or vCenter actions?")
+
+    @staticmethod
+    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @exception
+    def t_upload_unzip(t_tag, **kwargs):
+        UploadTestExec.upload_unzip_threads(**kwargs)
 
 
 class UploadCases:
@@ -163,6 +177,8 @@ class UploadTaskPrepare:
         log.info("<=UploadTaskPrepare=> Prepare tests for user: %s - %s", self.user_name, self.user_email)
 
         self.tku_wget = False
+        self.packages = dict()
+        self.addm_set = dict()
 
         # Current status args:
         self.tku_downloaded = False
@@ -196,7 +212,6 @@ class UploadTaskPrepare:
     def run_tku_upload(self):
         self.task_tag_generate()
         log.warning("<=UploadTaskPrepare=> TASK PSEUDO RUNNING in TaskPrepare.run_tku_upload")
-
         # 0. Init test mail?
         # self.mail_status(mail_opts=dict(mode='init', view_obj=self.view_obj))
 
@@ -206,6 +221,12 @@ class UploadTaskPrepare:
         # 2. Select TKU for test run.
         packages = self.select_packages_modes()
         self.debug_unpack_packages_qs(packages)
+
+        # 3. Select ADDMs for test:
+        self.select_addm()
+
+        # 4. For each package&addm version do SOMETHING:
+        self.tku_packages_processing_steps()
 
     def mail_status(self, mail_opts):
         mode = mail_opts.get('mode')
@@ -278,13 +299,11 @@ class UploadTaskPrepare:
             log.info("<=UploadTaskPrepare=> Will install TKU in UPDATE mode.")
 
             released_tkn = TkuPackages.objects.filter(tku_type__exact='released_tkn').aggregate(Max('package_type'))
-            package = TkuPackages.objects.filter(tku_type__exact='released_tkn',
-                                                 package_type__exact=released_tkn['package_type__max'])
+            package = TkuPackages.objects.filter(tku_type__exact='released_tkn', package_type__exact=released_tkn['package_type__max'])
             packages.update(step_1=package)
 
             ga_candidate = TkuPackages.objects.filter(tku_type__exact='ga_candidate').aggregate(Max('package_type'))
-            package = TkuPackages.objects.filter(tku_type__exact='ga_candidate',
-                                                 package_type__exact=ga_candidate['package_type__max'])
+            package = TkuPackages.objects.filter(tku_type__exact='ga_candidate', package_type__exact=ga_candidate['package_type__max'])
             packages.update(step_2=package)
 
         elif self.test_mode == 'step' or self.test_mode == 'fresh':
@@ -293,6 +312,10 @@ class UploadTaskPrepare:
             for package_type in self.selector['package_types']:
                 step += 1
                 package = TkuPackages.objects.filter(package_type__exact=package_type)
+                # If query return anything other (probably old GA) with released_tkn - prefer last option.
+                package_dis = package.filter(tku_type__exact='released_tkn')
+                if package_dis:
+                    package = package_dis
                 packages.update({f'step_{step}': package})
 
         else:
@@ -301,18 +324,86 @@ class UploadTaskPrepare:
             for package_type in self.selector['package_types']:
                 step += 1
                 package = TkuPackages.objects.filter(package_type__exact=package_type)
+                package_dis = package.filter(tku_type__exact='released_tkn')
+                if package_dis:
+                    package = package_dis
                 packages.update({f'step_{step}': package})
-        log.info("<=UploadTaskPrepare=> Selected packages for test in mode: %s %s", self.test_mode, packages)
+        # log.info("<=UploadTaskPrepare=> Selected packages for test in mode: %s %s", self.test_mode, packages)
+        self.packages = packages
         return packages
 
     def select_addm(self):
         if not self.addm_group:
-            self.addm_group = 'foxtrot'  # Should be a dedicated group for only upload test routines.
+            self.addm_group = 'alpha'  # Should be a dedicated group for only upload test routines.
         addm_set = AddmDev.objects.filter(addm_group__exact=self.addm_group, disables__isnull=True).values()
+        self.addm_set = addm_set
         return addm_set
+
+    def tku_packages_processing_steps(self):
+        for step_k, packages_v in self.packages.items():
+            log.info("<=UploadTaskPrepare=> Processing packages step by step: %s", step_k)
+            # Task for upload test prep if needed (remove older TKU, prod content, etc)
+            self.addm_prepare(step_k=step_k)
+            # Task for unzip packages on selected each ADDM from ADDM Group
+            self.package_unzip(packages_from_step=packages_v)
+            # Task for install TKU from unzipped packages for each ADDM from selected ADDM group
+            self.tku_install()
+
+    def addm_prepare(self, step_k):
+        if self.test_mode == 'fresh' and step_k == 'step_1':
+            log.info("<=UploadTaskPrepare=> Fresh install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
+            log.debug("<=UploadTaskPrepare=> We may run vCenter revert snapshot here, later.")
+            # TODO: Taskify:
+            UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='fresh')
+
+        elif self.test_mode == 'update' and step_k == 'step_1':
+            log.info("<=UploadTaskPrepare=> Update install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
+            log.debug("<=UploadTaskPrepare=> We may run vCenter revert snapshot here, later.")
+            # TODO: Taskify:
+            UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='update')
+
+        elif self.test_mode == 'step' and step_k == 'step_1':
+            log.info("<=UploadTaskPrepare=> Step install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
+            log.debug("<=UploadTaskPrepare=> We may run vCenter revert snapshot here, later.")
+            # TODO: Taskify:
+            UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='step')
+
+        else:
+            log.debug("Other modes do not require preparations. Only fresh and update at 1st step require!")
+
+    def package_unzip(self, packages_from_step):
+        """
+        Make task with threading for each ADDM in selected group.
+        Task run addm unzip routine selecting zips for each addm version and saving files in /usr/tideway/TEMP.
+        It will remove all content before!
+        :param packages_from_step:
+        :return:
+        """
+        log.info("<=UploadTaskPrepare=> Unzip packages for selected ADDMs from group %s", self.addm_group)
+        # TODO: use task!
+        UploadTestExec().upload_unzip_threads(addm_items=self.addm_set, packages=packages_from_step)
+
+        # t_tag = f"TKU_Unzip_task;addm_group={self.addm_group}"
+        # task_r_key = f"{self.addm_group}.TUploadExec.t_upload_unzip"
+        # Runner.fire_t(TUploadExec.t_upload_unzip, fake_run=self.fake_run, to_sleep=20, debug_me=True,
+        #               t_queue=f"{self.addm_group}@tentacle.dq2", t_args=[t_tag],
+        #               t_kwargs=dict(addm_items=self.addm_set, packages=packages_from_step),
+        #               t_routing_key=task_r_key)
+
+    def tku_install(self):
+        log.info("<=UploadTaskPrepare=> Run TKU install for unzipped packages %s", self.addm_group)
+        UploadTestExec().install_tku_threads(addm_items=self.addm_set)
+
+        # t_tag = f"TKU_Unzip_task;addm_group={self.addm_group}"
+        # task_r_key = f"{self.addm_group}.TUploadExec.t_upload_unzip"
+        # Runner.fire_t(TUploadExec.t_upload_unzip, fake_run=self.fake_run, to_sleep=20, debug_me=True,
+        #               t_queue=f"{self.addm_group}@tentacle.dq2", t_args=[t_tag],
+        #               t_kwargs=dict(addm_items=self.addm_set, packages='packages_from_step'),
+        #               t_routing_key=task_r_key)
+
 
     def debug_unpack_packages_qs(self, packages):
         for step_k, step_package in packages.items():
             for pack in step_package:
-                msg = f'{step_k} package: {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} '
+                msg = f'{step_k} package: {pack.tku_type} -> {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} '
                 log.info(msg)
