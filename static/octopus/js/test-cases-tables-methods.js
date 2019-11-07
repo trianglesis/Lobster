@@ -584,6 +584,22 @@ function fillButtonTestRun(modal, casesData) {
 }
 
 /**
+ * Simple function to activate button with Admin Operation call, show toast and run task or method.
+ * @param event
+ */
+function buttonActivation(event) {
+    let btn = event.currentTarget;
+    let toastBase = getToastDraft(btn.dataset);
+    let toastReady = fillToastBodyWithTaskDetails(btn.dataset, toastBase);
+    appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+    RESTAdminOperationsPOST(btn.dataset, toastReady);
+    showToastTask(toastReady.id); // Make toast visible
+    if (btn.modalId) {
+        hideModal(btn.modalId); // Hide modal
+    }
+}
+
+/**
  * Toast actions and methods.
  * Required when user push modal buttons. Each active (not browse) button have a data-attributes inserted:
  * Listen to action 'click' grab attributes from it and proceed toast generation.
@@ -750,7 +766,11 @@ function getToastDraft(btnDataSet) {
     let toastBase = toastDraft.children[0].cloneNode(true);  // Toast object
     toastBase.setAttribute('data-delay', 30000); // 30 sec. Wait to task mod
     // Assign new toast copy a value ID based on item ID (case id or case unique attrs)
-    toastBase.id = `${btnDataSet.operation_key}-${btnDataSet.addm_group}`;
+    if (btnDataSet.addm_group) {
+        toastBase.id = `${btnDataSet.operation_key}-${btnDataSet.addm_group}`;
+    } else {
+        toastBase.id = `${btnDataSet.operation_key}`;
+    }
     return toastBase
 }
 
@@ -833,7 +853,8 @@ function fillToastBodyWithTestAttributes(toastBase, caseFullData) {
 function fillToastBodyWithTaskDetails(btnDataSet, toastBase) {
     let div = document.createElement('div');  // toast-body
     div.setAttribute('id', 'taskOperationType');
-    if (btnDataSet.operation_key && btnDataSet.addm_group) {
+    // Simply show JSON of button data
+    if (btnDataSet.operation_key) {
         div.innerText = `Adding: ${JSON.stringify(btnDataSet)}`;
         toastBase.childNodes[3].appendChild(div);
     }
@@ -924,9 +945,12 @@ function showToast(toastID) {
     $('#' + toastID).toast('show')
 }
 
-function showToastTask(modalID, toastID) {
+function showToastTask(toastID) {
+    $('#' + toastID).toast('show');
+}
+
+function hideModal(modalID) {
     $('#' + modalID).modal('hide');
-    $('#' + toastID).toast('show')
 }
 
 function showToastHideModal(toastID) {
@@ -951,9 +975,13 @@ function waitResult(caseFullData, testButtonDataset) {
 
 function waitResultTask(toastReady, taskID) {
     setTimeout(function () {
-        for (const [key, task_id] of Object.entries(taskID)) {
-            console.log(`Getting tasks statuses: ${key} ${task_id}`);
-            new RESTGetTaskGeneric(toastReady, task_id);
+        if (typeof taskID === 'object') {
+            for (const [key, task_id] of Object.entries(taskID)) {
+                console.log(`Getting tasks statuses: ${key} ${task_id}`);
+                new RESTGetTaskGeneric(toastReady, task_id);
+            }
+        } else if (typeof taskID === 'string') {
+            new RESTGetTaskGeneric(toastReady, taskID);
         }
     }, 15000);
 }
@@ -1131,4 +1159,42 @@ function RESTGetCeleryWorkersQueues(workerList, tasksBody, createWorkerRow) {
         },
     });
     return [];
+}
+
+/**
+ * Post admin task for addm operations.
+ * Show toast with selected task, addm name ot group and operation key and args
+ * Later get task id, wait, show toast task response.
+ * @param btnDataset
+ * @param toastReady
+ * @returns {*}
+ */
+function RESTAdminOperationsPOST(btnDataset, toastReady) {
+    console.log(btnDataset);
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/octo_admin/admin_operations/",
+        data: btnDataset,
+        "beforeSend": function (xhr, settings) {$.ajaxSettings.beforeSend(xhr, settings)},
+        "success": function (result) {
+            console.log(`POST result: ${result}`);
+            if (result) {
+                console.table(result);
+                toastModifyOtherTasksPre(toastReady, result.task_id);
+                waitResultTask(toastReady, result.task_id);
+            } else {
+                console.log("Task POST send, but haven't been added. No task_id in result!");
+                toastModifyOtherTasksPre(toastReady, undefined,
+                    "Task POST send, but haven't been added. No task_id in result!");
+            }
+        },
+        "error": function () {
+            console.log("POST TASK ERROR, something goes wrong...");
+            toastModifyOtherTasksPre(toastReady, undefined,
+                "POST TASK ERROR, something goes wrong...");
+        },
+    });
+    return btnDataset;
 }

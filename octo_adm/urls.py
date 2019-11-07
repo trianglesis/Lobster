@@ -22,10 +22,10 @@ urlpatterns = [
 
 
     # Admin
-    url(r'^old_addm_workbench/', AdminFunctions.addm_workbench_widgets, name='old_addm_workbench'),
+    url(r'^old_addm_workbench/', AdminFunctions._old_addm_workbench_widgets, name='old_addm_workbench'),
 
     # ADDM service
-    url(r'^addm_buttons_page/', AdminFunctions.addm_buttons_page, name='addm_buttons_page'),
+    url(r'^addm_buttons_page/', AdminFunctions._old_addm_buttons_page, name='addm_buttons_page'),
     # Celery shed
     url(r'^celery_beat_crontabschedules/', AdminFunctions.celery_beat_crontabschedules, name='celery_beat_crontabschedules'),
     url(r'^reset_cron_last_run/', AdminFunctions.reset_cron_last_run, name='reset_cron_last_run'),

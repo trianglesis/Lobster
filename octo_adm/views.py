@@ -842,7 +842,7 @@ class AdminOperationsREST(APIView):
         :return {'task': t_pattern_weight_index.id}"""
         t_tag = f'tag=t_pattern_weight_index;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_pattern_weight_index = Runner.fire_t(TPatternParse.t_pattern_weight_index, fake_run=self.fake_run, t_args=[t_tag])
-        return {'task': t_pattern_weight_index.id}
+        return {'task_id': t_pattern_weight_index.id}
 
     def p4_info(self):
         """ Show current p4 depot status and details for account and workspace. Example: operation_key=p4_info
@@ -850,7 +850,7 @@ class AdminOperationsREST(APIView):
         """
         t_tag = f'tag=t_p4_info;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_info = Runner.fire_t(TPatternParse.t_p4_info, fake_run=self.fake_run, t_args=[t_tag])
-        return {'task': t_p4_info.id}
+        return {'task_id': t_p4_info.id}
 
     def p4_sync(self):
         """ Runs "sync" and parse local FS. Get max change (if not - #312830 from 2015), "filelog" the diff, "sync -f"
@@ -859,14 +859,14 @@ class AdminOperationsREST(APIView):
         # Only sync and parse depot, no ADDM Sync here!
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         p4_sync_task = Runner.fire_t(TPatternParse.t_p4_sync, fake_run=self.fake_run, t_args=[t_tag])
-        return {'task': p4_sync_task.id}
+        return {'task_id': p4_sync_task.id}
 
     def p4_sync_force(self):
         """ Execute routine for perforce "sync -f" will forced sync all files from p4 depot to Octopus FS. Example: operation_key=p4_sync_force
         :return{'task': t_p4_sync_force.id}"""
         t_tag = f'tag=t_p4_sync_force;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_sync_force = Runner.fire_t(TPatternParse.t_p4_sync_force, fake_run=self.fake_run, t_args=[t_tag])
-        return {'task': t_p4_sync_force.id}
+        return {'task_id': t_p4_sync_force.id}
 
     def addm_cleanup(self):
         """ Run selected ADDM cleanup therapy.
@@ -952,7 +952,7 @@ class AdminFunctions:
     @staticmethod
     @login_required(login_url='/unauthorized_banner/')
     @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def addm_workbench_widgets(request):
+    def _old_addm_workbench_widgets(request):
         """
         Draw useful widgets for workbench page.
 
@@ -966,7 +966,7 @@ class AdminFunctions:
 
     @staticmethod
     @login_required(login_url='/unauthorized_banner/')
-    def addm_buttons_page(request):
+    def _old_addm_buttons_page(request):
         page_widgets = loader.get_template('addm_buttons.html')
         user_name, user_string = UserCheck().user_string_f(request)
 

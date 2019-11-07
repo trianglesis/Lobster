@@ -22,6 +22,12 @@
             <div id="toastStack" style="position: absolute;z-index: 2"></div>
         </div>
     </div>
+    <div aria-live="polite" aria-atomic="true" style="position: relative">
+        <!-- Position it -->
+        <div style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 2"></div>
+        </div>
+    </div>
     {% comment %}NAV BAR{% endcomment %}
     <nav class="navbar navbar-light test-report-navbar">
     {% spaceless %}
@@ -109,9 +115,9 @@
                                     <li class="list-group-item">
                                         <span class="card-text fl-left">Perforce operations:</span>
                                         <div class="btn-group fl-right">
-                                            <a class="btn btn-sm btn-outline-info" id="p4_info" href="#">P4 Info</a>
-                                            <a class="btn btn-sm btn-outline-info" id="p4_sync" href="#">P4 Sync and parse</a>
-                                            <a class="btn btn-sm btn-outline-info" id="p4_sync_force" href="#">P4 Sync force</a>
+                                            <a class="btn btn-sm btn-outline-info" id="p4_info" data-operation_key="p4_info" href="#">P4 Info</a>
+                                            <a class="btn btn-sm btn-outline-info" id="p4_sync" data-operation_key="p4_sync" href="#">P4 Sync and parse</a>
+                                            <a class="btn btn-sm btn-outline-info" id="p4_sync_force" data-operation_key="p4_sync_force" href="#">P4 Sync force</a>
                                         </div>
                                     </li>
                                 </ul>
@@ -124,7 +130,7 @@
                                     <li class="list-group-item">
                                         <span class="card-text fl-left">Local operations:</span>
                                         <div class="btn-group fl-right">
-                                            <a class="btn btn-sm btn-outline-info" id="parse_full" href="#">Parse local test data</a>
+                                            <a class="btn btn-sm btn-outline-info" id="parse_full" data-operation_key="parse_full" href="#">Parse local test data</a>
                                         </div>
                                     </li>
                                 </ul>
@@ -137,7 +143,7 @@
                                     <li class="list-group-item">
                                         <span class="card-text fl-left">Statistical:</span>
                                         <div class="btn-group fl-right">
-                                            <a class="btn btn-sm btn-outline-info" id="cases_weight" href="#">Calculate cases weight</a>
+                                            <a class="btn btn-sm btn-outline-info" id="cases_weight" data-operation_key="cases_weight" href="#">Calculate cases weight</a>
                                         </div>
                                     </li>
                                 </ul>
@@ -230,7 +236,6 @@
             </div>
         </div>
     </div>
-
     {% comment %}Nav sticky bottom{% endcomment %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
         <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
@@ -244,9 +249,11 @@
         </ul>
         <span class="navbar-text">Octopus automation</span>
     </nav>
+    {# INCLUDES #}
+    {% include 'digests/includes/toast_popup.html' %}
     {# JS #}
-{#    <script src="{% static 'octopus/js/celery-inspect/celery-methods.js' %}"></script>#}
-{#    <script src="{% static 'octopus/js/celery-inspect/celery-inspect.js' %}"></script>#}
+    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
+    <script src="{% static 'octopus/js/admin-workbench/admin-btn.js' %}"></script>
     {% comment %}DEBUG{% endcomment %}
     <div class="debug-context">
         {% if request.GET.debug %}

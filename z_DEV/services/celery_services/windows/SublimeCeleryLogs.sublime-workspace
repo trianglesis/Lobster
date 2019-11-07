@@ -11,7 +11,7 @@
 			"file": "logs/w_routines_err.log",
 			"settings":
 			{
-				"buffer_size": 3218,
+				"buffer_size": 3156,
 				"line_ending": "Windows"
 			}
 		},
@@ -35,7 +35,7 @@
 			"file": "logs/alpha_err.log",
 			"settings":
 			{
-				"buffer_size": 3213,
+				"buffer_size": 9818,
 				"line_ending": "Windows"
 			}
 		},
@@ -43,7 +43,7 @@
 			"file": "logs/w_parsing_err.log",
 			"settings":
 			{
-				"buffer_size": 3081,
+				"buffer_size": 3155,
 				"line_ending": "Windows"
 			}
 		},
@@ -51,7 +51,7 @@
 			"file": "logs/charlie_err.log",
 			"settings":
 			{
-				"buffer_size": 3215,
+				"buffer_size": 4086,
 				"line_ending": "Windows"
 			}
 		}
@@ -228,15 +228,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3218,
+						"buffer_size": 3156,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1926,
+								1926
 							]
 						],
 						"settings":
@@ -246,7 +246,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 294.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -320,15 +320,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3213,
+						"buffer_size": 9818,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								2380,
+								2380
 							]
 						],
 						"settings":
@@ -356,15 +356,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3081,
+						"buffer_size": 3155,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								773,
+								773
 							]
 						],
 						"settings":
@@ -374,7 +374,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 561.0,
+						"translation.y": 26.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
@@ -392,15 +392,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3215,
+						"buffer_size": 4086,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								845,
+								845
 							]
 						],
 						"settings":
@@ -459,7 +459,7 @@
 		"cols":
 		[
 			0.0,
-			0.653125,
+			0.536458333333,
 			1.0
 		],
 		"rows":
@@ -508,7 +508,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 2,
+	"selected_group": 0,
 	"settings":
 	{
 	},
