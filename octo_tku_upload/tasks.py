@@ -1,20 +1,25 @@
 from __future__ import absolute_import, unicode_literals
+import os
 import datetime
 import logging
 # noinspection PyUnresolvedReferences
 from typing import Dict, List, Any
-
+from django.db.models import Max
 # Celery
 from octo.octo_celery import app
 
 from octo_tku_upload.test_executor import UploadTestExec
+
 from run_core.local_operations import LocalDownloads
+from run_core.models import AddmDev
+from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_helpers import TMail
 from octo.helpers.tasks_helpers import exception
 
 from octo.helpers.tasks_run import Runner
+from octo.tasks import TSupport
 
 log = logging.getLogger("octo.octologger")
 
@@ -118,3 +123,196 @@ class UploadCases:
             msg = "<=RoutineCases=> t_tku_sync failed to finish. Kwargs: {}".find(**kwargs)
             log.error(msg)
             raise Exception(msg)
+
+
+class UploadTaskPrepare:
+
+    def __init__(self, obj):
+        # Initial view requests:
+        self.view_obj = obj
+        if isinstance(self.view_obj, dict):
+            self.options = self.view_obj.get('context')
+            self.request = self.view_obj.get('request')
+            # Assign generated context for further usage:
+            self.selector = self.options.get('selector', {})
+            self.user_name = self.view_obj.get('user_name')
+            self.user_email = self.view_obj.get('user_email')
+            self.test_mode = self.selector.get('test_mode', None)
+            self.tku_type = self.selector.get('tku_type', None)
+            self.addm_group = self.selector.get('addm_group', None)
+        else:
+            self.request = obj.request
+            self.options = obj.request
+            self.user_name = self.request.get('user_name', 'octopus_super')
+            self.user_email = self.request.get('user_email', None)
+            self.selector = self.request.get('selector', {})
+            self.test_mode = self.selector.get('test_mode', None)
+            self.tku_type = self.selector.get('tku_type', None)
+            self.addm_group = self.selector.get('addm_group', None)
+
+        # Define fake run:
+        self.fake_run = False
+        self.fake_fun()
+
+        # Internal statuses:
+        self.silent = False
+        self.silent_run()
+
+        # Get user and mail:
+        self.start_time = datetime.datetime.now()
+        log.info("<=UploadTaskPrepare=> Prepare tests for user: %s - %s", self.user_name, self.user_email)
+
+        self.tku_wget = False
+
+        # Current status args:
+        self.tku_downloaded = False
+        # NOTE: It can change during process current class!!!!`
+        self.t_tag = ''
+
+    def fake_fun(self):
+        """
+        For debug purposes, just run all tasks as fake_task with showing all inputs and outputs: args, kwargs.
+        :return:
+        """
+
+        if os.name == "nt":  # Always fake run on local test env:
+            self.fake_run = True
+            log.debug("<=TaskPrepare=> Fake run self.options: %s", self.options)
+            log.debug("<=TaskPrepare=> Fake run self.request: %s", self.request)
+
+        elif self.options.get('fake_run'):
+            self.fake_run = True
+        log.debug("<=TaskPrepare=> Fake run = %s", self.fake_run)
+
+    def silent_run(self):
+        """
+        Indicates when do not send any mails.
+        :return:
+        """
+        if self.options.get('silent'):
+            self.silent = True
+        log.debug("<=TaskPrepare=> Silent run = %s", self.silent)
+
+    def run_tku_upload(self):
+        self.task_tag_generate()
+        log.warning("<=UploadTaskPrepare=> TASK PSEUDO RUNNING in TaskPrepare.run_tku_upload")
+
+        # 0. Init test mail?
+        # self.mail_status(mail_opts=dict(mode='init', view_obj=self.view_obj))
+
+        # 1. Refresh local TKU Packages:
+        self.wget_run()
+
+        # 2. Select TKU for test run.
+        packages = self.select_packages_modes()
+        self.debug_unpack_packages_qs(packages)
+
+    def mail_status(self, mail_opts):
+        mode = mail_opts.get('mode')
+
+        if not self.silent:
+            log.info("<=TaskPrepare=> Mail sending, mode: %s", mode)
+            if mail_opts.get('addm_set') and mail_opts.get('test_item'):
+                log.debug("<=TaskPrepare=> MAIL when test item and addm set is TRUE")
+
+                addm = mail_opts.get('addm_set').first()
+                test_item = mail_opts.get('test_item')
+
+                mail_r_key = f'{addm["addm_group"]}.TSupport.t_user_mail.{mode}'
+                t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
+                        f'test_py_path={test_item["test_py_path"]}'
+
+                Runner.fire_t(TSupport.t_user_test, fake_run=self.fake_run, t_args=[t_tag],
+                              t_kwargs=dict(mail_opts=mail_opts),
+                              t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
+
+            elif mode == 'init':
+                log.debug("<=TaskPrepare=> MAIL when INIT")
+                TMail().user_test(mail_opts)
+            else:
+                log.debug("<=TaskPrepare=> MAIL when ELSE")
+                TMail().user_test(mail_opts)
+        else:
+            log.info("<=TaskPrepare=> Mail silent mode. Do not send massages. Current stage: %s", mode)
+
+    def task_tag_generate(self):
+        """Just make a task tag for this routine"""
+        self.t_tag = f'tag=upload_routine;lock=True;type=routine;user_name={self.user_name};tku_type={self.tku_type}' \
+                     f' | on: "{self.addm_group}" by: {self.user_name}'
+
+    def wget_run(self):
+        if self.tku_wget:
+            log.info("Run WGET: ")
+            task = Runner.fire_t(TUploadExec.t_tku_sync, fake_run=self.fake_run,
+                                 t_kwargs=dict(tku_type=self.tku_type),
+                                 t_args=['tag=t_tku_sync;'])
+            if TasksOperations().task_wait_success(task, 't_tku_sync_option'):
+                self.tku_downloaded = True
+            # Wait for task to finish?
+            # OR, assign this task to the worker of ADDM selected group and then when it finish - upload test will run next?
+        else:
+            self.tku_downloaded = True
+
+    def select_packages_modes(self):
+        """
+        If mode selected - choose tku packages based on mode:
+        update:
+            - select latest TKN released for step_1 install
+            - select latest GA TNK for step_2 install
+        step or fresh: can have one or multiple packages
+            - select packages passed one by one, if multiple
+        else
+            - select one provided type TKN package of latest
+
+        :return:
+        """
+        log.info("Selector: %s", self.selector)
+
+        if self.tku_type:
+            assert isinstance(self.tku_type, str)
+        if self.selector['package_types']:
+            assert isinstance(self.selector['package_types'], list)
+
+        packages = dict()
+        if self.test_mode == 'update':
+            log.info("<=UploadTaskPrepare=> Will install TKU in UPDATE mode.")
+
+            released_tkn = TkuPackages.objects.filter(tku_type__exact='released_tkn').aggregate(Max('package_type'))
+            package = TkuPackages.objects.filter(tku_type__exact='released_tkn',
+                                                 package_type__exact=released_tkn['package_type__max'])
+            packages.update(step_1=package)
+
+            ga_candidate = TkuPackages.objects.filter(tku_type__exact='ga_candidate').aggregate(Max('package_type'))
+            package = TkuPackages.objects.filter(tku_type__exact='ga_candidate',
+                                                 package_type__exact=ga_candidate['package_type__max'])
+            packages.update(step_2=package)
+
+        elif self.test_mode == 'step' or self.test_mode == 'fresh':
+            log.info("<=UploadTaskPrepare=> Will install TKU in %s one by one mode.", self.test_mode)
+            step = 0
+            for package_type in self.selector['package_types']:
+                step += 1
+                package = TkuPackages.objects.filter(package_type__exact=package_type)
+                packages.update({f'step_{step}': package})
+
+        else:
+            log.info("<=UploadTaskPrepare=> Will install TKU in Custom mode.")
+            step = 0
+            for package_type in self.selector['package_types']:
+                step += 1
+                package = TkuPackages.objects.filter(package_type__exact=package_type)
+                packages.update({f'step_{step}': package})
+        log.info("<=UploadTaskPrepare=> Selected packages for test in mode: %s %s", self.test_mode, packages)
+        return packages
+
+    def select_addm(self):
+        if not self.addm_group:
+            self.addm_group = 'foxtrot'  # Should be a dedicated group for only upload test routines.
+        addm_set = AddmDev.objects.filter(addm_group__exact=self.addm_group, disables__isnull=True).values()
+        return addm_set
+
+    def debug_unpack_packages_qs(self, packages):
+        for step_k, step_package in packages.items():
+            for pack in step_package:
+                msg = f'{step_k} package: {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} '
+                log.info(msg)

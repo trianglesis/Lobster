@@ -487,7 +487,6 @@ class TKUOperationsREST(APIView):
             tku_parse_packages=self.tku_parse_packages,
             show_latest_tku_type=self.show_latest_tku_type,
             select_latest_tku_type=self.select_latest_tku_type,
-            show_latest_upload_test_logs=self.show_latest_upload_test_logs,
         )
         if self.operation_key:
             actions = operations.get(self.operation_key, 'No such operation key')
@@ -648,10 +647,3 @@ class TKUOperationsREST(APIView):
         packages = packages_qs.filter(package_type__exact=max_package.package_type)
         serializer = TkuPackagesNewSerializer(packages, many=True)
         return serializer.data
-
-    def show_latest_upload_test_logs(self):
-        """
-        Show latest logs for selected tku 'package_type' if any.
-        :return: set of tests for selected tku package type
-        """
-        queryset = ''
