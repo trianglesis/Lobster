@@ -76,14 +76,20 @@ class TUploadExec:
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
-    def t_upload_addm_prep(t_tag, **kwargs):
-        log.debug("t_upload_addm_prep - add here addm preparation routine in threads or vCenter actions?")
+    def t_upload_prep(t_tag, **kwargs):
+        return UploadTestExec().upload_preparations_threads(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
     def t_upload_unzip(t_tag, **kwargs):
-        UploadTestExec.upload_unzip_threads(**kwargs)
+        return UploadTestExec.upload_unzip_threads(**kwargs)
+
+    @staticmethod
+    @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2+1000)
+    @exception
+    def t_tku_install(t_tag, **kwargs):
+        return UploadTestExec.install_tku_threads(**kwargs)
 
 
 class UploadCases:
@@ -350,23 +356,42 @@ class UploadTaskPrepare:
             self.tku_install()
 
     def addm_prepare(self, step_k):
+        """
+        Upload test initial step, prepare ADDM before install TKU.
+        It could be - removing old TKU, product content, restart services.
+        TBA: Add vCenter operations for: power on, snapshot revert.
+        :param step_k:
+        :return:
+        """
         if self.test_mode == 'fresh' and step_k == 'step_1':
             log.info("<=UploadTaskPrepare=> Fresh install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
-            log.debug("<=UploadTaskPrepare=> We may run vCenter revert snapshot here, later.")
-            # TODO: Taskify:
-            UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='fresh')
+            # UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='fresh')
+            Runner.fire_t(TUploadExec.t_upload_prep,
+                          fake_run=False, to_sleep=60, to_debug=True,
+                          t_queue=f'{self.addm_group}@tentacle.dq2',
+                          t_args=[f"TKU_Upload_routines;task=addm_prepare;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
+                          t_kwargs=dict(addm_items=self.addm_set, mode='fresh'),
+                          t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
 
         elif self.test_mode == 'update' and step_k == 'step_1':
             log.info("<=UploadTaskPrepare=> Update install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
-            log.debug("<=UploadTaskPrepare=> We may run vCenter revert snapshot here, later.")
-            # TODO: Taskify:
-            UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='update')
+            # UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='update')
+            Runner.fire_t(TUploadExec.t_upload_prep,
+                          fake_run=False, to_sleep=60, to_debug=True,
+                          t_queue=f'{self.addm_group}@tentacle.dq2',
+                          t_args=[f"TKU_Upload_routines;task=addm_prepare;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
+                          t_kwargs=dict(addm_items=self.addm_set, mode='update'),
+                          t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
 
         elif self.test_mode == 'step' and step_k == 'step_1':
             log.info("<=UploadTaskPrepare=> Step install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
-            log.debug("<=UploadTaskPrepare=> We may run vCenter revert snapshot here, later.")
-            # TODO: Taskify:
-            UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='step')
+            # UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='step')
+            Runner.fire_t(TUploadExec.t_upload_prep,
+                          fake_run=False, to_sleep=60, to_debug=True,
+                          t_queue=f'{self.addm_group}@tentacle.dq2',
+                          t_args=[f"TKU_Upload_routines;task=addm_prepare;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
+                          t_kwargs=dict(addm_items=self.addm_set, mode='step'),
+                          t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
 
         else:
             log.debug("Other modes do not require preparations. Only fresh and update at 1st step require!")
@@ -379,30 +404,30 @@ class UploadTaskPrepare:
         :param packages_from_step:
         :return:
         """
-        log.info("<=UploadTaskPrepare=> Unzip packages for selected ADDMs from group %s", self.addm_group)
-        # TODO: use task!
-        UploadTestExec().upload_unzip_threads(addm_items=self.addm_set, packages=packages_from_step)
-
-        # t_tag = f"TKU_Unzip_task;addm_group={self.addm_group}"
-        # task_r_key = f"{self.addm_group}.TUploadExec.t_upload_unzip"
-        # Runner.fire_t(TUploadExec.t_upload_unzip, fake_run=self.fake_run, to_sleep=20, debug_me=True,
-        #               t_queue=f"{self.addm_group}@tentacle.dq2", t_args=[t_tag],
-        #               t_kwargs=dict(addm_items=self.addm_set, packages=packages_from_step),
-        #               t_routing_key=task_r_key)
+        # UploadTestExec().upload_unzip_threads(addm_items=self.addm_set, packages=packages_from_step)
+        Runner.fire_t(TUploadExec.t_upload_unzip,
+                      fake_run=False, to_sleep=60, debug_me=True,
+                      t_queue=f"{self.addm_group}@tentacle.dq2",
+                      t_args=[f"TKU_Upload_routines;task=t_upload_unzip;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
+                      t_kwargs=dict(addm_items=self.addm_set, packages=packages_from_step),
+                      t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_unzip")
 
     def tku_install(self):
-        log.info("<=UploadTaskPrepare=> Run TKU install for unzipped packages %s", self.addm_group)
-        UploadTestExec().install_tku_threads(addm_items=self.addm_set)
+        """
+        Install previously unzipped TKU from /usr/tideway/TEMP/*.zip
 
-        # t_tag = f"TKU_Unzip_task;addm_group={self.addm_group}"
-        # task_r_key = f"{self.addm_group}.TUploadExec.t_upload_unzip"
-        # Runner.fire_t(TUploadExec.t_upload_unzip, fake_run=self.fake_run, to_sleep=20, debug_me=True,
-        #               t_queue=f"{self.addm_group}@tentacle.dq2", t_args=[t_tag],
-        #               t_kwargs=dict(addm_items=self.addm_set, packages='packages_from_step'),
-        #               t_routing_key=task_r_key)
+        :return:
+        """
+        # UploadTestExec().install_tku_threads(addm_items=self.addm_set)
+        Runner.fire_t(TUploadExec.t_tku_install,
+                      fake_run=False, to_sleep=20, debug_me=True,
+                      t_queue=f"{self.addm_group}@tentacle.dq2",
+                      t_args=[f"TKU_Upload_routines;task=t_tku_install;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
+                      t_kwargs=dict(addm_items=self.addm_set),
+                      t_routing_key=f"{self.addm_group}.TUploadExec.t_tku_install")
 
-
-    def debug_unpack_packages_qs(self, packages):
+    @staticmethod
+    def debug_unpack_packages_qs(packages):
         for step_k, step_package in packages.items():
             for pack in step_package:
                 msg = f'{step_k} package: {pack.tku_type} -> {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} '

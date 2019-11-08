@@ -71,7 +71,8 @@ class UploadTestExec:
         self.warnings_re = re.compile(r"Pattern\smodule\s(?P<module>\S+)\s+Warnings:\s+(?P<error>.+)")
         self.errors_re = re.compile(r"Pattern\smodule\s(?P<module>\S+)\s+Errors:\s+(?P<error>.+)")
 
-    def upload_preparations_threads(self, **kwargs):
+    @staticmethod
+    def upload_preparations_threads(**kwargs):
         addm_group = kwargs.get('addm_group', None)
         addm_items = kwargs.get('addm_items', None)
         mode = kwargs.get('mode', None)
@@ -118,7 +119,8 @@ class UploadTestExec:
         #     test_outputs.append(test_q.get())
         return f'upload_unzip_threads Took {time() - ts}'
 
-    def upload_unzip_threads(self, **kwargs):
+    @staticmethod
+    def upload_unzip_threads(**kwargs):
         addm_group = kwargs.get('addm_group', None)
         addm_items = kwargs.get('addm_items', None)
         packages = kwargs.get('packages', None)
@@ -168,7 +170,8 @@ class UploadTestExec:
         #     test_outputs.append(test_q.get())
         return f'upload_unzip_threads Took {time() - ts}'
 
-    def install_tku_threads(self, **kwargs):
+    @staticmethod
+    def install_tku_threads(**kwargs):
         addm_group = kwargs.get('addm_group', None)
         addm_items = kwargs.get('addm_items', None)
 
@@ -181,6 +184,7 @@ class UploadTestExec:
 
         if not addm_items:
             addm_items = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
+
         for addm_item in addm_items:
             msg = f"ADDM Install TKU for: {addm_item['addm_v_int']}:{addm_item['addm_name']}"
             log.debug(msg)

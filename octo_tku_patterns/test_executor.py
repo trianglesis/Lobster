@@ -250,6 +250,35 @@ class TestExecutor:
                  'addm_group': 'delta', 'tkn_branch': 'tkn_main'},
                 'save_insert': <TestLast: TestLast object>}
 
+        Traceback (most recent call last):
+          File "/usr/local/lib/python3.6/threading.py", line 916, in _bootstrap_inner
+            self.run()
+          File "/usr/local/lib/python3.6/threading.py", line 864, in run
+            self._target(*self._args, **self._kwargs)
+          File "/var/www/octopus/octo_tku_patterns/test_executor.py", line 167, in test_exec
+            time_spent_test=str(time_spent_test))
+          File "/var/www/octopus/octo_tku_patterns/test_executor.py", line 307, in parse_test_result
+            test_fil_details = re.finditer(fail_details_srt, stderr_output, re.MULTILINE)
+          File "/var/www/octopus/octo/lib/python3.6/re.py", line 229, in finditer
+            return _compile(pattern, flags).finditer(string)
+          File "/var/www/octopus/octo/lib/python3.6/re.py", line 301, in _compile
+            p = sre_compile.compile(pattern, flags)
+          File "/var/www/octopus/octo/lib/python3.6/sre_compile.py", line 562, in compile
+            p = sre_parse.parse(p, flags)
+          File "/var/www/octopus/octo/lib/python3.6/sre_parse.py", line 855, in parse
+            p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+          File "/var/www/octopus/octo/lib/python3.6/sre_parse.py", line 416, in _parse_sub
+            not nested and not items))
+          File "/var/www/octopus/octo/lib/python3.6/sre_parse.py", line 765, in _parse
+            p = _parse_sub(source, state, sub_verbose, nested + 1)
+          File "/var/www/octopus/octo/lib/python3.6/sre_parse.py", line 416, in _parse_sub
+            not nested and not items))
+          File "/var/www/octopus/octo/lib/python3.6/sre_parse.py", line 502, in _parse
+            code = _escape(source, this, state)
+          File "/var/www/octopus/octo/lib/python3.6/sre_parse.py", line 401, in _escape
+            raise source.error("bad escape %s" % escape, len(escape))
+        sre_constants.error: bad escape \P at position 65
+
 
             THIS TUNED ONLY FOR VERBOSE OUTPUTS!
             :param test_res_args:
