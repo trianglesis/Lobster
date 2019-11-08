@@ -206,7 +206,6 @@ class UploadTaskPrepare:
         self.start_time = datetime.datetime.now()
         log.info("<=UploadTaskPrepare=> Prepare tests for user: %s - %s", self.user_name, self.user_email)
 
-        self.package_types = self.request.get('package_types')
         self.package_types = ''
         self.packages = dict()
         self.addm_set = dict()
@@ -304,6 +303,22 @@ class UploadTaskPrepare:
         else:
             self.tku_downloaded = True
 
+    def packages_assign(self):
+        if self.tku_type:
+            assert isinstance(self.tku_type, str)
+        if self.request.get('package_types'):
+            # String comes from REST POST Request - split on list
+            if isinstance(self.request.get('package_types'), str):
+                _packages = self.request.get('package_types')
+                log.debug("Splitting package_types: %s", _packages)
+                self.package_types = _packages.split(',')
+                log.debug("List package_types: %s", self.package_types)
+            # List comes from octo test:
+            elif isinstance(self.request.get('package_types'), list):
+                self.package_types = self.request.get('package_types')
+            else:
+                log.warning("Unsupported type of package_types!")
+
     def select_packages_modes(self):
         """
         If mode selected - choose tku packages based on mode:
@@ -317,13 +332,7 @@ class UploadTaskPrepare:
 
         :return:
         """
-
-        if self.tku_type:
-            assert isinstance(self.tku_type, str)
-        if self.package_types:
-            if isinstance(self.package_types, str):
-                self.package_types = self.package_types.split(',')
-
+        self.packages_assign()
         packages = dict()
         if self.test_mode == 'update':
             log.info("<=UploadTaskPrepare=> Will install TKU in UPDATE mode.")
@@ -337,17 +346,20 @@ class UploadTaskPrepare:
             packages.update(step_2=package)
 
         elif self.test_mode == 'step' or self.test_mode == 'fresh':
-            log.info("<=UploadTaskPrepare=> Will install TKU in %s one by one mode.", self.test_mode)
+            log.info("<=UploadTaskPrepare=> Install TKU in (%s) mode, package_types (%s)", self.test_mode, self.package_types)
             step = 0
             for package_type in self.package_types:
                 step += 1
                 package = TkuPackages.objects.filter(package_type__exact=package_type)
                 # If query return anything other (probably old GA) with released_tkn - prefer last option.
                 package_dis = package.filter(tku_type__exact='released_tkn')
+
+                log.debug("package: %s", package)
+                log.debug("package_dis: %s", package_dis)
+
                 if package_dis:
                     package = package_dis
                 packages.update({f'step_{step}': package})
-
         else:
             log.info("<=UploadTaskPrepare=> Will install TKU in Custom mode.")
             step = 0
@@ -358,7 +370,9 @@ class UploadTaskPrepare:
                 if package_dis:
                     package = package_dis
                 packages.update({f'step_{step}': package})
-        # log.info("<=UploadTaskPrepare=> Selected packages for test in mode: %s %s", self.test_mode, packages)
+
+        log.info("<=UploadTaskPrepare=> Selected packages for test in mode: %s %s", self.test_mode, packages)
+
         self.packages = packages
         return packages
 

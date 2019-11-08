@@ -582,9 +582,9 @@ class TKUOperationsREST(APIView):
         """
         t_tag = f'tag=upload_routine;lock=True;type=routine;user_name={self.user_name};tku_type={self.tku_type}| ' \
                 f'on: "{self.addm_group}" by: {self.user_name}'
-        TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.now(),
-                         user_name=self.user_name, addm_group=self.addm_group, mode=self.mode_key,
-                         tku_type=self.tku_type, tku_wget=self.tku_wget, user_email=self.user_email)
+        # TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.now(),
+        #                  user_name=self.user_name, addm_group=self.addm_group, mode=self.mode_key,
+        #                  tku_type=self.tku_type, tku_wget=self.tku_wget, user_email=self.user_email)
         obj = dict(
             request=self.request.data,
             user_name=self.request.user.username,
