@@ -119,6 +119,11 @@ class UploadTests(models.Model):
 
 
 class UploadTestsNew(models.Model):
+    # TODO: Rework this:
+    """
+    Make save by ID, do not create other unique indexes!
+    Add tku_type, package_type, addm_name, addm/tku as references, optionally add md5sum
+    """
     # Used mode and mode key:
     test_mode = models.CharField(max_length=50)
     mode_key = models.CharField(max_length=50)

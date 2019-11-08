@@ -71,8 +71,13 @@ class UploadTestExec:
         self.warnings_re = re.compile(r"Pattern\smodule\s(?P<module>\S+)\s+Warnings:\s+(?P<error>.+)")
         self.errors_re = re.compile(r"Pattern\smodule\s(?P<module>\S+)\s+Errors:\s+(?P<error>.+)")
 
-    @staticmethod
-    def upload_preparations_threads(**kwargs):
+    def upload_preparations_threads(self, **kwargs):
+        """
+        Run sequence of commands on each ADDM to prepare it for TKU Install.
+        Usually just delete older TKU (to install released one later), restart services and so on.
+        :param kwargs:
+        :return:
+        """
         addm_group = kwargs.get('addm_group', None)
         addm_items = kwargs.get('addm_items', None)
         mode = kwargs.get('mode', None)
@@ -119,8 +124,13 @@ class UploadTestExec:
         #     test_outputs.append(test_q.get())
         return f'upload_unzip_threads Took {time() - ts}'
 
-    @staticmethod
-    def upload_unzip_threads(**kwargs):
+    def upload_unzip_threads(self, **kwargs):
+        """
+        Unzip TKU packs from the queryset of packages for each ADDM version.
+        Selects zips only related to one ADDM version.
+        :param kwargs:
+        :return:
+        """
         addm_group = kwargs.get('addm_group', None)
         addm_items = kwargs.get('addm_items', None)
         packages = kwargs.get('packages', None)
@@ -170,10 +180,19 @@ class UploadTestExec:
         #     test_outputs.append(test_q.get())
         return f'upload_unzip_threads Took {time() - ts}'
 
-    @staticmethod
-    def install_tku_threads(**kwargs):
+    def install_tku_threads(self, **kwargs):
+        """
+        Simple TKU Install process, runs for each ADDM om set, with tw_pattern_management utility.
+        Return Outputs which need to be saved into DB!
+        :param kwargs:
+        :return:
+        """
         addm_group = kwargs.get('addm_group', None)
         addm_items = kwargs.get('addm_items', None)
+
+        mode = kwargs.get('test_mode')
+        mode_key = kwargs.get('mode_key')
+        packages = kwargs.get('packages', None)
 
         thread_list = []
         test_outputs = []
@@ -186,14 +205,18 @@ class UploadTestExec:
             addm_items = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
 
         for addm_item in addm_items:
-            msg = f"ADDM Install TKU for: {addm_item['addm_v_int']}:{addm_item['addm_name']}"
+            # Get ADDM related package zip list from packages:
+            package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
+            tku_zip_list = [package.zip_file_path for package in package_]
+            msg = f"ADDM Install TKU for: {addm_item['addm_v_int']}:{addm_item['addm_name']} zip list: {len(tku_zip_list)} - {tku_zip_list}"
             log.debug(msg)
+
         #     # Open SSH connection:
         #     ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
         #     if ssh and ssh.get_transport().is_active():
         #         m = f"<=install_tku_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
         #         log.info(m)
-        #         kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time, test_q=test_q)
+        #         kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time, ts=ts, mode=mode, tku_zip_list=tku_zip_list, test_q=test_q)
         #         th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
         #         try:
         #             test_thread = Thread(target=self.install_activate, name=th_name, kwargs=kwargs)
@@ -211,10 +234,10 @@ class UploadTestExec:
         #         log.error(msg)
         #         test_outputs.append(msg)
         #         # Send mail with this error? BUT not for the multiple tasks!!!
-        #
         # for test_th in thread_list:
         #     test_th.join()
         #     test_outputs.append(test_q.get())
+
         return f'upload_unzip_threads Took {time() - ts}'
 
     # noinspection PyCompatibility
@@ -352,9 +375,9 @@ class UploadTestExec:
 
         # TODO: Add link to test results and link to ADDM UI TKU Page from mail body
         TMail().upload_t(stage='running', start_time=start_time, t_spent=time() - ts, addm_item=addm_item,
-                       tku_type=tku_type,
-                       mode=mode if mode else "Fresh", user_email=user_email, outputs={addm_name: install_statuses},
-                       kwargs=kwargs)
+                         tku_type=tku_type,
+                         mode=mode if mode else "Fresh", user_email=user_email, outputs={addm_name: install_statuses},
+                         kwargs=kwargs)
         # Close previously opened SSH:
         ssh.close()
         # Put test results into a thread queue output:
@@ -471,6 +494,11 @@ class UploadTestExec:
 
         :return:
         """
+        ts = kwargs.get('ts')
+        mode = kwargs.get('mode')
+        mode_key = kwargs.get('mode_key')
+        zip_values = kwargs.get('tku_zip_list')
+
         ssh = kwargs.get('ssh')
         addm_item = kwargs.get('addm_item')
 
@@ -496,6 +524,10 @@ class UploadTestExec:
             log.debug("Try CMD: (%s) | on %s - %s ", cmd, addm_item['addm_host'], addm_item['addm_name'])
             _, stdout, stderr = ssh.exec_command(cmd)
             upload_outputs_d = self.std_read(out=stdout, err=stderr)
+
+            # TODO: Save upload test outputs HERE?
+            upload_results_d = self.parse_upload_result(upload_outputs_d)
+            self.model_save_insert(mode, mode_key, ts, addm_item, zip_values, upload_results_d, upload_outputs_d)
             return upload_outputs_d
         except Exception as e:
             msg = "<=UploadTestExecutor=> Error during 'install_activate' for: {} {}".format(cmd, e)
@@ -621,6 +653,7 @@ class UploadTestExec:
         for zip_item in test_zip:
             zip_tested_md5sum.append(zip_item['zip_file_md5_digest'])
 
+        # TODO: Re-test this, rewrite and run on local ADDM to verify. Save usual outputs as reference?
         upload_test = dict(
             # Used mode and mode key:
             test_mode=mode,  # What package to install;

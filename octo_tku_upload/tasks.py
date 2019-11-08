@@ -423,7 +423,7 @@ class UploadTaskPrepare:
                       fake_run=False, to_sleep=20, debug_me=True,
                       t_queue=f"{self.addm_group}@tentacle.dq2",
                       t_args=[f"TKU_Upload_routines;task=t_tku_install;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
-                      t_kwargs=dict(addm_items=self.addm_set),
+                      t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode),
                       t_routing_key=f"{self.addm_group}.TUploadExec.t_tku_install")
 
     @staticmethod
