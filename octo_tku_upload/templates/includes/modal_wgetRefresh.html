@@ -1,0 +1,63 @@
+{% load tz %}
+{% load humanize %}
+<div class="modal fade" id="wgetRefresh" tabindex="-1" role="dialog" aria-labelledby="wgetRefreshLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="wgetRefreshLabel">Refresh TKU Packages in Octopus database</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="max_released">max_released: {{ objects.max_released.tku_type }} - {{ objects.max_released.tku_build }}.{{ objects.max_released.tku_month }}.{{ objects.max_released.tku_date }}</div>
+                <div class="max_released">max_ga: {{ objects.max_ga.tku_type }} - {{ objects.max_ga.tku_build }}.{{ objects.max_ga.tku_month }}.{{ objects.max_ga.tku_date }}</div>
+                <div class="max_released">max_cont_main: {{ objects.max_cont_main.tku_type }} - {{ objects.max_cont_main.tku_build }}.{{ objects.max_cont_main.tku_month }}.{{ objects.max_cont_main.tku_date }}</div>
+                <div class="max_released">max_cont_ship: {{ objects.max_cont_ship.tku_type }} - {{ objects.max_cont_ship.tku_build }}.{{ objects.max_cont_ship.tku_month }}.{{ objects.max_cont_ship.tku_date }}</div>
+                <p>WGET Refresh:</p>
+                <div class="btn-rows">
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="wget_all">
+                            Everything
+                        </a>
+                        <span class="txt-sm">Refresh all packages</span>
+                    </div>
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="wget_released_tkn"
+                           data-tku_type="{{ objects.max_cont_main.package_type }}">
+                            'released_tkn'
+                        </a>
+                        <span class="txt-sm">Latest: {{ objects.max_released.package_type }} at: {{ objects.max_released.updated_at|timezone:"Europe/London"|naturaltime}}</span>
+                    </div>
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="wget_ga_candidate"
+                           data-tku_type="{{ objects.max_cont_main.package_type }}">
+                            'ga_candidate'
+                        </a>
+                        <span class="txt-sm">Latest: {{ objects.max_ga.package_type }} at: {{ objects.max_ga.updated_at|timezone:"Europe/London"|naturaltime}}</span>
+                    </div>
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="wget_tkn_main_continuous"
+                           data-tku_type="{{ objects.max_cont_main.package_type }}">
+                            'tkn_main_continuous'
+                        </a>
+                        <span class="txt-sm">Latest: {{ objects.max_cont_main.package_type }} at: {{ objects.max_cont_main.updated_at|timezone:"Europe/London"|naturaltime}}</span>
+                    </div>
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="wget_tkn_ship_continuous"
+                           data-tku_type="{{ objects.max_cont_main.package_type }}">
+                            'tkn_ship_continuous'
+                        </a>
+                        <span class="txt-sm">Latest: {{ objects.max_cont_ship.package_type }} at: {{ objects.max_cont_ship.updated_at|timezone:"Europe/London"|naturaltime}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

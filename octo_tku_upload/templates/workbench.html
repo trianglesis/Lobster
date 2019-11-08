@@ -15,6 +15,12 @@
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/upload-tests.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
+    <div aria-live="polite" aria-atomic="true" style="position: relative">
+        <!-- Position it -->
+        <div style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 2"></div>
+        </div>
+    </div>
     <nav class="navbar navbar-light test-report-navbar">
         <!-- Navbar content -->
         <!-- Navbar left part content -->
@@ -152,105 +158,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- Modals for upload-test-buttons-card  -->
-                <!-- Modal 1 Run upload test for release-->
-                <div class="modal fade" id="releaseUpload" tabindex="-1" role="dialog"
-                     aria-labelledby="releaseUploadLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="releaseUploadLabel">Run upload test for release</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="max_released">max_released: {{ objects.max_released.tku_type }} - {{ objects.max_released.tku_build }}.{{ objects.max_released.tku_month }}.{{ objects.max_released.tku_date }}</div>
-                                <div class="max_released">max_ga: {{ objects.max_ga.tku_type }} - {{ objects.max_ga.tku_build }}.{{ objects.max_ga.tku_month }}.{{ objects.max_ga.tku_date }}</div>
-                                <p>Actions:</p>
-                                <div class="btn-rows">
-                                    <div class="flex-space-bw">
-                                        <a class="btn btn-sm btn-info">GA Fresh</a>
-                                        <span class="txt-sm">Install: {{ objects.max_ga.package_type }}</span>
-                                    </div>
-                                    <div class="flex-space-bw">
-                                        <a class="btn btn-sm btn-info">GA Upgrade</a>
-                                        <span class="txt-sm">Install: {{ objects.max_released.package_type }}, then {{ objects.max_ga.package_type }} </span>
-                                    </div>
-                                    <div class="flex-space-bw">
-                                        <a class="btn btn-sm btn-info">Released</a>
-                                        <span class="txt-sm">Install {{ objects.max_released.package_type }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Modal 2 Run upload test for daily - continuous -->
-                <div class="modal fade" id="dailyUpload" tabindex="-1" role="dialog"
-                     aria-labelledby="dailyUploadLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="dailyUploadLabel">Run upload test for daily - continuous</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="max_released">Max: {{ objects.max_cont_main.tku_type }} -
-                                    <span class="badge badge-info">{{ objects.max_cont_main.tku_build }}.{{ objects.max_cont_main.tku_month }}.{{ objects.max_cont_main.tku_date }}</span>
-                                    {{ objects.max_cont_main.updated_at|timezone:"Europe/London"|naturaltime }}
-                                </div>
-                                <div class="max_released">Max: {{ objects.max_cont_ship.tku_type }} -
-                                    <span class="badge badge-info">{{ objects.max_cont_ship.tku_build }}.{{ objects.max_cont_ship.tku_month }}.{{ objects.max_cont_ship.tku_date }}</span>
-                                    {{ objects.max_cont_ship.updated_at|timezone:"Europe/London"|naturaltime }}
-                                </div>
-                                <p>Actions:</p>
-                                <div class="btn-rows">
-                                    <div class="flex-space-bw">
-                                        <a class="btn btn-sm btn-info">TKN Main</a>
-                                        <span class="txt-sm">Install: {{ objects.max_cont_main.package_type }}</span>
-                                    </div>
-                                    <div class="flex-space-bw">
-                                        <a class="btn btn-sm btn-info">TKN Ship</a>
-                                        <span class="txt-sm">Install: {{ objects.max_cont_main.package_type }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Modal 3 Refresh TKU Packages in Octopus database -->
-                <div class="modal fade" id="wgetRefresh" tabindex="-1" role="dialog"
-                     aria-labelledby="wgetRefreshLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="wgetRefreshLabel">Refresh TKU Packages in Octopus database</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="max_released">max_released: {{ objects.max_released.tku_type }} -
-                                    {{ objects.max_released.tku_build }}.{{ objects.max_released.tku_month }}.{{ objects.max_released.tku_date }}</div>
-                                <div class="max_released">max_ga: {{ objects.max_ga.tku_type }} -
-                                    {{ objects.max_ga.tku_build }}.{{ objects.max_ga.tku_month }}.{{ objects.max_ga.tku_date }}</div>
-                                <div class="max_released">max_cont_main: {{ objects.max_cont_main.tku_type }} -
-                                    {{ objects.max_cont_main.tku_build }}.{{ objects.max_cont_main.tku_month }}.{{ objects.max_cont_main.tku_date }}</div>
-                                <div class="max_released">max_cont_ship: {{ objects.max_cont_ship.tku_type }} -
-                                    {{ objects.max_cont_ship.tku_build }}.{{ objects.max_cont_ship.tku_month }}.{{ objects.max_cont_ship.tku_date }}</div>
-                                <a class="btn btn-sm btn-info">Buttons</a>
-                                <a class="btn btn-sm btn-info">Buttons</a>
-                                <a class="btn btn-sm btn-info">Buttons</a>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
             <div class="col-sm-6 col-shrink">
                 <div class="card">
@@ -299,7 +207,6 @@
                 </div>
             </div>
         </div>
-
     </div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
         <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
@@ -313,5 +220,17 @@
         </ul>
         <span class="navbar-text">Octopus automation</span>
     </nav>
+    {# INCLUDES #}
+    {% include 'digests/includes/toast_popup.html' %}
+    <!-- Modals for upload-test-buttons-card  -->
+    <!-- Modal 1 Run upload test for release-->
+    {% include 'includes/modal_releaseUpload.html' %}
+    <!-- Modal 2 Run upload test for daily - continuous -->
+    {% include 'includes/modal_dailyUpload.html' %}
+    <!-- Modal 3 Refresh TKU Packages in Octopus database -->
+    {% include 'includes/modal_wgetRefresh.html' %}
+    {# JS #}
+    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
+    <script src="{% static 'octopus/js/upload-workbench/upload-btn.js' %}"></script>
     <script src="{% static 'octopus/js/upload-test-table-color.js' %}"></script>
 {% endblock %}

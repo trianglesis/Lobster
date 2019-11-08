@@ -31,24 +31,23 @@ class OctoTestCase(UploadTaskPrepare):
             fake_run=True,
             user_name='octotests',
             user_email='octotests',
-            selector=dict(
-                # For update mode just pass a mode:
-                # test_mode='update',
-                # Of select packages manually:
-                test_mode='step',
-                package_types=[select_latest_ga, select_latest_released],
 
-                # For step mode pass mode and ordered list of packages by: 'package_type'
-                # test_mode='step',
-                # package_types=['TKN_release_2018-09-1-114', 'TKN_release_2018-09-1-113'],
+            # For update mode just pass a mode:
+            # test_mode='update',
+            # Of select packages manually:
+            test_mode='step',
+            package_types=[select_latest_ga, select_latest_released],
 
-                # For fresh package install
-                # test_mode='fresh',
-                # package_types=['TKN_release_2018-09-1-114', 'TKN_release_2018-09-1-113'],
+            # For step mode pass mode and ordered list of packages by: 'package_type'
+            # test_mode='step',
+            # package_types=['TKN_release_2018-09-1-114', 'TKN_release_2018-09-1-113'],
 
-                # For just package install
-                # package_types=['TKN_release_2018-09-1-114', 'TKN_release_2018-09-1-113'],
-            ),
+            # For fresh package install
+            # test_mode='fresh',
+            # package_types=['TKN_release_2018-09-1-114', 'TKN_release_2018-09-1-113'],
+
+            # For just package install
+            # package_types=['TKN_release_2018-09-1-114', 'TKN_release_2018-09-1-113'],
 
         )
 

@@ -1,0 +1,47 @@
+{% load tz %}
+{% load humanize %}
+<div class="modal fade" id="dailyUpload" tabindex="-1" role="dialog"
+     aria-labelledby="dailyUploadLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dailyUploadLabel">Run upload test for daily - continuous</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="max_released">Max: {{ objects.max_cont_main.tku_type }} -
+                    <span class="badge badge-info">{{ objects.max_cont_main.tku_build }}.{{ objects.max_cont_main.tku_month }}.{{ objects.max_cont_main.tku_date }}</span>
+                    {{ objects.max_cont_main.updated_at|timezone:"Europe/London"|naturaltime }}
+                </div>
+                <div class="max_released">Max: {{ objects.max_cont_ship.tku_type }} -
+                    <span class="badge badge-info">{{ objects.max_cont_ship.tku_build }}.{{ objects.max_cont_ship.tku_month }}.{{ objects.max_cont_ship.tku_date }}</span>
+                    {{ objects.max_cont_ship.updated_at|timezone:"Europe/London"|naturaltime }}
+                </div>
+                <p>Actions:</p>
+                <div class="btn-rows">
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="tkn_main_continuous_install"
+                           data-test_mode="fresh"
+                           data-package_types="{{ objects.max_cont_main.package_type }}">
+                            TKN Main
+                        </a>
+                        <span class="txt-sm">Install: {{ objects.max_cont_main.package_type }}</span>
+                    </div>
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="tkn_ship_continuous_install"
+                           data-test_mode="fresh"
+                           data-package_types="{{ objects.max_cont_main.package_type }}">
+                            TKN Ship
+                        </a>
+                        <span class="txt-sm">Install: {{ objects.max_cont_ship.package_type }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

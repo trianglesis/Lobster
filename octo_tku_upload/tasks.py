@@ -153,29 +153,46 @@ class UploadCases:
 
 
 class UploadTaskPrepare:
+    """
+    From REST:
+    "obj": {
+      "request": {
+        "test_mode": "fresh",
+        "package_types": "TKN_release_2019-10-2-282",
+        "operation_key": "tku_install_test"
+      },
+      "user_name": "octopus_super",
+      "user_email": "oleksandr_danylchenko_cw@bmc.com"
+    }
+
+    """
 
     def __init__(self, obj):
         # Initial view requests:
         self.view_obj = obj
         if isinstance(self.view_obj, dict):
-            self.options = self.view_obj.get('context')
+            log.debug("From REST View?")
             self.request = self.view_obj.get('request')
+
             # Assign generated context for further usage:
-            self.selector = self.options.get('selector', {})
             self.user_name = self.view_obj.get('user_name')
             self.user_email = self.view_obj.get('user_email')
-            self.test_mode = self.selector.get('test_mode', None)
-            self.tku_type = self.selector.get('tku_type', None)
-            self.addm_group = self.selector.get('addm_group', None)
+
+            self.tku_wget = self.request.get('tku_wget', None)
+            self.test_mode = self.request.get('test_mode', None)
+            self.tku_type = self.request.get('tku_type', None)
+            self.addm_group = self.request.get('addm_group', None)
         else:
+            log.debug("From Test class?")
             self.request = obj.request
-            self.options = obj.request
+
             self.user_name = self.request.get('user_name', 'octopus_super')
             self.user_email = self.request.get('user_email', None)
-            self.selector = self.request.get('selector', {})
-            self.test_mode = self.selector.get('test_mode', None)
-            self.tku_type = self.selector.get('tku_type', None)
-            self.addm_group = self.selector.get('addm_group', None)
+
+            self.tku_wget = self.request.get('tku_wget', None)
+            self.test_mode = self.request.get('test_mode', None)
+            self.tku_type = self.request.get('tku_type', None)
+            self.addm_group = self.request.get('addm_group', None)
 
         # Define fake run:
         self.fake_run = False
@@ -189,7 +206,8 @@ class UploadTaskPrepare:
         self.start_time = datetime.datetime.now()
         log.info("<=UploadTaskPrepare=> Prepare tests for user: %s - %s", self.user_name, self.user_email)
 
-        self.tku_wget = False
+        self.package_types = self.request.get('package_types')
+        self.package_types = ''
         self.packages = dict()
         self.addm_set = dict()
 
@@ -206,10 +224,9 @@ class UploadTaskPrepare:
 
         if os.name == "nt":  # Always fake run on local test env:
             self.fake_run = True
-            log.debug("<=TaskPrepare=> Fake run self.options: %s", self.options)
             log.debug("<=TaskPrepare=> Fake run self.request: %s", self.request)
 
-        elif self.options.get('fake_run'):
+        elif self.request.get('fake_run'):
             self.fake_run = True
         log.debug("<=TaskPrepare=> Fake run = %s", self.fake_run)
 
@@ -218,7 +235,7 @@ class UploadTaskPrepare:
         Indicates when do not send any mails.
         :return:
         """
-        if self.options.get('silent'):
+        if self.request.get('silent'):
             self.silent = True
         log.debug("<=TaskPrepare=> Silent run = %s", self.silent)
 
@@ -300,12 +317,12 @@ class UploadTaskPrepare:
 
         :return:
         """
-        log.info("Selector: %s", self.selector)
 
         if self.tku_type:
             assert isinstance(self.tku_type, str)
-        if self.selector.get('package_types', False):
-            assert isinstance(self.selector['package_types'], list)
+        if self.package_types:
+            if isinstance(self.package_types, str):
+                self.package_types = self.package_types.split(',')
 
         packages = dict()
         if self.test_mode == 'update':
@@ -322,7 +339,7 @@ class UploadTaskPrepare:
         elif self.test_mode == 'step' or self.test_mode == 'fresh':
             log.info("<=UploadTaskPrepare=> Will install TKU in %s one by one mode.", self.test_mode)
             step = 0
-            for package_type in self.selector['package_types']:
+            for package_type in self.package_types:
                 step += 1
                 package = TkuPackages.objects.filter(package_type__exact=package_type)
                 # If query return anything other (probably old GA) with released_tkn - prefer last option.
@@ -334,7 +351,7 @@ class UploadTaskPrepare:
         else:
             log.info("<=UploadTaskPrepare=> Will install TKU in Custom mode.")
             step = 0
-            for package_type in self.selector['package_types']:
+            for package_type in self.package_types:
                 step += 1
                 package = TkuPackages.objects.filter(package_type__exact=package_type)
                 package_dis = package.filter(tku_type__exact='released_tkn')

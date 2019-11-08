@@ -51,8 +51,8 @@ $(document).ready(function () {
         for (let btn of addmButtons) {
             btn.dataset.operation_key = 'addm_cleanup';
             btn.modalId = 'addmCleanupButtons';
-            btn.removeEventListener('click', buttonActivation);
-            btn.addEventListener("click", buttonActivation);
+            btn.removeEventListener('click', buttonActivationADDM);
+            btn.addEventListener("click", buttonActivationADDM);
         }
     });
 });
@@ -68,8 +68,8 @@ $(document).ready(function () {
         for (let btn of addmButtons) {
             btn.dataset.operation_key = 'addm_cmd_run';
             btn.modalId = 'addmCMDRun';
-            btn.removeEventListener('click', buttonActivation);
-            btn.addEventListener("click", buttonActivation);
+            btn.removeEventListener('click', buttonActivationADDM);
+            btn.addEventListener("click", buttonActivationADDM);
         }
     });
 });
@@ -85,8 +85,8 @@ $(document).ready(function () {
         for (let btn of addmButtons) {
             btn.dataset.operation_key = 'addm_sync_shares';
             btn.modalId = 'addmSYNCButtons';
-            btn.removeEventListener('click', buttonActivation);
-            btn.addEventListener("click", buttonActivation);
+            btn.removeEventListener('click', buttonActivationADDM);
+            btn.addEventListener("click", buttonActivationADDM);
         }
     });
 });

@@ -585,18 +585,7 @@ class TKUOperationsREST(APIView):
         TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.now(),
                          user_name=self.user_name, addm_group=self.addm_group, mode=self.mode_key,
                          tku_type=self.tku_type, tku_wget=self.tku_wget, user_email=self.user_email)
-        selector = dict(
-            addm_version=self.addm_version,
-            zip_type=self.zip_type,
-            tku_name=self.tku_name,
-            test_mode=self.test_mode,
-            tku_type=self.tku_type,
-            mode_key=self.mode_key,
-            addm_name=self.addm_name,
-            package_type=self.package_type,
-        )
         obj = dict(
-            context=dict(selector=selector),
             request=self.request.data,
             user_name=self.request.user.username,
             user_email=self.request.user.email,
@@ -611,7 +600,8 @@ class TKUOperationsREST(APIView):
             routing_key=t_routing_key,
         )
         log.debug("task_added: %s", task.id)
-        return {'task': task.id}
+        # return {'task': task.id}
+        return {'task_id': task.id}
 
     def tku_sync_packages(self):
         """
@@ -620,7 +610,7 @@ class TKUOperationsREST(APIView):
         :return:
         """
         task = Runner.fire_t(TUploadExec.t_tku_sync, fake_run=self.fake_run, t_kwargs=dict(tku_type=self.tku_type), t_args=['tag=t_tku_sync;'])
-        return Response({'task': task.id})
+        return {'task_id': task.id}
 
     def tku_parse_packages(self):
         """
@@ -630,7 +620,8 @@ class TKUOperationsREST(APIView):
         """
         t_tag = 'run_tku_parse'
         options = dict(user_name=self.user_name, tku_type=self.tku_type)
-        Runner.fire_t(TUploadExec.t_parse_tku, fake_run=self.fake_run, t_args=[t_tag], t_kwargs=options)
+        task = Runner.fire_t(TUploadExec.t_parse_tku, fake_run=self.fake_run, t_args=[t_tag], t_kwargs=options)
+        return {'task_id': task.id}
 
     def show_latest_tku_type(self):
         """

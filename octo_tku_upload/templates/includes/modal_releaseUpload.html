@@ -1,0 +1,47 @@
+<div class="modal fade" id="releaseUpload" tabindex="-1" role="dialog"
+     aria-labelledby="releaseUploadLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="releaseUploadLabel">Run upload test for release</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="max_released">max_released: {{ objects.max_released.tku_type }} - {{ objects.max_released.tku_build }}.{{ objects.max_released.tku_month }}.{{ objects.max_released.tku_date }}</div>
+                <div class="max_released">max_ga: {{ objects.max_ga.tku_type }} - {{ objects.max_ga.tku_build }}.{{ objects.max_ga.tku_month }}.{{ objects.max_ga.tku_date }}</div>
+                <p>Actions:</p>
+                <div class="btn-rows">
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="ga-fresh-install"
+                           data-test_mode="fresh"
+                           data-package_types="{{ objects.max_ga.package_type }}">
+                            GA Fresh
+                        </a>
+                        <span class="txt-sm">Install: {{ objects.max_ga.package_type }}</span>
+                    </div>
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="ga-upgrade-install"
+                           data-test_mode="update">
+                            GA Upgrade
+                        </a>
+                        <span class="txt-sm">Install: {{ objects.max_released.package_type }}, then {{ objects.max_ga.package_type }} </span>
+                    </div>
+                    <div class="flex-space-bw">
+                        <a class="btn btn-sm btn-info"
+                           id="released-tkn-fresh-install"
+                           data-test_mode="fresh"
+                           data-package_types="{{ objects.max_released.package_type }}">
+                            Released
+                        </a>
+                        <span class="txt-sm">Install {{ objects.max_released.package_type }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

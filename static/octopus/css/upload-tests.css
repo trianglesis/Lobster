@@ -126,27 +126,37 @@
     /*background-color: #FEDCDD !important;*/
     background-color: #E5C4CB !important;
 }
+
 .tst-fail {
     /*background-color: #FEDCDD !important;*/
     background-color: #E5C4CB !important;
 }
+
 .tst-error {
     /*background-color: #FFF9DD !important;*/
     background-color: #F9F1D5 !important;
 }
+
 .tst-skip {
     /*background-color: #CCC7E1 !important;*/
     background-color: #9998AE !important;
 }
+
 .tst-pass {
     /*background-color: #CFEDCD !important;*/
     background-color: #C6DABA !important;
 }
+
 .tst-None {
     background-color: #bfcbd4 !important;
 }
 
 /* TKU UPLOAD Workbench */
+.toast {
+    max-width: 550px!important;
+    width: 550px!important;
+}
+
 .upload-workbench-content {
     padding: 0 20px 40px 20px;
 }

@@ -587,12 +587,24 @@ function fillButtonTestRun(modal, casesData) {
  * Simple function to activate button with Admin Operation call, show toast and run task or method.
  * @param event
  */
-function buttonActivation(event) {
+function buttonActivationADDM(event) {
     let btn = event.currentTarget;
     let toastBase = getToastDraft(btn.dataset);
     let toastReady = fillToastBodyWithTaskDetails(btn.dataset, toastBase);
     appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
     RESTAdminOperationsPOST(btn.dataset, toastReady);
+    showToastTask(toastReady.id); // Make toast visible
+    if (btn.modalId) {
+        hideModal(btn.modalId); // Hide modal
+    }
+}
+// Later make one:
+function buttonActivationUpload(event) {
+    let btn = event.currentTarget;
+    let toastBase = getToastDraft(btn.dataset);
+    let toastReady = fillToastBodyWithTaskDetails(btn.dataset, toastBase);
+    appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+    RESTUploadOperationsPOST(btn.dataset, toastReady);
     showToastTask(toastReady.id); // Make toast visible
     if (btn.modalId) {
         hideModal(btn.modalId); // Hide modal
@@ -921,7 +933,7 @@ function toastModifyOtherTaskSuccess(toastReady, task) {
         } else if (task.status) {
             task_status.innerText = `task: ${task.status} - wait in queue...`;
         } else if (task) {
-            task_status.innerText = `out: ${JSON.stringify(task)}`;
+            task_status.innerText = `${JSON.stringify(task)}`;
         }
     }
     toastReady.childNodes[3].appendChild(task_status);
@@ -1061,6 +1073,12 @@ function RESTGetTask(caseFullData, testButtonDataset) {
     return testButtonDataset;
 }
 
+/**
+ * http://127.0.0.1:8000/octo_admin/task_operation/?operation_key=get_task_status_by_id
+ * @param toastReady
+ * @param taskID
+ * @constructor
+ */
 function RESTGetTaskGeneric(toastReady, taskID) {
     $.ajax({
         type: "POST",
@@ -1073,6 +1091,10 @@ function RESTGetTaskGeneric(toastReady, taskID) {
             console.log(result);
             let task = result.response;
             if (task && task.status) {
+                toastModifyOtherTaskSuccess(toastReady, task);
+            }
+            else if (task) {
+                // May return an array when task was finished and added to DB already:
                 toastModifyOtherTaskSuccess(toastReady, task);
             } else {
                 toastModifyOtherTaskSuccess(toastReady, task);
@@ -1176,6 +1198,37 @@ function RESTAdminOperationsPOST(btnDataset, toastReady) {
         dataType: "json",
         contentType: "application/x-www-form-urlencoded",
         url: "/octo_admin/admin_operations/",
+        data: btnDataset,
+        "beforeSend": function (xhr, settings) {$.ajaxSettings.beforeSend(xhr, settings)},
+        "success": function (result) {
+            console.log(`POST result: ${result}`);
+            if (result) {
+                console.table(result);
+                toastModifyOtherTasksPre(toastReady, result.task_id);
+                waitResultTask(toastReady, result.task_id);
+            } else {
+                console.log("Task POST send, but haven't been added. No task_id in result!");
+                toastModifyOtherTasksPre(toastReady, undefined,
+                    "Task POST send, but haven't been added. No task_id in result!");
+            }
+        },
+        "error": function () {
+            console.log("POST TASK ERROR, something goes wrong...");
+            toastModifyOtherTasksPre(toastReady, undefined,
+                "POST TASK ERROR, something goes wrong...");
+        },
+    });
+    return btnDataset;
+}
+
+// Later make universal:
+function RESTUploadOperationsPOST(btnDataset, toastReady) {
+    console.log(btnDataset);
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/octo_tku_upload/tku_operations/",
         data: btnDataset,
         "beforeSend": function (xhr, settings) {$.ajaxSettings.beforeSend(xhr, settings)},
         "success": function (result) {
