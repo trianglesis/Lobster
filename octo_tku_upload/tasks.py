@@ -47,6 +47,13 @@ class TUploadRoutine:
     def t_routine_tku_upload(t_tag, **kwargs):
         return UploadCases.tku_upload(**kwargs)
 
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_tku_upload_test_new',
+              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+    @exception
+    def t_upload_test(t_tag, **kwargs):
+        return UploadTaskPrepare(kwargs['obj']).run_tku_upload()
+
 
 # noinspection PyUnusedLocal,PyUnusedLocal
 class TUploadExec:
@@ -83,13 +90,13 @@ class TUploadExec:
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
     def t_upload_unzip(t_tag, **kwargs):
-        return UploadTestExec.upload_unzip_threads(**kwargs)
+        return UploadTestExec().upload_unzip_threads(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2+1000)
     @exception
     def t_tku_install(t_tag, **kwargs):
-        return UploadTestExec.install_tku_threads(**kwargs)
+        return UploadTestExec().install_tku_threads(**kwargs)
 
 
 class UploadCases:
@@ -297,7 +304,7 @@ class UploadTaskPrepare:
 
         if self.tku_type:
             assert isinstance(self.tku_type, str)
-        if self.selector['package_types']:
+        if self.selector.get('package_types', False):
             assert isinstance(self.selector['package_types'], list)
 
         packages = dict()
@@ -353,7 +360,7 @@ class UploadTaskPrepare:
             # Task for unzip packages on selected each ADDM from ADDM Group
             self.package_unzip(packages_from_step=packages_v)
             # Task for install TKU from unzipped packages for each ADDM from selected ADDM group
-            self.tku_install()
+            self.tku_install(packages_from_step=packages_v)
 
     def addm_prepare(self, step_k):
         """
@@ -412,7 +419,7 @@ class UploadTaskPrepare:
                       t_kwargs=dict(addm_items=self.addm_set, packages=packages_from_step),
                       t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_unzip")
 
-    def tku_install(self):
+    def tku_install(self, packages_from_step):
         """
         Install previously unzipped TKU from /usr/tideway/TEMP/*.zip
 
@@ -423,7 +430,7 @@ class UploadTaskPrepare:
                       fake_run=False, to_sleep=20, debug_me=True,
                       t_queue=f"{self.addm_group}@tentacle.dq2",
                       t_args=[f"TKU_Upload_routines;task=t_tku_install;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
-                      t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode),
+                      t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode, packages=packages_from_step),
                       t_routing_key=f"{self.addm_group}.TUploadExec.t_tku_install")
 
     @staticmethod

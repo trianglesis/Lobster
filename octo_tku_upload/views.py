@@ -4,17 +4,14 @@ OCTO ADM - pages and widgets and functions.
 from datetime import datetime
 import logging
 
-from django.db.models import Max
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
 
-from django.views.generic import TemplateView, ListView, DetailView
-from django.views.generic.edit import UpdateView, CreateView
-from django.views.generic.dates import ArchiveIndexView, DayArchiveView, \
-    TodayArchiveView, DayMixin, MonthMixin, YearMixin
+from django.views.generic import TemplateView, ListView
+from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -23,13 +20,13 @@ from rest_framework.permissions import IsAuthenticated
 
 from octo.helpers.tasks_helpers import TMail
 from octo.helpers.tasks_run import Runner
-
 from octo_adm.user_operations import UserCheck
 
+from octo_tku_upload.models import *
 from octo_tku_upload.table_oper import UploadTKUTableOper
 from octo_tku_upload.tasks import TUploadExec, TUploadRoutine
 from octo_tku_upload.api.serializers import TkuPackagesNewSerializer, UploadTestsNewSerializer
-from octo_tku_upload.models import *
+from octo_tku_upload.tasks import UploadTaskPrepare
 
 
 log = logging.getLogger("octo.octologger")
@@ -533,9 +530,9 @@ class TKUOperationsREST(APIView):
         self.power_users = self.request.user.groups.filter(name='power_users').exists()
 
         user_status = f'{self.user_name} {self.user_email} admin_users={self.admin_users} power_users={self.power_users}'
-        log.info("<=TaskOperationsREST=> Request: %s", user_status)
+        log.info("<=TKUOperationsREST=> Request: %s", user_status)
         request_options = f'operation_key:{self.operation_key} tku_type:{self.tku_type} task_id:{self.task_id}'
-        log.debug("<=TaskOperationsREST=> request_options: %s", request_options)
+        log.debug("<=TKUOperationsREST=> request_options: %s", request_options)
 
     def get(self, request=None):
         """
@@ -580,18 +577,41 @@ class TKUOperationsREST(APIView):
         Run test of TKU Upload with selected 'tku_packages' or 'test_mode'. If test_mode selected - will run
         predefined internal logic, of 'tku_package' selected - will install TKU as usual knowledge update without
         additional steps or preparations.
+        Example upgrade routine run: (operation_key=tku_install_test;addm_group=alpha;test_mode=update)
         :return:
         """
         t_tag = f'tag=upload_routine;lock=True;type=routine;user_name={self.user_name};tku_type={self.tku_type}| ' \
                 f'on: "{self.addm_group}" by: {self.user_name}'
-        Runner.fire_t(TUploadRoutine.t_routine_tku_upload, fake_run=self.fake_run,
-                      t_args=[t_tag],
-                      t_kwargs=dict(user_name=self.user_name, user_email=self.user_email, tku_type=self.tku_type,
-                                    addm_group=self.addm_group, mode=self.mode_key, tku_wget=self.tku_wget))
-        task = TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.now(),
-                                user_name=self.user_name, addm_group=self.addm_group, mode=self.mode_key,
-                                tku_type=self.tku_type, tku_wget=self.tku_wget, user_email=self.user_email)
-        return Response({'task': task.id})
+        TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.now(),
+                         user_name=self.user_name, addm_group=self.addm_group, mode=self.mode_key,
+                         tku_type=self.tku_type, tku_wget=self.tku_wget, user_email=self.user_email)
+        selector = dict(
+            addm_version=self.addm_version,
+            zip_type=self.zip_type,
+            tku_name=self.tku_name,
+            test_mode=self.test_mode,
+            tku_type=self.tku_type,
+            mode_key=self.mode_key,
+            addm_name=self.addm_name,
+            package_type=self.package_type,
+        )
+        obj = dict(
+            context=dict(selector=selector),
+            request=self.request.data,
+            user_name=self.request.user.username,
+            user_email=self.request.user.email,
+        )
+        t_tag = f'tag=t_upload_test;user_name={self.request.user.username};'
+        t_queue = 'w_routines@tentacle.dq2'
+        t_routing_key = 'routines.TUploadRoutine.t_upload_test'
+        task = TUploadRoutine.t_upload_test.apply_async(
+            args=[t_tag],
+            kwargs=dict(obj=obj),
+            queue=t_queue,
+            routing_key=t_routing_key,
+        )
+        log.debug("task_added: %s", task.id)
+        return {'task': task.id}
 
     def tku_sync_packages(self):
         """
