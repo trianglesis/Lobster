@@ -742,6 +742,7 @@ class ADDMOperations:
         """
 
         # DELETE any TKU zips BEFORE unzip anything new:
+        # TODO: create dir of not exist
         cmd_list = ['rm -f /usr/tideway/TEMP/*']
         TKU_temp = '/usr/tideway/TEMP'
         outputs_l = []

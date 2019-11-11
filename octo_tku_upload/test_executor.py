@@ -49,6 +49,7 @@ class UploadTestExec:
                 test_kill=self.addm_op.addm_exec_cmd,
                 tku_install_kill=self.addm_op.addm_exec_cmd,
                 tideway_restart=self.addm_op.addm_exec_cmd,
+                # Ideally we don't want to delete previous installed prod cont, but it its version is higher than actual installable?
                 wipe_data_installed_product_content=self.addm_op.addm_exec_cmd,
                 tw_pattern_management=self.addm_op.addm_exec_cmd,
                 product_content=self.addm_op.addm_exec_cmd,
@@ -95,7 +96,7 @@ class UploadTestExec:
             addm_items = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
 
         for addm_item in addm_items:
-            msg = f"ADDM Prepare for upload test for: {addm_item['addm_v_int']}:{addm_item['addm_name']} mode: {mode}"
+            msg = f"ADDM Prepare for upload test for: {addm_item['addm_v_int']}:{addm_item['addm_name']} mode: {test_mode}"
             log.debug(msg)
             # Open SSH connection:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
@@ -417,9 +418,6 @@ class UploadTestExec:
         addm_item = kwargs.get('addm_item')
         log.debug("<=upload_preparations=> Execute UPLOAD PREPARATIONS: %s, %s", mode, addm_item)
 
-        # mode = kwargs.get('mode')
-        # addm_item = kwargs.get('addm_item')
-
         if ssh and ssh.get_transport().is_active():
             log.info("<=upload_preparations=> PASSED: SSH Is active")
 
@@ -527,7 +525,7 @@ class UploadTestExec:
         if ssh and ssh.get_transport().is_active():
             log.info("<=install_activate=> PASSED: SSH Is active")
 
-        # TODO: Add installation proc for tideway-devices-4.3.2019.09.1-777877.ga.noarch.drpm
+        # TODO: Run for all files, not zip only?
         if float(addm_item['addm_v_int']) > 11.1:
             # noinspection SpellCheckingInspection
             cmd = ('/usr/tideway/bin/tw_pattern_management -p system  '
@@ -550,8 +548,8 @@ class UploadTestExec:
             upload_outputs_d = self.std_read(out=stdout, err=stderr)
 
             # TODO: Save upload test outputs HERE?
-            # upload_results_d = self.parse_upload_result(upload_outputs_d)
-            # self.model_save_insert(mode, mode_key, ts, addm_item, zip_values, upload_results_d, upload_outputs_d)
+            upload_results_d = self.parse_upload_result(upload_outputs_d)
+            self.model_save_insert(mode, mode_key, ts, addm_item, zip_values, upload_results_d, upload_outputs_d)
             return upload_outputs_d
         except Exception as e:
             msg = "<=UploadTestExecutor=> Error during 'install_activate' for: {} {}".format(cmd, e)
@@ -776,8 +774,7 @@ class UploadTestExec:
             formatted_stdout = std_output
 
         try:
-            formatted_stderr = stderr_output.decode('utf-8').replace(chr(27), ';').replace('[0G', '#').replace('[K',
-                                                                                                               '\n')
+            formatted_stderr = stderr_output.decode('utf-8').replace(chr(27), ';').replace('[0G', '#').replace('[K', '\n')
         except Exception as e:
             log.error("STDERR Cannot decode and replace for clear log: %s", e)
             formatted_stderr = stderr_output
