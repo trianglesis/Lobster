@@ -18,6 +18,7 @@ from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_helpers import TMail
+from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_helpers import exception
 
 from octo.helpers.tasks_run import Runner
@@ -120,8 +121,7 @@ class UploadCases:
         fake_run = kwargs.get('fake_run', False)
         tku_downloaded = False
         # Send on init:
-        TMail().upload_t(stage='started', mode=mode, tku_type=tku_type, tku_wget=tku_wget, addm_group=addm_group,
-                       user_email=user_email, start_time=datetime.datetime.now())
+        TMail().upload_t(stage='started', mode=mode, tku_type=tku_type, tku_wget=tku_wget, addm_group=addm_group, user_email=user_email, start_time=datetime.datetime.now())
 
         if tku_wget:
             """ WGET zips and parse locally: """
@@ -257,34 +257,6 @@ class UploadTaskPrepare:
         # 4. For each package&addm version do SOMETHING:
         self.tku_packages_processing_steps()
 
-    def mail_status(self, mail_opts):
-        mode = mail_opts.get('mode')
-
-        if not self.silent:
-            log.info("<=TaskPrepare=> Mail sending, mode: %s", mode)
-            if mail_opts.get('addm_set') and mail_opts.get('test_item'):
-                log.debug("<=TaskPrepare=> MAIL when test item and addm set is TRUE")
-
-                addm = mail_opts.get('addm_set').first()
-                test_item = mail_opts.get('test_item')
-
-                mail_r_key = f'{addm["addm_group"]}.TSupport.t_user_mail.{mode}'
-                t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
-                        f'test_py_path={test_item["test_py_path"]}'
-
-                Runner.fire_t(TSupport.t_user_test, fake_run=self.fake_run, t_args=[t_tag],
-                              t_kwargs=dict(mail_opts=mail_opts),
-                              t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
-
-            elif mode == 'init':
-                log.debug("<=TaskPrepare=> MAIL when INIT")
-                TMail().user_test(mail_opts)
-            else:
-                log.debug("<=TaskPrepare=> MAIL when ELSE")
-                TMail().user_test(mail_opts)
-        else:
-            log.info("<=TaskPrepare=> Mail silent mode. Do not send massages. Current stage: %s", mode)
-
     def task_tag_generate(self):
         """Just make a task tag for this routine"""
         self.t_tag = f'tag=upload_routine;lock=True;type=routine;user_name={self.user_name};tku_type={self.tku_type}' \
@@ -292,10 +264,18 @@ class UploadTaskPrepare:
 
     def wget_run(self):
         if self.tku_wget:
-            log.info("Run WGET: ")
+            subject = f"TKU_Upload_routines | wget_run | {self.test_mode} | {self.addm_group}"
+            body = f"ADDM group: {self.addm_group}, test mode: {self.test_mode}, tku_type: {self.tku_type}, user: {self.user_name}"
+            Runner.fire_t(TSupport.t_short_mail,
+                          fake_run=self.fake_run, to_sleep=20, to_debug=True,
+                          t_queue=f'{self.addm_group}@tentacle.dq2',
+                          t_args=[f"TKU_Upload_routines.wget_run;task=t_short_mail;test_mode={self.test_mode};"
+                                  f"addm_group={self.addm_group};user={self.user_name}"],
+                          t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
+                          t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
+
             task = Runner.fire_t(TUploadExec.t_tku_sync, fake_run=self.fake_run,
-                                 t_kwargs=dict(tku_type=self.tku_type),
-                                 t_args=['tag=t_tku_sync;'])
+                                 t_kwargs=dict(tku_type=self.tku_type), t_args=['tag=t_tku_sync;'])
             if TasksOperations().task_wait_success(task, 't_tku_sync_option'):
                 self.tku_downloaded = True
             # Wait for task to finish?
@@ -404,25 +384,35 @@ class UploadTaskPrepare:
         t_kwargs = ''
         if self.test_mode == 'fresh' and step_k == 'step_1':
             log.info("<=UploadTaskPrepare=> Fresh install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
-            t_kwargs = dict(addm_items=self.addm_set, mode='fresh')
+            t_kwargs = dict(addm_items=self.addm_set, test_mode='fresh', user_email=self.user_email)
 
         elif self.test_mode == 'update' and step_k == 'step_1':
             log.info("<=UploadTaskPrepare=> Update install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
-            t_kwargs = dict(addm_items=self.addm_set, mode='update')
+            t_kwargs = dict(addm_items=self.addm_set, test_mode='update', user_email=self.user_email)
 
         elif self.test_mode == 'step' and step_k == 'step_1':
             log.info("<=UploadTaskPrepare=> Step install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
-            t_kwargs = dict(addm_items=self.addm_set, mode='step')
+            t_kwargs = dict(addm_items=self.addm_set, test_mode='step', user_email=self.user_email)
 
         else:
             log.debug("Other modes do not require preparations. Only fresh and update at 1st step require!")
 
         if t_kwargs:
+            subject = f"TKU_Upload_routines | addm_prepare | {self.test_mode} | {self.addm_group}"
+            body = f"ADDM group: {self.addm_group}, test mode: {self.test_mode}, user: {self.user_name}"
+            Runner.fire_t(TSupport.t_short_mail,
+                          fake_run=self.fake_run, to_sleep=20, to_debug=True,
+                          t_queue=f'{self.addm_group}@tentacle.dq2',
+                          t_args=[f"TKU_Upload_routines.addm_prepare;task=t_short_mail;test_mode={self.test_mode};"
+                                  f"addm_group={self.addm_group};user={self.user_name}"],
+                          t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
+                          t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
             # UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='fresh')
             Runner.fire_t(TUploadExec.t_upload_prep,
                           fake_run=self.fake_run, to_sleep=60, to_debug=True,
                           t_queue=f'{self.addm_group}@tentacle.dq2',
-                          t_args=[f"TKU_Upload_routines;task=addm_prepare;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
+                          t_args=[f"TKU_Upload_routines.addm_prepare;task=addm_prepare;test_mode={self.test_mode};"
+                                  f"addm_group={self.addm_group};user={self.user_name}"],
                           t_kwargs=t_kwargs,
                           t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
 
@@ -434,26 +424,43 @@ class UploadTaskPrepare:
         :param packages_from_step:
         :return:
         """
+        subject = f"TKU_Upload_routines | t_upload_unzip | {self.test_mode} | {self.addm_group}"
+        body = f"ADDM group: {self.addm_group}, test mode: {self.test_mode}, user: {self.user_name}, packages: {packages_from_step}"
+        Runner.fire_t(TSupport.t_short_mail,
+                      fake_run=self.fake_run, to_sleep=20, to_debug=True,
+                      t_queue=f'{self.addm_group}@tentacle.dq2',
+                      t_args=[f"TKU_Upload_routines.package_unzip;task=t_short_mail;test_mode={self.test_mode};"
+                              f"addm_group={self.addm_group};user={self.user_name}"],
+                      t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
+                      t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
         # UploadTestExec().upload_unzip_threads(addm_items=self.addm_set, packages=packages_from_step)
         Runner.fire_t(TUploadExec.t_upload_unzip,
                       fake_run=self.fake_run, to_sleep=60, debug_me=True,
                       t_queue=f"{self.addm_group}@tentacle.dq2",
                       t_args=[f"TKU_Upload_routines;task=t_upload_unzip;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
-                      t_kwargs=dict(addm_items=self.addm_set, packages=packages_from_step),
+                      t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode, packages=packages_from_step, user_email=self.user_email),
                       t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_unzip")
 
     def tku_install(self, packages_from_step):
         """
         Install previously unzipped TKU from /usr/tideway/TEMP/*.zip
-
         :return:
         """
+        subject = f"TKU_Upload_routines | t_tku_install | {self.test_mode} | {self.addm_group}"
+        body = f"ADDM group: {self.addm_group}, test mode: {self.test_mode}, user: {self.user_name}, packages: {packages_from_step}"
+        Runner.fire_t(TSupport.t_short_mail,
+                      fake_run=self.fake_run, to_sleep=20, to_debug=True,
+                      t_queue=f'{self.addm_group}@tentacle.dq2',
+                      t_args=[f"TKU_Upload_routines.tku_install;task=t_short_mail;test_mode={self.test_mode};"
+                              f"addm_group={self.addm_group};user={self.user_name}"],
+                      t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
+                      t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
         # UploadTestExec().install_tku_threads(addm_items=self.addm_set)
         Runner.fire_t(TUploadExec.t_tku_install,
                       fake_run=self.fake_run, to_sleep=20, debug_me=True,
                       t_queue=f"{self.addm_group}@tentacle.dq2",
                       t_args=[f"TKU_Upload_routines;task=t_tku_install;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
-                      t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode, packages=packages_from_step),
+                      t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode, packages=packages_from_step, user_email=self.user_email),
                       t_routing_key=f"{self.addm_group}.TUploadExec.t_tku_install")
 
     @staticmethod

@@ -45,7 +45,7 @@ class Mails:
 
         if os.name == "nt":
             msg = f"mail_html={mail_html} body={body} subject={subject} send_to={send_to} send_cc={send_cc}"
-            # log.debug('Sending short email confirmation: %s', msg)
+            log.debug('Sending short email confirmation: %s', msg)
         else:
             connection = mail.get_connection()
             connection.open()

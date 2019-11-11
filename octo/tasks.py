@@ -16,6 +16,8 @@ from time import sleep
 from octo.octo_celery import app
 from django.conf import settings
 
+from octo.helpers.tasks_mail_send import Mails
+
 from octo.helpers.tasks_oper import WorkerOperations, TasksOperations
 from octo.helpers.tasks_helpers import exception
 
@@ -52,6 +54,12 @@ class TSupport:
     """
     Sending mails for example
     """
+
+    @staticmethod
+    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @exception
+    def t_short_mail(t_tag, **mail_kwargs):
+        Mails().short(**mail_kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)

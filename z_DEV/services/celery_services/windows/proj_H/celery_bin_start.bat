@@ -1,0 +1,5 @@
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n alpha@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n charlie@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n delta@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n w_parsing@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n w_routines@tentacle
