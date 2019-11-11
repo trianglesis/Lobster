@@ -24,7 +24,6 @@ from celery.result import AsyncResult
 from octo.api.serializers import CeleryTaskmetaSerializer
 
 from run_core.models import AddmDev
-from run_core.addm_operations import ADDMOperations
 from run_core.p4_operations import PerforceOperations
 from run_core.local_operations import LocalPatternsP4Parse
 
@@ -32,12 +31,11 @@ from octo.models import CeleryTaskmeta
 from octo.api.serializers import StandardResultsSetPagination
 
 from octo.helpers.tasks_run import Runner
-from octo.helpers.tasks_mail_send import Mails
-from octo.helpers.tasks_oper import TasksOperations, WorkerOperations, NewTaskOper
+from octo.helpers.tasks_oper import TasksOperations, WorkerOperations
 
 from octo_adm.user_operations import UserCheck
 from octo_adm.request_service import SelectorRequestsHelpers
-from octo_adm.tasks import TaskADDMService, ADDMCases
+from octo_adm.tasks import ADDMCases
 from octo_adm.serializers import AddmDevSerializer
 
 from octo_tku_patterns.tasks import TPatternParse

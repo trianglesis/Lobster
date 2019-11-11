@@ -222,7 +222,7 @@ class UploadTaskPrepare:
         """
 
         if os.name == "nt":  # Always fake run on local test env:
-            self.fake_run = True
+            self.fake_run = False
             log.debug("<=TaskPrepare=> Fake run self.request: %s", self.request)
 
         elif self.request.get('fake_run'):
@@ -378,7 +378,7 @@ class UploadTaskPrepare:
 
     def select_addm(self):
         if not self.addm_group:
-            self.addm_group = 'alpha'  # Should be a dedicated group for only upload test routines.
+            self.addm_group = 'golf'  # Should be a dedicated group for only upload test routines.
         addm_set = AddmDev.objects.filter(addm_group__exact=self.addm_group, disables__isnull=True).values()
         self.addm_set = addm_set
         return addm_set
@@ -401,38 +401,30 @@ class UploadTaskPrepare:
         :param step_k:
         :return:
         """
+        t_kwargs = ''
         if self.test_mode == 'fresh' and step_k == 'step_1':
             log.info("<=UploadTaskPrepare=> Fresh install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
-            # UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='fresh')
-            Runner.fire_t(TUploadExec.t_upload_prep,
-                          fake_run=False, to_sleep=60, to_debug=True,
-                          t_queue=f'{self.addm_group}@tentacle.dq2',
-                          t_args=[f"TKU_Upload_routines;task=addm_prepare;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
-                          t_kwargs=dict(addm_items=self.addm_set, mode='fresh'),
-                          t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
+            t_kwargs = dict(addm_items=self.addm_set, mode='fresh')
 
         elif self.test_mode == 'update' and step_k == 'step_1':
             log.info("<=UploadTaskPrepare=> Update install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
-            # UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='update')
-            Runner.fire_t(TUploadExec.t_upload_prep,
-                          fake_run=False, to_sleep=60, to_debug=True,
-                          t_queue=f'{self.addm_group}@tentacle.dq2',
-                          t_args=[f"TKU_Upload_routines;task=addm_prepare;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
-                          t_kwargs=dict(addm_items=self.addm_set, mode='update'),
-                          t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
+            t_kwargs = dict(addm_items=self.addm_set, mode='update')
 
         elif self.test_mode == 'step' and step_k == 'step_1':
             log.info("<=UploadTaskPrepare=> Step install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
-            # UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='step')
-            Runner.fire_t(TUploadExec.t_upload_prep,
-                          fake_run=False, to_sleep=60, to_debug=True,
-                          t_queue=f'{self.addm_group}@tentacle.dq2',
-                          t_args=[f"TKU_Upload_routines;task=addm_prepare;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
-                          t_kwargs=dict(addm_items=self.addm_set, mode='step'),
-                          t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
+            t_kwargs = dict(addm_items=self.addm_set, mode='step')
 
         else:
             log.debug("Other modes do not require preparations. Only fresh and update at 1st step require!")
+
+        if t_kwargs:
+            # UploadTestExec().upload_preparations_threads(addm_items=self.addm_set, mode='fresh')
+            Runner.fire_t(TUploadExec.t_upload_prep,
+                          fake_run=self.fake_run, to_sleep=60, to_debug=True,
+                          t_queue=f'{self.addm_group}@tentacle.dq2',
+                          t_args=[f"TKU_Upload_routines;task=addm_prepare;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
+                          t_kwargs=t_kwargs,
+                          t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
 
     def package_unzip(self, packages_from_step):
         """
@@ -444,7 +436,7 @@ class UploadTaskPrepare:
         """
         # UploadTestExec().upload_unzip_threads(addm_items=self.addm_set, packages=packages_from_step)
         Runner.fire_t(TUploadExec.t_upload_unzip,
-                      fake_run=False, to_sleep=60, debug_me=True,
+                      fake_run=self.fake_run, to_sleep=60, debug_me=True,
                       t_queue=f"{self.addm_group}@tentacle.dq2",
                       t_args=[f"TKU_Upload_routines;task=t_upload_unzip;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
                       t_kwargs=dict(addm_items=self.addm_set, packages=packages_from_step),
@@ -458,7 +450,7 @@ class UploadTaskPrepare:
         """
         # UploadTestExec().install_tku_threads(addm_items=self.addm_set)
         Runner.fire_t(TUploadExec.t_tku_install,
-                      fake_run=False, to_sleep=20, debug_me=True,
+                      fake_run=self.fake_run, to_sleep=20, debug_me=True,
                       t_queue=f"{self.addm_group}@tentacle.dq2",
                       t_args=[f"TKU_Upload_routines;task=t_tku_install;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
                       t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode, packages=packages_from_step),

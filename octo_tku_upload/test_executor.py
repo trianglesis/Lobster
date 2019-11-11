@@ -95,33 +95,33 @@ class UploadTestExec:
         for addm_item in addm_items:
             msg = f"ADDM Prepare for upload test for: {addm_item['addm_v_int']}:{addm_item['addm_name']} mode: {mode}"
             log.debug(msg)
-        #     # Open SSH connection:
-        #     ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
-        #     if ssh and ssh.get_transport().is_active():
-        #         m = f"<=upload_preparations_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
-        #         log.info(m)
-        #         kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time,  mode=mode, test_q=test_q)
-        #         th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
-        #         try:
-        #             test_thread = Thread(target=self.upload_preparations, name=th_name, kwargs=kwargs)
-        #             test_thread.start()
-        #             thread_list.append(test_thread)
-        #         except Exception as e:
-        #             msg = f"Thread test fail with error: {e}"
-        #             log.error(msg)
-        #             # raise Exception(msg)
-        #             return msg
-        #     # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
-        #     else:
-        #         msg = f"<=upload_preparations_threads=> SSH Connection could not be established thread skipping for ADDM: " \
-        #               f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
-        #         log.error(msg)
-        #         test_outputs.append(msg)
-        #         # Send mail with this error? BUT not for the multiple tasks!!!
-        #
-        # for test_th in thread_list:
-        #     test_th.join()
-        #     test_outputs.append(test_q.get())
+            # Open SSH connection:
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
+            if ssh and ssh.get_transport().is_active():
+                m = f"<=upload_preparations_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
+                log.info(m)
+                kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time,  mode=mode, test_q=test_q)
+                th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
+                try:
+                    test_thread = Thread(target=self.upload_preparations, name=th_name, kwargs=kwargs)
+                    test_thread.start()
+                    thread_list.append(test_thread)
+                except Exception as e:
+                    msg = f"Thread test fail with error: {e}"
+                    log.error(msg)
+                    # raise Exception(msg)
+                    return msg
+            # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
+            else:
+                msg = f"<=upload_preparations_threads=> SSH Connection could not be established thread skipping for ADDM: " \
+                      f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
+                log.error(msg)
+                test_outputs.append(msg)
+                # Send mail with this error? BUT not for the multiple tasks!!!
+
+        for test_th in thread_list:
+            test_th.join()
+            test_outputs.append(test_q.get())
         return f'upload_unzip_threads Took {time() - ts}'
 
     def upload_unzip_threads(self, **kwargs):
@@ -151,33 +151,33 @@ class UploadTestExec:
             tku_zip_list = [package.zip_file_path for package in package_]
             msg = f"Unzipping for: {addm_item['addm_v_int']}:{addm_item['addm_name']} zip list: {len(tku_zip_list)} - {tku_zip_list}"
             log.debug(msg)
-        #     # Open SSH connection:
-        #     ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
-        #     if ssh and ssh.get_transport().is_active():
-        #         m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
-        #         log.info(m)
-        #         kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time,  tku_zip_list=tku_zip_list, test_q=test_q)
-        #         th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
-        #         try:
-        #             test_thread = Thread(target=self.addm_op.upload_unzip, name=th_name, kwargs=kwargs)
-        #             test_thread.start()
-        #             thread_list.append(test_thread)
-        #         except Exception as e:
-        #             msg = f"Thread test fail with error: {e}"
-        #             log.error(msg)
-        #             # raise Exception(msg)
-        #             return msg
-        #     # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
-        #     else:
-        #         msg = f"<=upload_unzip_threads=> SSH Connection could not be established thread skipping for ADDM: " \
-        #               f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
-        #         log.error(msg)
-        #         test_outputs.append(msg)
-        #         # Send mail with this error? BUT not for the multiple tasks!!!
-        #
-        # for test_th in thread_list:
-        #     test_th.join()
-        #     test_outputs.append(test_q.get())
+            # Open SSH connection:
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
+            if ssh and ssh.get_transport().is_active():
+                m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
+                log.info(m)
+                kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time,  tku_zip_list=tku_zip_list, test_q=test_q)
+                th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
+                try:
+                    test_thread = Thread(target=self.addm_op.upload_unzip, name=th_name, kwargs=kwargs)
+                    test_thread.start()
+                    thread_list.append(test_thread)
+                except Exception as e:
+                    msg = f"Thread test fail with error: {e}"
+                    log.error(msg)
+                    # raise Exception(msg)
+                    return msg
+            # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
+            else:
+                msg = f"<=upload_unzip_threads=> SSH Connection could not be established thread skipping for ADDM: " \
+                      f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
+                log.error(msg)
+                test_outputs.append(msg)
+                # Send mail with this error? BUT not for the multiple tasks!!!
+
+        for test_th in thread_list:
+            test_th.join()
+            test_outputs.append(test_q.get())
         return f'upload_unzip_threads Took {time() - ts}'
 
     def install_tku_threads(self, **kwargs):

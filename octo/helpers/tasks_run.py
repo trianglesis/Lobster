@@ -5,12 +5,31 @@ import os
 from octo.helpers.tasks_helpers import exception
 from octo.tasks import TSupport
 
+from octo.helpers.tasks_oper import TasksOperations, WorkerOperations
+
 # Python logger
 import logging
 log = logging.getLogger("octo.octologger")
 
 
 class Runner:
+
+    @staticmethod
+    def check_task_added():
+        all_tasks = []
+        active_reserved = TasksOperations.tasks_get_active_reserved()
+        active = active_reserved.get('active')
+        reserved = active_reserved.get('reserved')
+        if active:
+            for _, val in active.items():
+                if val:
+                    all_tasks.append(val)
+        if reserved:
+            for _, val in reserved.items():
+                if val:
+                    all_tasks.append(val)
+        log.debug("All active and reserved tasks to check: %s", all_tasks)
+        return all_tasks
 
     @staticmethod
     @exception
@@ -56,14 +75,17 @@ class Runner:
         if t_task_time_limit:
             task_options.update(task_time_limit=t_task_time_limit)
 
+        # TODO: Later add on live examples
+        # all_tasks = Runner.check_task_added()
+
         # Do not really send a task if fake=True
         if not fake_run:
             return task.apply_async(**task_options)
         else:
             to_sleep = kwargs.get('to_sleep', 10)
             log.info("<=Runner Fire Task=> FAKE: About to fire a task Name %s", task.name)
-            log.info("<=Runner Fire Task=> FAKE: Task passed arguments: \n\t\t t_queue=%s \n\t\t t_args=%s \n\t\t t_kwargs=%s "
-                      "\n\t\t t_routing_key=%s", t_queue, t_args, t_kwargs, t_routing_key)
+            msg = f"<=Runner Fire Task=> FAKE: Task passed arguments: \n\t\t t_queue={t_queue} \n\t\t t_args={t_args} \n\t\t t_kwargs={t_kwargs} \n\t\t t_routing_key={t_routing_key}"
+            log.info(msg)
             if not os.name == 'nt':
                 return TSupport.fake_task.apply_async(
                     args=['fire_t', to_sleep], kwargs=dict(t_args=t_args, t_kwargs=t_kwargs), queue=t_queue, routing_key=t_routing_key)

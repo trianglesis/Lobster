@@ -94,7 +94,7 @@ app.conf.update(
     broker_pool_limit=None,
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#broker-connection-timeout
-    broker_connection_timeout=2,
+    broker_connection_timeout=10,
     broker_connection_retry=True,
     broker_connection_max_retries=0,
 
