@@ -32,20 +32,14 @@ class recursionlimit:
 class TasksOperations:
 
     def __init__(self):
-        self.workers_list = [
-            'alpha@tentacle',
-            'beta@tentacle',
-            'charlie@tentacle',
-            'delta@tentacle',
-            'echo@tentacle',
-            'foxtrot@tentacle',
-            'w_development@tentacle',
-        ]
         self.service_workers_list = [
             'w_routines@tentacle',
             'w_parsing@tentacle',
         ]
         self.workers_enabled = Options.objects.filter(option_key__exact='workers_enabled').values('option_value')[0]
+        __workers_list = Options.objects.get(option_key__exact='workers_list').option_value
+        __workers_list = __workers_list.split(',')
+        self.workers_list = [f"{worker}@tentacle" for worker in __workers_list]
 
     @staticmethod
     def task_success(task_itself):

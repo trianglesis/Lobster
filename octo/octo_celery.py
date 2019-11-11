@@ -109,83 +109,20 @@ app.conf.update(
 
 )
 
-# Keep parsing with default queue for local and system tasks only:
-# app.control.add_consumer(
-#     queue='parsing',
-#     exchange='tests_run',
-#     exchange_type='direct',
-#     routing_key='parsing.*',
-#     destination=['w_parsing@tentacle'])
-#
-# app.control.add_consumer(
-#     queue='routines',
-#     exchange='tests_run',
-#     exchange_type='direct',
-#     routing_key='routines.*',
-#     destination=['w_routines@tentacle'])
-#
-# # New:
-# app.control.add_consumer(
-#     queue='alpha',
-#     exchange='tests_run',
-#     exchange_type='direct',
-#     routing_key='alpha.*',
-#     destination=['alpha@tentacle'])
-#
-# app.control.add_consumer(
-#     queue='beta',
-#     exchange='tests_run',
-#     exchange_type='direct',
-#     routing_key='beta.*',
-#     destination=['beta@tentacle'])
-#
-# app.control.add_consumer(
-#     queue='charlie',
-#     exchange='tests_run',
-#     exchange_type='direct',
-#     routing_key='charlie.*',
-#     destination=['charlie@tentacle'])
-#
-# app.control.add_consumer(
-#     queue='delta',
-#     exchange='tests_run',
-#     exchange_type='direct',
-#     routing_key='delta.*',
-#     destination=['delta@tentacle'])
-#
-# app.control.add_consumer(
-#     queue='echo',
-#     exchange='tests_run',
-#     exchange_type='direct',
-#     routing_key='echo.*',
-#     destination=['echo@tentacle'])
-#
-# app.control.add_consumer(
-#     queue='foxtrot',
-#     exchange='tests_run',
-#     exchange_type='direct',
-#     routing_key='foxtrot.*',
-#     destination=['foxtrot@tentacle'])
-#
-# # AGAIN! I SAID ADD CONSUMER!
-# app.control.add_consumer(
-#     queue='development',
-#     exchange='tests_run',
-#     exchange_type='direct',
-#     routing_key='development.*',
-#     destination=['w_development@tentacle'])
+
 if not os.name == "nt":
     app.control.cancel_consumer(
         'default',
         destination=[
             'w_routines@tentacle',
             'alpha@tentacle',
-            # 'beta@tentacle',
+            'beta@tentacle',
             'charlie@tentacle',
-            # 'delta@tentacle',
-            # 'echo@tentacle',
-            # 'foxtrot@tentacle',
-            # 'w_development@tentacle',
+            'delta@tentacle',
+            'echo@tentacle',
+            'foxtrot@tentacle',
+            'golf@tentacle',
+            'w_development@tentacle',
         ])
 else:
     app.control.cancel_consumer(
@@ -193,15 +130,11 @@ else:
         destination=[
             'w_routines@tentacle',
             'alpha@tentacle',
-            # 'beta@tentacle',
+            'beta@tentacle',
             'charlie@tentacle',
-            # 'delta@tentacle',
-            # 'echo@tentacle',
-            # 'foxtrot@tentacle',
-            # 'w_development@tentacle',
+            'delta@tentacle',
+            'echo@tentacle',
+            'foxtrot@tentacle',
+            'golf@tentacle',
+            'w_development@tentacle',
         ])
-
-# To activate all queues and tasks are left:
-# Or better use proper restart/reloas.
-# app.control.inspect()
-# app.control.inspect().active_queues()

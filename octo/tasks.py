@@ -17,7 +17,6 @@ from octo.octo_celery import app
 from django.conf import settings
 
 from octo.helpers.tasks_oper import WorkerOperations, TasksOperations
-from octo.helpers.routine_helpers import RoutineHelpers
 from octo.helpers.tasks_helpers import exception
 
 log = logging.getLogger("octo.octologger")
