@@ -437,7 +437,7 @@ class UploadTaskPrepare:
                       t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
         # UploadTestExec().upload_unzip_threads(addm_items=self.addm_set, packages=packages_from_step)
         Runner.fire_t(TUploadExec.t_upload_unzip,
-                      fake_run=self.fake_run, to_sleep=60, debug_me=True,
+                      fake_run=self.fake_run, to_sleep=60, to_debug=True,
                       t_queue=f"{self.addm_group}@tentacle.dq2",
                       t_args=[f"TKU_Upload_routines;task=t_upload_unzip;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
                       t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode, step_k=step_k, packages=packages_from_step, user_email=self.user_email),
@@ -460,7 +460,7 @@ class UploadTaskPrepare:
                       t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
         # UploadTestExec().install_tku_threads(addm_items=self.addm_set)
         Runner.fire_t(TUploadExec.t_tku_install,
-                      fake_run=self.fake_run, to_sleep=20, debug_me=True,
+                      fake_run=self.fake_run, to_sleep=20, to_debug=True,
                       t_queue=f"{self.addm_group}@tentacle.dq2",
                       t_args=[f"TKU_Upload_routines;task=t_tku_install;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
                       t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode, step_k=step_k, packages=packages_from_step, user_email=self.user_email),

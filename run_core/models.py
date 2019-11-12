@@ -12,6 +12,17 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 
+class TestOutputs(models.Model):
+    option_key = models.CharField(max_length=255, unique=True)
+    option_value = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now=True)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'dev_octo_test_outputs'
+
+
 class Options(models.Model):
     option_key = models.CharField(_('option key unique'), max_length=120, unique=True)
     option_value = models.TextField(_('option value'), blank=True, null=True)

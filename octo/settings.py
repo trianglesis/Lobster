@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_auth',
+    # 'rest_auth',
     'django_celery_beat',
     'octo',
     'octo_adm',

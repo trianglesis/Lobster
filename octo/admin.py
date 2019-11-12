@@ -147,6 +147,17 @@ class OptionsAdmin(admin.ModelAdmin):
     list_filter = ('option_key', 'created_at', 'private')
     ordering = ('option_key',)
 
+@admin.register(TestOutputs)
+class TestOutputsAdmin(admin.ModelAdmin):
+    fields = (
+        ('option_key', 'option_value',),
+        'description',
+        'created_at',
+    )
+    readonly_fields = ('created_at',)
+    list_display = ('option_key', 'option_value', 'created_at', )
+    list_filter = ('option_key', 'created_at',)
+    ordering = ('option_key',)
 
 # admin.site.register(UserNamesCorrespond)
 @admin.register(UserNamesCorrespond)

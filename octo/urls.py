@@ -22,8 +22,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from octo.views import *
 
-from octo_tku_patterns.views import Reports
-from octo_tku_upload.views import ViewTKU
+# from octo_tku_patterns.views import Reports
+# from octo_tku_upload.views import ViewTKU
 
 urlpatterns = [
     # Home

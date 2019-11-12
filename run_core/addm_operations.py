@@ -156,6 +156,13 @@ class ADDMOperations:
                 cmd='''DEV_PROD_CONT=`rpm -qa | gawk 'match($0, /(tideway-content-1.0.+)/, a) {print a[1]}'` && sudo rpm -ev ${DEV_PROD_CONT}
                 ''',
             ),
+            tideway_devices=dict(
+                name='Delete tideway_devices rpm',
+                addm_exceptions=['zythum', 'aardvark', 'bobblehat'],
+                # cmd='sudo rpm -ev tideway-content-1.0*',
+                cmd='''DEV_TIDEWAY_DEVICES=`rpm -qa | gawk 'match($0, /(tideway-devices-.+)/, a) {print a[1]}'` && sudo rpm -ev $DEV_TIDEWAY_DEVICES
+                ''',
+            ),
             delete_rpm=dict(
                 name='Delete installed rpm',
                 addm_exceptions=['zythum', 'aardvark', 'bobblehat'],
@@ -752,9 +759,11 @@ class ADDMOperations:
         outputs_l = []
 
         for zip_item in tku_zip_list:
-            log.debug("<=ADDM Oper=> TKU ZIP item: (%s)", zip_item['zip_file_name'])
-            path_to_zip = zip_item['zip_file_path'].replace('/home/user/TH_Octopus', '/usr/tideway')
+            log.debug("<=ADDM Oper=> TKU ZIP item: (%s)", zip_item)
+            path_to_zip = zip_item.replace('/home/user/TH_Octopus', '/usr/tideway')
             cmd_list.append(f'unzip -o {path_to_zip} -d {TKU_temp}')
+
+        cmd_list.append('rm -f /usr/tideway/TEMP/release.txt')
 
         log.debug("<=ADDM Oper=> CMD LIST %s", cmd_list)
         # noinspection PyBroadException
@@ -774,6 +783,7 @@ class ADDMOperations:
                 log.error(msg)
                 raise Exception(msg)
         test_q.put(outputs_l)
+        return True
 
 
 class ADDMConfigurations:
