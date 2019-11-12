@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
+from django.db.models import Q
 
 from django.views.generic import TemplateView, ListView
 from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView
@@ -277,7 +278,9 @@ class TKUUpdateWorkbenchView(TemplateView):
             mode_key__exact='tkn_ship_continuous_install').values('test_date_time', 'package_type').latest(
             'test_date_time')
         latest_cont_main = tests_qs.filter(
-            mode_key__exact='tkn_main_continuous_install').values('test_date_time', 'package_type').latest(
+            ~Q(mode_key__exact='tkn_main_continuous_install') |
+            ~Q(mode_key__exact='tkn_main_continuous.fresh.step_1')
+        ).values('test_date_time', 'package_type').latest(
             'test_date_time')
         latest_ga_fresh = tests_qs.filter(
             mode_key__exact='ga_candidate_install').values('test_date_time', 'package_type').latest(
@@ -297,7 +300,8 @@ class TKUUpdateWorkbenchView(TemplateView):
             ].replace(hour=0, minute=0, second=0, microsecond=0)
         )
         upload_cont_main = tests_qs.filter(
-            mode_key__exact='tkn_main_continuous_install',
+            ~Q(mode_key__exact='tkn_main_continuous_install') |
+            ~Q(mode_key__exact='tkn_main_continuous.fresh.step_1'),
             test_date_time__gte=latest_cont_main[
                 'test_date_time'
             ].replace(hour=0, minute=0, second=0, microsecond=0)
