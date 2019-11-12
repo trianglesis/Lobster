@@ -722,7 +722,7 @@ class ADDMOperations:
             return dict(tideway_restart=e, addm=addm_instance)
 
     @staticmethod
-    def upload_unzip(ssh, addm_item, tku_zip_list):
+    def upload_unzip(**kwargs):
         """
         Execute ADDM command tw_pattern_management with install-activate key
         and execute upload testing saving STD outputs to Database
@@ -740,6 +740,10 @@ class ADDMOperations:
         :param tku_zip_list:
         :return:
         """
+        test_q = kwargs.get('test_q')
+        ssh = kwargs.get('ssh')
+        addm_item = kwargs.get('addm_item')
+        tku_zip_list = kwargs.get('tku_zip_list')
 
         # DELETE any TKU zips BEFORE unzip anything new:
         # TODO: create dir of not exist
@@ -750,7 +754,7 @@ class ADDMOperations:
         for zip_item in tku_zip_list:
             log.debug("<=ADDM Oper=> TKU ZIP item: (%s)", zip_item['zip_file_name'])
             path_to_zip = zip_item['zip_file_path'].replace('/home/user/TH_Octopus', '/usr/tideway')
-            cmd_list.append('unzip -o {} -d {}'.format(path_to_zip, TKU_temp))
+            cmd_list.append(f'unzip -o {path_to_zip} -d {TKU_temp}')
 
         log.debug("<=ADDM Oper=> CMD LIST %s", cmd_list)
         # noinspection PyBroadException
@@ -766,11 +770,10 @@ class ADDMOperations:
                     log.error("<=ADDM Oper=> upload_unzip -> stderr_output: %s", stderr_output)
                 outputs_l.append(dict(cmd=cmd, stdout=std_output, stderr=stderr_output))
             except Exception as e:
-                msg = '<=ADDM Oper=> Error during "upload_unzip" for: {} {} {} ON "'.format(
-                    cmd, e, addm_item['addm_name'], addm_item['addm_host'])
+                msg = f'<=ADDM Oper=> Error during upload_unzip for: {cmd} {e} {addm_item["addm_name"]} ON {addm_item["addm_host"]}'
                 log.error(msg)
                 raise Exception(msg)
-        return outputs_l
+        test_q.put(outputs_l)
 
 
 class ADDMConfigurations:

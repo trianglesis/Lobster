@@ -38,14 +38,14 @@ class Mails:
         if not body and not mail_html:
             body = txt.format('No txt body added.', '\n', curr_hostname)
         else:
-            body = "{} \nOn host: {}".format(body, curr_hostname)
+            body = "{} \n\t\tOn host: {}".format(body, curr_hostname)
 
         if not subject:
             subject = txt.format('No Subject added', ' - ', curr_hostname)
 
         if os.name == "nt":
             msg = f"mail_html={mail_html} body={body} subject={subject} send_to={send_to} send_cc={send_cc}"
-            log.debug('Sending short email confirmation: %s', msg)
+            log.debug('Sending short email confirmation: \n\t%s', msg)
         else:
             connection = mail.get_connection()
             connection.open()
