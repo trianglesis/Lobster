@@ -25,7 +25,7 @@ from octo_adm.user_operations import UserCheck
 
 from octo_tku_upload.models import *
 from octo_tku_upload.table_oper import UploadTKUTableOper
-from octo_tku_upload.tasks import TUploadExec, TUploadRoutine
+from octo_tku_upload.tasks import TUploadExec
 from octo_tku_upload.api.serializers import TkuPackagesNewSerializer, UploadTestsNewSerializer
 from octo_tku_upload.tasks import UploadTaskPrepare
 
@@ -68,71 +68,6 @@ class ViewTKU:
 
 # TASKs Actions
 class UploadTKU:
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def tku_update_test(request):
-        """
-        Execute upload test continuous task + routine:
-
-        tku_type = tkn_main_continuous
-        package_type = no type due to no release
-        zip_file_name = should be used to check integrity:
-            - Technology-Knowledge-Update-2069-03-1-ADDM-11.3+.zip
-            - Technology-Knowledge-Update-Storage-2069-03-1-ADDM-11.3+.zip
-            - Extended-Data-Pack-2069-03-1-ADDM-11.3+.zip
-
-
-        :param request:
-        :return:
-        """
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=UploadTKU=> tku_update_test(): %s", user_str)
-
-        page_widgets = loader.get_template('small_blocks/user_test_added.html')
-
-        addm_group = request.GET.get('addm_group', 'foxtrot')
-        tku_type = request.GET.get('tku_type', None)  # Used to select specific tku to install?
-        mode = request.GET.get('mode', None)  # Indicate mode: fresh, update or step
-        tku_wget = request.GET.get('tku_wget', False)  # Indicate mode: fresh, update or step
-        fake_run = request.GET.get('fake_run', False)
-
-        user_email = [request.user.email]
-        widgets = dict(
-            SUBJECT='TKU Upload test',
-            OPTION_VALUES=dict(
-                USER_NAME=user_name,
-                USER_EMAIL=user_email,
-                addm_group=addm_group,
-                tku_type=tku_type,
-                mode=mode,
-                tku_wget=tku_wget,
-                user_str=user_str,
-            ),
-        )
-        mail_to = ''
-        if user_email:
-            mail_to = "DEV Will send confirmation to: '{}'".format(user_email)
-
-        widgets['OPTION_VALUES']['SUBJECT'] = "DEV User {user_name}/{mail_to} execute upload test. " \
-                                              "Options: addm_group={addm_group} tku_type={tku_type} ".format(
-            user_name=user_name, mail_to=mail_to, addm_group=addm_group, tku_type=tku_type)
-
-        tsk_msg = 'tag=upload_routine;lock=True;type=routine;user_name={user_name};tku_type={tku_type}' \
-                  '| on: "{addm_group}" by: {user_name}'
-        t_tag = tsk_msg.format(user_name=user_name, addm_group=addm_group, tku_type=tku_type)
-
-        log.debug("<=OCTO ADM=> User test tku_update_test: \n%s", t_tag)
-        Runner.fire_t(TUploadRoutine.t_routine_tku_upload, fake_run=fake_run,
-                      t_args=[t_tag],
-                      t_kwargs=dict(user_name=user_name, user_email=user_email, tku_type=tku_type,
-                                    addm_group=addm_group, mode=mode, tku_wget=tku_wget))
-
-        TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.now(),
-                         user_name=user_name, addm_group=addm_group, mode=mode,
-                         tku_type=tku_type, tku_wget=tku_wget, user_email=user_email)
-        return HttpResponse(page_widgets.render(widgets, request))
 
     @staticmethod
     @login_required(login_url='/unauthorized_banner/')
@@ -598,11 +533,6 @@ class TKUOperationsREST(APIView):
         Example upgrade routine run: (operation_key=tku_install_test;addm_group=alpha;test_mode=update)
         :return:
         """
-        t_tag = f'tag=upload_routine;lock=True;type=routine;user_name={self.user_name};tku_type={self.tku_type}| ' \
-                f'on: "{self.addm_group}" by: {self.user_name}'
-        # TMail().upload_t(stage='added', t_tag=t_tag, start_time=datetime.now(),
-        #                  user_name=self.user_name, addm_group=self.addm_group, mode=self.mode_key,
-        #                  tku_type=self.tku_type, tku_wget=self.tku_wget, user_email=self.user_email)
         obj = dict(
             request=self.request.data,
             user_name=self.request.user.username,
@@ -610,15 +540,14 @@ class TKUOperationsREST(APIView):
         )
         t_tag = f'tag=t_upload_test;user_name={self.request.user.username};'
         t_queue = 'w_routines@tentacle.dq2'
-        t_routing_key = 'routines.TUploadRoutine.t_upload_test'
-        task = TUploadRoutine.t_upload_test.apply_async(
+        t_routing_key = 'routines.TUploadExec.t_upload_test'
+        task = TUploadExec.t_upload_test.apply_async(
             args=[t_tag],
             kwargs=dict(obj=obj),
             queue=t_queue,
             routing_key=t_routing_key,
         )
         log.debug("task_added: %s", task.id)
-        # return {'task': task.id}
         return {'task_id': task.id}
 
     def tku_sync_packages(self):
