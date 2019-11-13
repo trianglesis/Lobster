@@ -274,56 +274,70 @@ class TKUUpdateWorkbenchView(TemplateView):
 
         # Select most latest tests dates and package type for workbench:
         tests_qs = UploadTestsNew.objects.all()
+
         latest_cont_ship = tests_qs.filter(
-            mode_key__exact='tkn_ship_continuous_install').values('test_date_time', 'package_type').latest(
-            'test_date_time')
-        latest_cont_main = tests_qs.filter(
-            ~Q(mode_key__exact='tkn_main_continuous_install') |
-            ~Q(mode_key__exact='tkn_main_continuous.fresh.step_1')
+            Q(mode_key__exact='tkn_ship_continuous_install') |
+            Q(mode_key__exact='tkn_ship_continuous.fresh.step_1')
         ).values('test_date_time', 'package_type').latest(
             'test_date_time')
-        latest_ga_fresh = tests_qs.filter(
-            mode_key__exact='ga_candidate_install').values('test_date_time', 'package_type').latest(
-            'test_date_time')
-        latest_ga_upgrade = tests_qs.filter(
-            mode_key__exact='ga_candidate_install_step_2').values('test_date_time', 'package_type').latest(
-            'test_date_time')
-        latest_ga_prep = tests_qs.filter(
-            mode_key__exact='released_tkn_install_step_1').values('test_date_time', 'package_type').latest(
+
+        latest_cont_main = tests_qs.filter(
+            Q(mode_key__exact='tkn_main_continuous_install') |
+            Q(mode_key__exact='tkn_main_continuous.fresh.step_1')
+        ).values('test_date_time', 'package_type').latest(
             'test_date_time')
 
-        # Now select package type upload tests with related dates from above:
+        latest_ga_fresh = tests_qs.filter(
+            Q(mode_key__exact='ga_candidate_install') |
+            Q(mode_key__exact='ga_candidate.fresh.step_1')
+        ).values('test_date_time', 'package_type').latest(
+            'test_date_time')
+
+        latest_ga_upgrade = tests_qs.filter(
+            Q(mode_key__exact='ga_candidate_install_step_2') |
+            Q(mode_key__exact='ga_candidate.update.step_2')
+        ).values('test_date_time', 'package_type').latest(
+            'test_date_time')
+
+        latest_ga_prep = tests_qs.filter(
+            Q(mode_key__exact='released_tkn_install_step_1') |
+            Q(mode_key__exact='released_tkn.update.step_1')
+        ).values('test_date_time', 'package_type').latest(
+            'test_date_time')
+
+        # Now select package type upload tests with related dates from above:`
         upload_cont_ship = tests_qs.filter(
-            mode_key__exact='tkn_ship_continuous_install',
-            test_date_time__gte=latest_cont_ship[
-                'test_date_time'
-            ].replace(hour=0, minute=0, second=0, microsecond=0)
+            Q(mode_key__exact='tkn_ship_continuous_install') |
+            Q(mode_key__exact='tkn_ship_continuous.fresh.step_1'),
+            test_date_time__gte=latest_cont_ship['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
         )
+
         upload_cont_main = tests_qs.filter(
-            ~Q(mode_key__exact='tkn_main_continuous_install') |
-            ~Q(mode_key__exact='tkn_main_continuous.fresh.step_1'),
-            test_date_time__gte=latest_cont_main[
-                'test_date_time'
-            ].replace(hour=0, minute=0, second=0, microsecond=0)
+            Q(mode_key__exact='tkn_main_continuous_install') |
+            Q(mode_key__exact='tkn_main_continuous.fresh.step_1'),
+            test_date_time__gte=latest_cont_main['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
         )
         upload_ga_fresh = tests_qs.filter(
-            mode_key__exact='ga_candidate_install',
-            test_date_time__gte=latest_ga_fresh[
-                'test_date_time'
-            ].replace(hour=0, minute=0, second=0, microsecond=0)
+            Q(mode_key__exact='ga_candidate_install') |
+            Q(mode_key__exact='ga_candidate.fresh.step_1'),
+            test_date_time__gte=latest_ga_fresh['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
         )
         upload_ga_upgrade = tests_qs.filter(
-            mode_key__exact='ga_candidate_install_step_2',
-            test_date_time__gte=latest_ga_upgrade[
-                'test_date_time'
-            ].replace(hour=0, minute=0, second=0, microsecond=0)
+            Q(mode_key__exact='ga_candidate_install_step_2') |
+            Q(mode_key__exact='ga_candidate.update.step_2'),
+            test_date_time__gte=latest_ga_upgrade['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
         )
         upload_ga_prep = tests_qs.filter(
-            mode_key__exact='released_tkn_install_step_1',
-            test_date_time__gte=latest_ga_upgrade[
-                'test_date_time'
-            ].replace(hour=0, minute=0, second=0, microsecond=0)
+            Q(mode_key__exact='released_tkn_install_step_1') |
+            Q(mode_key__exact='released_tkn.update.step_1'),
+            test_date_time__gte=latest_ga_upgrade['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
         )
+
+        # log.debug("upload_cont_ship: %s", upload_cont_ship.query)
+        # log.debug("upload_cont_main: %s", upload_cont_main.query)
+        log.debug("upload_ga_fresh: %s", upload_ga_fresh.query)
+        log.debug("upload_ga_upgrade: %s", upload_ga_upgrade.query)
+        log.debug("upload_ga_prep: %s", upload_ga_prep.query)
 
         selections = dict(
             # MAX latest packages in DB
