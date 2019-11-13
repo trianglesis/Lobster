@@ -35,8 +35,8 @@ class OctoTestCase(UploadTaskPrepare):
             # For update mode just pass a mode:
             # test_mode='update',
             # Of select packages manually:
-            test_mode='step',
-            package_types=[select_latest_ga, select_latest_released],
+            # test_mode='step',
+            # package_types=[select_latest_ga, select_latest_released],
 
             # For step mode pass mode and ordered list of packages by: 'package_type'
             # test_mode='step',
@@ -49,6 +49,9 @@ class OctoTestCase(UploadTaskPrepare):
             # For just package install
             # package_types=['TKN_release_2018-09-1-114', 'TKN_release_2018-09-1-113'],
 
+            # Product content update:
+            package_detail='TKU-Product-Content',
+            package_types=[select_latest_tkn_main_continuous],
         )
 
     def run(self):

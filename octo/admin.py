@@ -468,9 +468,6 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
         'package_type',
         'test_mode',
         'upload_test_status',
-        # 'tku_build',
-        # 'tku_date',
-        # 'tku_month',
         'addm_name',
         'addm_host',
         # 'addm_ip',
@@ -479,9 +476,9 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
         'time_spent_test',
         'test_date_time',
     )
-    list_filter = ('test_mode', 'mode_key', 'package_type', 'tku_type', 'tku_build', 'addm_name', 'test_date_time')
+    list_filter = ('test_mode', 'mode_key', 'package_type', 'tku_type', 'addm_name', 'test_date_time')
 
-    search_fields = ('test_mode', 'mode_key', 'package_type', 'tku_type', 'tku_build', 'addm_name',)
+    search_fields = ('test_mode', 'mode_key', 'package_type', 'tku_type', 'addm_name',)
 
     fieldsets = (
         (None, {
@@ -493,11 +490,6 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
                 (
                     'tku_type',
                     'package_type',
-                ),
-                (
-                    'tku_build',
-                    'tku_date',
-                    'tku_month',
                 ),
                 ('upload_test_status',),
                 (
@@ -515,7 +507,6 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
                 ),
                 (
                     'tku_statuses',
-                    'tested_zips',
                 ),
                 (
                     'addm_name',

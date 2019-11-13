@@ -5,7 +5,6 @@ import datetime
 from django.db.models import Max
 
 from octo_tku_upload.models import UploadTestsNew
-from octo_tku_upload.models import UploadTests as OldUploadTests
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 
 

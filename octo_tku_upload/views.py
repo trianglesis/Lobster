@@ -268,12 +268,6 @@ class TKUUpdateWorkbenchView(TemplateView):
             test_date_time__gte=latest_ga_upgrade['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
         )
 
-        # log.debug("upload_cont_ship: %s", upload_cont_ship.query)
-        # log.debug("upload_cont_main: %s", upload_cont_main.query)
-        log.debug("upload_ga_fresh: %s", upload_ga_fresh.query)
-        log.debug("upload_ga_upgrade: %s", upload_ga_upgrade.query)
-        log.debug("upload_ga_prep: %s", upload_ga_prep.query)
-
         selections = dict(
             # MAX latest packages in DB
             max_released=max_released,
@@ -409,17 +403,13 @@ class TKUOperationsREST(APIView):
         self.task_id = ''
         #  options:
         self.addm_version = ''
-        self.zip_type = ''
-        self.tku_name = ''
 
         self.test_mode = ''
         self.tku_type = ''
-        self.mode_key = ''
         self.tku_wget = ''
-        self.addm_name = ''
         self.addm_group = ''
         self.package_type = ''
-        self.upload_test_status = ''
+        self.package_detail = ''
 
         self.fake_run = False
         self.goto_ = 'http://'+curr_hostname+'/octo_tku_upload/tku_operations/?operation_key='
@@ -451,14 +441,9 @@ class TKUOperationsREST(APIView):
             self.task_id = self.request.POST.get('task_id', 'ThisIsNotTheTaskJustSayingYouKnow?')
 
             self.addm_version = self.request.POST.get('addm_version', None)
-            self.zip_type = self.request.POST.get('zip_type', None)
-            self.tku_name = self.request.POST.get('tku_name', None)
             self.test_mode = self.request.POST.get('test_mode', None)
             self.tku_type = self.request.POST.get('tku_type', None)
-            self.mode_key = self.request.POST.get('mode_key', None)
-            self.addm_name = self.request.POST.get('addm_name', None)
             self.package_type = self.request.POST.get('package_type', None)
-            self.upload_test_status = self.request.POST.get('upload_test_status', None)
 
         elif self.request.GET:
             self.operation_key = self.request.GET.get('operation_key', None)
@@ -466,14 +451,9 @@ class TKUOperationsREST(APIView):
             self.task_id = self.request.GET.get('task_id', '')
 
             self.addm_version = self.request.GET.get('addm_version', None)
-            self.zip_type = self.request.GET.get('zip_type', None)
-            self.tku_name = self.request.GET.get('tku_name', None)
             self.test_mode = self.request.GET.get('test_mode', None)
             self.tku_type = self.request.GET.get('tku_type', None)
-            self.mode_key = self.request.GET.get('mode_key', None)
-            self.addm_name = self.request.GET.get('addm_name', None)
             self.package_type = self.request.GET.get('package_type', None)
-            self.upload_test_status = self.request.GET.get('upload_test_status', None)
 
         self.is_authenticated = self.request.user.is_authenticated
         self.user_name = self.request.user.get_username()
@@ -530,7 +510,10 @@ class TKUOperationsREST(APIView):
         Run test of TKU Upload with selected 'tku_packages' or 'test_mode'. If test_mode selected - will run
         predefined internal logic, of 'tku_package' selected - will install TKU as usual knowledge update without
         additional steps or preparations.
-        Example upgrade routine run: (operation_key=tku_install_test;addm_group=alpha;test_mode=update)
+        Example upgrade routine run:
+            (operation_key=tku_install_test;addm_group=alpha;test_mode=update) |
+        Example product content update MAIN:
+            (operation_key=tku_install_test;addm_group=golf;package_types=tkn_main_continuous_2069-11-1-000;package_detail=TKU-Product-Content;test_mode=fresh)
         :return:
         """
         obj = dict(

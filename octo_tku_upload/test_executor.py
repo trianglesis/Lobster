@@ -87,7 +87,7 @@ class UploadTestExec:
                 if ssh and ssh.get_transport().is_active():
                     m = f"<=upload_preparations_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
                     log.info(m)
-                    kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time,  test_mode=test_mode, test_q=test_q)
+                    kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time, test_mode=test_mode, test_q=test_q)
                     th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
                     try:
                         prep_th = Thread(target=self.upload_preparations, name=th_name, kwargs=kwargs)
@@ -198,6 +198,7 @@ class UploadTestExec:
         user_email = kwargs.get('user_email', None)
         addm_items = kwargs.get('addm_items', None)
         packages = kwargs.get('packages', None)
+        package_detail = kwargs.get('package_detail', None)
         test_mode = kwargs.get('test_mode')
         step_k = kwargs.get('step_k')
         addm_group = addm_items.first().get('addm_group')
@@ -208,6 +209,11 @@ class UploadTestExec:
         ts = time()
         test_q = Queue()
         start_time = datetime.now()
+
+        if package_detail:
+            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}.{package_detail}'
+        else:
+            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}'
 
         for addm_item in addm_items:
             # Get ADDM related package zip list from packages:
@@ -222,7 +228,7 @@ class UploadTestExec:
                 if ssh and ssh.get_transport().is_active():
                     m = f"<=install_tku_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
                     log.info(m)
-                    kwargs = dict(ssh=ssh, addm_item=addm_item, test_q=test_q)
+                    kwargs = dict(ssh=ssh, addm_item=addm_item, package_detail=package_detail, test_q=test_q)
                     th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
                     try:
                         install_th = Thread(target=self.install_activate, name=th_name, kwargs=kwargs)
@@ -231,8 +237,7 @@ class UploadTestExec:
                     except Exception as e:
                         msg = f"Thread test fail with error: {e}"
                         log.error(msg)
-                        # raise Exception(msg)
-                        return msg
+                        thread_outputs.append(msg)
                 # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
                 else:
                     msg = f"<=install_tku_threads=> SSH Connection could not be established thread skipping for ADDM: " \
@@ -247,9 +252,10 @@ class UploadTestExec:
                 thread_outputs.append(th_out)  # {addm_item:addm_item, output:upload_outputs_d}
                 # Processing outputs for each thread:
                 # Get thread output and insert results in upload test table:
-                msg = f'tku_type={packages[0].tku_type};package_type={packages[0].package_type};test_mode={test_mode}:step_k={step_k},'
+                msg = f'tku_type={packages[0].tku_type};package_type={packages[0].package_type};' \
+                      f'test_mode={test_mode}:step_k={step_k};package_detail={package_detail}'
                 log.debug("<=install_tku_threads=> Package installed: %s", msg)
-                mode_key = f'{pack.tku_type}.{test_mode}.{step_k}'
+
                 addm_item = th_out.get('addm_item')
                 upload_outputs_d = th_out.get('output')
                 upload_results_d = self.parse_upload_result(upload_outputs_d)
@@ -259,7 +265,8 @@ class UploadTestExec:
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | install_tku_threads | {test_mode} | {step_k} | {addm_group} | Finished!"
         body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, tku_type: {pack.tku_type}, " \
-               f"package_type: {pack.package_type}, start_time: {start_time}, time spent: {time() - ts} "
+               f"package_type: {pack.package_type}, package_detail: {package_detail}, " \
+               f"start_time: {start_time}, time spent: {time() - ts} mode_key={mode_key} "
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'install_tku_threads Took {time() - ts} {body}'
 
@@ -289,7 +296,6 @@ class UploadTestExec:
                     func_run = func_obj(ssh, addm_item, func_key)
                 log.info("<=upload_preparations=> TKU Upload preparations: %s %s", func_key, func_run)
                 cmd_outputs.append(f"{func_key} {mode} {addm_item['addm_name']} output: (TBA)")
-
             else:
                 log.info("<=upload_preparations=> No preparations will run of current mode: %s %s=%s", mode, func_key, func_obj)
         test_q.put(cmd_outputs)
@@ -314,42 +320,26 @@ class UploadTestExec:
         test_q = kwargs.get('test_q')
         ssh = kwargs.get('ssh')
         addm_item = kwargs.get('addm_item')
+        package_detail = kwargs.get('package_detail')
 
         if ssh and ssh.get_transport().is_active():
             log.info("<=install_activate=> PASSED: SSH Is active")
 
-        # TODO: Run for all files, not zip only?
+        cmd_ = "/usr/tideway/bin/tw_pattern_management -p system  --install-activate {} " \
+               "--show-progress --loglevel=debug /usr/tideway/TEMP/"
         if float(addm_item['addm_v_int']) > 11.1:
-            # noinspection SpellCheckingInspection
-            cmd = ('/usr/tideway/bin/tw_pattern_management -p system  '
-                   '--install-activate '
-                   '--allow-restart '
-                   '--show-progress '
-                   '--loglevel=debug /usr/tideway/TEMP/*.zip')
+            cmd = cmd_.format('--allow-restart')
         else:
-            # noinspection SpellCheckingInspection
-            cmd = ('/usr/tideway/bin/tw_pattern_management -p system  '
-                   '--install-activate '
-                   '--show-progress '
-                   '--loglevel=debug /usr/tideway/TEMP/*.zip')
+            cmd = cmd_.format('')
+
+        if package_detail:
+            cmd += f"{package_detail}*"
+
         # noinspection PyBroadException
         try:
-            # TODO: Run fake command.
-            # cmd = 'ls -lh /usr/tideway/TEMP/'
             log.debug("Try CMD: (%s) | on %s - %s ", cmd, addm_item['addm_host'], addm_item['addm_name'])
             _, stdout, stderr = ssh.exec_command(cmd)
-
             upload_outputs_d = self.std_read(out=stdout, err=stderr)
-
-            debug_stdout = TestOutputs(option_key=f"{addm_item['addm_name']}.{addm_item['addm_host']}.stdout", option_value=stdout, description='install_activate stdout example')
-            debug_stdout.save(force_insert=True)
-
-            debug_stderr = TestOutputs(option_key=f"{addm_item['addm_name']}.{addm_item['addm_host']}.stderr", option_value=stderr, description='install_activate stderr example')
-            debug_stderr.save(force_insert=True)
-
-            debug_upload_outputs_d = TestOutputs(option_key=f"{addm_item['addm_name']}.{addm_item['addm_host']}.upload_outputs_d", option_value=upload_outputs_d, description='install_activate upload_outputs_d example')
-            debug_upload_outputs_d.save(force_insert=True)
-
             test_q.put({"output": upload_outputs_d, "addm_item": addm_item})
 
         except Exception as e:

@@ -108,9 +108,10 @@ class UploadTaskPrepare:
             self.user_email = self.view_obj.get('user_email')
 
             self.tku_wget = self.request.get('tku_wget', None)
-            self.test_mode = self.request.get('test_mode', None)
+            self.test_mode = self.request.get('test_mode', 'custom')
             self.tku_type = self.request.get('tku_type', None)
             self.addm_group = self.request.get('addm_group', None)
+            self.package_detail = self.request.get('package_detail', None)
         else:
             log.debug("From Test class?")
             self.request = obj.request
@@ -119,9 +120,10 @@ class UploadTaskPrepare:
             self.user_email = self.request.get('user_email', None)
 
             self.tku_wget = self.request.get('tku_wget', None)
-            self.test_mode = self.request.get('test_mode', None)
+            self.test_mode = self.request.get('test_mode', 'custom')
             self.tku_type = self.request.get('tku_type', None)
             self.addm_group = self.request.get('addm_group', None)
+            self.package_detail = self.request.get('package_detail', None)
 
         # Define fake run:
         self.fake_run = False
@@ -379,7 +381,8 @@ class UploadTaskPrepare:
         """
         subject = f"TKU_Upload_routines | t_tku_install | {self.test_mode} | {self.addm_group} | {step_k}"
         packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path')
-        body = f"ADDM group: {self.addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, packages: {list(packs)}"
+        body = f"ADDM group: {self.addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, " \
+               f"packages: {list(packs)}, package_detail: {self.package_detail}"
         Runner.fire_t(TSupport.t_short_mail,
                       fake_run=self.fake_run, to_sleep=20, to_debug=True,
                       t_queue=f'{self.addm_group}@tentacle.dq2',
@@ -392,7 +395,8 @@ class UploadTaskPrepare:
                       fake_run=self.fake_run, to_sleep=20, to_debug=True,
                       t_queue=f"{self.addm_group}@tentacle.dq2",
                       t_args=[f"TKU_Upload_routines;task=t_tku_install;test_mode={self.test_mode};addm_group={self.addm_group};user={self.user_name}"],
-                      t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode, step_k=step_k, packages=packages_from_step, user_email=self.user_email),
+                      t_kwargs=dict(addm_items=self.addm_set, test_mode=self.test_mode, step_k=step_k,
+                                    packages=packages_from_step, package_detail=self.package_detail, user_email=self.user_email),
                       t_routing_key=f"{self.addm_group}.TUploadExec.t_tku_install")
 
     @staticmethod

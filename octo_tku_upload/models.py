@@ -11,41 +11,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class TkuPackages(models.Model):
-    # noinspection SpellCheckingInspection
-    """
-        ALter multiple PK:
-        ALTER TABLE octopus_dev_copy.TKU_PACKAGES DROP PRIMARY KEY, ADD PRIMARY KEY(zip_file_path,
-            zip_file_name, package_type, addm_version, tku_build);
-        """
-    zip_file_path = models.CharField(primary_key=True, max_length=255)
-    zip_file_name = models.CharField(max_length=255)
-    package_type = models.CharField(max_length=255)
-    tku_type = models.CharField(max_length=255)
-    zip_type = models.CharField(max_length=255)
-    addm_version = models.CharField(max_length=255)
-    tku_name = models.CharField(max_length=255)
-    tku_addm_version = models.CharField(max_length=255)
-    tku_build = models.CharField(max_length=255)
-    tku_date = models.CharField(max_length=255)
-    tku_month = models.CharField(max_length=255)
-    tku_pack = models.CharField(max_length=255)
-    zip_file_md5_digest = models.CharField(max_length=255)
-
-    class Meta:
-        managed = True
-        db_table = 'TKU_PACKAGES'
-        unique_together = (
-            (
-                'zip_file_path',
-                'zip_file_name',
-                'package_type',
-                'addm_version',
-                'tku_build'
-            ),
-        )
-
-
 class TkuPackagesNew(models.Model):
     zip_file_path = models.CharField(max_length=255)
     zip_file_name = models.CharField(max_length=255)
@@ -77,62 +42,14 @@ class TkuPackagesNew(models.Model):
         )
 
 
-class UploadTests(models.Model):
-    """
-    Alter multiple PK:
-    ALTER TABLE octopus_dev_copy.UPLOAD_TESTS DROP PRIMARY KEY, ADD PRIMARY KEY(
-        test_case_key, addm_name, addm_v_int, addm_host, tku_type, tku_build, tku_date,
-        tku_month, test_mode, mode_key, package_type);
-    """
-    test_case_key = models.CharField(primary_key=True, max_length=255)
-    test_mode = models.CharField(max_length=255)
-    mode_key = models.CharField(max_length=255)
-    test_date = models.CharField(max_length=255)
-    test_time = models.CharField(max_length=255)
-    upload_test_status = models.CharField(max_length=255)
-    upload_test_str_stdout = models.TextField(blank=True, null=True)
-    upload_test_str_stderr = models.TextField(blank=True, null=True)
-    important_out = models.TextField(blank=True, null=True)
-    all_errors = models.TextField(blank=True, null=True)
-    all_warnings = models.TextField(blank=True, null=True)
-    upload_warnings = models.TextField(blank=True, null=True)
-    upload_errors = models.TextField(blank=True, null=True)
-    tku_statuses = models.TextField(blank=True, null=True)
-    time_spent_test = models.CharField(max_length=255)
-    tested_zips = models.TextField(blank=True, null=True)
-    addm_name = models.CharField(max_length=255)
-    addm_v_int = models.CharField(max_length=255)
-    addm_host = models.CharField(max_length=255)
-    addm_ip = models.CharField(max_length=255)
-    addm_version = models.CharField(max_length=255)
-    tku_type = models.CharField(max_length=255)
-    package_type = models.CharField(max_length=255)
-    tku_build = models.CharField(max_length=255)
-    tku_date = models.CharField(max_length=255)
-    tku_month = models.CharField(max_length=255)
-
-    class Meta:
-        managed = True
-        db_table = 'UPLOAD_TESTS'
-        unique_together = (('test_case_key', 'addm_name', 'addm_v_int', 'addm_host',
-                            'tku_type', 'tku_build', 'tku_date', 'tku_month', 'test_mode', 'mode_key', 'package_type'),)
-
-
 class UploadTestsNew(models.Model):
-    # TODO: Rework this:
-    """
-    Make save by ID, do not create other unique indexes!
-    Add tku_type, package_type, addm_name, addm/tku as references, optionally add md5sum
-    """
+
     # Used mode and mode key:
     test_mode = models.CharField(max_length=50)
-    mode_key = models.CharField(max_length=50)
+    mode_key = models.CharField(max_length=100)
     # TKU zip details:
     package_type = models.CharField(max_length=50)
     tku_type = models.CharField(max_length=50)
-    tku_build = models.CharField(max_length=50)
-    tku_date = models.CharField(max_length=50)
-    tku_month = models.CharField(max_length=50)
     # Clean outputs for debug:
     upload_test_status = models.CharField(max_length=50)
     upload_test_str_stdout = models.TextField(blank=True, null=True)
@@ -147,8 +64,6 @@ class UploadTestsNew(models.Model):
     upload_errors = models.TextField(blank=True, null=True)
     # TKU zips and packages installed: list and statuses, like 'skipped'
     tku_statuses = models.TextField(blank=True, null=True)
-    # List of md5sum indexes of TKU zips were used for test
-    tested_zips = models.TextField(blank=True, null=True)
     # Addm item details:
     addm_name = models.CharField(max_length=50)
     addm_v_int = models.CharField(max_length=50)
