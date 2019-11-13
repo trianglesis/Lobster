@@ -4,48 +4,27 @@ WIll use same logic from TPL IDE Automation.
 
 """
 
-import re, os
-from time import time
-from time import sleep
-from datetime import datetime
-
-from queue import Queue
-from threading import Thread
-
-from django.db.models import Max
-from run_core.addm_operations import ADDMOperations
-from run_core.models import AddmDev
-from octo_tku_upload.models import TkuPackagesNew as TkuPackages
-from octo_tku_upload.models import UploadTestsNew as UploadTests
-
-from octo.helpers.tasks_mail_send import Mails
-from octo_tku_upload.table_oper import UploadTKUTableOper
-
-from octo.helpers.tasks_helpers import TMail
-
-from run_core.models import TestOutputs
-
 # Python logger
 import logging
+import os
+import re
+from datetime import datetime
+from queue import Queue
+from threading import Thread
+from time import time
+
+from octo.helpers.tasks_mail_send import Mails
+from octo_tku_upload.models import UploadTestsNew as UploadTests
+from run_core.addm_operations import ADDMOperations
+from run_core.models import TestOutputs
 
 log = logging.getLogger("octo.octologger")
 
 
 class UploadTestExec:
-    """
-    Manage Upload test tasks.
-
-    """
 
     def __init__(self):
-        """
-        Initialize some useful items.
-
-        """
         self.addm_op = ADDMOperations()
-
-        # (ssh, addm_item, 'product_content')
-        # (ssh, addm_item, 'tw_pattern_management')
         self.mode_cases = dict(
             fresh=dict(
                 test_kill=self.addm_op.addm_exec_cmd,
@@ -70,11 +49,14 @@ class UploadTestExec:
         self.out_clear_re = re.compile(r';#.*;\n')
         self.upload_packages_status_re = re.compile(
             r'Uploaded\s(?P<zip_file>\S+)\s(?:as|adding\sto)\s(?P<tku_package>\S+)\"\s')
-        self.upload_packages_skipped_re = re.compile(r"Skipping\s(?P<tku_name>.+(?=\s-))\s-\s(?P<reason>.+)")
+        self.upload_packages_skipped_re = re.compile(
+            r"Skipping\s(?P<tku_name>.+(?=\s-))\s-\s(?P<reason>.+)")
         self.product_content_re = re.compile(
             r"(?P<cause>(?<!Product\sContent)\w+|(?:\s))\s+Product\sContent\s+(?P<reason>.+)")
-        self.warnings_re = re.compile(r"Pattern\smodule\s(?P<module>\S+)\s+Warnings:\s+(?P<error>.+)")
-        self.errors_re = re.compile(r"Pattern\smodule\s(?P<module>\S+)\s+Errors:\s+(?P<error>.+)")
+        self.warnings_re = re.compile(
+            r"Pattern\smodule\s(?P<module>\S+)\s+Warnings:\s+(?P<error>.+)")
+        self.errors_re = re.compile(
+            r"Pattern\smodule\s(?P<module>\S+)\s+Errors:\s+(?P<error>.+)")
 
     def upload_preparations_threads(self, **kwargs):
         """

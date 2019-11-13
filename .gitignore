@@ -138,5 +138,6 @@ z_DEV/patterns_weight_30d.txt
 z_DEV/run_core_copy/
 /z_DEV/private/
 /z_DEV/services/httpd/
+/octo_adm/templates/includes/ADDM_MobaXterm.html
 
 !.idea/*
