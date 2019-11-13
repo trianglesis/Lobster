@@ -155,9 +155,9 @@ class TestOutputsAdmin(admin.ModelAdmin):
         'created_at',
     )
     readonly_fields = ('created_at',)
-    list_display = ('option_key', 'option_value', 'created_at', )
-    list_filter = ('option_key', 'created_at',)
-    ordering = ('option_key',)
+    list_display = ('option_key', 'created_at', 'description')
+    list_filter = ('created_at',)
+    ordering = ('created_at',)
 
 # admin.site.register(UserNamesCorrespond)
 @admin.register(UserNamesCorrespond)

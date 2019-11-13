@@ -113,7 +113,6 @@ class UploadTestExec:
                 thread_outputs.append(th_out)
 
                 log.debug("<=upload_preparations_threads=> Thread finished, test_q.get: %s", th_out)
-            log.debug("<=upload_preparations_threads=> All thread_outputs: %s", thread_outputs)
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_preparations_threads | {step_k} |  {addm_group} | Finished!"
@@ -181,7 +180,6 @@ class UploadTestExec:
                 thread_outputs.append(th_out)
 
                 log.debug("<=upload_unzip_threads=> Thread finished, test_q.get: %s", th_out)
-            log.debug("<=upload_unzip_threads=> All thread_outputs: %s", thread_outputs)
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!"
@@ -247,25 +245,16 @@ class UploadTestExec:
                 test_th.join()
                 th_out = test_q.get()
                 thread_outputs.append(th_out)  # {addm_item:addm_item, output:upload_outputs_d}
-
                 # Processing outputs for each thread:
                 # Get thread output and insert results in upload test table:
-                addm_item = th_out.get('addm_item')
                 msg = f'tku_type={packages[0].tku_type};package_type={packages[0].package_type};test_mode={test_mode}:step_k={step_k},'
                 log.debug("<=install_tku_threads=> Package installed: %s", msg)
                 mode_key = f'{pack.tku_type}.{test_mode}.{step_k}'
-                log.debug("<=install_tku_threads=> mode_key: %s", mode_key)
-
+                addm_item = th_out.get('addm_item')
                 upload_outputs_d = th_out.get('output')
                 upload_results_d = self.parse_upload_result(upload_outputs_d)
-
-                log.debug("<=install_tku_threads=> upload_results_d: %s", upload_results_d)
-                log.debug("<=install_tku_threads=> upload_outputs_d: %s", upload_outputs_d)
-
                 self.model_save_insert(test_mode, mode_key, ts, addm_item, pack.tku_type, pack.package_type,
                                        upload_results_d, upload_outputs_d)
-
-            log.debug("<=install_tku_threads=> All thread_outputs: %s", thread_outputs)
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | install_tku_threads | {test_mode} | {step_k} | {addm_group} | Finished!"

@@ -556,7 +556,9 @@ class TKUOperationsREST(APIView):
         and update packages table with new or re-built packages. Can sync only one TKU by tku_type:(tkn_ship_continuous, ga_candidate, tkn_main_continuous)
         :return:
         """
-        task = Runner.fire_t(TUploadExec.t_tku_sync, fake_run=self.fake_run, t_kwargs=dict(tku_type=self.tku_type), t_args=['tag=t_tku_sync;'])
+        task = Runner.fire_t(TUploadExec.t_tku_sync,
+                             t_kwargs=dict(tku_type=self.tku_type),
+                             t_args=['tag=t_tku_sync;'])
         return {'task_id': task.id}
 
     def tku_parse_packages(self):
@@ -567,7 +569,10 @@ class TKUOperationsREST(APIView):
         """
         t_tag = 'run_tku_parse'
         options = dict(user_name=self.user_name, tku_type=self.tku_type)
-        task = Runner.fire_t(TUploadExec.t_parse_tku, fake_run=self.fake_run, t_args=[t_tag], t_kwargs=options)
+        task = Runner.fire_t(TUploadExec.t_parse_tku,
+                             t_kwargs=options,
+                             t_args=[t_tag],
+                             )
         return {'task_id': task.id}
 
     def show_latest_tku_type(self):

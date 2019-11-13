@@ -7,30 +7,23 @@ Everything which run on MNG VM
 
 """
 
-# noinspection PyUnresolvedReferences
-from time import time
-from datetime import datetime, timezone, timedelta
-import pytz
 import collections
-
-import os
-import re
-# noinspection PyUnresolvedReferences
-import os.path
 import hashlib
+import logging
+import os
+import os.path
+import re
+from datetime import datetime, timezone
+from time import time
 
+import pytz
 from django.db.models.query import QuerySet
-
-from run_core.models import AddmDev
 
 from octo_tku_patterns.models import TestCases
 from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
-
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
+from run_core.models import AddmDev
 from run_core.p4_operations import PerforceOperations
-
-
-import logging
 
 # Python logger
 log = logging.getLogger("octo.octologger")
@@ -1384,7 +1377,6 @@ class LocalDownloads:
                     log.error(msg)
         return True
 
-    # For debugging and other purposes:
     def only_parse_tku(self, **kwargs):
         """
         Run only parsinf function.
