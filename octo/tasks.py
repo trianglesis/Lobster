@@ -94,7 +94,6 @@ class TSupport:
         """
         sleep(sleep_t)
 
-    @staticmethod
     @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2+900)
     @exception
     def fake_task(t_tag, sleep_t, **kwargs):

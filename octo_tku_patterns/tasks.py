@@ -384,8 +384,8 @@ class TaskPrepare:
 
         if os.name == "nt":  # Always fake run on local test env:
             self.fake_run = True
-            log.debug("<=TaskPrepare=> Fake run self.options: %s", self.options)
-            log.debug("<=TaskPrepare=> Fake run self.request: %s", self.request)
+            log.debug("<=TaskPrepare=> Fake run for NT options: %s", self.options)
+            log.debug("<=TaskPrepare=> Fake run for NT request: %s", self.request)
 
         elif self.options.get('fake_run'):
             self.fake_run = True
