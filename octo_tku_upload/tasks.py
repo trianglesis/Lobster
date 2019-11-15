@@ -523,8 +523,8 @@ class TestRunnerLoc:
         :return:
         """
         if not module:
-            from run_core import __octotest_upload_tku
-            module = __octotest_upload_tku.OctoTestCaseUpload
+            from run_core import octotest_upload_tku
+            module = octotest_upload_tku.OctoTestCaseUpload
 
         loader = unittest.TestLoader()
         tests = loader.loadTestsFromName(test_method, module=module)
@@ -538,7 +538,7 @@ class TestRunnerLoc:
         :return:
         """
         if not case:
-            from run_core.__octotest_upload_tku import OctoTestCaseUpload
+            from run_core.octotest_upload_tku import OctoTestCaseUpload
             case = OctoTestCaseUpload
         loader = unittest.TestLoader()
         tests = loader.loadTestsFromTestCase(case)
