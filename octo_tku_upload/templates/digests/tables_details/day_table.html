@@ -37,6 +37,7 @@
         </thead>
         <tbody class="table-shrink">
         {% for test in object_list %}
+            {% if exclude_key not in test.mode_key %}
             <tr>
                 <td id="num">{{ forloop.counter }}</td>
                 <td id="addm_name">{{ test.addm_name }}</td>
@@ -68,11 +69,13 @@
                 <td id="actions">
                     <a class="btn btn-sm btn-outline-info">View</a>
                 </td>
+                <td id="mode_key" style="display: none">{{ test.mode_key }}</td>
                 <td id="upload_test_status" style="display: none">{{ test.upload_test_status }}</td>
                 <td id="time_spent_test" style="display: none">{{ test.time_spent_test }}</td>
                 <td id="upload_errors" style="display: none">{{ test.upload_errors|json_script:"upload_errors" }}</td>
 {#                <td id="upload_errors" style="display: none">{{ test.upload_errors }}</td>#}
             </tr>
+            {% endif %}
         {% endfor %}
         </tbody>
     </table>

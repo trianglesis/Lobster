@@ -62,7 +62,7 @@
                             <div class="card-header card-header-shrink">{{ test_tku_type.grouper }}</div>
                             <div class="card-body card-body-shrink">
                                 <h5 class="card-title">Mode key: "{{ test_tku_type.list.0.mode_key }}"</h5>
-                                {% include 'digests/tables_details/day_table.html' with object_list=test_tku_type.list %}
+                                {% include 'digests/tables_details/day_table.html' with object_list=test_tku_type.list exclude_key='TKU-Product-Content' %}
                             </div>
                             <div class="card-footer card-footer-shrink">
                                 <small class="text-muted">Test mode: {{ test_tku_type.list.0.test_mode }} -- {{ test_tku_type.list.0.package_type }}</small>
