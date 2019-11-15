@@ -48,7 +48,6 @@
                 {#                <td id="tku_build">{{ test.tku_build }}</td>#}
                 {#                <td id="tku_date">{{ test.tku_date }}</td>#}
                 {#                <td id="tku_month">{{ test.tku_month }}</td>#}
-
                 {#                <td id="upload_test_str_stdout">{{ test.upload_test_str_stdout|escape|safe }}</td>#}
                 {#                <td id="upload_test_str_stderr">{{ test.upload_test_str_stderr|escape|safe }}</td>#}
                 {#                <td id="important_out">{{ test.important_out|escape|safe }}</td>#}
@@ -65,9 +64,11 @@
                     class="txt-sm-mon">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
                 <td {% tooltip_tku_upload 'popover' 'right' test %} ><i class="far fa-eye"></i></td>
                 <td id="actions">
-                    <a class="btn btn-sm-er btn-outline-info">View</a>
+                    <a class="btn btn-sm-er btn-outline-info" href="{% url 'admin:index' %}octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a>
                 </td>
+                <td id="test_id" style="display: none">{{ test.id }}</td>
                 <td id="test_mode" style="display: none">{{ test.test_mode }}</td>
+                <td id="mode_key" style="display: none">{{ test.mode_key }}</td>
                 <td id="upload_test_status" style="display: none">{{ test.upload_test_status }}</td>
                 <td id="time_spent_test" style="display: none">{{ test.time_spent_test }}</td>
 {#                <td id="upload_errors" style="display: none">{{ test.upload_errors }}</td>#}

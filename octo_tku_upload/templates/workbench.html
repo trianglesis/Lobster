@@ -2,7 +2,7 @@
 {% load static %}
 {% block page_title %}
     {% if not SUBJECT %}
-        TKU Packages
+        TKU Upload Workbench
     {% else %}
         {{ SUBJECT }}
     {% endif %}
@@ -15,12 +15,14 @@
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/upload-tests.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
+    <!-- Toast draw here -->
     <div aria-live="polite" aria-atomic="true" style="position: relative">
         <!-- Position it -->
         <div style="position: absolute; top: 0; left: 0;">
             <div id="toastStack" style="position: absolute;z-index: 2"></div>
         </div>
     </div>
+    <!-- Workbench navbar -->
     <nav class="navbar navbar-light test-report-navbar">
         <!-- Navbar content -->
         <!-- Navbar left part content -->
@@ -48,15 +50,9 @@
             </div>
         </div>
     </nav>
+    <!-- Content of the page -->
     <div class="upload-workbench-content">
-        {% comment %}<div class="row tku-packages-excerpt">
-            <div class="col-sm-1 col-shrink2">
-                <div class="card">
-                    <div class="card-header txt-nice">TKU Workbench</div>
-                    <div class="card-body card-body-sm"></div>
-                </div>
-            </div>
-        </div>{% endcomment %}
+        {# Latest upload tables in cards #}
         <div class="row tku-upload-latest">
             <div class="col-sm-6 col-shrink">
                 <div class="card">
@@ -129,9 +125,10 @@
                     </div>
                 </div>
             </div>
-
         </div>
+        {# Upload operations stats and buttons #}
         <div class="row tku-upload-buttons">
+            {# Upload buttons: #}
             <div class="col-sm-6 col-shrink">
                 <!-- upload-test-buttons-card -->
                 <div class="card upload-test-buttons-card">
@@ -160,6 +157,7 @@
                 </div>
 
             </div>
+            {# Upload stats, last packages names, octotests#}
             <div class="col-sm-6 col-shrink">
                 <div class="card">
                     <div class="card-header txt-nice">TKU Latest packages</div>
@@ -207,7 +205,39 @@
                 </div>
             </div>
         </div>
+        {# Upload routine of product content update logs #}
+        <div class="row tku-upload-product-content-update">
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">Product Content Update TKN Main</h5>
+                        <div>{{ objects.upload_product_content_main.test_date_time }}</div>
+                        <div class="last-upload-test">
+                            {% regroup objects.upload_product_content_main|dictsortreversed:'addm_name' by tku_type as product_content_update_main %}
+                            {% for test_type in product_content_update_main %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">Product Content Update TKN Ship</h5>
+                        <div>{{ objects.upload_product_content_ship.test_date_time }}</div>
+                        <div class="last-upload-test">
+                            {% regroup objects.upload_product_content_ship|dictsortreversed:'addm_name' by tku_type as product_content_update_ship %}
+                            {% for test_type in product_content_update_ship %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- Navbar bottom fixed -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
         <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
         <ul class="navbar-nav mr-auto">

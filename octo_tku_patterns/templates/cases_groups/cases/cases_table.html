@@ -20,6 +20,7 @@
     {% dynamical_selector_compose 'test_type' 'selector_test_type' %}
     {% dynamical_selector_compose 'pattern_library' 'selector_pattern_library' %}
     {% dynamical_selector_compose 'last_days' 'selector_last_days' %}
+    <!-- Toast draw here -->
     <div aria-live="polite" aria-atomic="true" style="position: relative">
         <!-- Position it -->
         <div style="position: absolute; top: 0; left: 0;">
@@ -235,6 +236,7 @@
         <div class="overall-cases"><span class="badge badge-info">Overall: {{ paginator.count }}</span></div>
         {% include 'small_blocks/pagination.html' %}
     </div>
+    <!-- Navbar bottom fixed -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
         <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
         <ul class="navbar-nav mr-auto">

@@ -16,13 +16,14 @@
     {# STYLES #}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/navbar-secondary.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/admin_workbenches/admin-workbench.css' %}"/>
+    <!-- Toast draw here -->
     <div aria-live="polite" aria-atomic="true" style="position: relative">
         <!-- Position it -->
         <div style="position: absolute; top: 0; left: 0;">
             <div id="toastStack" style="position: absolute;z-index: 2"></div>
         </div>
     </div>
-    {% comment %}NAV BAR{% endcomment %}
+    <!-- Workbench navbar -->
     <nav class="navbar navbar-light test-report-navbar">
     {% spaceless %}
         <!-- Navbar content -->
@@ -230,7 +231,7 @@
             </div>
         </div>
     </div>
-    {% comment %}Nav sticky bottom{% endcomment %}
+    <!-- Navbar bottom fixed -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
         <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
         <ul class="navbar-nav mr-auto">

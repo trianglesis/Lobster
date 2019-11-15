@@ -46,16 +46,6 @@ class UploadTestExec:
                 tw_pattern_management=False,
                 tideway_devices=False,
             ),
-            prod_cont=dict(
-                product_content=self.addm_op.addm_exec_cmd,
-                tw_pattern_management=False,
-                tideway_devices=False,
-            ),
-            netw_dev=dict(
-                product_content=False,
-                tw_pattern_management=False,
-                tideway_devices=self.addm_op.addm_exec_cmd,
-            ),
         )
 
         self.out_clear_re = re.compile(r';#.*;\n')

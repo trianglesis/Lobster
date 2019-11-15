@@ -7,10 +7,10 @@ from django.urls import path
 from octo_tku_upload.views import *
 
 urlpatterns = [
-    # Upload tests and TKU packages:
+    # Classical views requests, keep them here for some time.
     url(r'^tku_sync/', UploadTKU.tku_sync, name='tku_sync'),
     url(r'^run_tku_parse/', UploadTKU.run_tku_parse, name='run_tku_parse'),
-    url(r'^tku_packages/', ViewTKU.tku_packages, name='tku_packages'),
+    url(r'^tku_packages/', UploadTKU.tku_packages, name='tku_packages'),
 
     #  New
     url(r'^tku_operations/', TKUOperationsREST.as_view(), name='tku_operations'),

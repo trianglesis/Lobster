@@ -24,6 +24,7 @@ $(document).ready(function () {
                         let tdNode_addm_name = tableRows[t_row].cells['addm_name'].textContent;
                         let tdNode_test_mode = tableRows[t_row].cells['test_mode'].textContent;
                         let tdNode_package_type = tableRows[t_row].cells['package_type'].textContent;
+                        let tdNode_mode_key = tableRows[t_row].cells['mode_key'].textContent;
                         // let debug_str = `${tdNode_addm_name} ${tdNode_test_mode} ${tdNode_package_type}`;
 
                         let tdNode_upload_test_status = tableRows[t_row].cells['upload_test_status'].textContent;
@@ -40,7 +41,11 @@ $(document).ready(function () {
 
                         } else if (tdNode_time_spent_test < 300) {
                             // console.log(`Not Pass too short time of install : ${tdNode_time_spent_test} ${debug_str}`);
-                            currentRow.className = 'tst-notpass';
+                            if (tdNode_mode_key.includes('TKU-Product-Content')) {
+                                currentRow.className = 'tst-None';
+                            } else {
+                                currentRow.className = 'tst-notpass';
+                            }
 
                             // Stupidly compare '[]' array, if more that 2 items - it could have errors from upload test
                         } else if (tdNode_upload_errors.length > 2) {

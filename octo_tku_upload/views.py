@@ -34,7 +34,8 @@ log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'SITE_DOMAIN', None)
 
 
-class ViewTKU:
+# Classical views requests, keep them here for some time.
+class UploadTKU:
 
     @staticmethod
     @login_required(login_url='/unauthorized_banner/')
@@ -64,10 +65,6 @@ class ViewTKU:
             tkn_main_continuous_max=tkn_main_continuous_max,
         )
         return HttpResponse(patterns_summary.render(patterns_contxt, request))
-
-
-# TASKs Actions
-class UploadTKU:
 
     @staticmethod
     @login_required(login_url='/unauthorized_banner/')
@@ -240,6 +237,17 @@ class TKUUpdateWorkbenchView(TemplateView):
         ).values('test_date_time', 'package_type').latest(
             'test_date_time')
 
+        # Uncomment when ready:
+        # product_content_ship = tests_qs.filter(
+        #     mode_key__exact='tkn_ship_continuous.fresh.step_1.TKU-Product-Content'
+        # ).values('test_date_time', 'package_type').latest(
+        #     'test_date_time')
+
+        product_content_main = tests_qs.filter(
+            mode_key__exact='tkn_main_continuous.fresh.step_1.TKU-Product-Content'
+        ).values('test_date_time', 'package_type').latest(
+            'test_date_time')
+
         # Now select package type upload tests with related dates from above:`
         upload_cont_ship = tests_qs.filter(
             Q(mode_key__exact='tkn_ship_continuous_install') |
@@ -268,6 +276,15 @@ class TKUUpdateWorkbenchView(TemplateView):
             test_date_time__gte=latest_ga_upgrade['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
         )
 
+        upload_product_content_ship = tests_qs.filter(
+            mode_key__exact='tkn_ship_continuous.fresh.step_1.TKU-Product-Content',
+            test_date_time__gte=product_content_main['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
+        )
+        upload_product_content_main = tests_qs.filter(
+            mode_key__exact='tkn_main_continuous.fresh.step_1.TKU-Product-Content',
+            test_date_time__gte=product_content_main['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
+        )
+
         selections = dict(
             # MAX latest packages in DB
             max_released=max_released,
@@ -286,6 +303,9 @@ class TKUUpdateWorkbenchView(TemplateView):
             upload_ga_fresh=upload_ga_fresh,
             upload_ga_upgrade=upload_ga_upgrade,
             upload_ga_prep=upload_ga_prep,
+            # Test logs for product content update:
+            upload_product_content_ship=upload_product_content_ship,
+            upload_product_content_main=upload_product_content_main,
         )
 
         return selections
@@ -386,6 +406,7 @@ class UploadTestTodayArchiveView(TodayArchiveView):
         return queryset.order_by('-addm_name')
 
 
+# Usual tasks for Upload
 class TKUOperationsREST(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]

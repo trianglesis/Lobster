@@ -20,13 +20,14 @@
     {% dynamical_selector_compose 'tkn_branch' 'selector_tkn_branch' %}
     {% dynamical_selector_compose 'tst_status' 'selector_tst_status' %}
     {% dynamical_selector_compose 'addm_name' 'selector_addm_name' %}
+    <!-- Toast draw here -->
     <div aria-live="polite" aria-atomic="true" style="position: relative">
         <!-- Position it -->
         <div style="position: absolute; top: 0; left: 0;">
             <div id="toastStack" style="position: absolute;z-index: 2"></div>
         </div>
     </div>
-    {% comment %}NAV BAR{% endcomment %}
+    <!-- Workbench navbar -->
     <nav class="navbar navbar-light test-report-navbar">
     {% spaceless %}
         <!-- Navbar content -->
@@ -159,8 +160,8 @@
                 {% endfor %}
             </div>
         {% endif %}
-    </div>
-    {% comment %}Nav sticky bottom{% endcomment %}
+    </div>4
+    <!-- Navbar bottom fixed -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
         <a class="navbar-brand" href="#"><i class="fab fa-github"></i></a>
         <ul class="navbar-nav mr-auto">
