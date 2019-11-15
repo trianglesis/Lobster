@@ -143,7 +143,7 @@ class TaskOperationsREST(APIView):
     def metadata_options_set(self):
         if self.request.POST:
             self.operation_key = self.request.POST.get('operation_key', None)
-            self.fake_run = self.request.POST.get('fake_run', True)  # TODO: Debug, remove default True
+            self.fake_run = self.request.POST.get('fake_run', False)  # TODO: Debug, remove default True
             self.task_id = self.request.POST.get('task_id', 'ThisIsNotTheTaskJustSayingYouKnow?')
             workers = self.request.POST.get('workers', '')
             if workers:
@@ -151,7 +151,7 @@ class TaskOperationsREST(APIView):
                 self.workers = [f'{worker}@tentacle' for worker in workers]
         elif self.request.GET:
             self.operation_key = self.request.GET.get('operation_key', None)
-            self.fake_run = self.request.GET.get('fake_run', True)  # TODO: Debug, remove default True
+            self.fake_run = self.request.GET.get('fake_run', False)  # TODO: Debug, remove default True
             self.task_id = self.request.GET.get('task_id', '')
             self.workers = self.request.GET.get('workers', [])
 
@@ -705,7 +705,7 @@ class TaskOperationsREST(APIView):
         :return
         """
         workers = self.workers
-        resp = WorkerOperations.worker_restart(workers=workers)
+        resp = WorkerOperations().worker_restart(workers=workers)
         return {'response': resp}
 
 

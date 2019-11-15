@@ -19,15 +19,15 @@ class OctoTestCaseUpload(octo_test_cases.OctoTestCase):
         self.silent_on(True)
         self.wget_on(False)
         self.debug_on(True)
+        # self.user_and_mail('Danylcha', "Dan@bmc.com")
 
-    def test000_tku_upload_release(self):
+    def test999_tku_upload_release(self):
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
         self.request.update(addm_group='golf', package_detail='TKU-Product-Content', package_types=[package_type])
         self.run_case()
 
     def test001_product_content_update_tkn_main(self):
         # self.fake_run_on(False)
-        # self.user_and_mail('Danylcha', "Dan@bmc.com")
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.request.update(addm_group='golf', package_detail='TKU-Product-Content', package_types=[package_type])
         self.run_case()
@@ -53,13 +53,13 @@ class OctoTestCaseUpload(octo_test_cases.OctoTestCase):
         self.run_case()
 
 
-# class InternalRunner:
-#
-#     def run(self):
-#         log.info("<=Octologger=> Running test internally! %s", self)
-#         logger.info("<=TaskLogger=> Running test internally! %s", self)
-#         octo_test_cases.main(__name__)
-#         return OctoTestCaseUpload().run()
+class InternalRunner:
+
+    def run(self):
+        log.info("<=Octologger=> Running test internally! %s", self)
+        logger.info("<=TaskLogger=> Running test internally! %s", self)
+        octo_test_cases.main(__name__)
+        return OctoTestCaseUpload().run()
 
 
 if __name__ == "__main__":

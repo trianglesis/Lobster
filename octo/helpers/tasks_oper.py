@@ -473,8 +473,7 @@ class WorkerOperations:
                     worker_up.update({ping_k: 'down'})
         return worker_up
 
-    @staticmethod
-    def worker_restart(**kwargs):
+    def worker_restart(self, **kwargs):
         """
         Control.pool_restart(modules=None, reload=False, reloader=None, destination=None, **kwargs)[source]
         Restart the execution pools of all or specific workers.
@@ -489,21 +488,17 @@ class WorkerOperations:
         :param kwargs:
         :return:
         """
-        worker_list = kwargs.get("worker_list", None)  # leave old param here, somewhere it still be used!
         workers = kwargs.get("workers", None)
-        my_modules = ['octo.tasks', 'octo_adm.tasks', 'octo_tku_patterns.tasks', 'octo_tku_upload.tasks']
+        my_modules = ['run_core', 'octo.tasks', 'octo_adm.tasks', 'octo_tku_patterns.tasks', 'octo_tku_upload.tasks']
 
         # TODO: Remove when ready.
-        if worker_list:
-            workers = worker_list
+        if not workers:
+            workers = self.workers_list
 
-        if workers and isinstance(workers, list):
-            w_restart = app.control.pool_restart(modules=my_modules, destination=workers, reload=True)
-            log.info("<=WorkerOperations=> Executing worker_restart(%s): w_restart - %s", workers, w_restart)
-        else:
-            w_restart = app.control.pool_restart(modules=my_modules, reload=True)
-            log.info("<=WorkerOperations=> Executing worker_restart() for all: %s", w_restart)
-        return w_restart
+        for worker in workers:
+            w_restart = app.control.pool_restart(modules=my_modules, destination=[worker], reload=True)
+            log.info("<=WorkerOperations=> Executing worker_restart() for %s: %s", worker, w_restart)
+        return 'Restart...'
 
     def worker_heartbeat(self, **kwargs):
         """

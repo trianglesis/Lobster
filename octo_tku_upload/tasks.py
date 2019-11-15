@@ -1,5 +1,5 @@
 from __future__ import absolute_import, unicode_literals
-
+import ast
 import datetime
 import logging
 import os
@@ -19,6 +19,7 @@ from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.test_executor import UploadTestExec
 from run_core.local_operations import LocalDownloads
 from run_core.models import AddmDev
+
 
 from celery.utils.log import get_task_logger
 
@@ -440,29 +441,203 @@ class UploadTaskPrepare:
 
 class TestRunnerLoc:
 
-    def run_tests(self, **kwargs):
-        import unittest
-        from run_core.octotest_upload_tku import OctoTestCaseUpload
+    if os.name == 'nt':
+        sep = '\\'
+    else:
+        sep = '/'
 
+    def run_th(self, **kwargs):
+        from queue import Queue
+        from threading import Thread
         test_method = kwargs.get('test_method')
 
+        thread_outputs = []
+        thread_list = []
+        th_name = f'Upload_Test_case-{test_method}'
+        test_q = Queue()
+        th_kwargs = dict(test_method=test_method, test_q=test_q)
+        try:
+            log.info("Running thread test for: %s", th_name)
+            prep_th = Thread(target=self.run_tests, name=th_name, kwargs=th_kwargs)
+            prep_th.start()
+            thread_list.append(prep_th)
+        except Exception as e:
+            log.error("TestRunnerLoc thread error: %s", e)
+
+        for test_th in thread_list:
+            test_th.join()
+            th_out = test_q.get()
+            thread_outputs.append(th_out)
+        return thread_outputs
+
+    def run_cased(self, **kwargs):
+        from queue import Queue
+        test_q = Queue()
+        cased_func = TestRunnerLoc().run_tests
+        test_method = kwargs.get('test_method')
+        kw_args = dict(test_q=test_q, test_method=test_method)
+        cased_func(**kw_args)
+
+    def get_tests_from_py(self):
+        import py_compile
         loader = unittest.TestLoader()
-        suite = unittest.TestSuite()
-        runner = unittest.TextTestRunner(verbosity=3)
 
-        test_names = loader.getTestCaseNames(OctoTestCaseUpload)
-        log.info("<=TestRunnerLoc=> test_names: %s", test_names)
+        test_file = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                 f'..{self.sep}run_core{self.sep}octotest_upload_tku.py'))
+        compiled = py_compile.compile(test_file)
 
-        tests = loader.loadTestsFromTestCase(OctoTestCaseUpload)
-        log.info("<=TestRunnerLoc=> tests: %s", tests)
+        log.debug("test_file: %s", test_file)
+        with open(test_file, "r", encoding="utf8") as f:
+            read_file = f.read()
+            test_tree = ast.parse(read_file)
+
+        code = compile(read_file, 'octotest_upload_tku.py', 'exec')
+        log.debug("code: %s", code)
+
+        ast_code = compile(test_tree, 'octotest_upload_tku.py', 'exec')
+        log.debug("ast_code: %s", ast_code)
+
+        # OctoTestCaseUpload_eval = eval(code)
+        # log.info("OctoTestCaseUpload: eval %s %s", type(OctoTestCaseUpload_eval), OctoTestCaseUpload_eval)
+
+        OctoTestCaseUpload = exec(ast_code)
+        log.info("OctoTestCaseUpload: exec %s %s", type(OctoTestCaseUpload), OctoTestCaseUpload)
+
+        # tests_1 = loader.loadTestsFromTestCase(OctoTestCaseUpload_eval)
+        # log.debug("tests_1: %s", tests_1)
+        tests = loader.discover(
+            'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\run_core\\__pycache__',
+            pattern='octotest_upload_tku.cpython-36.pyc')
+        log.debug("tests: %s", tests)
+
+        # tests_2 = loader.loadTestsFromTestCase(OctoTestCaseUpload)
+        # log.debug("tests_2: %s", tests_2)
+
+        return tests
+
+    def get_tests_from_module(self, test_method=None, module=None):
+        """
+        Importable module load and sort out the test method if any.
+        :param test_method:
+        :param module:
+        :return:
+        """
+        if not module:
+            from run_core import octotest_upload_tku
+            module = octotest_upload_tku.OctoTestCaseUpload
+
+        loader = unittest.TestLoader()
+        tests = loader.loadTestsFromName(test_method, module=module)
+        return tests
+
+    def get_tests_from_case(self, test_method=None, case=None):
+        """
+        Get all test cases from TestCases Class, also sort single test if test_method provided.
+        :param test_method:
+        :param case:
+        :return:
+        """
+        if not case:
+            from run_core.octotest_upload_tku import OctoTestCaseUpload
+            case = OctoTestCaseUpload
+        loader = unittest.TestLoader()
+        tests = loader.loadTestsFromTestCase(case)
+        log.info("All tests in loadTestsFromTestCase: %s", tests)
         if test_method:
             for test in tests:
                 if test_method == test._testMethodName:
-                    log.debug("Run one test method: %s", test_method)
-                    result = runner.run(test)
-                    return str(result)
+                    return [test]
+        return tests
+
+    def compile_test(self, test_file):
+        import py_compile
+        compiled = py_compile.compile(test_file)
+        log.debug("Compiled tests file: %s", compiled)
+
+    def re_write_test_file(self, test_file, rotate_file_path):
+
+        rotatable = os.path.join(rotate_file_path, '__octo_test_rotate.py')
+        if os.path.exists(rotatable):
+            log.debug("Deleting rotatable file: %s", rotatable)
+            os.remove(rotatable)
+            pycache = os.path.join(rotate_file_path, '__pycache__', '__octo_test_rotate.cpython-36.pyc')
+            if os.path.exists(pycache):
+                os.remove(pycache)
+
+        with open(test_file, "r", encoding="utf8") as f:
+            read_file = f.read()
+        with open(rotatable, 'w') as test_f:
+            test_f.write(read_file)
+        return rotatable
+
+    def get_tests_from_discover(self, test_method=None, test_dir=None):
+        """
+        https://stackoverflow.com/a/37724523
+        :param test_method:
+        :param test_dir:
+        :return:
+        """
+        loader = unittest.TestLoader()
+        log.debug("test_dir: %s", test_dir)
+        rotatable = self.re_write_test_file(os.path.abspath(os.path.join(test_dir, 'octotest_upload_tku.py')), test_dir)
+        log.debug("rotatable: %s", rotatable)
+
+        tests = loader.discover(test_dir, pattern='__octo_test_rotate.py')
+
+        if test_method:
+            for test in tests:
+                log.info("<=get_tests_from_discover> One test from discover: %s %s", test, type(test))
+                if test:
+                    log.debug("\ttest iter: %s", test)
+                    if isinstance(test, unittest.TestSuite):
+                        log.debug("\ttest instance: TestSuite")
+                        for item in test:
+                            log.debug("\t\ttest item: %s", item)
+                            if isinstance(item, unittest.TestSuite):
+                                for case in item:
+                                    if case and hasattr(case, '_testMethodName'):
+                                        log.info("\t\t<=get_tests_from_discover> Test items has attr: %s", case)
+                                        if test_method == case._testMethodName:
+                                            log.info("\t\t\t<=get_tests_from_discover> Test test._testMethodName: %s", case._testMethodName)
+                                            return [case], rotatable
+                                else:
+                                    log.debug("\t\tThis test case is not %", test_method)
+                            else:
+                                log.debug("\t\tItem have no attribute _testMethodName")
+                    else:
+                        log.debug("\tNot a testSuite instance")
+                else:
+                    log.debug("\tNo test in this suite")
         else:
-            suite.addTests(tests)
-            result = runner.run(suite)
-            log.info("<=TestRunnerLoc=> suite: %s", suite)
-            return str(result)
+            log.debug("No test method, run all tests!")
+
+    def run_tests(self, **kwargs):
+        from run_core import octotest_upload_tku
+        from octo.octo_celery import app
+        test_q = kwargs.get('test_q')
+        test_method = kwargs.get('test_method')
+        test_dir = kwargs.get('test_dir')
+
+        all_case_names = unittest.TestLoader().getTestCaseNames(octotest_upload_tku.OctoTestCaseUpload)
+        log.debug("all_case_names: %s", all_case_names)
+
+        suite = unittest.TestSuite()
+        runner = unittest.TextTestRunner(verbosity=3)
+        tests = self.get_tests_from_module(test_method, module=octotest_upload_tku.OctoTestCaseUpload)
+        # tests = self.get_tests_from_case(test_method, case=OctoTestCaseUpload)
+        # tests, rotatable = self.get_tests_from_discover(test_method, test_dir)
+        # tests = self.get_tests_from_py()
+
+        log.info("<=TestRunnerLoc=> tests: %s", tests)
+        for test in tests:
+            result = runner.run(test)
+            log.debug("result: %s", result)
+            # return str(result)
+            # # test_q.put(str(result))
+
+        # else:
+        #     suite.addTests(tests)
+        #     result = runner.run(suite)
+        #     log.info("<=TestRunnerLoc=> suite: %s", suite)
+        # return str(result)
+        # test_q.put(str(result))
