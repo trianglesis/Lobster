@@ -4,10 +4,10 @@ import logging
 from celery.result import AsyncResult
 
 from octo_tku_upload.tasks import UploadTaskPrepare
+from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 
 # DEBUG TOOLS
 import json
-from collections import OrderedDict
 from pprint import pformat
 
 log = logging.getLogger("octo.octologger")
@@ -35,11 +35,32 @@ class UploadTaskUtils(unittest.TestCase):
         sleep(3)
         log.debug("<=UploadTaskUtils=> Test finished, request: %s", self.request)
 
+    def check_args(self):
+        if self.request.get('package_types'):
+            package_types = self.request.get('package_types')
+            assert isinstance(package_types, list), 'Package types is not a list!'
+            for package in package_types:
+                package_qa = TkuPackages.objects.filter(tku_type__exact=package)
+                if package_qa:
+                    assert isinstance(package_qa, TkuPackages), 'Selected package is not a QuerySet of TkuPackages'
+                else:
+                    raise Exception(f'No package can be found in database with type: {package}, maybe WGET can help')
+
     def check_tasks(self, tasks):
+
         tasks_res = dict()
+
+        if not tasks:
+            msg = 'No tasks returned from case execution!'
+            raise Exception(msg)
+
         for task in tasks:
             res = AsyncResult(task.id)
-            tasks_res.update({task.id: dict(status=res.status, result=res.result, state=res.state, args=res.args)})
+            # tasks_res.update({task.id: dict(status=res.status, result=res.result, state=res.state, args=res.args, kwargs=res.kwargs)})
+            tasks_res.update({task.id: dict(status=res.status, result=res.result, state=res.state)})
+            if res.status == 'FAILURE' or res.state == 'FAILURE':
+                msg = f'Task execution finished with failure status: \n\t{task.id}\n\t"{res.result}"'
+                raise Exception(msg)
 
         self.debug_output(tasks_res)
         return tasks_res

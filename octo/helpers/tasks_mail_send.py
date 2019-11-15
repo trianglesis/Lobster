@@ -43,8 +43,8 @@ class Mails:
         if not subject:
             subject = txt.format('No Subject added', ' - ', curr_hostname)
 
+        msg = f"mail_html={mail_html} body={body} subject={subject} send_to={send_to} send_cc={send_cc}"
         if os.name == "nt":
-            msg = f"mail_html={mail_html} body={body} subject={subject} send_to={send_to} send_cc={send_cc}"
             log.debug('Sending short email confirmation: \n\t%s', msg)
         else:
             connection = mail.get_connection()
@@ -74,3 +74,4 @@ class Mails:
                 # log.debug("<=MailSender=> short email_args - %s", email_args)
                 email.send()
                 # log.debug("<=MAIL SIMPLE=> Mail txt send")
+        return msg

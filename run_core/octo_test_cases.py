@@ -1,4 +1,3 @@
-import os
 import unittest
 import logging
 import django
@@ -39,4 +38,5 @@ class OctoTestCase(UploadTaskUtils):
 
 
 def main(module_name):
+    log.info("Running tests: %s", module_name)
     unittest.main()

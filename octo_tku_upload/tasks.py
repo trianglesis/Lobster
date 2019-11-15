@@ -20,7 +20,10 @@ from octo_tku_upload.test_executor import UploadTestExec
 from run_core.local_operations import LocalDownloads
 from run_core.models import AddmDev
 
+from celery.utils.log import get_task_logger
+
 log = logging.getLogger("octo.octologger")
+logger = get_task_logger(__name__)
 
 DAY_LIMIT = 172800
 HOURS_2 = 7200
@@ -36,6 +39,13 @@ SEC_1 = 1
 
 # noinspection PyUnusedLocal,PyUnusedLocal
 class TUploadExec:
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_upload_routines',
+              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+    def t_upload_routines(t_tag, **kwargs):
+        log.info("<=t_upload_routines=> Running task %s", kwargs)
+        return TestRunnerLoc().run_tests(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_tku_upload_test_new',
@@ -249,15 +259,18 @@ class UploadTaskPrepare:
             log.info("<=UploadTaskPrepare=> Will install TKU in UPDATE mode.")
 
             released_tkn = TkuPackages.objects.filter(tku_type__exact='released_tkn').aggregate(Max('package_type'))
-            package = TkuPackages.objects.filter(tku_type__exact='released_tkn', package_type__exact=released_tkn['package_type__max'])
+            package = TkuPackages.objects.filter(tku_type__exact='released_tkn',
+                                                 package_type__exact=released_tkn['package_type__max'])
             packages.update(step_1=package)
 
             ga_candidate = TkuPackages.objects.filter(tku_type__exact='ga_candidate').aggregate(Max('package_type'))
-            package = TkuPackages.objects.filter(tku_type__exact='ga_candidate', package_type__exact=ga_candidate['package_type__max'])
+            package = TkuPackages.objects.filter(tku_type__exact='ga_candidate',
+                                                 package_type__exact=ga_candidate['package_type__max'])
             packages.update(step_2=package)
 
         elif self.test_mode == 'step' or self.test_mode == 'fresh':
-            log.info("<=UploadTaskPrepare=> Install TKU in (%s) mode, package_types (%s)", self.test_mode, self.package_types)
+            log.info("<=UploadTaskPrepare=> Install TKU in (%s) mode, package_types (%s)", self.test_mode,
+                     self.package_types)
             step = 0
             for package_type in self.package_types:
                 step += 1
@@ -265,8 +278,8 @@ class UploadTaskPrepare:
                 # If query return anything other (probably old GA) with released_tkn - prefer last option.
                 package_dis = package.filter(tku_type__exact='released_tkn')
 
-                log.debug("package: %s", package.values())
-                log.debug("package_dis: %s", package_dis.values())
+                # log.debug("package: %s", package.values())
+                # log.debug("package_dis: %s", package_dis.values())
 
                 if package_dis:
                     package = package_dis
@@ -314,15 +327,21 @@ class UploadTaskPrepare:
         """
         t_kwargs = ''
         if self.test_mode == 'fresh' and step_k == 'step_1':
-            log.info("<=UploadTaskPrepare=> Fresh install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
+            log.info(
+                "<=UploadTaskPrepare=> Fresh install: (%s), 1st step (%s) - require TKU wipe and prod content delete!",
+                self.test_mode, step_k)
             t_kwargs = dict(addm_items=self.addm_set, step_k=step_k, test_mode='fresh', user_email=self.user_email)
 
         elif self.test_mode == 'update' and step_k == 'step_1':
-            log.info("<=UploadTaskPrepare=> Update install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
+            log.info(
+                "<=UploadTaskPrepare=> Update install: (%s), 1st step (%s) - require TKU wipe and prod content delete!",
+                self.test_mode, step_k)
             t_kwargs = dict(addm_items=self.addm_set, step_k=step_k, test_mode='update', user_email=self.user_email)
 
         elif self.test_mode == 'step' and step_k == 'step_1':
-            log.info("<=UploadTaskPrepare=> Step install: (%s), 1st step (%s) - require TKU wipe and prod content delete!", self.test_mode, step_k)
+            log.info(
+                "<=UploadTaskPrepare=> Step install: (%s), 1st step (%s) - require TKU wipe and prod content delete!",
+                self.test_mode, step_k)
             t_kwargs = dict(addm_items=self.addm_set, step_k=step_k, test_mode='step', user_email=self.user_email)
 
         else:
@@ -417,3 +436,33 @@ class UploadTaskPrepare:
             for pack in step_package:
                 msg = f'{step_k} package: {pack.tku_type} -> {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} '
                 log.info(msg)
+
+
+class TestRunnerLoc:
+
+    def run_tests(self, **kwargs):
+        import unittest
+        from run_core.octotest_upload_tku import OctoTestCaseUpload
+
+        test_method = kwargs.get('test_method')
+
+        loader = unittest.TestLoader()
+        suite = unittest.TestSuite()
+        runner = unittest.TextTestRunner(verbosity=3)
+
+        test_names = loader.getTestCaseNames(OctoTestCaseUpload)
+        log.info("<=TestRunnerLoc=> test_names: %s", test_names)
+
+        tests = loader.loadTestsFromTestCase(OctoTestCaseUpload)
+        log.info("<=TestRunnerLoc=> tests: %s", tests)
+        if test_method:
+            for test in tests:
+                if test_method == test._testMethodName:
+                    log.debug("Run one test method: %s", test_method)
+                    result = runner.run(test)
+                    return str(result)
+        else:
+            suite.addTests(tests)
+            result = runner.run(suite)
+            log.info("<=TestRunnerLoc=> suite: %s", suite)
+            return str(result)

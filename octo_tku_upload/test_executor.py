@@ -185,6 +185,8 @@ class UploadTestExec:
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!"
+        log.debug(pack)
+
         body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, tku_type: {pack.tku_type}, " \
                f"package_type: {pack.package_type}, start_time: {start_time}, time spent: {time() - ts}"
         Mails.short(subject=subject, body=body, send_to=[user_email])

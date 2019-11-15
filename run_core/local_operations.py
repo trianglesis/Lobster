@@ -933,7 +933,7 @@ class LocalDownloads:
 
         # Do not return outputs, because we don't care of saving them to database instead of read logs!
         # return outputs_l
-        return True
+        return f"Finished WGET, commands run: {command_list}, stderr: {outputs_l[1]}"
 
     @staticmethod
     def parse_released_tkn_html(release_sprints, released_tkn):

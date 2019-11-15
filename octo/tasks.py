@@ -59,7 +59,7 @@ class TSupport:
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
     def t_short_mail(t_tag, **mail_kwargs):
-        Mails().short(**mail_kwargs)
+        return Mails().short(**mail_kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
