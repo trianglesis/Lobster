@@ -21,7 +21,7 @@ class OctoTestCaseUpload(octo_test_cases.OctoTestCase):
         self.debug_on(True)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
 
-    def test999_tku_upload_release(self):
+    def test000_tku_upload_release(self):
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
         self.request.update(addm_group='golf', package_detail='TKU-Product-Content', package_types=[package_type])
         self.run_case()
