@@ -46,7 +46,7 @@ class TUploadExec:
               soft_time_limit=MIN_90, task_time_limit=HOURS_2)
     def t_upload_routines(t_tag, **kwargs):
         log.info("<=t_upload_routines=> Running task %s", kwargs)
-        return TestRunnerLoc().run_tests(**kwargs)
+        return TestRunnerLoc().run_test_threaded(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_tku_upload_test_new',
@@ -450,12 +450,13 @@ class TestRunnerLoc:
         from queue import Queue
         from threading import Thread
         test_method = kwargs.get('test_method')
+        test_py_path = kwargs.get('test_py_path')
 
         thread_outputs = []
         thread_list = []
         th_name = f'Upload_Test_case-{test_method}'
         test_q = Queue()
-        th_kwargs = dict(test_method=test_method, test_q=test_q)
+        th_kwargs = dict(test_method=test_method, test_py_path=test_py_path, test_q=test_q)
         try:
             log.info("Running thread test for: %s", th_name)
             prep_th = Thread(target=self.run_tests, name=th_name, kwargs=th_kwargs)
@@ -477,6 +478,71 @@ class TestRunnerLoc:
         test_method = kwargs.get('test_method')
         kw_args = dict(test_q=test_q, test_method=test_method)
         cased_func(**kw_args)
+
+    def run_subprocess(self, **kwargs):
+        import subprocess
+
+        test_py_path = kwargs.get('test_py_path', None)  # full path to octotest_upload_tku.py
+        test_method = kwargs.get('test_method', None)  # test001_product_content_update_tkn_main
+        test_class = kwargs.get('test_class', None)  # OctoTestCaseUpload
+        test_module = kwargs.get('test_module', None)  # run_core.tests.octotest_upload_tku
+
+        # Set the ENV:
+        my_env = os.environ.copy()
+        my_env['DJANGO_SETTINGS_MODULE'] = 'octo.win_settings'
+
+        # Save results here:
+        run_results = []
+        cmd_list = []
+
+        # DEV: Set paths to test and working dir:
+        if os.name == 'nt':
+            test_env = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
+            octo_core = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster'
+            activate = 'activate.bat'
+            deactivate = 'deactivate.bat'
+        else:
+            test_env = '/var/www/octopus/'
+            octo_core = '/var/www/octopus/'
+            activate = 'venv/bin/activate/activate'
+            deactivate = 'venv/bin/activate/deactivate'
+
+        # Set unit test cmd:
+        if test_module and test_class and test_method:
+            test_cmd = f'python -m unittest {test_module}.{test_class}.{test_method}'
+        elif test_module and test_class and not test_method:
+            test_cmd = f'python -m unittest {test_module}.{test_class}'
+        elif test_module and not test_class and not test_method:
+            test_cmd = f'python -m unittest {test_module}'
+        else:
+            test_cmd = f'python -m unittest {test_py_path}'
+
+        # Compose CMD run:
+        cmd_list.append(f'{test_env}{activate}')
+        cmd_list.append(test_cmd)
+        cmd_list.append(f'{test_env}{deactivate}')
+
+        for cmd in cmd_list:
+            try:
+                log.debug("<=TEST=> Run: %s", cmd)
+                run_cmd = subprocess.Popen(cmd,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
+                                           cwd=octo_core,
+                                           env=my_env,
+                                           )
+                run_cmd.communicate()
+                stdout, stderr = run_cmd.communicate()
+                stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
+                run_cmd.wait()
+                run_results.append({'stdout': stdout, 'stderr': stderr})
+                log.debug('<=TEST=> stdout %s', stdout)
+                log.debug('<=TEST=> stderr %s', stderr)
+
+            except Exception as e:
+                log.error("<=run_subprocess=> Error during operation for: %s %s", cmd, e)
+        # log.debug("<=run_subprocess=> run_results: %s", run_results)
+        return run_results
 
     def get_tests_from_py(self):
         import py_compile
@@ -641,3 +707,7 @@ class TestRunnerLoc:
         #     log.info("<=TestRunnerLoc=> suite: %s", suite)
         # return str(result)
         # test_q.put(str(result))
+
+    def run_test_threaded(self, **kwargs):
+        log.debug("<=TestRunnerLoc=> Running test: %s", kwargs)
+        self.run_subprocess(**kwargs)

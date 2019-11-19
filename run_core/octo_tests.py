@@ -5,7 +5,7 @@ from django.db.models import Max
 
 django.setup()
 
-from run_core.octo_case_caller import UploadTaskUtils
+from run_core.octo_test_utils import UploadTaskUtils
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 
 log = logging.getLogger("octo.octologger")

@@ -113,6 +113,9 @@ class TestExecutor:
         Before run it will load tkn_main_bashrc/tkn_ship_bashrc to activate paths to python, tideway, core etc.
 
         """
+        # TODO: Check paramiko to use env from here, not from bashrc
+        my_env = os.environ.copy()
+
         ts = time()
         ssh = args_d.get('ssh')
         test_item = args_d.get('test_item')
