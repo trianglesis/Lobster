@@ -10,7 +10,8 @@ Note:
     - Do not import case routines which import tasks from here.
 """
 from __future__ import absolute_import, unicode_literals
-import logging
+import logging, os, unittest, importlib
+from unittest import TestSuite
 from time import sleep
 
 from octo.octo_celery import app
@@ -20,6 +21,8 @@ from octo.helpers.tasks_mail_send import Mails
 
 from octo.helpers.tasks_oper import WorkerOperations, TasksOperations
 from octo.helpers.tasks_helpers import exception
+
+from octo.win_settings import BASE_DIR
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
@@ -185,3 +188,162 @@ class TInternal:
             # if mail_send:
             #     Mails.short(subject='Expected worker could be busy:', body=msg)
             return msg
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TInternal.internal_test_routine',
+              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+    def internal_test_routine(t_tag, **kwargs):
+        log.info("<=internal_test_routine=> Running task %s %s", t_tag, kwargs)
+        return TestRunnerLoc.run_subprocess(**kwargs)
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TInternal.internal_test_get',
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    def internal_test_get(t_tag, **kwargs):
+        log.info("<=get_all_tests_dev=> Running task %s %s", t_tag, kwargs)
+        return DiscoverLocalTests.get_all_tests_dev(**kwargs)
+
+
+class TestRunnerLoc:
+
+    def run_subprocess(self, **kwargs):
+        import subprocess
+
+        test_py_path = kwargs.get('test_py_path', None)  # full path to octotest_upload_tku.py
+        test_method = kwargs.get('test_method', None)  # test001_product_content_update_tkn_main
+        test_class = kwargs.get('test_class', None)  # OctoTestCaseUpload
+        test_module = kwargs.get('test_module', None)  # run_core.tests.octotest_upload_tku
+
+        # Set the ENV:
+        my_env = os.environ.copy()
+        my_env['DJANGO_SETTINGS_MODULE'] = 'octo.win_settings'
+
+        # Save results here:
+        run_results = []
+        cmd_list = []
+
+        # DEV: Set paths to test and working dir:
+        if os.name == 'nt':
+            test_env = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
+            octo_core = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster'
+            activate = 'activate.bat'
+            deactivate = 'deactivate.bat'
+        else:
+            test_env = '/var/www/octopus/'
+            octo_core = '/var/www/octopus/'
+            activate = 'venv/bin/activate/activate'
+            deactivate = 'venv/bin/activate/deactivate'
+
+        # Set unit test cmd:
+        if test_module and test_class and test_method:
+            test_cmd = f'python -m unittest {test_module}.{test_class}.{test_method}'
+        elif test_module and test_class and not test_method:
+            test_cmd = f'python -m unittest {test_module}.{test_class}'
+        elif test_module and not test_class and not test_method:
+            test_cmd = f'python -m unittest {test_module}'
+        else:
+            test_cmd = f'python -m unittest {test_py_path}'
+
+        # Compose CMD run:
+        cmd_list.append(f'{test_env}{activate}')
+        cmd_list.append(test_cmd)
+        cmd_list.append(f'{test_env}{deactivate}')
+
+        for cmd in cmd_list:
+            try:
+                # log.debug("<=TEST=> Run: %s", cmd)
+                run_cmd = subprocess.Popen(cmd,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
+                                           cwd=octo_core,
+                                           env=my_env,
+                                           )
+                run_cmd.communicate()
+                stdout, stderr = run_cmd.communicate()
+                stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
+                run_cmd.wait()
+                run_results.append({'stdout': stdout, 'stderr': stderr})
+                # log.debug('<=TEST=> stdout %s', stdout)
+                # log.debug('<=TEST=> stderr %s', stderr)
+
+            except Exception as e:
+                log.error("<=run_subprocess=> Error during operation for: %s %s", cmd, e)
+        log.debug("<=run_subprocess=> run_results: %s", run_results)
+        return run_results
+
+
+class DiscoverLocalTests:
+
+    suite = TestSuite()
+    loader = unittest.TestLoader()
+    runner = unittest.TextTestRunner(verbosity=3)
+
+    if os.name == 'nt':
+        sep = '\\'
+    else:
+        sep = '/'
+
+    def get_all_tests_dev(self, **kwargs):
+        test_method = kwargs.get('test_method', None)
+        test_class = kwargs.get('test_class', None)
+        test_module = kwargs.get('test_module', None)
+
+        tst_class = ''
+        tst_module = ''
+        if test_module:
+            tst_module = importlib.import_module(test_module)
+        if test_class and tst_module:
+            tst_class = getattr(tst_module, test_class)
+
+        tests_from_discover = self.unittests_discover(test_dir=None)
+        log.debug("<=tests_from_discover=> %s", tests_from_discover)
+
+        tests_names_from_mod = self.unittests_name_from_module_names(names=test_method, tst_module=tst_module)
+        log.debug("<=tests_names_from_mod=> %s", tests_names_from_mod)
+
+        tests_from_case = self.unittests_from_case(tst_class)
+        log.debug("<=tests_from_case=> %s", tests_from_case)
+
+        tests_from_mod = self.unittests_from_module(tst_module=tst_module, pattern=None)
+        log.debug("<=tests_from_mod=> %s", tests_from_mod)
+
+        test_names = self.get_unittest_names(tst_class)
+        log.debug("<=test_names=> %s", test_names)
+
+        # self.suite.addTests(tests_from_discover)
+        # Or customize:
+        self.suite.addTest(tst_class(test_method))
+        log.info("Test suite: %s", self.suite)
+        self.runner.run(self.suite)
+
+    def unittests_discover(self, test_dir=None, pattern=None):
+        if not test_dir:
+            test_dir = BASE_DIR
+            log.info("Getting all tests from dir: %s", test_dir)
+        if not pattern:
+            pattern = 'octotest_*.py'
+        tests = self.loader.discover(test_dir, pattern=pattern)
+        return tests
+
+    def unittests_name_from_module_names(self, names, tst_module):
+        if isinstance(names, str):
+            tests = self.loader.loadTestsFromName(names, module=tst_module)
+        elif isinstance(names, list):
+            tests = self.loader.loadTestsFromNames(names, module=tst_module)
+        else:
+            raise Exception('Test cases names is not a list or str')
+        return tests
+
+    def unittests_from_case(self, tst_class):
+        tests = self.loader.loadTestsFromTestCase(tst_class)
+        return tests
+
+    def unittests_from_module(self, tst_module, pattern=None):
+        if not pattern:
+            pattern = 'octotest_*.py'
+        tests = self.loader.loadTestsFromModule(module=tst_module, pattern=pattern)
+        return tests
+
+    def get_unittest_names(self, tst_class):
+        names = self.loader.getTestCaseNames(tst_class)
+        return names

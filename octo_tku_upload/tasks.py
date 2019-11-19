@@ -588,26 +588,20 @@ class TestRunnerLoc:
         :param module:
         :return:
         """
-        if not module:
-            from run_core import octotest_upload_tku
-            module = octotest_upload_tku.OctoTestCaseUpload
-
         loader = unittest.TestLoader()
         tests = loader.loadTestsFromName(test_method, module=module)
         return tests
 
-    def get_tests_from_case(self, test_method=None, case=None):
+    def get_tests_from_case(self, test_method=None, module=None):
         """
         Get all test cases from TestCases Class, also sort single test if test_method provided.
+        :param module:
         :param test_method:
         :param case:
         :return:
         """
-        if not case:
-            from run_core.octotest_upload_tku import OctoTestCaseUpload
-            case = OctoTestCaseUpload
         loader = unittest.TestLoader()
-        tests = loader.loadTestsFromTestCase(case)
+        tests = loader.loadTestsFromTestCase(module)
         log.info("All tests in loadTestsFromTestCase: %s", tests)
         if test_method:
             for test in tests:
