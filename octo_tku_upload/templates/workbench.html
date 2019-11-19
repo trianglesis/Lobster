@@ -57,8 +57,7 @@
             <div class="col-sm-6 col-shrink">
                 <div class="card">
                     <div class="card-body card-body-sm">
-                        <h5 class="card-title txt-nice">latest_cont_main</h5>
-                        <div>{{ objects.latest_cont_main.test_date_time }}</div>
+                        <h5 class="card-title txt-nice">latest_cont_main: {{ objects.latest_cont_main.test_date_time }}</h5>
                         <div class="last-upload-test">
                             {% regroup objects.upload_cont_main|dictsortreversed:'addm_name' by tku_type as upload_cont_main %}
                             {% for test_type in upload_cont_main %}
@@ -71,8 +70,7 @@
             <div class="col-sm-6 col-shrink">
                 <div class="card">
                     <div class="card-body card-body-sm">
-                        <h5 class="card-title txt-nice">latest_cont_ship</h5>
-                        <div>{{ objects.latest_cont_ship.test_date_time }}</div>
+                        <h5 class="card-title txt-nice">latest_cont_ship: {{ objects.latest_cont_ship.test_date_time }}</h5>
                         <div class="last-upload-test">
                             {% regroup objects.upload_cont_ship|dictsortreversed:'addm_name' by tku_type as upload_cont_ship %}
                             {% for test_type in upload_cont_ship %}
@@ -85,8 +83,7 @@
             <div class="col-sm-6 col-shrink">
                 <div class="card">
                     <div class="card-body card-body-sm">
-                        <h5 class="card-title txt-nice">latest_ga_upgrade</h5>
-                        <div>{{ objects.latest_ga_upgrade.test_date_time }}</div>
+                        <h5 class="card-title txt-nice">latest_ga_upgrade: {{ objects.latest_ga_upgrade.test_date_time }}</h5>
                         <div class="last-upload-test step-2">
                             <span class="txt-nice">{{ objects.upload_ga_upgrade.0.tku_type }}</span>
                             <span class="txt-monospace">{{ objects.upload_ga_upgrade.0.package_type }}</span>
@@ -111,8 +108,7 @@
             <div class="col-sm-6 col-shrink">
                 <div class="card">
                     <div class="card-body card-body-sm">
-                        <h5 class="card-title txt-nice">latest_ga_fresh</h5>
-                        <div>{{ objects.latest_ga_fresh.test_date_time }}</div>
+                        <h5 class="card-title txt-nice">latest_ga_fresh: {{ objects.latest_ga_fresh.test_date_time }}</h5>
                         <div class="last-upload-test">
                             <span class="txt-nice">{{ objects.upload_ga_fresh.0.tku_type }}</span>
                             <span class="txt-monospace">{{ objects.upload_ga_fresh.0.package_type }}</span>
@@ -133,7 +129,7 @@
                 <!-- upload-test-buttons-card -->
                 <div class="card upload-test-buttons-card">
                     <div class="card-body card-body-sm">
-                        <h5 class="card-title txt-nice">Run upload tests</h5>
+{#                        <h5 class="card-title txt-nice">Run upload tests</h5>#}
                         <div>
                             <div class="list-group">
                                 <a href="#" class="list-group-item list-group-item-action" data-toggle="modal" data-target="#releaseUpload">
@@ -160,7 +156,7 @@
             {# Upload stats, last packages names, octotests#}
             <div class="col-sm-6 col-shrink">
                 <div class="card">
-                    <div class="card-header txt-nice">TKU Latest packages</div>
+{#                    <div class="card-header txt-nice">TKU Latest packages</div>#}
                     <div class="card-body card-body-sm">
                         <div class="tku-packages-table">
                             <div class="max_released">
@@ -191,7 +187,7 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header txt-nice">TKU Upload test cases (TBA)</div>
+{#                    <div class="card-header txt-nice">TKU Upload test cases (TBA)</div>#}
                     <div class="card-body card-body-sm">
                         <div class="tku-upload-cases-table">
                             <p>Upload cases PLUGABLE</p>
@@ -210,7 +206,7 @@
             <div class="col-sm-6 col-shrink">
                 <div class="card">
                     <div class="card-body card-body-sm">
-                        <h5 class="card-title txt-nice">Product Content Update TKN Main</h5>
+{#                        <h5 class="card-title txt-nice">Product Content Update TKN Main</h5>#}
                         <div>{{ objects.upload_product_content_main.test_date_time }}</div>
                         <div class="last-upload-test">
                             {% regroup objects.upload_product_content_main|dictsortreversed:'addm_name' by tku_type as product_content_update_main %}
@@ -224,7 +220,7 @@
             <div class="col-sm-6 col-shrink">
                 <div class="card">
                     <div class="card-body card-body-sm">
-                        <h5 class="card-title txt-nice">Product Content Update TKN Ship</h5>
+{#                        <h5 class="card-title txt-nice">Product Content Update TKN Ship</h5>#}
                         <div>{{ objects.upload_product_content_ship.test_date_time }}</div>
                         <div class="last-upload-test">
                             {% regroup objects.upload_product_content_ship|dictsortreversed:'addm_name' by tku_type as product_content_update_ship %}
@@ -235,6 +231,14 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row tku-upload-rest-references">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations' %}">REST TKU Operations All</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=tku_install_test">REST 'tku_install_test'</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=tku_sync_packages">REST 'tku_sync_packages'</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=tku_parse_packages">REST 'tku_parse_packages'</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=show_latest_tku_type">REST 'show_latest_tku_type'</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=select_latest_tku_type">REST 'select_latest_tku_type'</a>
         </div>
     </div>
     <!-- Navbar bottom fixed -->
