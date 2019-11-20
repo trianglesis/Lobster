@@ -20,7 +20,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.silent_on(True)
         self.wget_on(False)
         self.debug_on(True)
-        self.user_and_mail('Danylcha', "Dan@bmc.com")
+        # self.user_and_mail('Danylcha', "Dan@bmc.com")
 
     @unittest.skip("Skip, but this should not be executed!")
     def test000_tku_upload_release(self):
@@ -53,11 +53,11 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_ga()
         self.request.update(addm_group='golf', test_mode='fresh', package_types=[package_type])
         self.run_case()
-
-    def test005_release_ga_fresh(self):
-        package_type = self.select_latest_ga()
-        self.request.update(addm_group='golf', test_mode='fresh', package_types=[package_type])
-        self.run_case()
+    #
+    # def test005_release_ga_fresh(self):
+    #     package_type = self.select_latest_ga()
+    #     self.request.update(addm_group='golf', test_mode='fresh', package_types=[package_type])
+    #     self.run_case()
 
 
 # if __name__ == "__main__":

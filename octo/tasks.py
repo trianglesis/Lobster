@@ -10,7 +10,7 @@ Note:
     - Do not import case routines which import tasks from here.
 """
 from __future__ import absolute_import, unicode_literals
-
+import importlib
 import logging
 from time import sleep
 
@@ -20,7 +20,8 @@ from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_oper import WorkerOperations, TasksOperations
 from octo.octo_celery import app
-from octotests.tests_discover_run import TestRunnerLoc, DiscoverLocalTests
+
+# from octotests.tests_discover_run import DiscoverTestsRunner
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
@@ -186,17 +187,3 @@ class TInternal:
             # if mail_send:
             #     Mails.short(subject='Expected worker could be busy:', body=msg)
             return msg
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TInternal.internal_test_routine',
-              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
-    def internal_test_routine(t_tag, **kwargs):
-        log.info("<=internal_test_routine=> Running task %s %s", t_tag, kwargs)
-        return TestRunnerLoc.run_subprocess(**kwargs)
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TInternal.internal_test_get',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    def internal_test_get(t_tag, **kwargs):
-        log.info("<=get_all_tests_dev=> Running task %s %s", t_tag, kwargs)
-        return DiscoverLocalTests().get_all_tests_dev(**kwargs)

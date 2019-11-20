@@ -11,7 +11,8 @@ if __name__ == "__main__":
     test_disco = {
         "test_method": "test002_product_content_update_tkn_ship",
         "test_class": "OctoTestCaseUpload",
-        "test_module": "octotests.tests.octotest_upload_tku"
+        "test_module": "octotests.tests.octotest_upload_tku",
+        "disco_module": "octotests.tests_discover_run"
     }
 
     DiscoverLocalTests().get_all_tests_dev(**test_disco)

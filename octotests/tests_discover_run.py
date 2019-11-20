@@ -90,6 +90,9 @@ class DiscoverLocalTests:
     or show on UI part of Octopus where they could be used as executable (only by TestRunnerLoc) tasks and routines.
     But do not use test suites to run tests, because without prorer restart celery tasks wouldn't run any of them
     and could not reflect any changes.
+
+    NOTE: DO not run this as task! Task wouldn't reflect local-external changes from test files!
+
     """
 
     def get_all_tests_dev(self, **kwargs):
@@ -106,6 +109,9 @@ class DiscoverLocalTests:
             tst_module = importlib.import_module(test_module)
         if test_class and tst_module:
             tst_class = getattr(tst_module, test_class)
+
+        log.info("Test class id: %s, module id: %s", id(tst_module), id(tst_class))
+        log.info("Test test_suite id: %s", id(test_suite))
 
         tests_from_discover = self.unittests_discover(test_dir=None)
         log.debug("<=tests_from_discover=> %s", tests_from_discover)

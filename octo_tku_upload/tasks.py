@@ -44,6 +44,13 @@ class TUploadExec:
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_upload_routines',
               soft_time_limit=MIN_90, task_time_limit=HOURS_2)
     def t_upload_routines(t_tag, **kwargs):
+        """
+        Can run routines tasks as test methods from unit test case class.
+        Reflects external changes to to test file without reload/restart.
+        :param t_tag:
+        :param kwargs: dict(test_method, test_class, test_module)
+        :return:
+        """
         log.info("<=t_upload_routines=> Running task %s", kwargs)
         return TestRunnerLoc().run_subprocess(**kwargs)
 
