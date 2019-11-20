@@ -1,12 +1,12 @@
 from __future__ import absolute_import, unicode_literals
-import ast
+
 import datetime
 import logging
 import os
-import unittest
 # noinspection PyUnresolvedReferences
 from typing import Dict, List, Any
 
+from celery.utils.log import get_task_logger
 from django.db.models import Max
 
 from octo.helpers.tasks_helpers import exception
@@ -20,8 +20,7 @@ from octo_tku_upload.test_executor import UploadTestExec
 from run_core.local_operations import LocalDownloads
 from run_core.models import AddmDev
 
-
-from celery.utils.log import get_task_logger
+from octotests.tests_discover_run import TestRunnerLoc
 
 log = logging.getLogger("octo.octologger")
 logger = get_task_logger(__name__)
@@ -46,7 +45,7 @@ class TUploadExec:
               soft_time_limit=MIN_90, task_time_limit=HOURS_2)
     def t_upload_routines(t_tag, **kwargs):
         log.info("<=t_upload_routines=> Running task %s", kwargs)
-        return TestRunnerLoc().run_test_threaded(**kwargs)
+        return TestRunnerLoc().run_subprocess(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_tku_upload_test_new',
@@ -437,271 +436,3 @@ class UploadTaskPrepare:
             for pack in step_package:
                 msg = f'{step_k} package: {pack.tku_type} -> {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} '
                 log.info(msg)
-
-
-class TestRunnerLoc:
-
-    if os.name == 'nt':
-        sep = '\\'
-    else:
-        sep = '/'
-
-    def run_th(self, **kwargs):
-        from queue import Queue
-        from threading import Thread
-        test_method = kwargs.get('test_method')
-        test_py_path = kwargs.get('test_py_path')
-
-        thread_outputs = []
-        thread_list = []
-        th_name = f'Upload_Test_case-{test_method}'
-        test_q = Queue()
-        th_kwargs = dict(test_method=test_method, test_py_path=test_py_path, test_q=test_q)
-        try:
-            log.info("Running thread test for: %s", th_name)
-            prep_th = Thread(target=self.run_tests, name=th_name, kwargs=th_kwargs)
-            prep_th.start()
-            thread_list.append(prep_th)
-        except Exception as e:
-            log.error("TestRunnerLoc thread error: %s", e)
-
-        for test_th in thread_list:
-            test_th.join()
-            th_out = test_q.get()
-            thread_outputs.append(th_out)
-        return thread_outputs
-
-    def run_cased(self, **kwargs):
-        from queue import Queue
-        test_q = Queue()
-        cased_func = TestRunnerLoc().run_tests
-        test_method = kwargs.get('test_method')
-        kw_args = dict(test_q=test_q, test_method=test_method)
-        cased_func(**kw_args)
-
-    def run_subprocess(self, **kwargs):
-        import subprocess
-
-        test_py_path = kwargs.get('test_py_path', None)  # full path to octotest_upload_tku.py
-        test_method = kwargs.get('test_method', None)  # test001_product_content_update_tkn_main
-        test_class = kwargs.get('test_class', None)  # OctoTestCaseUpload
-        test_module = kwargs.get('test_module', None)  # run_core.tests.octotest_upload_tku
-
-        # Set the ENV:
-        my_env = os.environ.copy()
-        my_env['DJANGO_SETTINGS_MODULE'] = 'octo.win_settings'
-
-        # Save results here:
-        run_results = []
-        cmd_list = []
-
-        # DEV: Set paths to test and working dir:
-        if os.name == 'nt':
-            test_env = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
-            octo_core = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster'
-            activate = 'activate.bat'
-            deactivate = 'deactivate.bat'
-        else:
-            test_env = '/var/www/octopus/'
-            octo_core = '/var/www/octopus/'
-            activate = 'venv/bin/activate/activate'
-            deactivate = 'venv/bin/activate/deactivate'
-
-        # Set unit test cmd:
-        if test_module and test_class and test_method:
-            test_cmd = f'python -m unittest {test_module}.{test_class}.{test_method}'
-        elif test_module and test_class and not test_method:
-            test_cmd = f'python -m unittest {test_module}.{test_class}'
-        elif test_module and not test_class and not test_method:
-            test_cmd = f'python -m unittest {test_module}'
-        else:
-            test_cmd = f'python -m unittest {test_py_path}'
-
-        # Compose CMD run:
-        cmd_list.append(f'{test_env}{activate}')
-        cmd_list.append(test_cmd)
-        cmd_list.append(f'{test_env}{deactivate}')
-
-        for cmd in cmd_list:
-            try:
-                log.debug("<=TEST=> Run: %s", cmd)
-                run_cmd = subprocess.Popen(cmd,
-                                           stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE,
-                                           cwd=octo_core,
-                                           env=my_env,
-                                           )
-                run_cmd.communicate()
-                stdout, stderr = run_cmd.communicate()
-                stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
-                run_cmd.wait()
-                run_results.append({'stdout': stdout, 'stderr': stderr})
-                log.debug('<=TEST=> stdout %s', stdout)
-                log.debug('<=TEST=> stderr %s', stderr)
-
-            except Exception as e:
-                log.error("<=run_subprocess=> Error during operation for: %s %s", cmd, e)
-        # log.debug("<=run_subprocess=> run_results: %s", run_results)
-        return run_results
-
-    def get_tests_from_py(self):
-        import py_compile
-        loader = unittest.TestLoader()
-
-        test_file = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                 f'..{self.sep}run_core{self.sep}octotest_upload_tku.py'))
-        compiled = py_compile.compile(test_file)
-
-        log.debug("test_file: %s", test_file)
-        with open(test_file, "r", encoding="utf8") as f:
-            read_file = f.read()
-            test_tree = ast.parse(read_file)
-
-        code = compile(read_file, 'octotest_upload_tku.py', 'exec')
-        log.debug("code: %s", code)
-
-        ast_code = compile(test_tree, 'octotest_upload_tku.py', 'exec')
-        log.debug("ast_code: %s", ast_code)
-
-        # OctoTestCaseUpload_eval = eval(code)
-        # log.info("OctoTestCaseUpload: eval %s %s", type(OctoTestCaseUpload_eval), OctoTestCaseUpload_eval)
-
-        OctoTestCaseUpload = exec(ast_code)
-        log.info("OctoTestCaseUpload: exec %s %s", type(OctoTestCaseUpload), OctoTestCaseUpload)
-
-        # tests_1 = loader.loadTestsFromTestCase(OctoTestCaseUpload_eval)
-        # log.debug("tests_1: %s", tests_1)
-        tests = loader.discover(
-            'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\run_core\\__pycache__',
-            pattern='octotest_upload_tku.cpython-36.pyc')
-        log.debug("tests: %s", tests)
-
-        # tests_2 = loader.loadTestsFromTestCase(OctoTestCaseUpload)
-        # log.debug("tests_2: %s", tests_2)
-
-        return tests
-
-    def get_tests_from_module(self, test_method=None, module=None):
-        """
-        Importable module load and sort out the test method if any.
-        :param test_method:
-        :param module:
-        :return:
-        """
-        loader = unittest.TestLoader()
-        tests = loader.loadTestsFromName(test_method, module=module)
-        return tests
-
-    def get_tests_from_case(self, test_method=None, module=None):
-        """
-        Get all test cases from TestCases Class, also sort single test if test_method provided.
-        :param module:
-        :param test_method:
-        :param case:
-        :return:
-        """
-        loader = unittest.TestLoader()
-        tests = loader.loadTestsFromTestCase(module)
-        log.info("All tests in loadTestsFromTestCase: %s", tests)
-        if test_method:
-            for test in tests:
-                if test_method == test._testMethodName:
-                    return [test]
-        return tests
-
-    def compile_test(self, test_file):
-        import py_compile
-        compiled = py_compile.compile(test_file)
-        log.debug("Compiled tests file: %s", compiled)
-
-    def re_write_test_file(self, test_file, rotate_file_path):
-
-        rotatable = os.path.join(rotate_file_path, '__octo_test_rotate.py')
-        if os.path.exists(rotatable):
-            log.debug("Deleting rotatable file: %s", rotatable)
-            os.remove(rotatable)
-            pycache = os.path.join(rotate_file_path, '__pycache__', '__octo_test_rotate.cpython-36.pyc')
-            if os.path.exists(pycache):
-                os.remove(pycache)
-
-        with open(test_file, "r", encoding="utf8") as f:
-            read_file = f.read()
-        with open(rotatable, 'w') as test_f:
-            test_f.write(read_file)
-        return rotatable
-
-    def get_tests_from_discover(self, test_method=None, test_dir=None):
-        """
-        https://stackoverflow.com/a/37724523
-        :param test_method:
-        :param test_dir:
-        :return:
-        """
-        loader = unittest.TestLoader()
-        # D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\z_DEV\\octo_tests
-        log.debug("test_dir: %s", test_dir)
-        rotatable = self.re_write_test_file(os.path.abspath(os.path.join(test_dir, 'octotest_upload_tku.py')), test_dir)
-        log.debug("rotatable: %s", rotatable)
-
-        tests = loader.discover(test_dir, pattern='__octo_test_rotate.py')
-
-        if test_method:
-            for test in tests:
-                log.info("<=get_tests_from_discover> One test from discover: %s %s", test, type(test))
-                if test:
-                    log.debug("\ttest iter: %s", test)
-                    if isinstance(test, unittest.TestSuite):
-                        log.debug("\ttest instance: TestSuite")
-                        for item in test:
-                            log.debug("\t\ttest item: %s", item)
-                            if isinstance(item, unittest.TestSuite):
-                                for case in item:
-                                    if case and hasattr(case, '_testMethodName'):
-                                        log.info("\t\t<=get_tests_from_discover> Test items has attr: %s", case)
-                                        if test_method == case._testMethodName:
-                                            log.info("\t\t\t<=get_tests_from_discover> Test test._testMethodName: %s", case._testMethodName)
-                                            return [case], rotatable
-                                else:
-                                    log.debug("\t\tThis test case is not %", test_method)
-                            else:
-                                log.debug("\t\tItem have no attribute _testMethodName")
-                    else:
-                        log.debug("\tNot a testSuite instance")
-                else:
-                    log.debug("\tNo test in this suite")
-        else:
-            log.debug("No test method, run all tests!")
-
-    def run_tests(self, **kwargs):
-        # from run_core import octotest_upload_tku
-        test_q = kwargs.get('test_q')
-        test_method = kwargs.get('test_method')
-        test_dir = kwargs.get('test_dir')
-
-        # all_case_names = unittest.TestLoader().getTestCaseNames(octotest_upload_tku.OctoTestCaseUpload)
-        # log.debug("all_case_names: %s", all_case_names)
-
-        suite = unittest.TestSuite()
-        runner = unittest.TextTestRunner(verbosity=3)
-        # tests = self.get_tests_from_module(test_method, module=octotest_upload_tku.OctoTestCaseUpload)
-        # tests = self.get_tests_from_case(test_method, case=OctoTestCaseUpload)
-        tests, rotatable = self.get_tests_from_discover(test_method, test_dir)
-        # tests = self.get_tests_from_py()
-
-        log.info("<=TestRunnerLoc=> tests: %s", tests)
-        for test in tests:
-            result = runner.run(test)
-            log.debug("result: %s", result)
-            # return str(result)
-            # # test_q.put(str(result))
-
-        # else:
-        #     suite.addTests(tests)
-        #     result = runner.run(suite)
-        #     log.info("<=TestRunnerLoc=> suite: %s", suite)
-        # return str(result)
-        # test_q.put(str(result))
-
-    def run_test_threaded(self, **kwargs):
-        log.debug("<=TestRunnerLoc=> Running test: %s", kwargs)
-        self.run_subprocess(**kwargs)

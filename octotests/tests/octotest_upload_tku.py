@@ -4,9 +4,9 @@ Example for octo test
 import unittest
 import logging
 try:
-    from run_core import octo_tests
+    from octotests import octo_tests
 except ModuleNotFoundError:
-    import octo_tests
+    import octotests.octo_tests
 
 
 log = logging.getLogger("octo.octologger")
@@ -50,6 +50,11 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.run_case()
 
     def test004_release_ga_fresh(self):
+        package_type = self.select_latest_ga()
+        self.request.update(addm_group='golf', test_mode='fresh', package_types=[package_type])
+        self.run_case()
+
+    def test005_release_ga_fresh(self):
         package_type = self.select_latest_ga()
         self.request.update(addm_group='golf', test_mode='fresh', package_types=[package_type])
         self.run_case()
