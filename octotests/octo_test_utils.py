@@ -37,28 +37,27 @@ class PatternTestUtils(unittest.TestCase):
         self.user_name = None
         self.user_email = None
         self.fake_run = None
-        self.exclude = None
 
-        self.date_from = ''
-        self.date_to = ''
-        self.branch = ''
+        self.date_from = None
+        self.date_to = None
+        self.branch = None
         self.queryset = TestCases.objects.all()
 
         self.addm_group_l = []
-
         self.mail_task_arg = ''
         self.mail_kwargs = dict()
         self.test_output_mode = False
 
         self.all_tests_w = 0
-
         self.request = dict()
 
     def setUp(self) -> None:
         self.user_and_mail()
 
     def run_case(self):
-
+        self.get_branched_addm_groups()
+        self.select_addm_set()
+        self.balance_tests_on_workers()
         # FINISH STEP:
         self.put_test_cases()
 
@@ -133,31 +132,31 @@ class PatternTestUtils(unittest.TestCase):
         else:
             log.debug("<=PatternTestUtils=> Will send confirmation and step emails.")
 
-    def select_tests_last_days(self, days):
-        assert (days, int), 'Days arg should be an integer!'
-        self.queryset = PatternsDjangoTableOper.sel_dynamical(
-            TestCases, sel_opts=dict(last_days=days))
+    def wipe_logs(self, wipe_logs):
+        if wipe_logs and not self.fake_run:
+            self.request.update(wipe_logs=True)
+            # TODO: Make wipe
+            log.debug("<=PatternTestUtils=> Will wipe logs.")
 
-    def select_tests_dates_between(self, date_from, date_to=None):
-        self.date_from = datetime.datetime.strptime(date_from, '%Y-%m-%d').replace(tzinfo=timezone.utc)
-        if date_to:
-            self.date_to = datetime.datetime.strptime(date_to, '%Y-%m-%d').replace(tzinfo=timezone.utc)
-        else:
-            self.date_to = self.now + datetime.timedelta(days=1)
+    def select_test_cases(self, **sel_opts):
+        self.queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, **sel_opts)
 
     def excluded_group(self):
         excluded_group = TestCasesDetails.objects.get(title__exact='excluded')
         excluded_ids = excluded_group.test_cases.values('id')
         self.queryset = self.queryset.exclude(id__in=excluded_ids)
 
-    def get_branched_addm_groups(self, branch):
-        self.addm_group_l = BalanceNightTests().get_available_addm_groups(branch=branch, user_name=self.user_name)
+    def get_branched_addm_groups(self):
+        self.addm_group_l = BalanceNightTests().get_available_addm_groups(
+            branch=self.branch, user_name=self.user_name)
 
     def select_addm_set(self):
-        self.addm_set = ADDMOperations.select_addm_set(addm_group=self.addm_group_l)
+        self.addm_set = ADDMOperations.select_addm_set(
+            addm_group=self.addm_group_l)
 
     def balance_tests_on_workers(self):
-        self.addm_tests_balanced = BalanceNightTests().test_weight_balancer(addm_group=self.addm_group_l, test_items=self.queryset)
+        self.addm_tests_balanced = BalanceNightTests().test_weight_balancer(
+            addm_group=self.addm_group_l, test_items=self.queryset)
 
     def put_test_cases(self):
         for addm_item in self.addm_set:

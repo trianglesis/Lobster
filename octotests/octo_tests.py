@@ -22,20 +22,6 @@ class OctoPatternsTestCase(PatternTestUtils):
         # Parse local FS
         # Cancel any outgoing tasks and lock workers to be ready?
 
-    def select_tests_last_days(self, days):
-        pass
-
-    def select_tests_dates_between(self, date_from, date_to=None):
-        pass
-
-    def excluded_group(self):
-        pass
-
-    def get_branched_addm_groups(self, branch):
-        pass
-
-    def select_addm_set(self):
-        pass
 
 
 class OctoTestCase(UploadTaskUtils):
