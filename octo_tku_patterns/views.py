@@ -573,7 +573,7 @@ class TestCasesListView(ListView):
     paginate_by = 100
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestCasesListView=> test cases table context")
+        # UserCheck().logator(self.request, 'info', "<=TestCasesListView=> test cases table context")
         context = super(TestCasesListView, self).get_context_data(**kwargs)
         debug = self.request.GET.get('debug', False)
         context.update(
@@ -584,9 +584,7 @@ class TestCasesListView(ListView):
         return context
 
     def get_queryset(self):
-        # TODO: Can add order_by custom option, but not sure this is the real usecase...
-        UserCheck().logator(self.request, 'info', "<=TestCasesListView=> test cases table queryset")
-        queryset = TestCases.objects.all()
+        # UserCheck().logator(self.request, 'info', "<=TestCasesListView=> test cases table queryset")
         sel_opts = compose_selector(self.request.GET)
         sel_opts.pop('tst_status')
         queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)

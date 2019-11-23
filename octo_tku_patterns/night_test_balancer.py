@@ -152,6 +152,9 @@ class BalanceNightTests:
         :param test_items:
         :return:
         """
+
+        # TODO: ReUse this for queryset from TestCases, not the list of dicts like older version.
+
         test_items_prepared = copy.deepcopy(test_items)
         test_items_prepared = sorted(test_items_prepared, key=itemgetter('test_time_weight'), reverse=True)
         test_items_prepared = collections.deque(test_items_prepared)

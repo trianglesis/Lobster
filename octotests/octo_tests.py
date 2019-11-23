@@ -1,3 +1,4 @@
+
 import unittest
 import logging
 import django
@@ -5,11 +6,36 @@ from django.db.models import Max
 
 django.setup()
 
-from octotests.octo_test_utils import UploadTaskUtils
+from octotests.octo_test_utils import UploadTaskUtils, PatternTestUtils
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 
 log = logging.getLogger("octo.octologger")
 module_name = "OctoTest"
+
+
+class OctoPatternsTestCase(PatternTestUtils):
+
+    @classmethod
+    def setUpClass(cls):
+        log.debug("Setup Class OctoPatternsTestCase")
+        # Early before run tests execute preparation to get most latest p4 changes?
+        # Parse local FS
+        # Cancel any outgoing tasks and lock workers to be ready?
+
+    def select_tests_last_days(self, days):
+        pass
+
+    def select_tests_dates_between(self, date_from, date_to=None):
+        pass
+
+    def excluded_group(self):
+        pass
+
+    def get_branched_addm_groups(self, branch):
+        pass
+
+    def select_addm_set(self):
+        pass
 
 
 class OctoTestCase(UploadTaskUtils):

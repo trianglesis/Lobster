@@ -2,14 +2,10 @@
 Example for octo test
 """
 import unittest
-import logging
 try:
     from octotests import octo_tests
 except ModuleNotFoundError:
     import octotests.octo_tests
-
-
-log = logging.getLogger("octo.octologger")
 
 
 class OctoTestCaseUpload(octo_tests.OctoTestCase):
