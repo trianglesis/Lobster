@@ -16,9 +16,6 @@ if __name__ == "__main__":
 
     django.setup()
 
-
-
-
     log = logging.getLogger("octo.octologger")
     log.info("\n\n\n\n\nRun dev_site/run_local_functions.py")
     log.debug("Patterns time weight dev")
