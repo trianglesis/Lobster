@@ -7,50 +7,49 @@ try:
 except ModuleNotFoundError:
     import octotests.octo_tests
 
-from octo_tku_patterns.tasks import TaskPrepare
+# from octo_tku_patterns.tasks import TaskPrepare
 
-
-class OctoTestCase(TaskPrepare):
-
-    def __init__(self, obj):
-        obj.silent = True
-        obj.fake_run = True
-        obj.exclude = True
-        obj.request = dict()
-        self.pattern_folder_names()
-        super().__init__(obj)
-
-    def pattern_folder_names(self):
-        self.request.update(
-            refresh=True,
-            # silent=True,
-            fake_run=True,
-            exclude=True,
-            user_name='octotests',
-            user_email='octotests',
-            selector=dict(
-                cases_ids='1,2',
-            ),
-            # selector=dict(
-            #     tkn_branch='tkn_main',
-            #     pattern_library='CORE',
-            #     pattern_folder_names=[
-            #         '10genMongoDB',
-            #         'BlazegraphDatabase',
-            #         'BMCBladelogicServerAutomationSuite',
-            #         'BMCMiddlewareMngmntPerformanceAvailability',
-            #         'EmbarcaderoDSAuditor',
-            #     ],
-            # ),
-        )
-
-    def run(self):
-        self.run_tku_patterns()
+# class OctoTestCase(TaskPrepare):
+#
+#     def __init__(self, obj):
+#         obj.silent = True
+#         obj.fake_run = True
+#         obj.exclude = True
+#         obj.request = dict()
+#         self.pattern_folder_names()
+#         super().__init__(obj)
+#
+#     def pattern_folder_names(self):
+#         self.request.update(
+#             refresh=True,
+#             # silent=True,
+#             fake_run=True,
+#             exclude=True,
+#             user_name='octotests',
+#             user_email='octotests',
+#             selector=dict(
+#                 cases_ids='1,2',
+#             ),
+#             # selector=dict(
+#             #     tkn_branch='tkn_main',
+#             #     pattern_library='CORE',
+#             #     pattern_folder_names=[
+#             #         '10genMongoDB',
+#             #         'BlazegraphDatabase',
+#             #         'BMCBladelogicServerAutomationSuite',
+#             #         'BMCMiddlewareMngmntPerformanceAvailability',
+#             #         'EmbarcaderoDSAuditor',
+#             #     ],
+#             # ),
+#         )
+#
+#     def run(self):
+#         self.run_tku_patterns()
 
 
 class NightTestCase(octo_tests.PatternTestUtils):
 
-    def setUp(self) -> None:
+    def setUp(self):
         octo_tests.PatternTestUtils.setUp(self)
         self.fake_run_on(True)
         self.silent_on(True)
@@ -60,7 +59,7 @@ class NightTestCase(octo_tests.PatternTestUtils):
 
     def test_001_night_routine_main(self):
         self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', days=730)
+        self.select_test_cases(tkn_branch='tkn_main', days=60)
         self.excluded_group()
         self.run_case()
 
@@ -76,8 +75,17 @@ class NightTestCase(octo_tests.PatternTestUtils):
         self.excluded_group()
         self.run_case()
 
+    def test003_weekend_all_run(self):
+        self.branch = 'tkn_main'
+        self.select_test_cases(tkn_branch='tkn_main')
+        self.excluded_group()
+        self.run_case()
+
+
+# if __name__ == "__main__":
+#     import django
+#     django.setup()
+#     OctoTestCase(TaskPrepare).run()
 
 if __name__ == "__main__":
-    import django
-    django.setup()
-    OctoTestCase(TaskPrepare).run()
+    unittest.main()

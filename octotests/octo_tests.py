@@ -23,7 +23,6 @@ class OctoPatternsTestCase(PatternTestUtils):
         # Cancel any outgoing tasks and lock workers to be ready?
 
 
-
 class OctoTestCase(UploadTaskUtils):
 
     @classmethod

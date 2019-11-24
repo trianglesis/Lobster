@@ -138,7 +138,6 @@ class BalanceNightTests:
 
     def get_available_addm_groups(self, branch, user_name):
         addm_group_l = self.select_addm_list_for_branch(branch=branch)
-        log.debug("Selected set of ADDMs addm_group_l: %s", addm_group_l)
         available_addm_w = self.workers_validate_and_occupy(addm_group_l=addm_group_l, user_name=user_name)
         return available_addm_w
 
@@ -155,15 +154,19 @@ class BalanceNightTests:
 
         # TODO: ReUse this for queryset from TestCases, not the list of dicts like older version.
 
-        test_items_prepared = copy.deepcopy(test_items)
-        test_items_prepared = sorted(test_items_prepared, key=itemgetter('test_time_weight'), reverse=True)
-        test_items_prepared = collections.deque(test_items_prepared)
+        # test_items_prepared = copy.deepcopy(test_items)
+        # test_items_prepared = sorted(test_items_prepared, key=itemgetter('test_time_weight'), reverse=True)
+        # test_items_prepared = collections.deque(test_items_prepared)
+        # New for TestCases
+        test_items_prepared = collections.deque(test_items)
 
         addm_test_balanced = dict()     # It's better to have a dict like {'aplha': dict(tests)}
         # SUM all tests time
         all_tests_time = 0
         for test_item in test_items_prepared:
-            all_tests_time += test_item['test_time_weight']                  # Count overall tests time weight
+            # TODO: Need to finish NEW test weight calculation first!
+            log.info("Test item: %s", test_item.test_time_weight)
+            all_tests_time += test_item.test_time_weight                  # Count overall tests time weight
 
         tent_avg = round(all_tests_time / len(addm_group) + 900)             # Use average time amount, add +900 sec to narrow float rounds
         log.debug("All tests len %s t:%s avg:%s", len(test_items_prepared), all_tests_time, tent_avg)
