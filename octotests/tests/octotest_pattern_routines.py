@@ -7,48 +7,47 @@ try:
 except ModuleNotFoundError:
     import octotests.octo_tests
 
-from octo_tku_patterns.tasks import TaskPrepare
+# from octo_tku_patterns.tasks import TaskPrepare
+
+# class OctoTestCase(TaskPrepare):
+#
+#     def __init__(self, obj):
+#         obj.silent = True
+#         obj.fake_run = True
+#         obj.exclude = True
+#         obj.request = dict()
+#         self.pattern_folder_names()
+#         super().__init__(obj)
+#
+#     def pattern_folder_names(self):
+#         self.request.update(
+#             refresh=True,
+#             # silent=True,
+#             fake_run=True,
+#             exclude=True,
+#             user_name='octotests',
+#             user_email='octotests',
+#             selector=dict(
+#                 cases_ids='1,2',
+#             ),
+#             # selector=dict(
+#             #     tkn_branch='tkn_main',
+#             #     pattern_library='CORE',
+#             #     pattern_folder_names=[
+#             #         '10genMongoDB',
+#             #         'BlazegraphDatabase',
+#             #         'BMCBladelogicServerAutomationSuite',
+#             #         'BMCMiddlewareMngmntPerformanceAvailability',
+#             #         'EmbarcaderoDSAuditor',
+#             #     ],
+#             # ),
+#         )
+#
+#     def run(self):
+#         self.run_tku_patterns()
 
 
-class OctoTestCase(TaskPrepare):
-
-    def __init__(self, obj):
-        obj.silent = True
-        obj.fake_run = True
-        obj.exclude = True
-        obj.request = dict()
-        self.pattern_folder_names()
-        super().__init__(obj)
-
-    def pattern_folder_names(self):
-        self.request.update(
-            refresh=True,
-            # silent=True,
-            fake_run=True,
-            exclude=True,
-            user_name='octotests',
-            user_email='octotests',
-            selector=dict(
-                cases_ids='1,2',
-            ),
-            # selector=dict(
-            #     tkn_branch='tkn_main',
-            #     pattern_library='CORE',
-            #     pattern_folder_names=[
-            #         '10genMongoDB',
-            #         'BlazegraphDatabase',
-            #         'BMCBladelogicServerAutomationSuite',
-            #         'BMCMiddlewareMngmntPerformanceAvailability',
-            #         'EmbarcaderoDSAuditor',
-            #     ],
-            # ),
-        )
-
-    def run(self):
-        self.run_tku_patterns()
-
-
-class NightTestCase(octo_tests.PatternTestUtils):
+class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def setUp(self) -> None:
         octo_tests.PatternTestUtils.setUp(self)
@@ -77,7 +76,10 @@ class NightTestCase(octo_tests.PatternTestUtils):
         self.run_case()
 
 
+# if __name__ == "__main__":
+#     import django
+#     django.setup()
+#     OctoTestCase(TaskPrepare).run()
+
 if __name__ == "__main__":
-    import django
-    django.setup()
-    OctoTestCase(TaskPrepare).run()
+    unittest.main()

@@ -30,7 +30,7 @@ log = logging.getLogger("octo.octologger")
 class PatternTestUtils(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
-        super(PatternTestUtils).__init__(*args, **kwargs)
+        super(PatternTestUtils, self).__init__(*args, **kwargs)
         self.now = datetime.datetime.now(tz=timezone.utc)
         self.tomorrow = self.now + datetime.timedelta(days=1)
 
@@ -156,7 +156,7 @@ class PatternTestUtils(unittest.TestCase):
 
     def balance_tests_on_workers(self):
         self.addm_tests_balanced = BalanceNightTests().test_weight_balancer(
-            addm_group=self.addm_group_l, test_items=self.queryset)
+            addm_group=self.addm_group_l, test_items=self.queryset.order_by('-test_time_weight'))
 
     def put_test_cases(self):
         for addm_item in self.addm_set:
@@ -213,7 +213,7 @@ class PatternTestUtils(unittest.TestCase):
             addm_test_pairs=len(self.addm_tests_balanced),
             test_items_len=len(addm_tests),
             all_tests=self.queryset.count(),
-            addm_used=self.addm_set.count(),
+            addm_used=len(self.addm_set),
             all_tests_weight=addm_tests_weight,
             tent_avg=tent_avg)
         """ MAIL send mail when routine tests selected: """

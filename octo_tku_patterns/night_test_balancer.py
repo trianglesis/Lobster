@@ -50,15 +50,13 @@ class BalanceNightTests:
                     test_item_d = {test_item.test_py_path: dict(
                         tkn_branch=test_item.tkn_branch,
                         pattern_library=test_item.pattern_library,
-                        pattern_file_name=test_item.pattern_file_name,
                         pattern_folder_name=test_item.pattern_folder_name,
-                        pattern_file_path=test_item.pattern_file_path,
+                        pattern_folder_path=test_item.pattern_folder_path,
+                        test_case_dir=test_item.test_case_dir,
+
                         test_py_path=test_item.test_py_path,
                         test_py_path_template=test_item.test_py_path_template,
-                        test_folder_path_template=test_item.test_folder_path_template,
-                        pattern_folder_path_depot=test_item.pattern_folder_path_depot,
-                        pattern_file_path_depot=test_item.pattern_file_path_depot,
-                        is_key_pattern=test_item.is_key_pattern,
+                        test_dir_path_template=test_item.test_dir_path_template,
                         test_time_weight=test_time_weight,
                     ), 'test_time_weight': test_time_weight}
                     test_items_list.append(test_item_d)
@@ -95,7 +93,8 @@ class BalanceNightTests:
             # sel_key_patt_tests = PatternsDjangoTableOper()._sel_test_key()                                # 1.3 Select key patterns tests:
             # sum_tests = tkn_main_tests | tkn_ship_tests | sel_key_patt_tests                             # 2. Summarize all tests and sort:
             sum_tests = tkn_main_tests | tkn_ship_tests                             # 2. Summarize all tests and sort:
-            sorted_tests_l = self.test_items_sorting(sum_tests, exclude=excluded_seq)
+            # This should be moved to: test_weight_balancer
+            # sorted_tests_l = self.test_items_sorting(sum_tests, exclude=excluded_seq)
             if not fake_run:
                 TestLast.objects.filter().delete()                                                       # 3. DELETE previous
             else:
@@ -106,12 +105,13 @@ class BalanceNightTests:
             # sel_key_patt_tests = PatternsDjangoTableOper()._sel_test_key(branch=branch)                   # 1.3 Select key patterns tests:
             # sum_tests = selected_tests | sel_key_patt_tests                                              # 2. Summarize all tests and sort:
             sum_tests = selected_tests                                              # 2. Summarize all tests and sort:
-            sorted_tests_l = self.test_items_sorting(sum_tests, exclude=excluded_seq)
+            # This should be moved to: test_weight_balancer
+            # sorted_tests_l = self.test_items_sorting(sum_tests, exclude=excluded_seq)
             if not fake_run:
                 TestLast.objects.filter(tkn_branch__exact=branch).delete()                               # 3. DELETE previous
             else:
                 log.info("FAKE RUN: Would not delete last run patterns tests log.")
-        return sorted_tests_l
+        return sum_tests
 
     @staticmethod
     def select_addm_list_for_branch(branch):
@@ -142,8 +142,7 @@ class BalanceNightTests:
         available_addm_w = self.workers_validate_and_occupy(addm_group_l=addm_group_l, user_name=user_name)
         return available_addm_w
 
-    @staticmethod
-    def test_weight_balancer(addm_group, test_items):
+    def test_weight_balancer(self, addm_group, test_items):
         """
         Use list of available addms workers and list of tests sets to balance tests
         on all available addms by time weight
@@ -153,17 +152,19 @@ class BalanceNightTests:
         :return:
         """
 
-        # TODO: ReUse this for queryset from TestCases, not the list of dicts like older version.
+        sorted_tests_l = self.test_items_sorting(test_items, exclude=None)
 
-        test_items_prepared = copy.deepcopy(test_items)
+        test_items_prepared = copy.deepcopy(sorted_tests_l)    # Convert to list of dicts
+        log.debug("test_items_prepared: %s: %s", type(test_items_prepared), test_items_prepared[0])
         test_items_prepared = sorted(test_items_prepared, key=itemgetter('test_time_weight'), reverse=True)
         test_items_prepared = collections.deque(test_items_prepared)
+        # test_items_prepared = collections.deque(test_items)
 
         addm_test_balanced = dict()     # It's better to have a dict like {'aplha': dict(tests)}
         # SUM all tests time
         all_tests_time = 0
         for test_item in test_items_prepared:
-            all_tests_time += test_item['test_time_weight']                  # Count overall tests time weight
+            all_tests_time += int(test_item.get('test_time_weight', 600))                  # Count overall tests time weight
 
         tent_avg = round(all_tests_time / len(addm_group) + 900)             # Use average time amount, add +900 sec to narrow float rounds
         log.debug("All tests len %s t:%s avg:%s", len(test_items_prepared), all_tests_time, tent_avg)
