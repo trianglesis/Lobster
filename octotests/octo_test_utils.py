@@ -216,7 +216,7 @@ class PatternTestUtils(unittest.TestCase):
 
     def sync_test_data_addm_set(self, _addm_group, addm_item):
         log.debug("sync_test_data_addm_set")
-        Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=self.fake_run,
+        Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=False,
                       t_queue=_addm_group+'@tentacle.dq2',
                       t_args=[self.mail_task_arg],
                       t_kwargs=dict(addm_items=addm_item))

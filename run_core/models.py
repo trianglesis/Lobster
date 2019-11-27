@@ -35,6 +35,20 @@ class Options(models.Model):
         db_table = 'octo_options'
 
 
+class ADDMCommands(models.Model):
+    command_key = models.CharField(_('command key unique'), max_length=120, unique=True)
+    command_value = models.TextField(_('command value'), blank=True, null=True)
+
+    private = models.NullBooleanField(_('private value'), null=True)
+    description = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        managed = True
+        db_table = 'octo_addm_commands'
+
+
 class UserNamesCorrespond(models.Model):
     django_username = models.CharField(unique=True, max_length=150)
     adprod_username = models.CharField(unique=True, max_length=150)

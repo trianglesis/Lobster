@@ -183,11 +183,7 @@ class ADDMOperations:
             sync_prod_cont_python=dict(
                 name='Sync product content',
                 addm_exceptions=['zythum', 'aardvark', 'bobblehat', 'custard_cream'],
-                cmd='rsync -a --progress '
-                    '--log-file=/usr/tideway/sync_prod_cont_python.log '
-                    '--include "*" --include "*/" '
-                    '/usr/tideway/TKU/addm/tkn_main/product_content/r1_0/code/python/ '
-                    '/usr/tideway/python',
+                cmd='rsync -a --progress -log-file=/usr/tideway/sync_prod_cont_python.log --include "*" --include "*/" /usr/tideway/TKU/addm/tkn_main/product_content/r1_0/code/python/ /usr/tideway/python',
                 cmd_alt='sync back?',
             ),
             sync_prod_cont_data=dict(
@@ -546,6 +542,9 @@ class ADDMOperations:
         path_from = "/usr/tideway/TKU/addm/ "
         path_to = "/usr/tideway/SYNC/addm/ "
         rsync_command = rsync_cmd + rsync_log + rsync_includes_all + path_from + path_to
+
+        log.debug("rsync_command: %s", rsync_command)
+
         # noinspection PyBroadException
         try:
             _, stdout, stderr = ssh.exec_command(rsync_command)
@@ -591,10 +590,14 @@ class ADDMOperations:
         to_testutils = "/usr/tideway/python/testutils/ "
         rsync_testutils = rsync_cmd + rsync_log + from_testutils + to_testutils
 
+        log.debug("rsync_testutils: %s", rsync_testutils)
+
         # UTILS SYNC
         from_utils = "/usr/tideway/TKU/utils/ "
         to_utils = "/usr/tideway/utils/ "
         rsync_utils = rsync_cmd + rsync_log + from_utils + to_utils
+
+        log.debug("rsync_utils: %s", rsync_utils)
 
         cmd_t = rsync_testutils, rsync_utils
         for cmd in cmd_t:
