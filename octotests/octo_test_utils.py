@@ -28,6 +28,25 @@ log = logging.getLogger("octo.octologger")
 
 
 class PatternTestUtils(unittest.TestCase):
+    """
+    - check life execution
+    - check how logs saved with new TestCases model values
+    - check how task time limit works with test_weight
+    - think about to add some more preparations before run tests
+    - refactor unused logs, vars
+    - add docs to methods
+    - add assertions for sensitive data, vars and types
+
+    Optional:
+    - review mails, make shorter, more informative
+    Global:
+    - finally make method for task_time_limit work
+    - use one task to fire TestCase for Upload, TestCases and so on.
+
+    When ready:
+    - remove old routine and task
+
+    """
 
     def __init__(self, *args, **kwargs):
         super(PatternTestUtils, self).__init__(*args, **kwargs)
@@ -196,12 +215,14 @@ class PatternTestUtils(unittest.TestCase):
         log.debug("<=PatternTestUtils=> ADDM group run some preparations before test run?")
 
     def sync_test_data_addm_set(self, _addm_group, addm_item):
+        log.debug("sync_test_data_addm_set")
         Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=self.fake_run,
                       t_queue=_addm_group+'@tentacle.dq2',
                       t_args=[self.mail_task_arg],
                       t_kwargs=dict(addm_items=addm_item))
 
     def start_mail(self, _addm_group, addm_tests, addm_tests_weight, tent_avg):
+        log.debug("start_mail add task")
         self.mail_task_arg = 'tag=night_routine;lock=True;lvl=auto;type=send_mail'
         self.mail_kwargs = dict(
             mode="run",
@@ -225,6 +246,7 @@ class PatternTestUtils(unittest.TestCase):
 
     def run_cases_router(self, addm_tests, _addm_group, addm_item):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
+        log.debug("run_cases_router")
         for test_item in addm_tests:
             test_t_w = round(float(test_item['test_time_weight']))
             tsk_msg = 'tag=night_routine;lock=True;type=routine {}/{}/{} t:{} on: "{}" by: {}'
@@ -241,6 +263,7 @@ class PatternTestUtils(unittest.TestCase):
                           t_task_time_limit=test_t_w+1000)
 
     def finish_mail(self, _addm_group):
+        log.debug("finish_mail add task")
         self.mail_kwargs.update(mode='fin')
         Runner.fire_t(TSupport.t_long_mail, fake_run=self.fake_run,
                       t_queue=_addm_group+'@tentacle.dq2',
