@@ -59,13 +59,13 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def test_001_night_routine_main(self):
         self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', days=730)
+        self.select_test_cases(tkn_branch='tkn_main', last_days=65)
         self.excluded_group()
         self.run_case()
 
     def test_002_night_routine_ship(self):
         self.branch = 'tkn_ship'
-        self.select_test_cases(tkn_branch='tkn_ship', days=730)
+        self.select_test_cases(tkn_branch='tkn_ship', last_days=60)
         self.excluded_group()
         self.run_case()
 

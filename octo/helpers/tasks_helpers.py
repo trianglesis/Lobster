@@ -7,6 +7,7 @@ Decorator and helpers for tasks, like:
 """
 import os
 import datetime
+from django.utils import timezone
 import functools
 from time import sleep
 from collections import OrderedDict
@@ -119,8 +120,8 @@ class TMail:
             mail_details.update(
                 SUBJECT="2. {type} routine - finished - {msg}".format(type=r_type, msg=msg_str),
                 START_TIME=start_time,
-                FINISH_TIME=datetime.datetime.now(),
-                TIME_SPENT=datetime.datetime.now() - start_time,
+                FINISH_TIME=datetime.datetime.now(tz=timezone.utc),
+                TIME_SPENT=datetime.datetime.now(tz=timezone.utc) - start_time,
                 EXTRA_ARGS=mail_kwargs.get('extra_args'))
         # Send mail
         mail_html = routine_mail.render(mail_details)

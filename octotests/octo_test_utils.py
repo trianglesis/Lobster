@@ -139,7 +139,7 @@ class PatternTestUtils(unittest.TestCase):
             log.debug("<=PatternTestUtils=> Will wipe logs.")
 
     def select_test_cases(self, **sel_opts):
-        self.queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, **sel_opts)
+        self.queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)
 
     def excluded_group(self):
         excluded_group = TestCasesDetails.objects.get(title__exact='excluded')

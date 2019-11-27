@@ -303,10 +303,6 @@ class PatternsDjangoTableOper:
             # For single test item sorting:
             tst_name='tst_name__exact',
             tst_class='tst_class__exact',
-            # TBA:
-            # test_time_weight='test_time_weight',
-            # TODO: Try to add here queryset.filter(Q(fails__gte=1) | Q(error__gte=1)) and so on
-            # tst_status
         )
         # log.debug("<=Django Model intra_select=> Select sel_opts %s", sel_opts)
         all_qs = model.objects.all()
@@ -315,8 +311,6 @@ class PatternsDjangoTableOper:
             sel_k = selectables.get(option_key)
             select_d = {sel_k: option_value}
 
-            # # NOT Work fine, NOT excluding by pattern's folder
-            # TODO: Exclude by checking if pattern is member of "Excluded" group.
             if option_key == 'exclude':
                 # log.debug("<=Django Model intra_select=> Select exclude: %s", select_d)
                 intra_qs = queryset.exclude(**select_d)
@@ -374,9 +368,9 @@ class PatternsDjangoTableOper:
             else:
                 # log.info("<=Django Model=> Skipping this option: %s value is %s", opt_k, opt_v)
                 pass
-        # log.debug("<=Django Model intra_select=> sel_tests_dynamical() "
+        # log.debug("<=Django Model sel_dynamical=> sel_dynamical() "
         #           "selected len: %s "
-        #           "history_recs.query: \n%s", all_qs.count(), all_qs.query)
+        #           "sel_dynamical.query: \n%s", all_qs.count(), all_qs.query)
         #
         # log.debug("sel_dynamical queryset explain \n%s", all_qs.explain())
         return all_qs
