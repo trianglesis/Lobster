@@ -24,7 +24,7 @@ from time import time
 import paramiko
 from paramiko import SSHClient
 
-from run_core.models import AddmDev
+from run_core.models import AddmDev, ADDMCommands
 
 log = logging.getLogger("octo.octologger")
 place = os.path.dirname(os.path.abspath(__file__))
@@ -90,6 +90,50 @@ def out_err_read(**kwargs):
                 pass
 
     return std_output, stderr_output
+
+
+class ADDMStaticOperations:
+
+    def select_operation(self, command_key):
+        operations = ADDMCommands.objects.all()
+        if isinstance(command_key, str):
+            operations = operations.filter(command_key__exact=command_key)
+        elif isinstance(command_key, list):
+            operations = operations.filter(command_key__in=command_key)
+        else:
+            # To catch a wrong situation, just select a version command:
+            operations = operations.filter(command_key__exact='show_addm_version')
+        return operations
+
+    def run_static_cmd(self, addm_item, operations_cmd):
+        assert isinstance(addm_item, AddmDev), 'Should be AddmDev QuerySet'
+        assert isinstance(operations_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
+
+        addm_instance = f"ADDM: {addm_item.addm_name} - {addm_item.addm_host}"
+        ts = time()
+
+        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operations_cmd.command_key, addm_instance, operations_cmd.command_value)
+        cmd_k = operations_cmd.command_key
+        cmd = operations_cmd.command_value
+        if cmd:
+            # noinspection PyBroadException
+            try:
+                _, stdout, stderr = ssh.exec_command(cmd)
+                output_d = {cmd_k: dict(out=stdout.readlines(),
+                                        err=stderr.readlines(),
+                                        addm=addm_instance,
+                                        cmd_item=cmd,
+                                        timest=time() - ts)}
+                log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
+                return output_d
+            except Exception as e:
+                log.error("<=ADDM Oper=> Error during operation for: %s %s", cmd, e)
+                return {cmd_k: dict(out='Traceback', err=e, addm=addm_instance)}
+        else:
+            msg = '<=CMD=> Skipped for "{}" {}'.format(cmd_k, addm_instance)
+            log.info(msg)
+            return {cmd_k: dict(out='Skipped', msg=msg, addm=addm_instance)}
+
 
 
 # noinspection SpellCheckingInspection
