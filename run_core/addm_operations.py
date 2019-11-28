@@ -106,13 +106,12 @@ class ADDMStaticOperations:
             operations = operations.filter(command_key__exact='show_addm_version')
         return operations
 
-    def threaded_exec_cmd(self, addm_set, operations_cmd):
+    def threaded_exec_cmd(self, addm_set, operation_cmd):
         from queue import Queue
         from threading import Thread
-
         # assert isinstance(addm_set, AddmDev), 'Should be AddmDev QuerySet'
-        assert isinstance(operations_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
-
+        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
+        cmd_k = operation_cmd.command_key
         th_list = []
         th_out = []
         ts = time()
@@ -121,7 +120,7 @@ class ADDMStaticOperations:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
             if ssh:
                 th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item.addm_group} - {addm_item.addm_host} {addm_item.addm_ip}'
-                args_d = dict(out_q=out_q, addm_item=addm_item, operations_cmd=operations_cmd, ssh=ssh)
+                args_d = dict(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
                 try:
                     cmd_th = Thread(target=self.run_static_cmd, name=th_name, kwargs=args_d)
                     cmd_th.start()
@@ -137,21 +136,20 @@ class ADDMStaticOperations:
         for test_th in th_list:
             test_th.join()
             th_out.append(out_q.get())
-
-        return 'All CMD took {} Out {}'.format(time() - ts, th_out)
+        return {cmd_k: th_out, 'time': time() - ts}
 
     @staticmethod
-    def run_static_cmd(addm_item, operations_cmd, ssh):
+    def run_static_cmd(addm_item, operation_cmd, ssh):
         assert isinstance(addm_item, AddmDev), 'Should be AddmDev QuerySet'
-        assert isinstance(operations_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
+        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
 
-        cmd_k = operations_cmd.command_key
-        cmd = operations_cmd.command_value
+        cmd_k = operation_cmd.command_key
+        cmd = operation_cmd.command_value
 
         addm_instance = f"ADDM: {addm_item.addm_name} - {addm_item.addm_host}"
         ts = time()
 
-        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operations_cmd.command_key, addm_instance, operations_cmd.command_value)
+        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operation_cmd.command_key, addm_instance, operation_cmd.command_value)
         if cmd:
             # noinspection PyBroadException
             try:
@@ -170,6 +168,20 @@ class ADDMStaticOperations:
             msg = '<=CMD=> Skipped for "{}" {}'.format(cmd_k, addm_instance)
             log.info(msg)
             return {cmd_k: dict(out='Skipped', msg=msg, addm=addm_instance)}
+
+    def run_operation_cmds(self, addm_set, command_k):
+        """
+        Run one of more operation cmd
+        :param addm_set:
+        :param command_k: list or str
+        :return:
+        """
+        operation_cmds = self.select_operation(command_k)
+        operation_cmds_out = []
+        for operation_cmd in operation_cmds:
+            commands_out = self.threaded_exec_cmd(addm_set=addm_set, operation_cmd=operation_cmd)
+            operation_cmds_out.append(commands_out)
+        return operation_cmds_out
 
     # Default sets of operations and execution of them right here:
     def clean_addm(self, ssh, mode, addm_item):

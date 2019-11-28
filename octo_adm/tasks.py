@@ -15,7 +15,7 @@ from time import time
 
 from octo.octo_celery import app
 from octo.config_cred import mails
-from run_core.addm_operations import ADDMOperations
+from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
 
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_helpers import exception
@@ -133,7 +133,26 @@ class TaskADDMService:
         :param kwargs: KV pairs of args
         :return:
         """
-        return AddmClean().threading_exec(AddmClean().key_cmd, **kwargs)
+        return AddmClean().threading_exec(AddmClean().key_cmd, **kwargs)    \
+
+    @staticmethod
+    @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
+    @exception
+    def t_run_operation_cmds(t_tag, **kwargs):
+        """
+        Check passed addm group or groups
+        Add occupy worker task for each
+        Get addm groups list and next add clean task for each
+
+        kwargs:
+            - cmd_k: key of the command to run. ref: ADDMOperations.cmd_d
+            - addm_group_arg: addm group string, later split on list
+
+        :type t_tag: str
+        :param kwargs: KV pairs of args
+        :return:
+        """
+        return ADDMStaticOperations.run_operation_cmds(**kwargs)
 
 
 class ADDMCases:
