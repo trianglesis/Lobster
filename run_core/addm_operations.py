@@ -94,7 +94,8 @@ def out_err_read(**kwargs):
 
 class ADDMStaticOperations:
 
-    def select_operation(self, command_key):
+    @staticmethod
+    def select_operation(command_key):
         operations = ADDMCommands.objects.all()
         if isinstance(command_key, str):
             operations = operations.filter(command_key__exact=command_key)
@@ -105,16 +106,52 @@ class ADDMStaticOperations:
             operations = operations.filter(command_key__exact='show_addm_version')
         return operations
 
-    def run_static_cmd(self, addm_item, operations_cmd):
+    def threaded_exec_cmd(self, addm_set, operations_cmd):
+        from queue import Queue
+        from threading import Thread
+
+        # assert isinstance(addm_set, AddmDev), 'Should be AddmDev QuerySet'
+        assert isinstance(operations_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
+
+        th_list = []
+        th_out = []
+        ts = time()
+        out_q = Queue()
+        for addm_item in addm_set:
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
+            if ssh:
+                th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item.addm_group} - {addm_item.addm_host} {addm_item.addm_ip}'
+                args_d = dict(out_q=out_q, addm_item=addm_item, operations_cmd=operations_cmd, ssh=ssh)
+                try:
+                    cmd_th = Thread(target=self.run_static_cmd, name=th_name, kwargs=args_d)
+                    cmd_th.start()
+                    th_list.append(cmd_th)
+                except Exception as e:
+                    msg = "Thread test fail with error: {}".format(e)
+                    log.error(msg)
+                    raise Exception(msg)
+            else:
+                msg = "SSH Connection died! Addm: {}".format(addm_item)
+                log.error(msg)
+                raise Exception(msg)
+        for test_th in th_list:
+            test_th.join()
+            th_out.append(out_q.get())
+
+        return 'All CMD took {} Out {}'.format(time() - ts, th_out)
+
+    @staticmethod
+    def run_static_cmd(addm_item, operations_cmd, ssh):
         assert isinstance(addm_item, AddmDev), 'Should be AddmDev QuerySet'
         assert isinstance(operations_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
+
+        cmd_k = operations_cmd.command_key
+        cmd = operations_cmd.command_value
 
         addm_instance = f"ADDM: {addm_item.addm_name} - {addm_item.addm_host}"
         ts = time()
 
         log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operations_cmd.command_key, addm_instance, operations_cmd.command_value)
-        cmd_k = operations_cmd.command_key
-        cmd = operations_cmd.command_value
         if cmd:
             # noinspection PyBroadException
             try:
@@ -134,6 +171,68 @@ class ADDMStaticOperations:
             log.info(msg)
             return {cmd_k: dict(out='Skipped', msg=msg, addm=addm_instance)}
 
+    # Default sets of operations and execution of them right here:
+    def clean_addm(self, ssh, mode, addm_item):
+        """
+        This should be executed before Threading, select required commands, use ADDM Item.
+        Then, for each ADDM - using set of commands - create Thread where run all commands from this set?
+        One command - one Thread(per addm) - one iteration.
+        More commands - One Thread(rep addm) - more iterations.
+
+        :param mode:
+        :param addm_item:
+        :return:
+        """
+        cleaning_modes = dict(
+            tests=['tw_scan_control',
+                   'test_kill',
+                   'wipe_tpl',
+                   'wipe_log',
+                   'wipe_sync_log',
+                   'wipe_syslog',
+                   'tw_pattern_management',
+                   'wipe_pool',
+                   'wipe_record'],
+            daily=['tw_scan_control',
+                   'test_kill',
+                   'wipe_tpl',
+                   'wipe_log',
+                   'wipe_sync_log',
+                   'wipe_syslog',
+                   'tw_pattern_management',
+                   'wipe_pool',
+                   'wipe_record',
+                   # 'tw_tax_import',  # Do not import taxonomy - better install product content
+                   'tideway_restart'],
+            weekly=['tw_scan_control',
+                    'test_kill',
+                    'wipe_tpl',
+                    'wipe_log',
+                    'wipe_sync_log',
+                    'wipe_syslog',
+                    'tw_pattern_management',
+                    'wipe_pool',
+                    'wipe_record',
+                    'tw_model_wipe',
+                    # 'tw_tax_import',  # Do not import taxonomy - better install product content
+                    'tideway_restart'],
+            etc=[],
+        )
+        results = []
+        operations_run = self.select_operation(command_key=cleaning_modes[mode])
+
+        if operations_run:
+            # HERE: For each ADDM start thread:
+
+            # Connect here and keep open for all commands run from query:
+            ssh = ADDMOperations().addm_ssh_connect(addm_item.addm_ip,
+                                                    addm_item.tideway_user,
+                                                    addm_item.tideway_pdw,
+                                                    where=f"ADDMStaticOperations.clean_addm: {mode}")
+            for oper_cmd in operations_run:
+                result = self.run_static_cmd(addm_item=addm_item, operations_cmd=oper_cmd, ssh=ssh)
+                results.append(result)
+        return results
 
 
 # noinspection SpellCheckingInspection
