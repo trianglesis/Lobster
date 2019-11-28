@@ -11,7 +11,7 @@
 			"file": "logs/w_routines_err.log",
 			"settings":
 			{
-				"buffer_size": 3602,
+				"buffer_size": 4152,
 				"line_ending": "Windows"
 			}
 		},
@@ -19,7 +19,7 @@
 			"file": "logs/w_parsing_err.log",
 			"settings":
 			{
-				"buffer_size": 3054,
+				"buffer_size": 3355,
 				"line_ending": "Windows"
 			}
 		},
@@ -35,7 +35,7 @@
 			"file": "logs/alpha_err.log",
 			"settings":
 			{
-				"buffer_size": 44161,
+				"buffer_size": 44495,
 				"line_ending": "Windows"
 			}
 		},
@@ -43,7 +43,7 @@
 			"file": "logs/charlie_err.log",
 			"settings":
 			{
-				"buffer_size": 3396,
+				"buffer_size": 3813,
 				"line_ending": "Windows"
 			}
 		},
@@ -51,7 +51,7 @@
 			"file": "logs/golf_err.log",
 			"settings":
 			{
-				"buffer_size": 3257,
+				"buffer_size": 3649,
 				"line_ending": "Windows"
 			}
 		}
@@ -173,7 +173,7 @@
 	],
 	"find":
 	{
-		"height": 40.0
+		"height": 23.0
 	},
 	"find_in_files":
 	{
@@ -271,15 +271,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3602,
+						"buffer_size": 4152,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1185,
-								1185
+								0,
+								0
 							]
 						],
 						"settings":
@@ -301,7 +301,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3054,
+						"buffer_size": 3355,
 						"regions":
 						{
 						},
@@ -367,15 +367,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 44161,
+						"buffer_size": 44495,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								9446,
-								9589
+								0,
+								0
 							]
 						],
 						"settings":
@@ -385,7 +385,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2269.0,
+						"translation.y": 2129.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -397,7 +397,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3396,
+						"buffer_size": 3813,
 						"regions":
 						{
 						},
@@ -427,7 +427,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3257,
+						"buffer_size": 3649,
 						"regions":
 						{
 						},

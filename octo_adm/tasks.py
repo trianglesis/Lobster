@@ -54,7 +54,7 @@ SEC_1 = 1
 class TaskADDMService:
 
     @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_clean_addm',
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TaskADDMService.t_routine_clean_addm',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
     def t_routine_clean_addm(t_tag, **kwargs):
@@ -74,7 +74,7 @@ class TaskADDMService:
         return ADDMCases().clean_addm(**kwargs)
 
     @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_addm_cmd',
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TaskADDMService.t_routine_addm_cmd',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
     def t_routine_addm_cmd(t_tag, **kwargs):
@@ -133,26 +133,23 @@ class TaskADDMService:
         :param kwargs: KV pairs of args
         :return:
         """
-        return AddmClean().threading_exec(AddmClean().key_cmd, **kwargs)    \
+        return AddmClean().threading_exec(AddmClean().key_cmd, **kwargs)
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2',
+              routing_key='routines.TaskADDMService.t_addm_cmd_routine',
+              soft_time_limit=MIN_40, task_time_limit=HOURS_1)
+    @exception
+    def t_addm_cmd_routine(t_tag, **kwargs):
+        default = {"command_key": "show_addm_version", "addm_group": ["alpha"]}
+        log.info("TaskADDMService.t_addm_cmd_routine: %s", t_tag)
+        return ADDMStaticOperations().run_operation_cmd(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
-    def t_run_operation_cmds(t_tag, **kwargs):
-        """
-        Check passed addm group or groups
-        Add occupy worker task for each
-        Get addm groups list and next add clean task for each
-
-        kwargs:
-            - cmd_k: key of the command to run. ref: ADDMOperations.cmd_d
-            - addm_group_arg: addm group string, later split on list
-
-        :type t_tag: str
-        :param kwargs: KV pairs of args
-        :return:
-        """
-        return ADDMStaticOperations.run_operation_cmds(**kwargs)
+    def t_addm_cmd_thread(t_tag, **kwargs):
+        return ADDMStaticOperations().threaded_exec_cmd(**kwargs)
 
 
 class ADDMCases:
@@ -175,14 +172,11 @@ class ADDMCases:
         addm_group_l = kwargs.get('addm_group', [])
         user_name = kwargs.get('user_name', 'cron')
         fake_run = kwargs.get('fake_run', False)
+        occupy_sec = kwargs.get('occupy_sec', 40)
 
         t_tag = f'tag=addm_groups_validate;type=routine;user_name={user_name}'
         if not isinstance(addm_group_l, list):
             addm_group_l = addm_group_l.split(',')
-
-        # Windows is continuously lost workers, ignore it!
-        if os.name == 'nt':
-            return addm_group_l
 
         if isinstance(addm_group_l, list):
             ping_list = WorkerOperations().service_workers_list[:]
@@ -200,9 +194,8 @@ class ADDMCases:
                 # Nothing else to do here.
                 raise Exception(subject)
             else:
-                occupy_sec = 2
                 for addm_group in addm_group_l:
-                    occupy_sec += 20
+                    occupy_sec += 1
                     t_tag_busy = f"{t_tag} | sleep {occupy_sec} Check addm group."
                     addm_val_kw = dict(occupy_sec=occupy_sec, addm_group=addm_group,
                                        ping_list=ping_list, user_name=user_name)
