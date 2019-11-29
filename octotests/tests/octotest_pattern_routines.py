@@ -47,9 +47,9 @@ except ModuleNotFoundError:
 #         self.run_tku_patterns()
 
 
-class NightTestCase(octo_tests.PatternTestUtils):
+class NightTestCase(octo_tests.OctoPatternsTestCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
         octo_tests.PatternTestUtils.setUp(self)
         self.fake_run_on(True)
         self.silent_on(True)
@@ -59,25 +59,19 @@ class NightTestCase(octo_tests.PatternTestUtils):
 
     def test_001_night_routine_main(self):
         self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', days=60)
+        self.select_test_cases(tkn_branch='tkn_main', last_days=65)
         self.excluded_group()
         self.run_case()
 
     def test_002_night_routine_ship(self):
         self.branch = 'tkn_ship'
-        self.select_test_cases(tkn_branch='tkn_ship', days=730)
+        self.select_test_cases(tkn_branch='tkn_ship', last_days=60)
         self.excluded_group()
         self.run_case()
 
     def test003_between_dates_main(self):
         self.branch = 'tkn_main'
         self.select_test_cases(tkn_branch='tkn_main', date_from='2019-10-31', date_to='2019-11-20')
-        self.excluded_group()
-        self.run_case()
-
-    def test003_weekend_all_run(self):
-        self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main')
         self.excluded_group()
         self.run_case()
 

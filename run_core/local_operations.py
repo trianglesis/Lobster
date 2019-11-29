@@ -1537,7 +1537,6 @@ class LocalDB:
         :return:
         """
         patterns_weight = collections.OrderedDict()
-        # TODO: Chango to django's
         all_history_weight = PatternsDjangoModelRaw().sel_history_by_latest_all(query_args=dict(last_days=last_days))
 
         # Make dict with test.py path as key and sum of test time / days(selected items)

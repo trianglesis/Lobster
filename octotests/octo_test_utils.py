@@ -28,6 +28,25 @@ log = logging.getLogger("octo.octologger")
 
 
 class PatternTestUtils(unittest.TestCase):
+    """
+    - check life execution
+    - check how logs saved with new TestCases model values
+    - check how task time limit works with test_weight
+    - think about to add some more preparations before run tests
+    - refactor unused logs, vars
+    - add docs to methods
+    - add assertions for sensitive data, vars and types
+
+    Optional:
+    - review mails, make shorter, more informative
+    Global:
+    - finally make method for task_time_limit work
+    - use one task to fire TestCase for Upload, TestCases and so on.
+
+    When ready:
+    - remove old routine and task
+
+    """
 
     def __init__(self, *args, **kwargs):
         super(PatternTestUtils, self).__init__(*args, **kwargs)
@@ -36,8 +55,7 @@ class PatternTestUtils(unittest.TestCase):
 
         self.user_name = None
         self.user_email = None
-        # TODO: During DEV always True
-        self.fake_run = True
+        self.fake_run = None
 
         self.date_from = None
         self.date_to = None
@@ -50,9 +68,10 @@ class PatternTestUtils(unittest.TestCase):
         self.test_output_mode = False
 
         self.all_tests_w = 0
+        self.request = dict()
 
     def setUp(self) -> None:
-        pass
+        self.user_and_mail()
 
     def run_case(self):
         self.get_branched_addm_groups()
@@ -62,7 +81,8 @@ class PatternTestUtils(unittest.TestCase):
         self.put_test_cases()
 
     def tearDown(self) -> None:
-        log.debug("<=PatternTestUtils=> Test finished")
+        sleep(3)
+        log.debug("<=PatternTestUtils=> Test finished, request: %s", self.request)
 
     def check_tasks(self, tasks):
 
@@ -84,7 +104,7 @@ class PatternTestUtils(unittest.TestCase):
         return tasks_res
 
     def debug_output(self, tasks_res):
-        if self.debug:
+        if self.request.get('debug') or self.debug:
             tasks_json = json.dumps(tasks_res, indent=2, ensure_ascii=False, default=pformat)
             print(tasks_json)
 
@@ -97,11 +117,9 @@ class PatternTestUtils(unittest.TestCase):
         :return:
         """
         if user_name and user_email:
-            self.user_name = user_name
-            self.user_email = user_email
+            self.request.update(user_name=user_name, user_email=user_email)
         else:
-            self.user_name = 'OctoTests'
-            self.user_email = 'OctoTests'
+            self.request.update(user_name='OctoTests', user_email='OctoTests')
 
     def fake_run_on(self, fake):
         """
@@ -111,7 +129,7 @@ class PatternTestUtils(unittest.TestCase):
         :return:
         """
         if fake:
-            self.fake_run = True
+            self.request.update(fake_run=True)
             log.debug("<=PatternTestUtils=> Fake Run test tasks")
         else:
             log.debug("<=PatternTestUtils=> Real Run test tasks")
@@ -123,23 +141,24 @@ class PatternTestUtils(unittest.TestCase):
         :return:
         """
         if silent:
-            self.silent = True
+            self.request.update(silent=True)
         else:
             log.debug("<=PatternTestUtils=> Will send confirmation and step emails.")
 
     def debug_on(self, debug):
         if debug:
-            self.debug = True
+            self.request.update(debug=True)
         else:
             log.debug("<=PatternTestUtils=> Will send confirmation and step emails.")
 
     def wipe_logs(self, wipe_logs):
         if wipe_logs and not self.fake_run:
+            self.request.update(wipe_logs=True)
             # TODO: Make wipe
             log.debug("<=PatternTestUtils=> Will wipe logs.")
 
     def select_test_cases(self, **sel_opts):
-        self.queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, **sel_opts)
+        self.queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)
 
     def excluded_group(self):
         excluded_group = TestCasesDetails.objects.get(title__exact='excluded')
@@ -155,9 +174,8 @@ class PatternTestUtils(unittest.TestCase):
             addm_group=self.addm_group_l)
 
     def balance_tests_on_workers(self):
-        select_test_cases = BalanceNightTests().test_weight_balancer(
-            addm_group=self.addm_group_l, test_items=self.queryset)
-        self.addm_tests_balanced = select_test_cases.order_by('-test_time_weight')
+        self.addm_tests_balanced = BalanceNightTests().test_weight_balancer(
+            addm_group=self.addm_group_l, test_items=self.queryset.order_by('-test_time_weight'))
 
     def put_test_cases(self):
         for addm_item in self.addm_set:
@@ -197,12 +215,14 @@ class PatternTestUtils(unittest.TestCase):
         log.debug("<=PatternTestUtils=> ADDM group run some preparations before test run?")
 
     def sync_test_data_addm_set(self, _addm_group, addm_item):
-        Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=self.fake_run,
-                      t_queue=_addm_group + '@tentacle.dq2',
+        log.debug("sync_test_data_addm_set")
+        Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=False,
+                      t_queue=_addm_group+'@tentacle.dq2',
                       t_args=[self.mail_task_arg],
                       t_kwargs=dict(addm_items=addm_item))
 
     def start_mail(self, _addm_group, addm_tests, addm_tests_weight, tent_avg):
+        log.debug("start_mail add task")
         self.mail_task_arg = 'tag=night_routine;lock=True;lvl=auto;type=send_mail'
         self.mail_kwargs = dict(
             mode="run",
@@ -214,18 +234,19 @@ class PatternTestUtils(unittest.TestCase):
             addm_test_pairs=len(self.addm_tests_balanced),
             test_items_len=len(addm_tests),
             all_tests=self.queryset.count(),
-            addm_used=self.addm_set.count(),
+            addm_used=len(self.addm_set),
             all_tests_weight=addm_tests_weight,
             tent_avg=tent_avg)
         """ MAIL send mail when routine tests selected: """
         Runner.fire_t(TSupport.t_long_mail, fake_run=self.fake_run,
-                      t_queue=_addm_group + '@tentacle.dq2',
+                      t_queue=_addm_group+'@tentacle.dq2',
                       t_args=[self.mail_task_arg],
                       t_kwargs=self.mail_kwargs,
                       t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
 
     def run_cases_router(self, addm_tests, _addm_group, addm_item):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
+        log.debug("run_cases_router")
         for test_item in addm_tests:
             test_t_w = round(float(test_item['test_time_weight']))
             tsk_msg = 'tag=night_routine;lock=True;type=routine {}/{}/{} t:{} on: "{}" by: {}'
@@ -236,19 +257,19 @@ class PatternTestUtils(unittest.TestCase):
             Runner.fire_t(TPatternExecTest().t_test_exec_threads, fake_run=self.fake_run,
                           t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[t_tag],
-                          t_kwargs=dict(addm_items=addm_item, test_item=test_item,
-                                        test_output_mode=self.test_output_mode),
+                          t_kwargs=dict(addm_items=addm_item, test_item=test_item, test_output_mode=self.test_output_mode),
                           t_routing_key=r_key,
-                          t_soft_time_limit=test_t_w + 900,
-                          t_task_time_limit=test_t_w + 1000)
+                          t_soft_time_limit=test_t_w+900,
+                          t_task_time_limit=test_t_w+1000)
 
     def finish_mail(self, _addm_group):
+        log.debug("finish_mail add task")
         self.mail_kwargs.update(mode='fin')
         Runner.fire_t(TSupport.t_long_mail, fake_run=self.fake_run,
-                      t_queue=_addm_group + '@tentacle.dq2',
+                      t_queue=_addm_group+'@tentacle.dq2',
                       t_args=[self.mail_task_arg],
                       t_kwargs=self.mail_kwargs,
-                      t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
+                      t_routing_key = 'z_{}.night_routine_mail'.format(_addm_group))
 
 
 class UploadTaskUtils(unittest.TestCase):

@@ -134,6 +134,20 @@ class AddmDevProxyAdmin(admin.ModelAdmin):
 
 
 # admin.site.register(Options)
+@admin.register(ADDMCommands)
+class ADDMCommandsAdmin(admin.ModelAdmin):
+    fields = (
+        ('command_key', 'command_value',),
+        'description',
+        'created_at',
+        'private',
+    )
+    readonly_fields = ('created_at',)
+    list_display = ('command_key', 'command_value', 'created_at', 'private',)
+    list_filter = ('command_key', 'created_at', 'private')
+    ordering = ('command_key',)
+
+# admin.site.register(Options)
 @admin.register(Options)
 class OptionsAdmin(admin.ModelAdmin):
     fields = (

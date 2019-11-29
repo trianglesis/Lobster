@@ -37,6 +37,8 @@ from octo.tasks import TSupport
 
 from octo_tku_patterns.night_test_balancer import BalanceNightTests
 
+from octotests.tests_discover_run import TestRunnerLoc
+
 log = logging.getLogger("octo.octologger")
 
 
@@ -54,6 +56,20 @@ SEC_1 = 1
 
 # noinspection PyUnusedLocal
 class TPatternRoutine:
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_patt_routines',
+              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+    def t_patt_routines(t_tag, **kwargs):
+        """
+        Can run routines tasks as test methods from unit test case class.
+        Reflects external changes to to test file without reload/restart.
+        :param t_tag:
+        :param kwargs: dict(test_method, test_class, test_module)
+        :return:
+        """
+        log.info("<=t_upload_routines=> Running task %s", kwargs)
+        return TestRunnerLoc().run_subprocess(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_night_tests',

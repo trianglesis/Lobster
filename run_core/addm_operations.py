@@ -19,12 +19,13 @@ import os
 import re
 from time import sleep
 from time import time
+from django.db.models.query import QuerySet
 
 # noinspection PyCompatibility
 import paramiko
 from paramiko import SSHClient
 
-from run_core.models import AddmDev
+from run_core.models import AddmDev, ADDMCommands
 
 log = logging.getLogger("octo.octologger")
 place = os.path.dirname(os.path.abspath(__file__))
@@ -90,6 +91,247 @@ def out_err_read(**kwargs):
                 pass
 
     return std_output, stderr_output
+
+
+class ADDMStaticOperations:
+
+    @staticmethod
+    def select_operation(command_key):
+        operations = ADDMCommands.objects.all()
+        if isinstance(command_key, str):
+            operations = operations.filter(command_key__exact=command_key)
+        elif isinstance(command_key, list):
+            operations = operations.filter(command_key__in=command_key)
+        else:
+            # To catch a wrong situation, just select a version command:
+            operations = operations.filter(command_key__exact='show_addm_version')
+        log.info("All selected operations count: %s by command_key %s", operations.count(), command_key)
+        return operations
+
+    def threaded_exec_cmd(self, **kwargs):
+        from queue import Queue
+        from threading import Thread
+
+        addm_set = kwargs.get('addm_set', None)
+        operation_cmd = kwargs.get('operation_cmd', None)
+
+        log.debug("addm_set: %s %s", addm_set, type(addm_set))
+
+        assert isinstance(addm_set, QuerySet), 'Should be AddmDev QuerySet'
+        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
+        cmd_k = operation_cmd.command_key
+        th_list = []
+        th_out = []
+        ts = time()
+        out_q = Queue()
+        addm_set = addm_set.values()
+        for addm_item in addm_set:
+            log.debug("addm_item: %s %s", addm_item, type(addm_item))
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
+            if ssh:
+                th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item["addm_group"]} - {addm_item["addm_host"]} {addm_item["addm_ip"]}'
+                args_d = dict(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
+                try:
+                    cmd_th = Thread(target=self.run_static_cmd, name=th_name, kwargs=args_d)
+                    cmd_th.start()
+                    th_list.append(cmd_th)
+                except Exception as e:
+                    msg = f'Thread test fail with error: {e}'
+                    log.error(msg)
+                    raise Exception(msg)
+            else:
+                msg = f'SSH Connection died! Addm: {addm_item["addm_host"]}'
+                log.error(msg)
+                raise Exception(msg)
+        for test_th in th_list:
+            test_th.join()
+            th_out.append(out_q.get())
+        return {cmd_k: th_out, 'time': time() - ts}
+
+    @staticmethod
+    def run_static_cmd(out_q, addm_item, operation_cmd, ssh):
+        assert isinstance(addm_item, dict), 'Should be dict converted from QuerySet.values()'
+        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
+
+        cmd_k = operation_cmd.command_key
+        cmd = operation_cmd.command_value
+
+        addm_instance = f"ADDM: {addm_item['addm_name']} - {addm_item['addm_host']}"
+        ts = time()
+
+        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operation_cmd.command_key, addm_instance, operation_cmd.command_value)
+        if cmd:
+            # noinspection PyBroadException
+            try:
+                _, stdout, stderr = ssh.exec_command(cmd)
+                output_d = {cmd_k: dict(out=stdout.readlines(),
+                                        err=stderr.readlines(),
+                                        addm=addm_instance,
+                                        cmd_item=cmd,
+                                        timest=time() - ts)}
+                log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
+                out_q.put(output_d)
+
+            except Exception as e:
+                log.error("<=ADDM Oper=> Error during operation for: %s %s", cmd, e)
+                return {cmd_k: dict(out='Traceback', err=e, addm=addm_instance)}
+        else:
+            msg = '<=CMD=> Skipped for "{}" {}'.format(cmd_k, addm_instance)
+            log.info(msg)
+            return {cmd_k: dict(out='Skipped', msg=msg, addm=addm_instance)}
+
+    def run_operation_cmd(self, **kwargs):
+        """
+        Run one of more operation cmd
+        :param addm_set:
+        :param command_k: list or str
+        :return:
+        """
+        from octo.helpers.tasks_run import Runner
+        from octo_adm.tasks import TaskADDMService
+
+        command_key = kwargs.get('command_key', None)
+        fake_run = kwargs.get('fake_run', False)
+
+        tasks_ids = dict()
+        addm_set = self.addm_set_selections(**kwargs)
+        addm_group_l = self.addm_groups_distinct_validate(addm_set)
+        log.info("<=ADDMStaticOperations=> Validated list of ADDM groups: %s", addm_group_l)
+        commands_set = self.select_operation(command_key)
+        # Run new instance of task+threaded for each command:
+        for operation_cmd in commands_set:
+            # Assign each task on related worker based on ADDM group name:
+            for addm_ in addm_group_l:
+                # Get only one current addm group from iter step
+                addm_grouped_set = addm_set.filter(addm_group__exact=addm_)
+                log.debug("addm_grouped_set: %s", addm_grouped_set)
+
+                t_tag = f'tag=t_addm_cmd_thread;type=task;command_k={operation_cmd.command_key};'
+                t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
+                task = Runner.fire_t(TaskADDMService.t_addm_cmd_thread, fake_run=fake_run,
+                                     t_queue=f'{addm_}@tentacle.dq2',
+                                     t_args=[t_tag],
+                                     t_kwargs=t_kwargs,
+                                     t_routing_key=f'{addm_}.addm_custom_cmd'
+                                     )
+                log.debug("<=addm_cmd=> Added task: %s", task)
+                tasks_ids.update({addm_: task.id})
+        return tasks_ids
+
+    @staticmethod
+    def addm_set_selections(**kwargs):
+        """
+        Select any amount of ADDM machines by:
+        - addm row id
+        - addm group
+        - addm hostname
+        - addm branch
+        Sort by group as default option.
+
+        :param kwargs:
+        :return:
+        """
+        addm_id = kwargs.get('addm_id', [])
+        addm_group = kwargs.get('addm_group', [])
+        addm_host = kwargs.get('addm_host', [])
+        addm_branch = kwargs.get('addm_branch', [])
+        # Initially query for all enabled:
+        all_addms = AddmDev.objects.filter(disables__isnull=True)
+        if addm_id:
+            log.debug("<=ADDMStaticOperations=> ADDM selected by: %s", addm_id)
+            all_addms = all_addms.filter(id__in=addm_id)
+        if addm_group:
+            log.debug("<=ADDMStaticOperations=> ADDM selected by: %s", addm_group)
+            all_addms = all_addms.filter(addm_group__in=addm_group)
+        if addm_host:
+            log.debug("<=ADDMStaticOperations=> ADDM selected by: %s", addm_host)
+            all_addms = all_addms.filter(addm_host__in=addm_host)
+        if addm_branch:
+            log.debug("<=ADDMStaticOperations=> ADDM selected by: %s", addm_branch)
+            all_addms = all_addms.filter(addm_branch__in=addm_branch)
+        log.info("<=ADDMStaticOperations=> ADDM selected count: %s", all_addms.count())
+        # log.debug("<=ADDMStaticOperations=> ADDM selected: %s", all_addms)
+        # log.debug("<=ADDMStaticOperations=> ADDM selected query: %s", all_addms.query)
+        # is this is not too danger to return all enabled addms?
+        return all_addms.order_by('addm_group')
+
+    @staticmethod
+    def addm_groups_distinct_validate(addm_set):
+        """
+        Make list of unique addm_groups values, then add a sleep task for each related worker after
+        successful ping of all workers.
+        :param addm_set:
+        :return: list of addm groups.
+        """
+        from octo_adm.tasks import ADDMCases
+        _addm_groups = []
+        for addm_ in addm_set.values('addm_group').distinct():
+            _addm_groups.append(addm_.get('addm_group'))
+        addm_group_l = ADDMCases.addm_groups_validate(addm_group=_addm_groups, occupy_sec=1)  # type: list
+        return addm_group_l
+
+    # Default sets of operations and execution of them right here:
+    def clean_addm(self, ssh, mode, addm_item):
+        """
+        This should be executed before Threading, select required commands, use ADDM Item.
+        Then, for each ADDM - using set of commands - create Thread where run all commands from this set?
+        One command - one Thread(per addm) - one iteration.
+        More commands - One Thread(rep addm) - more iterations.
+
+        :param mode:
+        :param addm_item:
+        :return:
+        """
+        cleaning_modes = dict(
+            tests=['tw_scan_control',
+                   'test_kill',
+                   'wipe_tpl',
+                   'wipe_log',
+                   'wipe_sync_log',
+                   'wipe_syslog',
+                   'tw_pattern_management',
+                   'wipe_pool',
+                   'wipe_record'],
+            daily=['tw_scan_control',
+                   'test_kill',
+                   'wipe_tpl',
+                   'wipe_log',
+                   'wipe_sync_log',
+                   'wipe_syslog',
+                   'tw_pattern_management',
+                   'wipe_pool',
+                   'wipe_record',
+                   # 'tw_tax_import',  # Do not import taxonomy - better install product content
+                   'tideway_restart'],
+            weekly=['tw_scan_control',
+                    'test_kill',
+                    'wipe_tpl',
+                    'wipe_log',
+                    'wipe_sync_log',
+                    'wipe_syslog',
+                    'tw_pattern_management',
+                    'wipe_pool',
+                    'wipe_record',
+                    'tw_model_wipe',
+                    # 'tw_tax_import',  # Do not import taxonomy - better install product content
+                    'tideway_restart'],
+            etc=[],
+        )
+        results = []
+        operations_run = self.select_operation(command_key=cleaning_modes[mode])
+
+        if operations_run:
+            # HERE: For each ADDM start thread:
+
+            # Connect here and keep open for all commands run from query:
+            ssh = ADDMOperations().addm_ssh_connect(addm_item.addm_ip,
+                                                    addm_item.tideway_user,
+                                                    addm_item.tideway_pdw,
+                                                    where=f"ADDMStaticOperations.clean_addm: {mode}")
+            for oper_cmd in operations_run:
+                result = self.run_static_cmd(addm_item=addm_item, operations_cmd=oper_cmd, ssh=ssh)
+                results.append(result)
+        return results
 
 
 # noinspection SpellCheckingInspection
@@ -183,11 +425,7 @@ class ADDMOperations:
             sync_prod_cont_python=dict(
                 name='Sync product content',
                 addm_exceptions=['zythum', 'aardvark', 'bobblehat', 'custard_cream'],
-                cmd='rsync -a --progress '
-                    '--log-file=/usr/tideway/sync_prod_cont_python.log '
-                    '--include "*" --include "*/" '
-                    '/usr/tideway/TKU/addm/tkn_main/product_content/r1_0/code/python/ '
-                    '/usr/tideway/python',
+                cmd='rsync -a --progress -log-file=/usr/tideway/sync_prod_cont_python.log --include "*" --include "*/" /usr/tideway/TKU/addm/tkn_main/product_content/r1_0/code/python/ /usr/tideway/python',
                 cmd_alt='sync back?',
             ),
             sync_prod_cont_data=dict(
@@ -546,6 +784,9 @@ class ADDMOperations:
         path_from = "/usr/tideway/TKU/addm/ "
         path_to = "/usr/tideway/SYNC/addm/ "
         rsync_command = rsync_cmd + rsync_log + rsync_includes_all + path_from + path_to
+
+        log.debug("rsync_command: %s", rsync_command)
+
         # noinspection PyBroadException
         try:
             _, stdout, stderr = ssh.exec_command(rsync_command)
@@ -591,10 +832,14 @@ class ADDMOperations:
         to_testutils = "/usr/tideway/python/testutils/ "
         rsync_testutils = rsync_cmd + rsync_log + from_testutils + to_testutils
 
+        log.debug("rsync_testutils: %s", rsync_testutils)
+
         # UTILS SYNC
         from_utils = "/usr/tideway/TKU/utils/ "
         to_utils = "/usr/tideway/utils/ "
         rsync_utils = rsync_cmd + rsync_log + from_utils + to_utils
+
+        log.debug("rsync_utils: %s", rsync_utils)
 
         cmd_t = rsync_testutils, rsync_utils
         for cmd in cmd_t:

@@ -160,10 +160,10 @@ class TestExecutor:
             time_spent_test = time() - ts
             log.debug("<=TEST=> FINISH %s", test_info)
             update_save = 'Fake update table!!!!!'
-            # update_save = self.parse_test_result(stderr_output=std_out_err_d['stderr_output'],
-            #                                      test_item=test_item,
-            #                                      addm_item=addm_item,
-            #                                      time_spent_test=str(time_spent_test))
+            update_save = self.parse_test_result(stderr_output=std_out_err_d['stderr_output'],
+                                                 test_item=test_item,
+                                                 addm_item=addm_item,
+                                                 time_spent_test=str(time_spent_test))
             # Close previously opened SSH:
             ssh.close()
             # Put test results into a thread queue output:
