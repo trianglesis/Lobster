@@ -1,38 +1,17 @@
-<div class="modal fade bd-example-modal" id="addmButtonsModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+<div class="modal fade bd-example-modal" id="addmUIButtonsModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
      aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">ADDM Buttons</h5>
+                <h5 class="modal-title">ADDM UI Buttons</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
+                {# TODO: Fix JS, better get by conteiner ID!#}
                 <div id="modal-details"></div>
                 <span id="addm_details_str"></span>
-                <div class="card-text">Cleanup routine</div>
-                <div class="btn-group addm-cleanup">
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Day</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Week</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Month</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Etc</a>
-                </div>
-                <div class="card-text">CMD Run</div>
-                <div class="btn-group addm-cmd-run">
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Cmd1</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Cmd1</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Cmd1</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Cmd1</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Cmd1</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Cmd1</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Cmd1</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Cmd1</a>
-                </div>
-                <div class="card-text">Sync data</div>
-                <div class="btn-group addm-rsync">
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#">Rsync</a>
-                </div>
                 <div class="card-text">ADDM Appliance</div>
                 <div class="btn-group addm-setup">
                     <a class="btn btn-sm btn-outline-info addm-btn" title="ADDM SetupHome" target="_blank" href="http://__addm.addm_host__.bmc.com/ui/SetupHome">Setup</a>

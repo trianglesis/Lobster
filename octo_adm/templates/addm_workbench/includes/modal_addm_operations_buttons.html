@@ -1,0 +1,55 @@
+<div class="modal fade bd-example-modal" id="addmServiceButtonsModal" tabindex="-1" role="dialog"
+     aria-labelledby="myLargeModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ADDM Operations Buttons</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-details"></div>
+                <span id="addm_details_str"></span>
+                <div class="card w-100 addm-clean">
+                    <div class="card-header">Usual routines</div>
+                    <div class="card-body">
+                        <div class="card-text"></div>
+                        {# "goto": "http://127.0.0.1:8000/octo_admin/admin_operations/?operation_key=addm_cleanup"#}
+                        <a class="btn btn-sm btn-outline-info addm-btn" href="#">addm_cleanup</a>
+                        <a class="btn btn-sm btn-outline-info addm-btn" href="#">addm_sync_shares</a>
+                        <a class="btn btn-sm btn-outline-info addm-btn" href="#">addm_sync_utils</a>
+                    </div>
+                </div>
+                <div class="addm-cmd-run">
+                    <div class="card w-100">
+                        <div class="card-header">CMD Run</div>
+                        <div class="card-body">
+                            <div class="card-text">Choose one or multiple commands to execute on selected ADDM machine
+                                one by one.
+                            </div>
+                            <div>
+                                <label>
+                                    <select class="custom-select" size="20" multiple>
+                                        {% for command in addm_commands %}
+                                            {#                            <option selected>Open this select menu</option>#}
+                                            <option value="{{ command.command_key }}">{{ command.command_key }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                            </div>
+                            <button class="btn btn-lg btn-outline-warning">Run selected commands</button>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="btn-group">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

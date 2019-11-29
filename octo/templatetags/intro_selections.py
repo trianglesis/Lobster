@@ -1,21 +1,15 @@
 """
 Template tags intra-template selections and small queries
 """
-import os
 import logging
 from operator import itemgetter
-from django.contrib.auth.models import User
-from django.template import loader
+
 from django import template
-from django.db.models import Max
+from django.template import loader
 
-from octo_tku_patterns.models import TestCases
-
-from octo_tku_upload.table_oper import UploadTKUTableOper
-from octo_tku_patterns.table_oper import PatternsDjangoTableOper, PatternsDjangoModelRaw
-
+from run_core.models import ADDMCommands
 from octo.helpers.tasks_oper import TasksOperations
-
+from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
 
 register = template.Library()
 log = logging.getLogger("octo.octologger")
@@ -116,3 +110,10 @@ def dynamical_selector_compose(context, exclude_key=None, update_context=False):
         return ''
     else:
         return sel_str
+
+
+@register.simple_tag
+def select_addm_commands():
+    commands = ADDMCommands.objects.all()
+    log.debug("select_addm_commands commands: %s", commands)
+    return commands

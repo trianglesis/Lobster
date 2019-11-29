@@ -229,9 +229,11 @@
         <span class="navbar-text">Octopus automation</span>
     </nav>
     {# INCLUDES #}
+    {% select_addm_commands as addm_commands %}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'addm_workbench/includes/modal_addm_table_stale.html' with addm_set=objects|dictsort:'addm_group' %}
     {% include 'addm_workbench/includes/modal_addm_ui_buttons.html' %}
+    {% include 'addm_workbench/includes/modal_addm_operations_buttons.html' with addm_commands=addm_commands %}
     {% include 'addm_workbench/includes/modal_addm_cleanup.html' %}
     {% include 'addm_workbench/includes/modal_addm_cmd_run.html' %}
     {% include 'addm_workbench/includes/modal_addm_sync.html' %}
