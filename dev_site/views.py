@@ -365,30 +365,6 @@ class DevAdminViews:
         return HttpResponse(simple_output.render(widgets, request))
 
 
-class DevAdminTasksCall:
-    """
-    Move here all clean tasks and task routine calls
-    """
-
-    @staticmethod
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def dev_addm_custom_cmd(request):
-        user_name, user_str = UserCheck().user_string_f(request)
-        page_widgets = loader.get_template(
-            'dev_debug_workbench/dev_main.html')
-
-        cmd_k = request.GET.get('cmd_k', 'show_v')
-        addm_group = request.GET.get('addm_group', 'foxtrot')
-        subject = '{} Run custom ADDM CMD'.format(user_name)
-
-        t_tag = 'dev_addm_custom_cmd|cmd_k={};addm_group={};user_name={}'.format(cmd_k, addm_group, user_name)
-        DevRunner.fire_t(TaskADDMService.t_routine_addm_cmd,
-                         t_args=[t_tag],
-                         t_kwargs=dict(cmd_k=cmd_k, subject=subject, addm_group=addm_group, user_name=user_name))
-
-        return HttpResponse(page_widgets.render(dict(SUBJECT=subject), request))
-
-
 class Old:
 
     @staticmethod

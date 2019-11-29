@@ -35,8 +35,10 @@ from octo.helpers.tasks_oper import TasksOperations, WorkerOperations
 
 from octo_adm.user_operations import UserCheck
 from octo_adm.request_service import SelectorRequestsHelpers
-from octo_adm.tasks import ADDMCases
 from octo_adm.serializers import AddmDevSerializer
+
+from run_core.addm_operations import ADDMStaticOperations
+from octo_adm.tasks import TaskADDMService
 
 from octo_tku_patterns.tasks import TPatternParse
 
@@ -725,8 +727,7 @@ class AdminOperationsREST(APIView):
         self.admin_users = ''
         self.power_users = ''
         # options:
-        self.mode = ''
-        self.cmd_k = ''
+        self.command_key = []
         self.subject = ''
         self.addm_group = ''
         self.fake_run = True
@@ -744,6 +745,7 @@ class AdminOperationsREST(APIView):
             addm_cleanup=self.addm_cleanup,
             addm_cmd_run=self.addm_cmd_run,
             addm_sync_shares=self.addm_sync_shares,
+            addm_sync_utils=self.addm_sync_utils,
             p4_info=self.p4_info,
             p4_sync=self.p4_sync,
             p4_sync_force=self.p4_sync_force,
@@ -761,14 +763,12 @@ class AdminOperationsREST(APIView):
         if self.request.POST:
             self.operation_key = self.request.POST.get('operation_key', None)
             self.fake_run = self.request.POST.get('fake_run', True)  # TODO: Debug, remove default True
-            self.cmd_k = self.request.POST.get('cmd_k', None)
-            self.mode = self.request.POST.get('mode', None)
+            self.command_key = self.request.POST.get('command_key', None)
             self.addm_group = self.request.POST.get('addm_group', None)
         elif self.request.GET:
             self.operation_key = self.request.GET.get('operation_key', None)
             self.fake_run = self.request.GET.get('fake_run', True)  # TODO: Debug, remove default True
-            self.cmd_k = self.request.GET.get('cmd_k', None)
-            self.mode = self.request.GET.get('mode', None)
+            self.command_key = self.request.GET.get('command_key', None)
             self.addm_group = self.request.GET.get('addm_group', None)
 
         self.is_authenticated = self.request.user.is_authenticated
@@ -780,7 +780,7 @@ class AdminOperationsREST(APIView):
 
         user_status = f'{self.user_name} {self.user_email} admin_users={self.admin_users} power_users={self.power_users}'
         log.info("<=AdminOperations=> Request: %s", user_status)
-        request_options = f'operation_key:{self.operation_key} fake_run:{self.fake_run} cmd_k:{self.cmd_k} mode:{self.mode} addm_group:{self.addm_group}'
+        request_options = f'operation_key:{self.operation_key} fake_run:{self.fake_run} command_key:{self.command_key} addm_group:{self.addm_group}'
         log.debug("<=AdminOperations=> request_options: %s", request_options)
 
     def get(self, request=None):
@@ -868,51 +868,98 @@ class AdminOperationsREST(APIView):
 
     def addm_cleanup(self):
         """ Run selected ADDM cleanup therapy.
-        mode=[weekly, daily, tests], addm_group=()
-        Example: operation_key=addm_cleanup;addm_group=alpha;mode=weekly
+        addm_group=()
+        Example: operation_key=addm_cleanup;addm_group=alpha
         :return: mode: task.id
         """
-        # TODO: Retest with addm_group=all
-        clean_out = ADDMCases().clean_addm(
-            mode=self.mode,
+        t_tag = f'tag=t_addm_cmd_routine.addm_cleanup;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        t_kwargs = dict(
+            command_key=[
+                "show_addm_version",
+                "test_kill",
+                "tku_install_kill",
+                "tw_scan_control__clear",
+                "tw_pattern_management__remove_all",
+                "tw_model_wipe__force",
+                "wipe_addm_logs",
+                "wipe_addm_pool",
+                "wipe_addm_record",
+                "wipe_rsync_logs",
+                "wipe_tideway_data_installed_tpl_product_content",
+                "wipe_tideway_syslogs",
+                "wipe_tideway_TEMP",
+                "wipe_tpl_files"
+            ],
             subject=self.subject,
             user_name=self.user_name,
             user_mail=self.user_email,
             addm_group=self.addm_group,
-            fake_run=self.fake_run,
+            fake_run=self.fake_run
         )
-        return {'task_id': clean_out}
+        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag], t_kwargs=t_kwargs)
+        # task = TaskADDMService.t_addm_cmd_routine.apply_async(args=[t_tag], kwargs=t_kwargs)
+        return {'task_id': task.id}
 
     def addm_cmd_run(self):
-        """ Run ADDM registered command. Commands should be added to Octopus system.
-        Options: (cmd_k=(), addm_group=()
-        Example: operation_key=addm_cmd_run;addm_group=alpha;cmd_k=show_v
+        """ Run ADDM registered command. Commands should be added to Octopus system. (see /admin/run_core/addmcommands/)
+        Options: (command_key=(), addm_group=()
+        Example: operation_key=addm_cmd_run;addm_group=alpha;command_key=show_addm_version
         :return cmd_k: task.id """
-        # TODO: Retest with addm_group=all
-        cmd_out = ADDMCases().addm_cmd(
-            cmd_k=self.cmd_k,
+        t_tag = f'tag=t_addm_cmd_routine.{self.command_key};user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        t_kwargs = dict(
+            command_key=self.command_key,
             subject=self.subject,
             user_name=self.user_name,
             user_mail=self.user_email,
             addm_group=self.addm_group,
-            fake_run=self.fake_run,
+            fake_run=self.fake_run
         )
-        return {'task_id': cmd_out}
+        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag],
+                             t_kwargs=t_kwargs)
+        return {'task_id': task.id}
 
     def addm_sync_shares(self):
-        """ Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync.
+        """ Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync. Keys used: rsync_tku_data
         Options: addm_group=()
         Example: operation_key=addm_sync_shares;addm_group=alpha
         :return task: task.id"""
-        # TODO: Retest with addm_group=all
-        sync_out = ADDMCases().addm_sync_shares(
+
+        t_tag = f'tag=t_addm_cmd_routine.addm_sync_shares;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        t_kwargs = dict(
+            command_key=[
+                "rsync_tku_data",
+            ],
             subject=self.subject,
             user_name=self.user_name,
             user_mail=self.user_email,
             addm_group=self.addm_group,
-            fake_run=self.fake_run,
+            fake_run=self.fake_run
         )
-        return {'task_id': sync_out}
+        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag],
+                             t_kwargs=t_kwargs)
+        return {'task_id': task.id}
+
+    def addm_sync_utils(self):
+        """ Execute routine for Octopus NFS -> ADDM sync all files for test utils. Using rsync. keys used rsync_python_testutils, rsync_tideway_utils
+        Options: addm_group=()
+        Example: operation_key=addm_sync_utils;addm_group=alpha
+        :return task: task.id"""
+
+        t_tag = f'tag=t_addm_cmd_routine.addm_sync_utils;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        t_kwargs = dict(
+            command_key=[
+                "rsync_python_testutils",
+                "rsync_tideway_utils",
+            ],
+            subject=self.subject,
+            user_name=self.user_name,
+            user_mail=self.user_email,
+            addm_group=self.addm_group,
+            fake_run=self.fake_run
+        )
+        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag],
+                             t_kwargs=t_kwargs)
+        return {'task_id': task.id}
 
 
 class ListAllAddmVmREST(viewsets.ModelViewSet):

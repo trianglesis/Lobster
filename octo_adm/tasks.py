@@ -57,7 +57,7 @@ class TaskADDMService:
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TaskADDMService.t_routine_clean_addm',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
-    def t_routine_clean_addm(t_tag, **kwargs):
+    def _old_t_routine_clean_addm(t_tag, **kwargs):
         """
         kwargs:
             - mode: weekly, daily, tests
@@ -71,13 +71,13 @@ class TaskADDMService:
         :type kwargs: dict
         :return:
         """
-        return ADDMCases().clean_addm(**kwargs)
+        return ADDMCases()._old_clean_addm(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TaskADDMService.t_routine_addm_cmd',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
-    def t_routine_addm_cmd(t_tag, **kwargs):
+    def _old_t_routine_addm_cmd(t_tag, **kwargs):
         """
         kwargs:
             - cmd_k: key of the command to run. ref: ADDMOperations.cmd_d
@@ -92,12 +92,12 @@ class TaskADDMService:
         :return:
         """
         # log.debug("<=t_routine_addm_cmd> Running task t_routine_addm_cmd")
-        return ADDMCases().addm_cmd(**kwargs)
+        return ADDMCases()._old_addm_cmd(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
-    def t_addm_clean(t_tag, **kwargs):
+    def _old_t_addm_clean(t_tag, **kwargs):
         """
         Check passed addm group or groups
         Add occupy worker task for each
@@ -114,12 +114,12 @@ class TaskADDMService:
         :param kwargs: KV pairs of args
         :return:
         """
-        return AddmClean().threading_exec(AddmClean().cleanup_case, **kwargs)
+        return Old_AddmClean().threading_exec(Old_AddmClean().cleanup_case, **kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
-    def t_addm_cmd_k(t_tag, **kwargs):
+    def _old_t_addm_cmd_k(t_tag, **kwargs):
         """
         Check passed addm group or groups
         Add occupy worker task for each
@@ -133,7 +133,7 @@ class TaskADDMService:
         :param kwargs: KV pairs of args
         :return:
         """
-        return AddmClean().threading_exec(AddmClean().key_cmd, **kwargs)
+        return Old_AddmClean().threading_exec(Old_AddmClean().key_cmd, **kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2',
@@ -141,14 +141,14 @@ class TaskADDMService:
               soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
     def t_addm_cmd_routine(t_tag, **kwargs):
-        log.info("TaskADDMService.t_addm_cmd_routine: %s", t_tag)
-        log.info("TaskADDMService.t_addm_cmd_routine: %s", kwargs)
+        log.info("TaskADDMService.t_addm_cmd_routine: %s %s", t_tag, kwargs)
         return ADDMStaticOperations().run_operation_cmd(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
     def t_addm_cmd_thread(t_tag, **kwargs):
+        log.info("TaskADDMService.t_addm_cmd_thread: %s %s", t_tag, kwargs)
         return ADDMStaticOperations().threaded_exec_cmd(**kwargs)
 
 
@@ -159,7 +159,7 @@ class ADDMCases:
     """
 
     @staticmethod
-    def addm_groups_validate(**kwargs):
+    def _old_addm_groups_validate(**kwargs):
         """
         Complete initial checks of workers health and availability and exec busy tasks.
         :param kwargs:
@@ -174,7 +174,7 @@ class ADDMCases:
         occupy_sec = kwargs.get('occupy_sec', 40)
         fake_run = kwargs.get('fake_run', False)
 
-        t_tag = f'tag=addm_groups_validate;type=routine;user_name={user_name}'
+        t_tag = f'tag=_old_addm_groups_validate;type=routine;user_name={user_name}'
         if not isinstance(addm_group_l, list):
             addm_group_l = addm_group_l.split(',')
 
@@ -192,7 +192,7 @@ class ADDMCases:
             if worker_up.get('down'):
                 log.error("Some workers may be down: %s - sending email!", worker_up)
                 subject = f'Worker is down, cannot run all other tasks. W: {worker_up}'
-                body = f'Found some workers are DOWN while run (addm_groups_validate) List: {worker_up}'
+                body = f'Found some workers are DOWN while run (_old_addm_groups_validate) List: {worker_up}'
                 admin = mails['admin']
                 Mails.short(subject=subject, body=body, send_to=[admin])
                 # Nothing else to do here.
@@ -210,7 +210,7 @@ class ADDMCases:
                                   t_routing_key = f'{addm_group}.t_occupy_w')
                 return addm_group_l
 
-    def clean_addm(self, **kwargs):
+    def _old_clean_addm(self, **kwargs):
         """
         Check passed addm group or groups
         Add occupy worker task for each
@@ -241,11 +241,11 @@ class ADDMCases:
             _addm_groups.append(addm_.get('addm_group'))
 
         tasks_ids = dict()
-        addm_group_l = self.addm_groups_validate(addm_group=_addm_groups)  # type: list
+        addm_group_l = self._old_addm_groups_validate(addm_group=_addm_groups)  # type: list
         log.debug("addm_group_l: %s", addm_group_l)
         for addm_group in addm_group_l:
             t_tag = f'tag=addm_cleanup;user_name={user_name};mode={mode};addm={addm_group}'
-            task = Runner.fire_t(TaskADDMService.t_addm_clean, fake_run=fake_run,
+            task = Runner.fire_t(TaskADDMService._old_t_addm_clean, fake_run=fake_run,
                                  t_args=[t_tag],
                                  t_kwargs=dict(info_string=subject, addm_group=addm_group, mode=mode),
                                  t_queue=f'{addm_group}@tentacle.dq2',
@@ -254,7 +254,7 @@ class ADDMCases:
             tasks_ids.update({addm_group: task.id})
         return tasks_ids
 
-    def addm_cmd(self, **kwargs):
+    def _old_addm_cmd(self, **kwargs):
         """
         Check passed addm group or groups
         Add occupy worker task for each
@@ -276,7 +276,7 @@ class ADDMCases:
         user_mail = kwargs.get('user_mail', [])  # type: str
         addm_group = kwargs.get('addm_group', [])  # type: list
         fake_run = kwargs.get('fake_run', False)
-        log.debug("<=addm_cmd=> kwargs %s", kwargs)
+        log.debug("<=_old_addm_cmd=> kwargs %s", kwargs)
 
         if not user_name == 'cron':
             Mails.short(subject=subject, body=subject, send_to=[user_mail])
@@ -287,29 +287,29 @@ class ADDMCases:
             _addm_groups.append(addm_.get('addm_group'))
 
         tasks_ids = dict()
-        addm_group_l = self.addm_groups_validate(addm_group=_addm_groups)  # type: list
+        addm_group_l = self._old_addm_groups_validate(addm_group=_addm_groups)  # type: list
         for addm_group in addm_group_l:
             t_tag = f'tag=t_addm_cmd_k;type=task;user_name={user_name};' \
                     f'addm_group={addm_group};cmd_k={cmd_k}| on: "{addm_group}" by: {user_name}'
             t_kwargs = dict(info_string=subject, addm_group=addm_group, cmd_k=cmd_k)
-            task = Runner.fire_t(TaskADDMService.t_addm_cmd_k, fake_run=fake_run,
+            task = Runner.fire_t(TaskADDMService._old_t_addm_cmd_k, fake_run=fake_run,
                                  t_queue=f'{addm_group}@tentacle.dq2',
                                  t_args=[t_tag],
                                  t_kwargs=t_kwargs,
                                  t_routing_key=f'{addm_group}.addm_custom_cmd'
                                  )
-            log.debug("<=addm_cmd=> Added task: %s", task)
+            log.debug("<=_old_addm_cmd=> Added task: %s", task)
             tasks_ids.update({addm_group: task.id})
         return tasks_ids
 
-    def addm_sync_shares(self, **kwargs):
+    def _old_addm_sync_shares(self, **kwargs):
         from octo_tku_patterns.tasks import TPatternParse
         subject = kwargs.get('subject', 'Running: addm_sync_shares')  # type: str
         user_name = kwargs.get('user_name', 'cron')  # type: str
         user_mail = kwargs.get('user_mail', [])  # type: str
         addm_group = kwargs.get('addm_group', [])  # type: list
         fake_run = kwargs.get('fake_run', False)
-        log.debug("<=addm_cmd=> kwargs %s", kwargs)
+        log.debug("<=_old_addm_cmd=> kwargs %s", kwargs)
 
         if not user_name == 'cron':
             Mails.short(subject=subject, body=subject, send_to=[user_mail])
@@ -320,7 +320,7 @@ class ADDMCases:
             _addm_groups.append(addm_.get('addm_group'))
 
         tasks_ids = dict()
-        addm_group_l = self.addm_groups_validate(addm_group=_addm_groups)  # type: list
+        addm_group_l = self._old_addm_groups_validate(addm_group=_addm_groups)  # type: list
         for addm_group in addm_group_l:
             addm_set = ADDMOperations.select_addm_set(addm_group=addm_group)
             t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_name={user_name};fake={fake_run};'
@@ -333,7 +333,8 @@ class ADDMCases:
         return tasks_ids
 
 
-class AddmClean:
+# noinspection PyPep8Naming
+class Old_AddmClean:
 
     def __init__(self):
         """

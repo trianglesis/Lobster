@@ -201,7 +201,7 @@ if __name__ == "__main__":
         @staticmethod
         def workers_validate_and_occupy(addm_group_l, user_name):
             from octo_adm.tasks import ADDMCases
-            addm_group_l = ADDMCases.addm_groups_validate(addm_group=addm_group_l, user_name=user_name)
+            addm_group_l = ADDMCases._old_addm_groups_validate(addm_group=addm_group_l, user_name=user_name)
             return addm_group_l
 
         @staticmethod

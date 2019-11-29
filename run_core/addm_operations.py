@@ -25,6 +25,9 @@ from django.db.models.query import QuerySet
 import paramiko
 from paramiko import SSHClient
 
+from octo.config_cred import mails
+from octo.helpers.tasks_run import Runner
+from octo.helpers.tasks_mail_send import Mails
 from run_core.models import AddmDev, ADDMCommands
 
 log = logging.getLogger("octo.octologger")
@@ -197,7 +200,6 @@ class ADDMStaticOperations:
         Run one of more operation cmd
         :return:
         """
-        from octo.helpers.tasks_run import Runner
         from octo_adm.tasks import TaskADDMService
 
         command_key = kwargs.get('command_key', None)
@@ -230,7 +232,7 @@ class ADDMStaticOperations:
                 #                      t_kwargs=t_kwargs,
                 #                      t_routing_key=f'{addm_}.addm_custom_cmd'
                 #                      )
-                log.debug("<=addm_cmd=> Added task: %s", task)
+                log.debug("<=_old_addm_cmd=> Added task: %s", task)
                 tasks_ids.update({addm_: task.id})
         return tasks_ids
 
@@ -254,15 +256,23 @@ class ADDMStaticOperations:
         # Initially query for all enabled:
         all_addms = AddmDev.objects.filter(disables__isnull=True)
         if addm_id:
+            if isinstance(addm_id, str):
+                addm_id = addm_id.split(',')
             log.debug("<=ADDMStaticOperations=> ADDM selected by: %s", addm_id)
             all_addms = all_addms.filter(id__in=addm_id)
         if addm_group:
+            if isinstance(addm_group, str):
+                addm_group = addm_group.split(',')
             log.debug("<=ADDMStaticOperations=> ADDM selected by: %s", addm_group)
             all_addms = all_addms.filter(addm_group__in=addm_group)
         if addm_host:
+            if isinstance(addm_host, str):
+                addm_host = addm_host.split(',')
             log.debug("<=ADDMStaticOperations=> ADDM selected by: %s", addm_host)
             all_addms = all_addms.filter(addm_host__in=addm_host)
         if addm_branch:
+            if isinstance(addm_branch, str):
+                addm_branch = addm_branch.split(',')
             log.debug("<=ADDMStaticOperations=> ADDM selected by: %s", addm_branch)
             all_addms = all_addms.filter(addm_branch__in=addm_branch)
         log.info("<=ADDMStaticOperations=> ADDM selected count: %s", all_addms.count())
@@ -271,8 +281,7 @@ class ADDMStaticOperations:
         # is this is not too danger to return all enabled addms?
         return all_addms.order_by('addm_group')
 
-    @staticmethod
-    def addm_groups_distinct_validate(addm_set, fake_run=None):
+    def addm_groups_distinct_validate(self, addm_set, fake_run=None):
         """
         Make list of unique addm_groups values, then add a sleep task for each related worker after
         successful ping of all workers.
@@ -280,76 +289,63 @@ class ADDMStaticOperations:
         :param addm_set:
         :return: list of addm groups.
         """
-        from octo_adm.tasks import ADDMCases
         _addm_groups = []
         for addm_ in addm_set.values('addm_group').distinct():
             _addm_groups.append(addm_.get('addm_group'))
-        addm_group_l = ADDMCases.addm_groups_validate(addm_group=_addm_groups, occupy_sec=1,
-                                                      fake_run=fake_run)  # type: list
+        addm_group_l = self.addm_groups_validate(addm_group=_addm_groups, occupy_sec=1,
+                                                 fake_run=fake_run)  # type: list
         return addm_group_l
 
-    # Default sets of operations and execution of them right here:
-    def clean_addm(self, ssh, mode, addm_item):
+    @staticmethod
+    def addm_groups_validate(**kwargs):
         """
-        This should be executed before Threading, select required commands, use ADDM Item.
-        Then, for each ADDM - using set of commands - create Thread where run all commands from this set?
-        One command - one Thread(per addm) - one iteration.
-        More commands - One Thread(rep addm) - more iterations.
-
-        :param mode:
-        :param addm_item:
+        Complete initial checks of workers health and availability and exec busy tasks.
+        :param kwargs:
         :return:
         """
-        cleaning_modes = dict(
-            tests=['tw_scan_control',
-                   'test_kill',
-                   'wipe_tpl',
-                   'wipe_log',
-                   'wipe_sync_log',
-                   'wipe_syslog',
-                   'tw_pattern_management',
-                   'wipe_pool',
-                   'wipe_record'],
-            daily=['tw_scan_control',
-                   'test_kill',
-                   'wipe_tpl',
-                   'wipe_log',
-                   'wipe_sync_log',
-                   'wipe_syslog',
-                   'tw_pattern_management',
-                   'wipe_pool',
-                   'wipe_record',
-                   # 'tw_tax_import',  # Do not import taxonomy - better install product content
-                   'tideway_restart'],
-            weekly=['tw_scan_control',
-                    'test_kill',
-                    'wipe_tpl',
-                    'wipe_log',
-                    'wipe_sync_log',
-                    'wipe_syslog',
-                    'tw_pattern_management',
-                    'wipe_pool',
-                    'wipe_record',
-                    'tw_model_wipe',
-                    # 'tw_tax_import',  # Do not import taxonomy - better install product content
-                    'tideway_restart'],
-            etc=[],
-        )
-        results = []
-        operations_run = self.select_operation(command_key=cleaning_modes[mode])
+        from octo.tasks import TSupport
+        from octo.helpers.tasks_oper import WorkerOperations
 
-        if operations_run:
-            # HERE: For each ADDM start thread:
+        addm_group_l = kwargs.get('addm_group', [])
+        user_name = kwargs.get('user_name', 'cron')
+        occupy_sec = kwargs.get('occupy_sec', 40)
+        fake_run = kwargs.get('fake_run', False)
 
-            # Connect here and keep open for all commands run from query:
-            ssh = ADDMOperations().addm_ssh_connect(addm_item.addm_ip,
-                                                    addm_item.tideway_user,
-                                                    addm_item.tideway_pdw,
-                                                    where=f"ADDMStaticOperations.clean_addm: {mode}")
-            for oper_cmd in operations_run:
-                result = self.run_static_cmd(addm_item=addm_item, operations_cmd=oper_cmd, ssh=ssh)
-                results.append(result)
-        return results
+        t_tag = f'tag=_old_addm_groups_validate;type=routine;user_name={user_name}'
+        if not isinstance(addm_group_l, list):
+            addm_group_l = addm_group_l.split(',')
+
+        # TODO: Remove for not home env
+        if fake_run:
+            return addm_group_l
+
+        if isinstance(addm_group_l, list):
+            ping_list = WorkerOperations().service_workers_list[:]
+            for _worker in addm_group_l:
+                if "@tentacle" not in _worker:
+                    _worker = f"{_worker}@tentacle"
+                ping_list.append(_worker)
+            worker_up = WorkerOperations().worker_heartbeat(worker_list=ping_list)
+            if worker_up.get('down'):
+                log.error("Some workers may be down: %s - sending email!", worker_up)
+                subject = f'Worker is down, cannot run all other tasks. W: {worker_up}'
+                body = f'Found some workers are DOWN while run (_old_addm_groups_validate) List: {worker_up}'
+                admin = mails['admin']
+                Mails.short(subject=subject, body=body, send_to=[admin])
+                # Nothing else to do here.
+                raise Exception(subject)
+            else:
+                for addm_group in addm_group_l:
+                    occupy_sec += 1
+                    t_tag_busy = f"{t_tag} | sleep {occupy_sec} Check addm group."
+                    addm_val_kw = dict(occupy_sec=occupy_sec, addm_group=addm_group,
+                                       ping_list=ping_list, user_name=user_name)
+                    Runner.fire_t(TSupport.t_occupy_w, fake_run=fake_run,
+                                  t_args=[t_tag_busy, occupy_sec],
+                                  t_kwargs=addm_val_kw,
+                                  t_queue=f'{addm_group}@tentacle.dq2',
+                                  t_routing_key = f'{addm_group}.t_occupy_w')
+                return addm_group_l
 
 
 # noinspection SpellCheckingInspection

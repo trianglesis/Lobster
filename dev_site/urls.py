@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from dev_site.views import DevAdminViews as DevViews
-from dev_site.views import DevAdminTasksCall as DevTasksCall
 from dev_site.views import Old
 
 
@@ -26,14 +25,8 @@ urlpatterns = [
         name='dev_get_options_table_values'),
 
     # Run task:
-
-    url(r'^dev_addm_custom_cmd/', DevTasksCall.dev_addm_custom_cmd,
-        name='dev_addm_custom_cmd'),
-
     url(r'^dev_cron_items/', DevViews.dev_cron_items,
         name='dev_cron_items'),
-
-
 
     url(r'^select_all_routine_logs/', Old.select_all_routine_logs,
         name='select_all_routine_logs'),
