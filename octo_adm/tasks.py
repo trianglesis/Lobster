@@ -141,8 +141,8 @@ class TaskADDMService:
               soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
     def t_addm_cmd_routine(t_tag, **kwargs):
-        default = {"command_key": "show_addm_version", "addm_group": ["alpha"]}
         log.info("TaskADDMService.t_addm_cmd_routine: %s", t_tag)
+        log.info("TaskADDMService.t_addm_cmd_routine: %s", kwargs)
         return ADDMStaticOperations().run_operation_cmd(**kwargs)
 
     @staticmethod
@@ -171,12 +171,16 @@ class ADDMCases:
 
         addm_group_l = kwargs.get('addm_group', [])
         user_name = kwargs.get('user_name', 'cron')
-        fake_run = kwargs.get('fake_run', False)
         occupy_sec = kwargs.get('occupy_sec', 40)
+        fake_run = kwargs.get('fake_run', False)
 
         t_tag = f'tag=addm_groups_validate;type=routine;user_name={user_name}'
         if not isinstance(addm_group_l, list):
             addm_group_l = addm_group_l.split(',')
+
+        # TODO: Remove for not home env
+        if fake_run:
+            return addm_group_l
 
         if isinstance(addm_group_l, list):
             ping_list = WorkerOperations().service_workers_list[:]
@@ -439,3 +443,5 @@ class AddmClean:
             output = ADDMOperations().addm_exec_cmd(ssh=ssh, addm_item=addm_item, cmd_k=cmd_k)
             cmd_outputs.append(output)
         out_q.put(cmd_outputs)
+
+

@@ -114,8 +114,10 @@ class ADDMStaticOperations:
 
         addm_set = kwargs.get('addm_set', None)
         operation_cmd = kwargs.get('operation_cmd', None)
+        fake_run = kwargs.get('fake_run', False)
 
         log.debug("addm_set: %s %s", addm_set, type(addm_set))
+        log.debug("FAKE_RUN: %s", fake_run)
 
         assert isinstance(addm_set, QuerySet), 'Should be AddmDev QuerySet'
         assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
@@ -127,10 +129,16 @@ class ADDMStaticOperations:
         addm_set = addm_set.values()
         for addm_item in addm_set:
             log.debug("addm_item: %s %s", addm_item, type(addm_item))
-            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
+
+            # TODO: Remove for not home env
+            if not fake_run:
+                ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
+            else:
+                ssh = True
+
             if ssh:
                 th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item["addm_group"]} - {addm_item["addm_host"]} {addm_item["addm_ip"]}'
-                args_d = dict(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
+                args_d = dict(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh, fake_run=fake_run)
                 try:
                     cmd_th = Thread(target=self.run_static_cmd, name=th_name, kwargs=args_d)
                     cmd_th.start()
@@ -149,7 +157,7 @@ class ADDMStaticOperations:
         return {cmd_k: th_out, 'time': time() - ts}
 
     @staticmethod
-    def run_static_cmd(out_q, addm_item, operation_cmd, ssh):
+    def run_static_cmd(out_q, addm_item, operation_cmd, ssh, fake_run=None):
         assert isinstance(addm_item, dict), 'Should be dict converted from QuerySet.values()'
         assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
 
@@ -163,14 +171,18 @@ class ADDMStaticOperations:
         if cmd:
             # noinspection PyBroadException
             try:
-                _, stdout, stderr = ssh.exec_command(cmd)
-                output_d = {cmd_k: dict(out=stdout.readlines(),
-                                        err=stderr.readlines(),
-                                        addm=addm_instance,
-                                        cmd_item=cmd,
-                                        timest=time() - ts)}
-                log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
-                out_q.put(output_d)
+                # TODO: Remove for not home env
+                if not fake_run:
+                    _, stdout, stderr = ssh.exec_command(cmd)
+                    output_d = {cmd_k: dict(out=stdout.readlines(),
+                                            err=stderr.readlines(),
+                                            addm=addm_instance,
+                                            cmd_item=cmd,
+                                            timest=time() - ts)}
+                    log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
+                    out_q.put(output_d)
+                else:
+                    out_q.put(f'Fake run of cmd: {cmd_k} - "{cmd}" on: {addm_item["addm_name"]}')
 
             except Exception as e:
                 log.error("<=ADDM Oper=> Error during operation for: %s %s", cmd, e)
@@ -193,7 +205,7 @@ class ADDMStaticOperations:
 
         tasks_ids = dict()
         addm_set = self.addm_set_selections(**kwargs)
-        addm_group_l = self.addm_groups_distinct_validate(addm_set)
+        addm_group_l = self.addm_groups_distinct_validate(addm_set, fake_run)
         log.info("<=ADDMStaticOperations=> Validated list of ADDM groups: %s", addm_group_l)
         commands_set = self.select_operation(command_key)
         # Run new instance of task+threaded for each command:
@@ -205,13 +217,19 @@ class ADDMStaticOperations:
                 log.debug("addm_grouped_set: %s", addm_grouped_set)
 
                 t_tag = f'tag=t_addm_cmd_thread;type=task;command_k={operation_cmd.command_key};'
-                t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
-                task = Runner.fire_t(TaskADDMService.t_addm_cmd_thread, fake_run=fake_run,
-                                     t_queue=f'{addm_}@tentacle.dq2',
-                                     t_args=[t_tag],
-                                     t_kwargs=t_kwargs,
-                                     t_routing_key=f'{addm_}.addm_custom_cmd'
-                                     )
+                t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd, fake_run=True)
+                task = TaskADDMService.t_addm_cmd_thread.apply_async(
+                    queue=f'{addm_}@tentacle.dq2',
+                    args=[t_tag],
+                    kwargs=t_kwargs,
+                    routing_key=f'{addm_}.addm_custom_cmd'
+                )
+                # task = Runner.fire_t(TaskADDMService.t_addm_cmd_thread, fake_run=fake_run,
+                #                      t_queue=f'{addm_}@tentacle.dq2',
+                #                      t_args=[t_tag],
+                #                      t_kwargs=t_kwargs,
+                #                      t_routing_key=f'{addm_}.addm_custom_cmd'
+                #                      )
                 log.debug("<=addm_cmd=> Added task: %s", task)
                 tasks_ids.update({addm_: task.id})
         return tasks_ids
@@ -254,10 +272,11 @@ class ADDMStaticOperations:
         return all_addms.order_by('addm_group')
 
     @staticmethod
-    def addm_groups_distinct_validate(addm_set):
+    def addm_groups_distinct_validate(addm_set, fake_run=None):
         """
         Make list of unique addm_groups values, then add a sleep task for each related worker after
         successful ping of all workers.
+        :param fake_run:
         :param addm_set:
         :return: list of addm groups.
         """
@@ -265,7 +284,8 @@ class ADDMStaticOperations:
         _addm_groups = []
         for addm_ in addm_set.values('addm_group').distinct():
             _addm_groups.append(addm_.get('addm_group'))
-        addm_group_l = ADDMCases.addm_groups_validate(addm_group=_addm_groups, occupy_sec=1)  # type: list
+        addm_group_l = ADDMCases.addm_groups_validate(addm_group=_addm_groups, occupy_sec=1,
+                                                      fake_run=fake_run)  # type: list
         return addm_group_l
 
     # Default sets of operations and execution of them right here:
