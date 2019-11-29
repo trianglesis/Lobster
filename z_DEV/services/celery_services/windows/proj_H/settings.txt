@@ -1,0 +1,55 @@
+++++++ START STOP SET
+
+nssm.exe restart CELERY_routines && nssm.exe restart CELERY_alpha && nssm.exe restart CELERY_charlie && nssm.exe restart CELERY_golf && nssm.exe restart CELERY_parsing && nssm.exe restart CELERY_Flower
+
+nssm.exe edit CELERY_routines && nssm.exe edit CELERY_alpha && nssm.exe edit CELERY_charlie && nssm.exe edit CELERY_golf && nssm.exe edit CELERY_parsing && nssm.exe edit CELERY_Flower
+
+
+nssm.exe remove CELERY_routines
+nssm.exe remove CELERY_alpha
+nssm.exe remove CELERY_charlie
+nssm.exe remove CELERY_golf
+nssm.exe remove CELERY_parsing
+nssm.exe remove CELERY_Flower
+
+nssm.exe install CELERY_routines
+nssm.exe install CELERY_alpha
+nssm.exe install CELERY_charlie
+nssm.exe install CELERY_golf
+nssm.exe install CELERY_parsing
+nssm.exe install CELERY_Flower
+
+
+============ BAT configs:
+
+D:\Projects\PycharmProjects\lobster\venv\Scripts\activate.bat && celery -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n alpha@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\activate.bat && celery -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n charlie@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\activate.bat && celery flower --broker=amqp://octo_user:hPoNaEb7@localhost:5672/tentacle --broker_api=http://octo_user:hPoNaEb7@localhost:15672/api/flower
+D:\Projects\PycharmProjects\lobster\venv\Scripts\activate.bat && celery -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n golf@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\activate.bat && celery -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n w_parsing@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\activate.bat && celery -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n w_routines@tentacle
+
+
+Win service paths:
+D:\Projects\PycharmProjects\lobster\z_DEV\services\celery_services\windows\proj_H\bat_start\alpha.bat
+D:\Projects\PycharmProjects\lobster\z_DEV\services\celery_services\windows\proj_H\bat_start\charlie.bat
+D:\Projects\PycharmProjects\lobster\z_DEV\services\celery_services\windows\proj_H\bat_start\flower.bat
+D:\Projects\PycharmProjects\lobster\z_DEV\services\celery_services\windows\proj_H\bat_start\golf.bat
+D:\Projects\PycharmProjects\lobster\z_DEV\services\celery_services\windows\proj_H\bat_start\w_parsing.bat
+D:\Projects\PycharmProjects\lobster\z_DEV\services\celery_services\windows\proj_H\bat_start\w_routines.bat
+
+Working Dir:
+D:\Projects\PycharmProjects\lobster
+
+Logs:
+D:\Projects\PycharmProjects\lobster\z_DEV\services\celery_services\windows\logs\w_routines_out.log
+D:\Projects\PycharmProjects\lobster\z_DEV\services\celery_services\windows\logs\w_routines_err.log
+
+
+============= WAY to restart app
+May not work
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n alpha@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n charlie@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n delta@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n w_parsing@tentacle
+D:\Projects\PycharmProjects\lobster\venv\Scripts\celery.exe -A octo.octo_celery:app worker --pool=eventlet --loglevel=INFO --concurrency=1 -E -n w_routines@tentacle

@@ -1,1 +1,1 @@
-D:\Programs\nssm-2.24\win64\nssm.exe restart CELERY_routines && D:\Programs\nssm-2.24\win64\nssm.exe restart CELERY_alpha && D:\Programs\nssm-2.24\win64\nssm.exe restart CELERY_charlie && D:\Programs\nssm-2.24\win64\nssm.exe restart CELERY_golf && D:\Programs\nssm-2.24\win64\nssm.exe restart CELERY_parsing && D:\Programs\nssm-2.24\win64\nssm.exe restart CELERY_Flower
+nssm.exe restart CELERY_routines && nssm.exe restart CELERY_alpha && nssm.exe restart CELERY_charlie && nssm.exe restart CELERY_golf && nssm.exe restart CELERY_parsing && nssm.exe restart CELERY_Flower

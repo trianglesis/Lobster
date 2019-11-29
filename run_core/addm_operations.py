@@ -183,8 +183,6 @@ class ADDMStaticOperations:
     def run_operation_cmd(self, **kwargs):
         """
         Run one of more operation cmd
-        :param addm_set:
-        :param command_k: list or str
         :return:
         """
         from octo.helpers.tasks_run import Runner
