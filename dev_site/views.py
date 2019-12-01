@@ -13,16 +13,10 @@ from django.contrib.auth.decorators import permission_required
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_helpers import TMail
 
-from octo_adm.tasks import ADDMCases
-from octo_adm.tasks import TaskADDMService
-
-from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
-
 from octo_adm.user_operations import UserCheck
 from run_core.p4_operations import PerforceOperations as P4_Oper
 
 from run_core.models import Options
-from dev_site.tasks import DevRunner
 # Python logger
 import logging
 
