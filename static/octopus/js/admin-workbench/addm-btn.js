@@ -1,6 +1,6 @@
 $(document).ready(function () {
-    $('#addmButtonsModal').on('hidden.bs.modal', function (event) {
-        $('#addmButtonsModal').modal('hide');
+    $('#addmUIButtonsModal').on('hidden.bs.modal', function (event) {
+        $('#addmUIButtonsModal').modal('hide');
     });
 });
 $(document).ready(function () {
@@ -23,16 +23,25 @@ $(document).ready(function () {
  * Show modal of each addm operations, call from ADDM table.
  */
 $(document).ready(function () {
-    $('#addmButtonsModal').on('show.bs.modal', function (event) {
-        // let modal = document.getElementById("addmButtonsModal");
-        let addmDetailsStr = document.getElementById("addm_details_str");
+    $('#addmUIButtonsModal').on('show.bs.modal', function (event) {
+        // let modal = document.getElementById("addmUIButtonsModal");
+        // TODO: Change later to working example or not
+        // let addmDetailsStr = document.getElementById("addm_details_str");
+        // if (addmDetailsStr.firstElementChild) {
+        //   addmDetailsStr.removeChild(addmDetailsStr.firstElementChild);
+        // }
+
         let addmButtons = document.getElementsByClassName('addm-btn');
         let tableRow = getTableRowFromEvent(event);
         let addmHostRe = /(http:\/\/)(\S+)(\.bmc\.com)/;
-        addmDetailsStr.innerText = `${tableRow.cells['addm_group'].textContent} | \
-        ${tableRow.cells['branch_lock'].textContent} | ${tableRow.cells['addm_name'].textContent} | \ 
-        ${tableRow.cells['addm_v_int'].textContent} | ${tableRow.cells['addm_host'].textContent} | \
-        ${tableRow.cells['addm_ip'].textContent}`;
+
+        // let addm_p = document.createElement('p');  // toast-body
+        // addm_p.innerText = `${tableRow.cells['addm_group'].textContent} | \
+        // ${tableRow.cells['branch_lock'].textContent} | ${tableRow.cells['addm_name'].textContent} | \
+        // ${tableRow.cells['addm_v_int'].textContent} | ${tableRow.cells['addm_host'].textContent} | \
+        // ${tableRow.cells['addm_ip'].textContent}`;
+        // addmDetailsStr.appendChild(addm_p);
+
         for (let btn of addmButtons) {
             let old_href = btn.href;
             btn.href = old_href.replace(addmHostRe, `$1${tableRow.cells['addm_host'].textContent}$3`);
