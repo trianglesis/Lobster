@@ -9,21 +9,11 @@ from octo_tku_patterns.views import *
 
 
 urlpatterns = [
-
-    # Patterns services
-    url(r'^sync_patterns/', PatternsService.sync_patterns,
-        name='sync_patterns'),
-    url(r'^parse_patterns_user/', PatternsService.parse_patterns_user,
-        name='parse_patterns_user'),
-    url(r'^patterns_weight_compute/', PatternsService.patterns_weight_compute,
-        name='patterns_weight_compute'),
-
     # TESTS RUN:
     # New, also support old:
     url(r'^test_execute_web/', TestCaseRunTestREST.as_view(), name='test_execute_web'),
     url(r'^user_test_add/', TestCaseRunTestREST.as_view(), name='user_test_add'),
 
-    url(r'^manual_exec_night_run_task/', TestRuns.manual_exec_night_run_task, name='manual_run_night'),
 
     # Reports
     url(r'^patterns_top_long/', Reports.patterns_top_long, name='patterns_top_long'),
