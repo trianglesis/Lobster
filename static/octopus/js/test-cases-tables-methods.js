@@ -194,54 +194,6 @@ function fillModalBody(modal, caseData) {
 }
 
 /**
- * Fill empty modal body with list of cases to run, and ids
- * @param modal
- * @param casesData
- */
-function fillModalBodyMultipleCases(modal, casesData) {
-    let modal_variables = modal.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
-    // console.log('Modal modal-variables has children - remove them!');
-    while (modal_variables.firstChild) {
-        modal_variables.firstChild.remove();
-    }
-    // Create modal body details of case:
-
-    for (const [keyArr, valueArr] of Object.entries(casesData)) {
-        // For simple IDs array make one div:
-        if (keyArr === 'cases_ids') {
-            let div = document.createElement('div');
-            div.setAttribute('id', keyArr);
-            div.innerText = `Selected cases id list: ${valueArr}`;
-            modal_variables.appendChild(div);
-
-        // For selected cases details array create more divs
-        } else if (keyArr === 'casesSelectedArr') {
-
-            let div = document.createElement('div'); // div for all cases details below:
-            div.setAttribute('id', keyArr);  // div id = casesSelectedArr
-            modal_variables.appendChild(div);
-
-            for (let caseDetails of casesData[keyArr]) {
-                let caseDiv = document.createElement('div');
-                // Create test py path only if no tkn_branch - that means this case is not a pattern-related.
-                //TODO: Later calculate etimated time weight for all tests, by their time_weight value
-                if (caseDetails.tkn_branch) {
-                    caseDiv.innerText = `${caseDetails.tkn_branch}/${caseDetails.pattern_library}/${caseDetails.pattern_folder_name}\
-                     t: ${caseDetails.test_time_weight}`;
-                    caseDiv.setAttribute('class', 'pattern-case-details');
-                    div.appendChild(caseDiv);
-                } else {
-                    caseDiv.innerText = `${caseDetails.test_py_path}`;
-                    caseDiv.setAttribute('class', 'test-case-details');
-                    div.appendChild(caseDiv);
-                }
-
-            }
-        }
-    }
-}
-
-/**
  * Try to see if we have an addm_name in context, which could be passed here from button data.
  * This is required when user wants to sort out only addm related tests.
  * From test last table call modal with options:
@@ -516,7 +468,8 @@ function collectCasesFromRows(tableRows) {
  * @param casesData
  */
 function fillModalBodyWithMultipleCases(modal, casesData) {
-    let modal_variables = modal.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
+    // let modal_variables = modal.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
+    let modal_variables = modal.getElementById('modal-variables');
     // console.log('Modal modal-variables has children - remove them!');
     while (modal_variables.firstChild) {
         modal_variables.firstChild.remove();

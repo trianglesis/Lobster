@@ -222,7 +222,7 @@ MODAL styles:
     font-size: 1em;
     font-family: 'Maven Pro', sans-serif;
     text-align: right;
-    color: #1f5592cc;
+    /*color: #1f5592cc;*/
 }
 
 #tknBranchPattLib {
@@ -252,7 +252,7 @@ MODAL styles:
     background-repeat: no-repeat;
     background-size: 1.2em;
     padding-left: 1.2rem;
-    color: #1f5592cc;
+    /*color: #1f5592cc;*/
     overflow-wrap: break-word;
     background-image: url(/static/fontawesome/svgs/solid/vial.svg);
 
@@ -263,13 +263,13 @@ MODAL styles:
     font-family: 'Maven Pro', sans-serif;
     font-style: italic;
     text-align: right;
-    color: #a90494;
+    /*color: #a90494;*/
 }
 
 #test_mode {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    color: #006d09;
+    /*color: #006d09;*/
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.2rem;
@@ -278,7 +278,7 @@ MODAL styles:
 #task_id {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    color: brown;
+    /*color: brown;*/
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.2rem;
