@@ -8,8 +8,6 @@ from octo_tku_upload.views import *
 
 urlpatterns = [
     # Classical views requests, keep them here for some time.
-    url(r'^tku_sync/', UploadTKU.tku_sync, name='tku_sync'),
-    url(r'^run_tku_parse/', UploadTKU.run_tku_parse, name='run_tku_parse'),
     url(r'^tku_packages/', UploadTKU.tku_packages, name='tku_packages'),
 
     #  New

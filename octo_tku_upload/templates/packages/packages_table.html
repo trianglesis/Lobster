@@ -40,9 +40,8 @@
                     <a title="Select by ADDM version"
                        href="{% url 'tku_packages_index' %}?addm_version={{ package.addm_version }}">{{ package.addm_version }} / {{ package.tku_addm_version }}</a>
                 </td>
-                <td id="package_type" class="txt-left">
-                    <a title="Show upload test for this package if available"
-                       href="{% url 'upload_test_index' %}?package_type={{ package.package_type }}">{{ package.package_type }}</a>
+                <td id="package_type" class="txt-left {% popover 'hover' 'top' None "Show upload test for this package if available" %}">
+                    <a href="{% url 'upload_test_index' %}?package_type={{ package.package_type }}">{{ package.package_type }}</a>
                 </td>
                 <td id="zip_type">{{ package.zip_type }}</td>
                 <td id="tku_build">{{ package.tku_build }}.{{ package.tku_month }}.{{ package.tku_date }}</td>
@@ -51,15 +50,15 @@
                        href="{% url 'tku_packages_index' %}?tku_name={{ package.tku_name }}">{{ package.tku_name }}{% if package.tku_pack %}|{{ package.tku_pack }}{% endif %}</a>
                 </td>
                 <td id="zip_file_name" class="txt-left txt-sm">{{ package.zip_file_name }}</td>
-                <td id="updated_at" class="txt-left txt-sm">{{ package.updated_at|timezone:"Europe/London"|naturaltime }}</td>
+                <td id="updated_at" class="txt-left txt-sm {% popover 'hover' 'top' None package.updated_at|timezone:"Europe/London" %}">{{ package.updated_at|timezone:"Europe/London"|naturaltime }}</td>
                 <td id="release">{{ package.updated_at|date:"F" }}</td>
-                {#                <td id="zip_file_path">{{ package.zip_file_path }}</td>#}
-                {#                <td id="tku_addm_version">{{ package.tku_addm_version }}</td>#}
-                {#                <td id="tku_date">{{ package.tku_date }}</td>#}
-                {#                <td id="tku_month">{{ package.tku_month }}</td>#}
-                {#                <td id="tku_pack">{{ package.tku_pack }}</td>#}
-                {#                <td id="zip_file_md5_digest">{{ package.zip_file_md5_digest }}</td>#}
-                {#                <td id="created_at">{{ package.created_at }}</td>#}
+                <td id="zip_file_path" style="display: none">{{ package.zip_file_path }}</td>
+                <td id="tku_addm_version" style="display: none">{{ package.tku_addm_version }}</td>
+                <td id="tku_date" style="display: none">{{ package.tku_date }}</td>
+                <td id="tku_month" style="display: none">{{ package.tku_month }}</td>
+                <td id="tku_pack" style="display: none">{{ package.tku_pack }}</td>
+                <td id="zip_file_md5_digest" style="display: none">{{ package.zip_file_md5_digest }}</td>
+                <td id="created_at" style="display: none">{{ package.created_at }}</td>
                 <td {% tooltip_tku_package 'popover' 'right' package %} ><i class="far fa-eye"></i></td>
                 <td id="actions">
                     <a class="btn btn-sm btn-outline-info">Actions</a>

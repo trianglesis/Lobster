@@ -66,61 +66,6 @@ class UploadTKU:
         )
         return HttpResponse(patterns_summary.render(patterns_contxt, request))
 
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def tku_sync(request):
-        """
-        Execute upload TKU routine - wget and parse.
-        :param request:
-        :return:
-        """
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=UploadTKU=> tku_sync(): %s", user_str)
-        fake_run = request.GET.get('fake_run', False)
-
-        simple_output = loader.get_template('dev_debug_workbench/dev_helpers/simple_output.html')
-
-        tku_type = request.GET.get('tku_type', None)
-        subject = 'Execute WGET TKU routine only, no uploads'
-        task_id = Runner.fire_t(TUploadExec.t_tku_sync, fake_run=fake_run,
-                                t_kwargs=dict(tku_type=tku_type),
-                                t_args=['tag=t_tku_sync;'])
-        widgets = dict(
-            SUBJECT=subject,
-            KV_OUTPUT=dict(
-                subject=subject,
-                user_name=user_name,
-                user_str=user_str,
-                task_id=task_id)
-        )
-        return HttpResponse(simple_output.render(widgets, request))
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def run_tku_parse(request):
-        """
-        Use to run only local TKU packages parse procedure.
-        :param request:
-        :return:
-        """
-        user_name, user_str = UserCheck().user_string_f(request)
-        log.debug("<=UploadTKU=> run_tku_parse(): %s", user_str)
-        fake_run = request.GET.get('fake_run', False)
-
-        page_widgets = loader.get_template('dev_debug_workbench/dev_main.html')
-
-        tku_type = request.GET.get('tku_type', None)
-
-        subject = '{} Run run_tku_parse -> run_tku_parse'.format(user_name)
-        options = dict(user_name=user_name, subject=subject, tku_type=tku_type)
-        t_tag = 'run_tku_parse'
-        Runner.fire_t(TUploadExec.t_parse_tku, fake_run=fake_run,
-                      t_args=[t_tag],
-                      t_kwargs=options)
-        return HttpResponse(page_widgets.render(dict(SUBJECT=subject), request))
-
 
 def compose_selector(request_data):
     selector = dict()

@@ -36,8 +36,42 @@
         <!-- Navbar right part content -->
         <div class="nav-reports-right digest-test-log-levels"><!-- No Log levels sort for ADDM Digest: --></div>
     </nav>
+
     <div class="upload-packages-content">
-        {% include 'packages/packages_table.html' with tku_packages=tku_packages %}
+{#        {% include 'packages/packages_table.html' with tku_packages=tku_packages %}#}
+        {% regroup tku_packages|dictsortreversed:'tku_type' by tku_type as tku_types_packages %}
+        <div class="tab-pane fade show active" id="tku-packages-grouped" role="tabpanel" aria-labelledby="tku-packages-grouped">
+            <!-- TKU PACKAGE Tabs based on grouper name -->
+            <nav>
+                <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+                    {% for tku_package_group in tku_types_packages %}
+                        <!-- Draw each tab based on count of unique addm_names  -->
+                        <a class="nav-item nav-link badge-light {% if forloop.counter == 1 %}active{% else %}{% endif %}"
+                           title="TKU type: {{ tku_package_group.grouper }}"
+                           id="{{ tku_package_group.grouper }}-tab" data-toggle="tab"
+                           href="#{{ tku_package_group.grouper }}" role="tab"
+                           aria-controls="{{ tku_package_group.grouper }}"
+                           aria-selected="{% if selector.addm_name == tku_package_group.grouper %}true{% elif forloop.counter == 1 %}true{% else %}false{% endif %}">{{ tku_package_group.grouper }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </nav>
+            <!-- TKU PACKAGE Tabs CONTENT based on grouper name -->
+            <div class="tab-content" id="nav-tabContent">
+                {% for tku_package_group in tku_types_packages %}
+                    <div class="tab-pane {% if forloop.counter == 1 %}fade show active{% else %}{% endif %}"
+                         title="TKU type: {{ tku_package_group.grouper }}"
+                         id="{{ tku_package_group.grouper }}"
+                         role="tabpanel"
+                         aria-labelledby="{{ tku_package_group.grouper }}">
+                        <div class="report-content">
+                        {% include 'packages/packages_table.html' with tku_packages=tku_package_group.list %}
+    {#                    {% include 'digests/tables_details/tests_last_table.html' with var_addm_name=tku_package_group.grouper tests_digest=tku_package_group.list %}#}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
     <!-- Navbar bottom fixed -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">

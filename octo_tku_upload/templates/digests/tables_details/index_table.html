@@ -70,7 +70,7 @@
                 <td id="test_date_time"
                     class="txt-shrink">{{ test.test_date_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
                 <td {% tooltip_tku_upload 'popover' 'right' test %} ><i class="far fa-eye"></i></td>
-                <td id="actions"><a>Go</a></td>
+                <td id="actions"><a href="{% url 'admin:index' %}octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a></td>
                 <td id="upload_test_status" style="display: none">{{ test.upload_test_status }}</td>
                 <td id="time_spent_test" style="display: none">{{ test.time_spent_test }}</td>
 {#                <td id="upload_errors" style="display: none">{{ test.upload_errors }}</td>#}
