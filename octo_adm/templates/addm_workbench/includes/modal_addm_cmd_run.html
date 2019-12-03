@@ -19,7 +19,7 @@
                     <form>
                         <div class="form-group">
                             <label for="addmCMDSelect">Example multiple select</label>
-                            <select multiple class="form-control" id="addmCMDSelect" size="20" onchange="changeFunc();">
+                            <select multiple class="form-control" id="addmCMDSelect" size="20">
                                 {% for command in addm_commands %}
                                     <option value="{{ command.command_key }}">{{ command.command_key }}</option>
                                 {% endfor %}
@@ -33,7 +33,7 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Run selected</button>
+                        <button id="runAddmCMD" type="submit" class="btn btn-primary">Run selected</button>
                     </form>
                 </div>
             </div>
