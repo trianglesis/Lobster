@@ -1,3 +1,5 @@
+{% load template_simplify %}
+{% all_addm_groups as all_addm_groups %}
 <div class="modal fade bd-example-modal" id="addmServiceButtonsModal" tabindex="-1" role="dialog"
      aria-labelledby="myLargeModalLabel"
      aria-hidden="true">
@@ -35,6 +37,17 @@
                                         {% for command in addm_commands %}
                                             {#                            <option selected>Open this select menu</option>#}
                                             <option value="{{ command.command_key }}">{{ command.command_key }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                            </div>
+                            {# TODO: Mark current slected group by default? Or just not use this selector, because here we want to run single ADDM for command?#}
+                            <div>
+                                <label>
+                                    <select class="custom-select" size="20" multiple>
+                                        {% for addm_group in all_addm_groups %}
+                                            {#                            <option selected>Open this select menu</option>#}
+                                            <option value="{{ addm_group }}">{{ addm_group }}</option>
                                         {% endfor %}
                                     </select>
                                 </label>

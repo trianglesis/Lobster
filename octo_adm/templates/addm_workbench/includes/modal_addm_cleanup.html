@@ -1,4 +1,7 @@
-<div class="modal fade bd-example-modal" id="addmCleanupButtons" tabindex="-1" role="dialog" aria-labelledby="addmCleanupButtons"
+{% load template_simplify %}
+{% all_addm_groups as all_addm_groups %}
+<div class="modal fade bd-example-modal" id="addmCleanupButtons" tabindex="-1" role="dialog"
+     aria-labelledby="addmCleanupButtons"
      aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -11,49 +14,14 @@
             <div class="modal-body">
                 <div id="modal-details"></div>
                 <span id="addm_details_str"></span>
-                <div class="card-text">Daily</div>
+                <div class="card-text">ADDM Full cleanup</div>
                 <div class="btn-group addm-clean addm-clean-daily">
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="daily" data-addm_group="alpha">alpha</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="daily" data-addm_group="beta">beta</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="daily" data-addm_group="charlie">charlie</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="daily" data-addm_group="delta">delta</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="daily" data-addm_group="echo">echo</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="daily" data-addm_group="foxtrot">foxtrot</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="daily" data-addm_group="golf">golf</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="daily" data-addm_group="all">all</a>
-                </div>
-                <div class="card-text">Weekly</div>
-                <div class="btn-group addm-clean addm-clean-weekly">
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="weekly" data-addm_group="alpha">alpha</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="weekly" data-addm_group="beta">beta</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="weekly" data-addm_group="charlie">charlie</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="weekly" data-addm_group="delta">delta</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="weekly" data-addm_group="echo">echo</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="weekly" data-addm_group="foxtrot">foxtrot</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="weekly" data-addm_group="golf">golf</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="weekly" data-addm_group="all">all</a>
-                </div>
-                <div class="card-text">tests</div>
-                <div class="btn-group addm-clean addm-clean-tests">
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="tests" data-addm_group="alpha">alpha</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="tests" data-addm_group="beta">beta</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="tests" data-addm_group="charlie">charlie</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="tests" data-addm_group="delta">delta</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="tests" data-addm_group="echo">echo</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="tests" data-addm_group="foxtrot">foxtrot</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="tests" data-addm_group="golf">golf</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="tests" data-addm_group="all">all</a>
-                </div>
-                <div class="card-text">Etc</div>
-                <div class="btn-group addm-clean addm-clean-etc">
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="etc" data-addm_group="alpha">alpha</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="etc" data-addm_group="beta">beta</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="etc" data-addm_group="charlie">charlie</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="etc" data-addm_group="delta">delta</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="etc" data-addm_group="echo">echo</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="etc" data-addm_group="foxtrot">foxtrot</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="etc" data-addm_group="golf">golf</a>
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-mode="etc" data-addm_group="all">all</a>
+                    {% for addm_group in all_addm_groups %}
+                        <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-operation="addm_cleanup"
+                           data-addm_group="{{ addm_group }}">{{ addm_group }}</a>
+                    {% endfor %}
+                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-operation="addm_cleanup"
+                       data-addm_group="{{ all_addm_groups|join:"," }}">all</a>
                 </div>
             </div>
             <div class="modal-footer">

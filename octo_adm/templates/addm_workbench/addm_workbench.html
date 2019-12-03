@@ -234,8 +234,11 @@
     {% include 'addm_workbench/includes/modal_addm_table_stale.html' with addm_set=objects|dictsort:'addm_group' %}
     {% include 'addm_workbench/includes/modal_addm_ui_buttons.html' %}
     {% include 'addm_workbench/includes/modal_addm_operations_buttons.html' with addm_commands=addm_commands %}
+    {% comment %}addmCleanupButtons{% endcomment %}
     {% include 'addm_workbench/includes/modal_addm_cleanup.html' %}
+    {% comment %}addmCMDRun{% endcomment %}
     {% include 'addm_workbench/includes/modal_addm_cmd_run.html' %}
+    {% comment %}addmSYNCButtons{% endcomment %}
     {% include 'addm_workbench/includes/modal_addm_sync.html' %}
     {% include 'addm_workbench/includes/modal_MobaXterm.html' %}
     {# JS #}

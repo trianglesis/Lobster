@@ -6,35 +6,15 @@ import logging
 import time
 import datetime
 from django import template
-from django.urls import reverse
 from django.template import loader, Template, Context
 
 from octo.config_cred import cred
 
-from octo_tku_patterns.models import TestLast, TestHistory, TestCases, TestCasesDetails
+from octo_tku_patterns.models import TestCases
+from run_core.models import AddmDev
 
 register = template.Library()
 log = logging.getLogger("octo.octologger")
-
-
-@register.filter(name='escape_extra')
-def escape_extra(value):
-    replacing = [".", ",", "!", ":", ";", "#", "@"]
-    for to_replace in replacing:
-        if to_replace in value:
-            return value.replace(to_replace, "_")
-        else:
-            return value
-
-
-@register.filter(name='replace_dot')
-def replace_dot(value):
-    return value.replace(".", "_")
-
-
-@register.filter(name='replace_exclamation')
-def replace_exclamation(value):
-    return value.replace("!", "_")
 
 
 @register.filter(name='remove_dash')
@@ -46,17 +26,6 @@ def remove_dash(value):
 def f_sec(s):
     try:
         return time.strftime('%H:%M:%S', time.gmtime(round(float(s))))
-    except ValueError:
-        return s
-    # When None
-    except TypeError:
-        return 0
-
-
-@register.filter()
-def f_sec_time(s):
-    try:
-        return str(datetime.timedelta(seconds=int(s)))
     except ValueError:
         return s
     # When None
@@ -323,63 +292,6 @@ def log_levels(context):
 
 
 @register.simple_tag(takes_context=True)
-def log_level_buttons_small(context, url_str, floating=True):
-    """Draw template for log level selections"""
-    log_lvl        = loader.get_template('small_blocks/template_tags/log_lvl_buttons.html')
-    resolved_url   = reverse(url_str)
-    log.info("floating: %s", floating)
-    sel_contxt = dict(
-        TABLE            = context.get('TABLE', False),
-        BRANCH           = context.get('BRANCH', False),
-        ADDM_NAME        = context.get('ADDM_NAME', False),
-        PATTERN_LIBRARY  = context.get('PATTERN_LIBRARY', False),
-        PATTERN_FOLDER   = context.get('PATTERN_FOLDER', False),
-        PATTERN_FILENAME = context.get('PATTERN_FILENAME', False),
-        PASS_ONLY        = context.get('PASS_ONLY', False),
-        FAIL_ONLY        = context.get('FAIL_ONLY', False),
-        SKIP_ONLY        = context.get('SKIP_ONLY', False),
-        ERROR_ONLY       = context.get('ERROR_ONLY', False),
-        NOT_PASS_ONLY    = context.get('NOT_PASS_ONLY', False),
-        DAYS_AGO         = context.get('DAYS_AGO', False),
-        START_DATE       = context.get('START_DATE', False),
-        END_DATE         = context.get('END_DATE', False),
-        URL_STR          = resolved_url,
-        FLOATING         = floating)
-
-    # log.debug("<=TAG=> log_level_buttons_small sel_contxt - %s", sel_contxt)
-    return log_lvl.render(sel_contxt)
-
-
-@register.simple_tag(takes_context=True)
-def addm_tabs(context, url_str):
-    """Draw template for log level selections"""
-    addm_navs    = loader.get_template('small_blocks/template_tags/addm_navs.html')
-    resolved_url = reverse(url_str)
-    # TODO: Select all ADDMS from table, group by short version and loop tabs for each.
-
-    sel_contxt = dict(
-        TABLE            = context.get('TABLE', False),
-        BRANCH           = context.get('BRANCH', False),
-        ADDM_NAME        = context.get('ADDM_NAME', False),
-        SELECT_COL       = context.get('SELECT_COL', False),
-        SELECT_VAL       = context.get('SELECT_VAL', False),
-        PATTERN_LIBRARY  = context.get('PATTERN_LIBRARY', False),
-        PATTERN_FOLDER   = context.get('PATTERN_FOLDER', False),
-        PATTERN_FILENAME = context.get('PATTERN_FILENAME', False),
-        PASS_ONLY        = context.get('PASS_ONLY', False),
-        FAIL_ONLY        = context.get('FAIL_ONLY', False),
-        SKIP_ONLY        = context.get('SKIP_ONLY', False),
-        ERROR_ONLY       = context.get('ERROR_ONLY', False),
-        NOT_PASS_ONLY    = context.get('NOT_PASS_ONLY', False),
-        DATE_FROM        = context.get('DATE_FROM', False),
-        DATE_LAST        = context.get('DATE_LAST', False),
-        DAYS_AGO         = context.get('DAYS_AGO', False),
-        ADPROD_USER      = context.get('ADPROD_USER', False),
-        URL_STR          = resolved_url)
-    return addm_navs.render(sel_contxt)
-
-
-@register.simple_tag(takes_context=True)
 def select_pattern_items(context):
     """Draw temp for patten tests, items selections"""
     pattern_sel = loader.get_template('small_blocks/template_tags/select_pattern_items.html')
@@ -549,3 +461,8 @@ def tku_package_used(package, ga_candidate_max, released_tkn_max):
     else:
         color = "light"
     return color
+
+
+@register.simple_tag()
+def all_addm_groups():
+    return AddmDev.objects.all().values_list('addm_group', flat=True).order_by('addm_group').distinct()
