@@ -9,31 +9,9 @@ from django.template import loader
 
 from run_core.models import ADDMCommands
 from octo.helpers.tasks_oper import TasksOperations
-from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
 
 register = template.Library()
 log = logging.getLogger("octo.octologger")
-
-
-@register.simple_tag()
-def patterns_top_small(branch):
-    """
-    Get the list of TOP long running tests and show first 6 items in small table on main page
-    Each branch in it's block.
-    This will render table as HTML item which built in place where TAG was called.
-
-    :param branch:
-    :return:
-    """
-    top_long_t = loader.get_template('small_blocks/intro_selections/small_long_tests_table.html')
-    # TODO: Change to django's
-    top_long = PatternsDjangoModelRaw().select_latest_long_tests(branch)[:6]
-
-    if top_long:
-        user_patterns_summary_t = top_long_t.render(dict(TEST_TOP=top_long))
-        return user_patterns_summary_t
-    else:
-        return ''
 
 
 @register.simple_tag

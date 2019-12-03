@@ -106,6 +106,9 @@ th     { background:#eee; }
     display: flex;
     justify-content: flex-end !important;
 }
+.reexecute-failed-tests {
+    padding-right: 2em;
+}
 
 .dropdown-menu-right {
     right: 0;

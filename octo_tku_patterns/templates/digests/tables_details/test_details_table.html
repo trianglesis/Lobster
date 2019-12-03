@@ -34,7 +34,7 @@
                             </td>
                             <td id="fail_message" class="txt-monospace txt-left-prewrap fail_message {% popover 'hover' 'top' 'Future (TBV)' 'Failed test tip, show suggestion about how to fix some kind of issues. (TBV Vote for this)' %}">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
                             <td id="test_date_time" class="txt-center-prewrap {% popover 'hover' 'top' None test.test_date_time|timezone:"Europe/London" %}">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
-                            <td id="addm_name" class="txt-center-prewrap">{{ test.addm_name }}</td>
+                            <td id="addm_name" class="txt-center-prewrap {% popover 'hover' 'top' None 'Browse related ADDM to see scan details.' %}"><a href="http://{{ test.addm_host }}.bmc.com/ui/DiscoveryHome">{{ test.addm_name }}</a></td>
                             <td class="actions_button">
                                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                         data-target="#actionsModal"

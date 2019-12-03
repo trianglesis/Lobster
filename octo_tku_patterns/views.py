@@ -79,6 +79,7 @@ class Reports:
         branch = request.GET.get('branch', 'tkn_main')
         count = request.GET.get('count', 20)
 
+        # TODO: Change to django format:
         tests_top_sort = PatternsDjangoModelRaw().select_latest_long_tests(branch)
 
         try:

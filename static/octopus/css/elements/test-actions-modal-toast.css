@@ -3,22 +3,22 @@ MODAL styles:
  */
 
 .case-unit-modal-buttons {
-    margin-top: .5em;
-    font-size: 1.5em;
+    margin-top: .2em;
+    font-size: .875em;
     text-align: center;
     font-family: 'Assistant', sans-serif;
 }
 
 .case-info-modal-buttons {
-    margin-top: .5em;
-    font-size: 1.5em;
+    margin-top: .2em;
+    font-size: .875em;
     text-align: center;
     font-family: 'Assistant', sans-serif;
 }
 
 .test-actions-modal-name {
-    margin-top: .5em;
-    font-size: 1.5em;
+    margin-top: .2em;
+    font-size: .875em;
     text-align: center;
     font-family: 'Assistant', sans-serif;
 }

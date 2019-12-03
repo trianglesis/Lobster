@@ -28,10 +28,9 @@
                             <a href="#"
                                id="see-logs"
                                class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test log" 'Show all not passed tests for current test case. Select only latest records from daily run.' %}">See test.py logs output</a>
-                            <div class="case-info-modal-buttons"><i class="fas fa-info-circle"></i> Case info</div>
                             <a href="#"
                                id="all-info"
-                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}">Test case info detailed</a>
+                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}"><i class="fas fa-info-circle"></i> Test case info detailed</a>
                         </div>
                     {% comment %}
                     TEST DETAILS DIGEST
@@ -43,19 +42,17 @@
                     {% elif "test_details" in request.path %}
                         <!-- Test details page and buttons -->
                         <div class="list-group text-center tests_last" style="padding: 5px 5% 5px 5%">
-                            <div class="case-info-modal-buttons"><i class="fas fa-info-circle"></i> Case info</div>
                             <a href="#"
                                id="all-info"
-                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}">Test case info detailed</a>
+                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}"><i class="fas fa-info-circle"></i> Test case info detailed</a>
                         </div>
-                        <div class="test-actions-modal-name"><i class="fas fa-history"></i> Unit Test method</div>
                         <div class="list-group text-center" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="see-logs-history"
-                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test method log" 'Show logs for single unit test method.' %}">Unit history</a>
+                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test method log" 'Show logs for single unit test method.' %}"><i class="fas fa-history"></i> Unit history</a>
                         </div>
                         <!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Case test unit actions:</div>
+                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
                         <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
@@ -84,7 +81,7 @@
                             <a class="btn btn-sm btn-outline-info disabled">History of unit (dead end)</a>
                         </div>
                         <!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Case test unit actions:</div>
+                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
                         <div class="list-group text-center test_item_history" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
@@ -114,7 +111,7 @@
                             <a class="btn btn-sm btn-outline-info disabled">History Browse (dead end)</a>
                         </div>
                         <!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Case test unit actions:</div>
+                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
                         <div class="list-group text-center test_item_history" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
@@ -141,10 +138,9 @@
                             <a href="#"
                                id="see-logs"
                                class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test log" 'Show all not passed tests for current test case. Select only latest records from daily run.' %}">See test.py logs output</a>
-                            <div class="case-info-modal-buttons"><i class="fas fa-info-circle"></i> Case info</div>
                             <a href="#"
                                id="all-info"
-                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}">Test case info detailed</a>
+                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}"><i class="fas fa-info-circle"></i> Test case info detailed</a>
                             <a href="#" target="_blank"
                                id="see-logs-history"
                                class="btn btn-sm btn-outline-info"
@@ -170,11 +166,10 @@
                                title="Show all history records for current test. Open in new window.">Test case history logs (long)</a>
                         </div>
                         <!-- Case full info buttons: -->
-                        <div class="case-info-modal-buttons"><i class="fas fa-info-circle"></i> Case info</div>
                         <div class="list-group text-center tests_last" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="all-info"
-                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}">Test case info detailed</a>
+                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}"><i class="fas fa-info-circle"></i> Test case info detailed</a>
                             <a href="#"
                                id="edit-case"
                                class="btn btn-sm btn-outline-warning">Test case edit</a>
@@ -198,11 +193,10 @@
                                class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "History test logs" 'Show all logs for this test case from the history. Very loooooooooong query!' %}">Test case history logs (long)</a>
                         </div>
                         <!-- Case full info buttons: -->
-                        <div class="case-info-modal-buttons"><i class="fas fa-info-circle"></i> Case info</div>
                         <div class="btn-group btn-group-sm w-100 tests_last" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="all-info"
-                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}">Test case info detailed</a>
+                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}"><i class="fas fa-info-circle"></i> Test case info detailed</a>
                             <a href="#"
                                id="edit-case"
                                class="btn btn-sm btn-outline-warning">Test case edit</a>
@@ -219,19 +213,17 @@
                     {% elif "found" in request.path %}
                         <!-- Test details page and buttons -->
                         <div class="list-group text-center tests_last" style="padding: 5px 5% 5px 5%">
-                            <div class="case-info-modal-buttons"><i class="fas fa-info-circle"></i> Case info</div>
                             <a href="#"
                                id="all-info"
-                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}">Test case info detailed</a>
+                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Test case info" 'Show test case detailed information.' %}"><i class="fas fa-info-circle"></i> Test case info detailed</a>
                         </div>
-                        <div class="test-actions-modal-name"><i class="fas fa-history"></i> Unit Test method</div>
                         <div class="list-group text-center" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="see-logs-history"
-                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test method log" 'Show logs for single unit test method.' %}">Unit history</a>
+                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test method log" 'Show logs for single unit test method.' %}"><i class="fas fa-history"></i> Unit history</a>
                         </div>
                         <!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Case test unit actions:</div>
+                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
                         <div class="list-group text-center test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
@@ -254,7 +246,7 @@
                         Common buttons to run test.py with different modes
                     {% endcomment %}
                     <!-- Actions: test run with options: -->
-                    <div class="case-info-modal-buttons"><i class="far fa-file-code"></i> Test Case actions:</div>
+                    <div class="case-info-modal-buttons"><i class="far fa-file-code"></i> Unit test:</div>
                     <div class="btn-group btn-group-sm w-100" style="padding: 5px 5% 5px 5%">
                         <a href="#" id="wipe-run"
                            data-wipe="1"
@@ -360,7 +352,7 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="selector-options text-center">
+            {% comment %}<div class="selector-options text-center">
                 <div class="blockquote-footer">
                     <div class="addm-selector txt-sm-it">
                         {% if selector.addm_name %}
@@ -377,7 +369,7 @@
                         {% endif %}
                     </div>
                 </div>
-            </div>
+            </div>{% endcomment %}
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" id="modal-hide">Close</button>
             </div>
