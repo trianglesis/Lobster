@@ -274,7 +274,7 @@ class ADDMStaticOperations:
             if isinstance(addm_branch, str):
                 addm_branch = addm_branch.split(',')
             log.debug("<=ADDMStaticOperations=> ADDM selected by: %s", addm_branch)
-            all_addms = all_addms.filter(addm_branch__in=addm_branch)
+            all_addms = all_addms.filter(branch_lock__in=addm_branch)
         log.info("<=ADDMStaticOperations=> ADDM selected count: %s", all_addms.count())
         # log.debug("<=ADDMStaticOperations=> ADDM selected: %s", all_addms)
         # log.debug("<=ADDMStaticOperations=> ADDM selected query: %s", all_addms.query)

@@ -24,6 +24,116 @@ $(document).ready(function () {
     });
 });
 
+/**
+ * GENERAL FUNCTIONS:
+ */
+
+/**
+ * Collect all selected commands from select multiple form by ID of this form
+ * @param elementId
+ * @returns {[]}
+ */
+function addmCMDkeysSelected(elementId) {
+    let selectedCMDs = [];
+    let selectBox = document.getElementById(elementId);
+    let allOptions = selectBox.options;
+    for (let selected of allOptions) {
+        if (selected.selected) {
+            if (selectedCMDs.includes(selected.value)) {
+                console.log('Already selected')
+            } else {
+                selectedCMDs.push(selected.value);
+            }
+        }
+    }
+    console.log(selectedCMDs);
+    return selectedCMDs;
+}
+
+/**
+ * Collect all checked ADDM groups from "ADDM CMD Buttons" modal in checkboxes
+ * @returns {[]}
+ */
+function addmGroupsSelected() {
+    let checkedADDMs = [];
+    let checkBoxes = document.getElementsByClassName("form-check-input");
+
+    for (let checkbox of checkBoxes) {
+        if (checkbox.checked) {
+            if (checkedADDMs.includes(checkbox.value)) {
+                console.log('Already selected');
+                checkbox.checked = false;
+            } else {
+                checkedADDMs.push(checkbox.value);
+                checkbox.checked = false;
+            }
+        }
+    }
+    console.log(checkedADDMs);
+    return checkedADDMs;
+}
+
+/**
+ * Collect all checked ADDM branches from "ADDM CMD Buttons" modal in checkboxes
+ * @returns {[]}
+ */
+function addmBranchSelected() {
+    let checkedADDMs = [];
+    let checkBoxes = document.getElementsByClassName("addm-branch-checkbox");
+
+    for (let checkbox of checkBoxes) {
+        if (checkbox.checked) {
+            if (checkedADDMs.includes(checkbox.value)) {
+                console.log('Already selected');
+                checkbox.checked = false;
+            } else {
+                checkedADDMs.push(checkbox.value);
+                checkbox.checked = false;
+            }
+        }
+    }
+    console.log(checkedADDMs);
+    return checkedADDMs;
+}
+
+/**
+ * Generate command execution for selected ADDMs from modal addmCMDRun
+ * @param event
+ */
+function addmCMDRunGenerate(event) {
+
+    let runAddmCMD = event.currentTarget;
+    let checkedADDMs = '';
+    let checkedBranch = '';
+    let selectedCMDs = '';
+
+    checkedADDMs = addmGroupsSelected();
+    checkedBranch = addmBranchSelected();
+    selectedCMDs = addmCMDkeysSelected('addmCMDSelect');
+    runAddmCMD.dataset.operation_key = 'addm_cmd_run';
+    runAddmCMD.dataset.addm_group = checkedADDMs.join(',');
+    runAddmCMD.dataset.command_key = selectedCMDs.join(',');
+    runAddmCMD.dataset.addm_branch = checkedBranch.join(',');
+
+    let toastBase = getToastDraft(runAddmCMD.dataset);
+    let toastReady = fillToastBodyWithTaskDetails(runAddmCMD.dataset, toastBase);
+    appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+
+    RESTAdminOperationsPOST(runAddmCMD.dataset, toastReady);
+
+    runAddmCMD.dataset.operation_key = '';
+    runAddmCMD.dataset.addm_group = '';
+    runAddmCMD.dataset.command_key = '';
+    runAddmCMD.dataset.addm_branch = '';
+
+    showToastTask(toastReady.id); // Make toast visible
+    hideModal('addmCMDRun'); // Make toast visible
+}
+
+
+/**
+ * MODAL functions, when modal is active opened
+ */
 
 /**
  * Show modal of each addm operations, call from ADDM table.
@@ -79,7 +189,12 @@ $(document).ready(function () {
 $(document).ready(function () {
     $('#addmCMDRun').on('show.bs.modal', function (event) {
         let modal = document.getElementById("addmCMDRun");
-        console.log("Working on addmCMDRun modal!")
+        console.log("Working on addmCMDRun modal!");
+        let runAddmCMD = document.getElementById("runAddmCMD");
+        // if previous exec
+        runAddmCMD.removeEventListener('click', addmCMDRunGenerate);
+        runAddmCMD.addEventListener("click", addmCMDRunGenerate);
+
     });
 });
 
