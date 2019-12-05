@@ -731,12 +731,19 @@ function getToastDraft(btnDataSet) {
     let toastBase = toastDraft.children[0].cloneNode(true);  // Toast object
     toastBase.setAttribute('data-delay', 30000); // 30 sec. Wait to task mod
     // Assign new toast copy a value ID based on item ID (case id or case unique attrs)
+
     if (btnDataSet.addm_group) {
         toastBase.id = `${btnDataSet.operation_key}-${btnDataSet.addm_group}`;
+
     } else if (btnDataSet.addm_host && btnDataSet.command_key) {
         toastBase.id = `${btnDataSet.addm_host}-${btnDataSet.command_key}`;
+
+    } else if (btnDataSet.addm_host && btnDataSet.operation_key) {
+        toastBase.id = `${btnDataSet.addm_host}-${btnDataSet.operation_key}`;
+
     } else if (btnDataSet.addm_group && btnDataSet.command_key) {
         toastBase.id = `${btnDataSet.addm_group}-${btnDataSet.command_key}`;
+
     } else {
         toastBase.id = `${btnDataSet.operation_key}`;
     }
