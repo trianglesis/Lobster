@@ -199,14 +199,16 @@
     </nav>
     {# Coloring rows #}
     <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>
-
     {# Actions button #}
     {# Show test actions modal, make active buttons #}
     {% include 'digests/includes/toast_popup.html' %}
+    {# LOAD: actionsModal#}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
+
     <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
     <script src="{% static 'octopus/js/digest/test-last-modal.js' %}"></script>
     <script src="{% static 'octopus/js/digest/test-last-toast.js' %}"></script>
+
 {#    <script src="{% static 'octopus/js/digest/test-last-run-selected.js' %}"></script>#}
 
     {% comment %}Use dynamic tabs{% endcomment %}

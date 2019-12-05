@@ -28,25 +28,19 @@ function getButtonFromEvent(event) {
  */
 function parseTableRowForCaseData(tableRow) {
 
-    let caseData = new Object({
-        tkn_branch: '',
-        addm_name: '',
-        pattern_library: '',
-        pattern_folder_name: '',
-        case_id: '',  // Use as default id for toast when interactive run test.
-        test_id: '',  // When no case_id available (like on history or unit test) use this instead of case_id
-        tst_class: '',
-        tst_name: '',
-        cases_ids: '',
-        change_ticket: '',
-        change_review: '',
-        change_user: '',
-        change: '',
-        test_py_path: '',  // Use this as last stand to run main tests from history or digest tables, when no case_id present.
-        test_function: '',
-        wipe: '',
-        refresh: '',
-    });
+    // Create new empty case Data dict - later fill with cell values and ids as keys
+    let caseData = new Object({});
+
+    for ([key, value] of Object.entries(tableRow.cells)) {
+        if (value && value.textContent) {
+            console.log(`${value.id}: '${value.textContent}'`);
+            caseData[value.id] = value.textContent;
+        } else {
+            console.log(`Value is empty for id: ${value.id}`)
+        }
+    }
+    console.log(caseData);
+
     // Set tkn_branch if any:
     if (tableRow.cells['tkn_branch'].textContent) {
         caseData.tkn_branch = tableRow.cells['tkn_branch'].textContent;
@@ -126,18 +120,18 @@ function parseTableRowForCaseData(tableRow) {
 /**
  * Try to get modal body with assigned test case attributes in it.
  * Attributes were added by: static/octopus/js/test-actions-modal.js
- * @param modalBody
+ * @param modalVariables
  * @returns {Object}
  */
-function parseModalBodyForCaseData(modalBody) {
-    let modalBodyChildren = modalBody.childNodes[3].children;
-    console.log(modalBodyChildren);
+function parseModalVariables(modalVariables) {
+    console.log(modalVariables);
+    let VarChildren = modalVariables.children;
 
     let caseData = new Object({
         tkn_branch: '',
         pattern_library: '',
         pattern_folder_name: '',
-        case_id: modalBodyChildren['case_id'].textContent,
+        case_id: VarChildren['case_id'].textContent,
         test_id: '',
         cases_ids: '',
         change_ticket: '',
@@ -149,17 +143,17 @@ function parseModalBodyForCaseData(modalBody) {
         test_function: '',
     });
 
-    if (modalBodyChildren['tkn_branch'] && modalBodyChildren['pattern_library']) {
-        caseData.tkn_branch = modalBodyChildren['tkn_branch'].textContent;
-        caseData.pattern_library = modalBodyChildren['pattern_library'].textContent;
-        caseData.pattern_folder_name = modalBodyChildren['pattern_folder_name'].textContent;
+    if (VarChildren['tkn_branch'] && VarChildren['pattern_library']) {
+        caseData.tkn_branch = VarChildren['tkn_branch'].textContent;
+        caseData.pattern_library = VarChildren['pattern_library'].textContent;
+        caseData.pattern_folder_name = VarChildren['pattern_folder_name'].textContent;
     }
-    if (modalBodyChildren['case_id']) {
+    if (VarChildren['case_id']) {
         console.log("This is not a pattern related case, use case ID to select and run test.");
-        caseData.cases_ids = modalBodyChildren['case_id'].textContent;
+        caseData.cases_ids = VarChildren['case_id'].textContent;
     }
-    if (modalBodyChildren['test_id'] && modalBodyChildren['test_id'].textContent) {
-        caseData.test_id = modalBodyChildren['test_id'].textContent;
+    if (VarChildren['test_id'] && VarChildren['test_id'].textContent) {
+        caseData.test_id = VarChildren['test_id'].textContent;
     } else {
         console.log("TODO: Assign other selectables by: change_ticket, change_review, change_user, change(p4) ");
     }
@@ -174,7 +168,8 @@ function parseModalBodyForCaseData(modalBody) {
  */
 function fillModalBody(modal, caseData) {
     // Create in modal body:
-    let modal_variables = modal.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
+    // let modal_variables = modal.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
+    let modal_variables = document.getElementById('modal-variables');
     // Remove extra children if any found. Could be leftovers from previous modal draw!
     while (modal_variables.firstChild) {
         modal_variables.firstChild.remove();
@@ -469,7 +464,7 @@ function collectCasesFromRows(tableRows) {
  */
 function fillModalBodyWithMultipleCases(modal, casesData) {
     // let modal_variables = modal.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
-    let modal_variables = modal.getElementById('modal-variables');
+    let modal_variables = document.getElementById('modal-variables');
     // console.log('Modal modal-variables has children - remove them!');
     while (modal_variables.firstChild) {
         modal_variables.firstChild.remove();

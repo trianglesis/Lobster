@@ -9,24 +9,19 @@
 // Add event listener to button
 $(document).ready(function () {
     console.log("Toast prepare");
-
     eventListenerForCaseTestButtons(testRunPrepareToast);
-
     console.log("Toast ready");
 });
 
 
 function testRunPrepareToast(testButtonDataset) {
-    // console.log('testRunPrepareToast got dataset');
-    // console.table(testButtonDataset);
-
-    let modalBody = document.getElementById('actionsModal').childNodes[1].childNodes[1].childNodes[3];  // To modal body
-    console.log(modalBody);
-    let caseData = parseModalBodyForCaseData(modalBody);  // parse modal body
-    // console.log('caseData');
-    // console.table(caseData);
+    let modalVariables = document.getElementById('modal-variables');
+    let caseData = parseModalVariables(modalVariables);  // parse modal body
 
     // Maybe assign this summarized object to another var, so we can show full dataSet, but POST only needed for test:
+    // console.log(caseData);
+    // console.log(testButtonDataset);
+
     let caseFullData = Object.assign(caseData, testButtonDataset);
     // console.log('caseFullData');
     // console.table(caseFullData);

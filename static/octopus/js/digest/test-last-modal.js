@@ -24,14 +24,13 @@ $(document).ready(function () {
         // Fill modal body with divs:
         fillModalBody(modal, caseData);
 
-        // Paste hypelinks on buttons with log views:
+        // Paste hyperlinks on buttons with log views:
         let button = getButtonFromEvent(event);
         let addm_name_url = detectADDMSelectorFromContext(button, caseData);
         let tst_status_url = detectTestStatusSelectorFromContext(button, caseData);
 
         composeLogsHyperlinks(caseData, addm_name_url, tst_status_url);
         assignTestCaseTestButtons(caseData);
-        composeCaseHyperlinks(caseData);
     });
 
 });

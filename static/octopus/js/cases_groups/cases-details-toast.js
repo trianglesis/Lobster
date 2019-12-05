@@ -27,7 +27,7 @@ function testRunPrepareToast(testButtonDataset) {
 
     let modalBody = document.getElementById('actionsModal').childNodes[1].childNodes[1].childNodes[3];  // To modal body
     // console.table(modalBody);
-    let caseData = parseModalBodyForCaseData(modalBody);  // parse modal body
+    let caseData = parseModalVariables(modalBody);  // parse modal body
     // console.log('caseData');
     // console.table(caseData);
 
