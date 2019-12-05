@@ -821,6 +821,7 @@ function fillToastBodyWithTaskDetails(btnDataSet, toastBase) {
     // Simply show JSON of button data
     if (btnDataSet.operation_key) {
         div.innerText = `Adding: ${JSON.stringify(btnDataSet)}`;
+        div.style.wordWrap = 'break-word';
         toastBase.childNodes[3].appendChild(div);
     }
     return toastBase

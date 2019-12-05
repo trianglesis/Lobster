@@ -31,31 +31,19 @@
                             <div class="card-text">Choose one or multiple commands to execute on selected ADDM machine
                                 one by one.
                             </div>
-                            <div>
-                                <label>
-                                    <select class="custom-select" size="20" multiple>
+                            <form>
+                                <div class="form-group">
+                                    <label for="addmSingleCMDSelect">Example multiple select</label>
+                                    <select multiple class="form-control" id="addmSingleCMDSelect" size="10">
                                         {% for command in addm_commands %}
-                                            {#                            <option selected>Open this select menu</option>#}
                                             <option value="{{ command.command_key }}">{{ command.command_key }}</option>
                                         {% endfor %}
                                     </select>
-                                </label>
-                            </div>
-                            {# TODO: Mark current slected group by default? Or just not use this selector, because here we want to run single ADDM for command?#}
-                            <div>
-                                <label>
-                                    <select class="custom-select" size="20" multiple>
-                                        {% for addm_group in all_addm_groups %}
-                                            {#                            <option selected>Open this select menu</option>#}
-                                            <option value="{{ addm_group }}">{{ addm_group }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </label>
-                            </div>
-                            <button class="btn btn-lg btn-outline-warning">Run selected commands</button>
+                                </div>
+                                <a id="runSingleAddmCMD" class="btn btn-primary">Run selected</a>
+                            </form>
                         </div>
                     </div>
-
                 </div>
                 <div class="btn-group">
                 </div>

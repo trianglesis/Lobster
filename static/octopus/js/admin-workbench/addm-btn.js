@@ -18,6 +18,12 @@ $(document).ready(function () {
         $('#addmSYNCButtons').modal('hide');
     });
 });
+$(document).ready(function () {
+    $('#addmServiceButtonsModal').on('hidden.bs.modal', function (event) {
+        $('#addmServiceButtonsModal').modal('hide');
+    });
+});
+
 
 /**
  * Show modal of each addm operations, call from ADDM table.
@@ -73,13 +79,36 @@ $(document).ready(function () {
 $(document).ready(function () {
     $('#addmCMDRun').on('show.bs.modal', function (event) {
         let modal = document.getElementById("addmCMDRun");
-        let addmButtons = modal.getElementsByClassName('addm-btn');
-        for (let btn of addmButtons) {
-            btn.dataset.operation_key = 'addm_cmd_run';
-            btn.modalId = 'addmCMDRun';
-            btn.removeEventListener('click', buttonActivationADDM);
-            btn.addEventListener("click", buttonActivationADDM);
-        }
+        console.log("Working on addmCMDRun modal!")
+    });
+});
+
+/**
+ * Modal for addmServiceButtonsModal
+ * Render Toast when task fired
+ */
+$(document).ready(function () {
+    $('#addmServiceButtonsModal').on('show.bs.modal', function (event) {
+        console.log("Working on addmServiceButtonsModal modal!");
+        let relTableRow = event.relatedTarget.parentNode.parentNode;
+        console.log(relTableRow.cells['addm_host'].textContent);
+        let runSingleAddmCMD = document.getElementById("runSingleAddmCMD");
+        runSingleAddmCMD.addEventListener("click", function (event) {
+            let selectedCMDs = addmCMDkeysSelected('addmSingleCMDSelect');
+            runSingleAddmCMD.dataset.operation_key = 'addm_cmd_run';
+            runSingleAddmCMD.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
+            runSingleAddmCMD.dataset.command_key = selectedCMDs.join(',');
+            console.log(runSingleAddmCMD.dataset);
+
+            let toastBase = getToastDraft(runSingleAddmCMD.dataset);
+            let toastReady = fillToastBodyWithTaskDetails(runSingleAddmCMD.dataset, toastBase);
+            appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+
+            RESTAdminOperationsPOST(runSingleAddmCMD.dataset, toastReady);
+            showToastTask(toastReady.id); // Make toast visible
+            hideModal('addmServiceButtonsModal'); // Make toast visible
+        });
+
     });
 });
 

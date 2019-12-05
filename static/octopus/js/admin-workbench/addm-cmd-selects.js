@@ -4,9 +4,9 @@ $(document).ready(function () {
     });
 });
 
-function addmCMDkeysSelected() {
+function addmCMDkeysSelected(elementId) {
     let selectedCMDs = [];
-    let selectBox = document.getElementById("addmCMDSelect");
+    let selectBox = document.getElementById(elementId);
     let allOptions = selectBox.options;
     for (let selected of allOptions) {
         if (selected.selected) {
@@ -39,7 +39,7 @@ function addmGroupsSelected() {
 }
 
 $(document).ready(function () {
-    // let modal = document.getElementById("addmCMDRun");
+
     let runAddmCMD = document.getElementById("runAddmCMD");
 
     let checkedADDMs = '';
@@ -47,7 +47,7 @@ $(document).ready(function () {
 
     runAddmCMD.addEventListener("click", function () {
         checkedADDMs = addmGroupsSelected();
-        selectedCMDs = addmCMDkeysSelected();
+        selectedCMDs = addmCMDkeysSelected('addmCMDSelect');
         runAddmCMD.dataset.operation_key = 'addm_cmd_run';
         runAddmCMD.dataset.addm_group = checkedADDMs.join(',');
         runAddmCMD.dataset.command_key = selectedCMDs.join(',');
@@ -60,5 +60,4 @@ $(document).ready(function () {
         showToastTask(toastReady.id); // Make toast visible
         hideModal('addmCMDRun'); // Make toast visible
     });
-
 });

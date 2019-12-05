@@ -8,51 +8,12 @@
 	"buffers":
 	[
 		{
-			"file": "logs/w_routines_err.log",
+			"contents": "D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\z_DEV\\services\\celery_services\\windows\\alpha.bat\nD:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\",
 			"settings":
 			{
-				"buffer_size": 4152,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "logs/w_parsing_err.log",
-			"settings":
-			{
-				"buffer_size": 3355,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/WEB_octopus.log",
-			"settings":
-			{
-				"buffer_size": 4509795,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "logs/alpha_err.log",
-			"settings":
-			{
-				"buffer_size": 44495,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "logs/charlie_err.log",
-			"settings":
-			{
-				"buffer_size": 3813,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "logs/golf_err.log",
-			"settings":
-			{
-				"buffer_size": 3649,
-				"line_ending": "Windows"
+				"buffer_size": 201,
+				"line_ending": "Windows",
+				"name": "D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\project"
 			}
 		}
 	],
@@ -168,6 +129,12 @@
 	},
 	"file_history":
 	[
+		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/WEB_octopus.log",
+		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/golf_err.log",
+		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/charlie_err.log",
+		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/w_routines_err.log",
+		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/w_parsing_err.log",
+		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/alpha_err.log",
 		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/charlie_out.log",
 		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/alpha_out.log"
 	],
@@ -267,188 +234,37 @@
 			[
 				{
 					"buffer": 0,
-					"file": "logs/w_routines_err.log",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4152,
+						"buffer_size": 201,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								201,
+								201
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "logs/w_parsing_err.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3355,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/WEB_octopus.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4509795,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 0,
-			"sheets":
-			[
-				{
-					"buffer": 3,
-					"file": "logs/alpha_err.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 44495,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2129.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "logs/charlie_err.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3813,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 14.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "logs/golf_err.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3649,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
+							"auto_name": "D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\project",
 							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 0,
 					"type": "text"
 				}
+			]
+		},
+		{
+			"sheets":
+			[
 			]
 		}
 	],
@@ -485,7 +301,7 @@
 		"rows":
 		[
 			0.0,
-			0.309468963737,
+			0.489885791715,
 			1.0
 		]
 	},
@@ -528,7 +344,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},
