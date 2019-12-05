@@ -615,9 +615,12 @@ class TaskOperationsREST(APIView):
     def revoke_task_by_id(self):
         """
         Revoke task by task ID.
+        Require: admin_users;
         https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks
         :return
         """
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
         task_id = self.task_id
         resp = TasksOperations.revoke_task_by_id(task_id=task_id)
         return {'response': resp}
@@ -625,9 +628,12 @@ class TaskOperationsREST(APIView):
     def revoke_tasks_active(self):
         """
         Revoke all active tasks.
+        Require: admin_users;
         https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks
         :return
         """
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
         workers = self.workers
         resp = TasksOperations().revoke_tasks_active(workers=workers)
         return {'response': resp}
@@ -635,9 +641,12 @@ class TaskOperationsREST(APIView):
     def revoke_tasks_reserved(self):
         """
         Revoke all reserved tasks
+        Require: admin_users;
         https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks
         :return
         """
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
         workers = self.workers
         resp = TasksOperations().revoke_tasks_reserved(workers=workers)
         return {'response': resp}
@@ -645,9 +654,12 @@ class TaskOperationsREST(APIView):
     def revoke_tasks_active_reserved(self):
         """
         Revoke all reserved and active tasks
+        Require: admin_users;
         https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks
         :return
         """
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
         workers = self.workers
         resp = TasksOperations().revoke_tasks_active_reserved(workers=workers)
         return {'response': resp}
@@ -655,18 +667,24 @@ class TaskOperationsREST(APIView):
     def task_discard_all(self):
         """
         This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.
+        Require: admin_users;
         https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.discard_all
         :return
         """
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
         resp = TasksOperations().task_discard_all()
         return {'response': resp}
 
     def task_purge_all(self):
         """
         Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.
+        Require: admin_users;
         https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.purge
         :return
         """
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
         resp = TasksOperations().task_purge_all()
         return {'response': resp}
 
@@ -703,9 +721,12 @@ class TaskOperationsREST(APIView):
     def worker_restart(self):
         """
         Restart worker. WARNING: This worker could become unavailable for site system!
+        Require: admin_users;
         https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.pool_restart
         :return
         """
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
         workers = self.workers
         resp = WorkerOperations().worker_restart(workers=workers)
         return {'response': resp}
@@ -835,6 +856,10 @@ class AdminOperationsREST(APIView):
         else:
             return Response(dict(error='No operation_key were specified!'))
 
+    def check_user_rights(self):
+        if self.request.user.is_authenticated:
+            log.info("User auth OK!")
+
     def parse_full(self):
         """
         Run internal FS parse and P4 changes refresh procedure
@@ -846,8 +871,12 @@ class AdminOperationsREST(APIView):
         return msg
 
     def cases_weight(self):
-        """ Calculate ETA for test cases based on previous execution logs for last 30 days. Example: operation_key=cases_weight
+        """ Calculate ETA for test cases based on previous execution logs for last 30 days.
+        Require: admin_users;
+        Example: operation_key=cases_weight
         :return {'task': t_pattern_weight_index.id}"""
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
         t_tag = f'tag=t_pattern_weight_index;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_pattern_weight_index = Runner.fire_t(TPatternParse.t_pattern_weight_index, fake_run=self.fake_run, t_args=[t_tag])
         return {'task_id': t_pattern_weight_index.id}
@@ -870,18 +899,27 @@ class AdminOperationsREST(APIView):
         return {'task_id': p4_sync_task.id}
 
     def p4_sync_force(self):
-        """ Execute routine for perforce "sync -f" will forced sync all files from p4 depot to Octopus FS. Example: operation_key=p4_sync_force
+        """ Execute routine for perforce "sync -f" will forced sync all files from p4 depot to Octopus FS.
+        Require: admin_users;
+        Example: operation_key=p4_sync_force
         :return{'task': t_p4_sync_force.id}"""
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
+
         t_tag = f'tag=t_p4_sync_force;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_sync_force = Runner.fire_t(TPatternParse.t_p4_sync_force, fake_run=self.fake_run, t_args=[t_tag])
         return {'task_id': t_p4_sync_force.id}
 
     def addm_cleanup(self):
         """ Run selected ADDM cleanup therapy.
+        Require: admin_users;
         addm_group=()
         Example: operation_key=addm_cleanup;addm_group=alpha
         :return: mode: task.id
         """
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
+
         t_tag = f'tag=t_addm_cmd_routine.addm_cleanup;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_kwargs = dict(
             command_key=[
@@ -915,9 +953,13 @@ class AdminOperationsREST(APIView):
 
     def addm_cmd_run(self):
         """ Run ADDM registered command. Commands should be added to Octopus system. (see /admin/run_core/addmcommands/)
+        Require: admin_users;
         Options: (command_key=(), addm_group=()
         Example: operation_key=addm_cmd_run;addm_group=alpha;command_key=show_addm_version
         :return cmd_k: task.id """
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
+
         t_tag = f'tag=t_addm_cmd_routine.{self.command_key};user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_kwargs = dict(
             command_key=self.command_key,
@@ -939,7 +981,6 @@ class AdminOperationsREST(APIView):
         Options: addm_group=()
         Example: operation_key=addm_sync_shares;addm_group=alpha
         :return task: task.id"""
-
         t_tag = f'tag=t_addm_cmd_routine.addm_sync_shares;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_kwargs = dict(
             command_key=[
@@ -960,9 +1001,12 @@ class AdminOperationsREST(APIView):
 
     def addm_sync_utils(self):
         """ Execute routine for Octopus NFS -> ADDM sync all files for test utils. Using rsync. keys used rsync_python_testutils, rsync_tideway_utils
+        Require: admin_users;
         Options: addm_group=()
         Example: operation_key=addm_sync_utils;addm_group=alpha
         :return task: task.id"""
+        if not UserCheck.is_admin(self.request.user):
+            return {'error': 'User has no admin rights!'}
 
         t_tag = f'tag=t_addm_cmd_routine.addm_sync_utils;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_kwargs = dict(

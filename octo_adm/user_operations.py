@@ -28,6 +28,10 @@ class UserCheck:
         return user.groups.filter(name='admin_users').exists()
 
     @staticmethod
+    def is_admin(user):
+        return user.groups.filter(name='admin_users').exists()
+
+    @staticmethod
     def is_power(user):
         return user.groups.filter(name='power_users').exists()
 

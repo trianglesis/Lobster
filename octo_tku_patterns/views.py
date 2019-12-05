@@ -592,10 +592,17 @@ class TestCaseRunTestREST(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request=None):
-        task_id = self.request.GET.get('task_id', 'ThisIsNotTheTaskJustSayingYouKnow?')
+        task_id = self.request.GET.get('task_id', None)
         # log.debug("<=TestCaseRunTestREST=> GET - retrieve task by task_id: %s", task_id)
         # log.debug("task id by request: %s", task_id)
         # Get task status from celery-app
+        if not task_id:
+            help_ = dict(
+                doc="Run task 't_test_prep'. Task params can be: cases_ids, pattern_folder_names, change, "
+                    "change_user, change_review, change_ticket, test_py_path. "
+                    "Test modes: test_wipe_run, test_p4_run, test_instant_run"
+            )
+            return Response(help_)
 
         tasks = CeleryTaskmeta.objects.filter(task_id__exact=task_id)
         if tasks:

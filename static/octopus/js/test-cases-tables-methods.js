@@ -131,7 +131,7 @@ function parseTableRowForCaseData(tableRow) {
  */
 function parseModalBodyForCaseData(modalBody) {
     let modalBodyChildren = modalBody.childNodes[3].children;
-    // console.table(modalBodyChildren);
+    console.log(modalBodyChildren);
 
     let caseData = new Object({
         tkn_branch: '',
@@ -149,12 +149,12 @@ function parseModalBodyForCaseData(modalBody) {
         test_function: '',
     });
 
-    if (modalBodyChildren['tkn_branch'].textContent && modalBodyChildren['pattern_library'].textContent) {
+    if (modalBodyChildren['tkn_branch'] && modalBodyChildren['pattern_library']) {
         caseData.tkn_branch = modalBodyChildren['tkn_branch'].textContent;
         caseData.pattern_library = modalBodyChildren['pattern_library'].textContent;
         caseData.pattern_folder_name = modalBodyChildren['pattern_folder_name'].textContent;
     }
-    if (modalBodyChildren['case_id'].textContent) {
+    if (modalBodyChildren['case_id']) {
         console.log("This is not a pattern related case, use case ID to select and run test.");
         caseData.cases_ids = modalBodyChildren['case_id'].textContent;
     }
@@ -698,6 +698,9 @@ function getToastDraftWithId(caseData) {
     if (caseData.case_id) {
         toastBase.id = caseData.case_id;
         caseData.toastId = toastBase.id;
+    } else if (caseData.cases_ids) {
+        toastBase.id = caseData.cases_ids;
+        caseData.toastId = toastBase.id;
     } else if (caseData.test_id) {
         toastBase.id = caseData.test_id;
         caseData.toastId = toastBase.id;
@@ -971,8 +974,8 @@ function waitResultTask(toastReady, taskID) {
  * @constructor
  */
 function RESTPostTask(caseFullData, testButtonDataset) {
-    // console.log(`POST user test: `);
-    // console.table(testButtonDataset);
+    console.log(`POST user test: `);
+    console.log(testButtonDataset);
     $.ajax({
         type: "POST",
         dataType: "json",
