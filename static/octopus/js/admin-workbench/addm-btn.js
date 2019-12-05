@@ -142,7 +142,7 @@ function addmCMDRunGenerate(event) {
     let toastReady = fillToastBodyWithTaskDetails(runAddmCMD.dataset, toastBase);
 
     appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
-    // RESTAdminOperationsPOST(runAddmCMD.dataset, toastReady);
+    RESTAdminOperationsPOST(runAddmCMD.dataset, toastReady);
 
     delete runAddmCMD.dataset;
 
@@ -195,12 +195,31 @@ $(document).ready(function () {
         let relTableRow = event.relatedTarget.parentNode.parentNode;
 
         let runSingleAddmCMD = document.getElementById("runSingleAddmCMD");
+        let runAddmCleanup = document.getElementById("single_addm_cleanup");
+        let runAddmSyncShares = document.getElementById("single_addm_sync_shares");
+        let runAddmSyncUtils = document.getElementById("single_addm_sync_utils");
+
         runSingleAddmCMD.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
+        runAddmCleanup.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
+        runAddmSyncShares.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
+        runAddmSyncUtils.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
+
+        runAddmCleanup.dataset.operation_key = 'addm_cleanup';
+        runAddmSyncShares.dataset.operation_key = 'addm_sync_shares';
+        runAddmSyncUtils.dataset.operation_key = 'addm_sync_utils';
+
         runSingleAddmCMD.dataset.selectId = 'addmSingleCMDSelect';
 
         // if previous exec
         runSingleAddmCMD.removeEventListener('click', addmCMDRunGenerate);
+        runAddmCleanup.removeEventListener('click', addmCMDRunGenerate);
+        runAddmSyncShares.removeEventListener('click', addmCMDRunGenerate);
+        runAddmSyncUtils.removeEventListener('click', addmCMDRunGenerate);
+
         runSingleAddmCMD.addEventListener("click", addmCMDRunGenerate);
+        runAddmCleanup.addEventListener("click", addmCMDRunGenerate);
+        runAddmSyncShares.addEventListener("click", addmCMDRunGenerate);
+        runAddmSyncUtils.addEventListener("click", addmCMDRunGenerate);
 
     });
 });

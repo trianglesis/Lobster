@@ -904,6 +904,9 @@ class AdminOperationsREST(APIView):
             user_name=self.user_name,
             user_mail=self.user_email,
             addm_group=self.addm_group,
+            addm_host=self.addm_host,
+            addm_id=self.addm_id,
+            addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
         task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag], t_kwargs=t_kwargs)
@@ -946,6 +949,9 @@ class AdminOperationsREST(APIView):
             user_name=self.user_name,
             user_mail=self.user_email,
             addm_group=self.addm_group,
+            addm_host=self.addm_host,
+            addm_id=self.addm_id,
+            addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
         task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag],
@@ -968,6 +974,9 @@ class AdminOperationsREST(APIView):
             user_name=self.user_name,
             user_mail=self.user_email,
             addm_group=self.addm_group,
+            addm_host=self.addm_host,
+            addm_id=self.addm_id,
+            addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
         task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag],
