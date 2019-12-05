@@ -33,7 +33,7 @@ $(document).ready(function () {
  * @param elementId
  * @returns {[]}
  */
-function addmCMDkeysSelected(elementId) {
+function addmCMDKeysSelected(elementId) {
     let selectedCMDs = [];
     let selectBox = document.getElementById(elementId);
     let allOptions = selectBox.options;
@@ -56,7 +56,7 @@ function addmCMDkeysSelected(elementId) {
  */
 function addmGroupsSelected() {
     let checkedADDMs = [];
-    let checkBoxes = document.getElementsByClassName("form-check-input");
+    let checkBoxes = document.getElementsByClassName("addm-group-checkbox");
 
     for (let checkbox of checkBoxes) {
         if (checkbox.checked) {
@@ -78,22 +78,22 @@ function addmGroupsSelected() {
  * @returns {[]}
  */
 function addmBranchSelected() {
-    let checkedADDMs = [];
+    let checkedADDMGroups = [];
     let checkBoxes = document.getElementsByClassName("addm-branch-checkbox");
 
     for (let checkbox of checkBoxes) {
         if (checkbox.checked) {
-            if (checkedADDMs.includes(checkbox.value)) {
+            if (checkedADDMGroups.includes(checkbox.value)) {
                 console.log('Already selected');
                 checkbox.checked = false;
             } else {
-                checkedADDMs.push(checkbox.value);
+                checkedADDMGroups.push(checkbox.value);
                 checkbox.checked = false;
             }
         }
     }
-    console.log(checkedADDMs);
-    return checkedADDMs;
+    console.log(checkedADDMGroups);
+    return checkedADDMGroups;
 }
 
 /**
@@ -103,17 +103,27 @@ function addmBranchSelected() {
 function addmCMDRunGenerate(event) {
 
     let runAddmCMD = event.currentTarget;
+    console.log(event);
+
     let checkedADDMs = '';
     let checkedBranch = '';
     let selectedCMDs = '';
 
     checkedADDMs = addmGroupsSelected();
     checkedBranch = addmBranchSelected();
-    selectedCMDs = addmCMDkeysSelected('addmCMDSelect');
-    runAddmCMD.dataset.operation_key = 'addm_cmd_run';
+    selectedCMDs = addmCMDKeysSelected('addmCMDSelect');
+
+    if (runAddmCMD.dataset.operation_key) {
+        console.log("Leave current operation_key from btn: " + runAddmCMD.dataset.operation_key)
+    } else {
+        runAddmCMD.dataset.operation_key = 'addm_cmd_run';
+    }
+
     runAddmCMD.dataset.addm_group = checkedADDMs.join(',');
     runAddmCMD.dataset.command_key = selectedCMDs.join(',');
     runAddmCMD.dataset.addm_branch = checkedBranch.join(',');
+
+    console.log(runAddmCMD.dataset);
 
     let toastBase = getToastDraft(runAddmCMD.dataset);
     let toastReady = fillToastBodyWithTaskDetails(runAddmCMD.dataset, toastBase);
@@ -127,7 +137,7 @@ function addmCMDRunGenerate(event) {
     runAddmCMD.dataset.addm_branch = '';
 
     showToastTask(toastReady.id); // Make toast visible
-    hideModal('addmCMDRun'); // Make toast visible
+    $('.show').modal('hide');
 }
 
 
@@ -171,14 +181,13 @@ $(document).ready(function () {
  */
 $(document).ready(function () {
     $('#addmCleanupButtons').on('show.bs.modal', function (event) {
-        let modal = document.getElementById("addmCleanupButtons");
-        let addmButtons = modal.getElementsByClassName('addm-btn');
-        for (let btn of addmButtons) {
-            btn.dataset.operation_key = 'addm_cleanup';
-            btn.modalId = 'addmCleanupButtons';
-            btn.removeEventListener('click', buttonActivationADDM);
-            btn.addEventListener("click", buttonActivationADDM);
-        }
+        // let modal = document.getElementById("addmCleanupButtons");
+        console.log("Working on addmCleanupButtons modal!");
+        let runADDMCleanup = document.getElementById("runADDMCleanup");
+        // if previous exec
+        runADDMCleanup.removeEventListener('click', addmCMDRunGenerate);
+        runADDMCleanup.addEventListener("click", addmCMDRunGenerate);
+
     });
 });
 
@@ -188,7 +197,7 @@ $(document).ready(function () {
  */
 $(document).ready(function () {
     $('#addmCMDRun').on('show.bs.modal', function (event) {
-        let modal = document.getElementById("addmCMDRun");
+        // let modal = document.getElementById("addmCMDRun");
         console.log("Working on addmCMDRun modal!");
         let runAddmCMD = document.getElementById("runAddmCMD");
         // if previous exec
@@ -209,7 +218,7 @@ $(document).ready(function () {
         console.log(relTableRow.cells['addm_host'].textContent);
         let runSingleAddmCMD = document.getElementById("runSingleAddmCMD");
         runSingleAddmCMD.addEventListener("click", function (event) {
-            let selectedCMDs = addmCMDkeysSelected('addmSingleCMDSelect');
+            let selectedCMDs = addmCMDKeysSelected('addmSingleCMDSelect');
             runSingleAddmCMD.dataset.operation_key = 'addm_cmd_run';
             runSingleAddmCMD.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
             runSingleAddmCMD.dataset.command_key = selectedCMDs.join(',');
@@ -233,13 +242,16 @@ $(document).ready(function () {
  */
 $(document).ready(function () {
     $('#addmSYNCButtons').on('show.bs.modal', function (event) {
-        let modal = document.getElementById("addmSYNCButtons");
-        let addmButtons = modal.getElementsByClassName('addm-btn');
-        for (let btn of addmButtons) {
-            btn.dataset.operation_key = 'addm_sync_shares';
-            btn.modalId = 'addmSYNCButtons';
-            btn.removeEventListener('click', buttonActivationADDM);
-            btn.addEventListener("click", buttonActivationADDM);
-        }
+        // let modal = document.getElementById("addmCMDRun");
+        console.log("Working on addmCMDRun modal!");
+        let runADDMRsyncTests = document.getElementById("runADDMRsyncTests");
+        let runADDMRsyncUtils = document.getElementById("runADDMRsyncUtils");
+
+        // if previous exec
+        runADDMRsyncTests.removeEventListener('click', addmCMDRunGenerate);
+        runADDMRsyncUtils.removeEventListener('click', addmCMDRunGenerate);
+
+        runADDMRsyncTests.addEventListener("click", addmCMDRunGenerate);
+        runADDMRsyncUtils.addEventListener("click", addmCMDRunGenerate);
     });
 });

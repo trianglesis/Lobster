@@ -14,14 +14,32 @@
             <div class="modal-body">
                 <div id="modal-details"></div>
                 <span id="addm_details_str"></span>
-                <div class="card-text">ADDM Full cleanup</div>
                 <div class="btn-group addm-clean addm-clean-daily">
-                    {% for addm_group in all_addm_groups %}
-                        <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-operation="addm_cleanup"
-                           data-addm_group="{{ addm_group }}">{{ addm_group }}</a>
-                    {% endfor %}
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-operation="addm_cleanup"
-                       data-addm_group="{{ all_addm_groups|join:"," }}">all</a>
+                    <div class="form-group">
+                        <div class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <div class="card-text">ADDM Full cleanup</div>
+                                <form>
+                                    <div class="form-check form-check-inline">
+                                        {% for addm_group in all_addm_groups %}
+                                            <input class="form-check-input addm-group-checkbox" type="checkbox"
+                                                   id="addmGroupCleanupCheckbox-{{ addm_group }}" value="{{ addm_group }}">
+                                            <label class="form-check-label" for="addmGroupCleanupCheckbox-{{ addm_group }}"
+                                                   style="padding-right: .7em">{{ addm_group }}</label>
+                                        {% endfor %}
+                                        {# FOR ALL: #}
+                                        <input class="form-check-input addm-group-checkbox" type="checkbox"
+                                               id="inlineCheckbox_all" value="{{ all_addm_groups|join:"," }}">
+                                        <label class="form-check-label" for="inlineCheckbox_all"
+                                               style="padding-right: .7em">all</label>
+                                    </div>
+                                    <a id="runADDMCleanup" class="btn btn-sm btn-secondary"
+                                       data-operation_key="addm_cleanup">Run cleanup</a>
+                                </form>
+                            </li>
+                            <li class="list-group-item"></li>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">

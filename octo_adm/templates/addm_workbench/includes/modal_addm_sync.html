@@ -13,23 +13,50 @@
             <div class="modal-body">
                 <div id="modal-details"></div>
                 <span id="addm_details_str"></span>
-                <div class="card-text">Run RSYNC Test Shares</div>
-                <div class="btn-group addm-rsync">
-                    {% for addm_group in all_addm_groups %}
-                        <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-operation="addm_sync_shares"
-                           data-addm_group="{{ addm_group }}">{{ addm_group }}</a>
-                    {% endfor %}
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-operation="addm_sync_shares"
-                       data-addm_group="{{ all_addm_groups|join:"," }}">all</a>
-                </div>
-                <div class="card-text">Run RSYNC Utils Shares</div>
-                <div class="btn-group addm-rsync">
-                    {% for addm_group in all_addm_groups %}
-                        <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-operation="addm_sync_utils"
-                           data-addm_group="{{ addm_group }}">{{ addm_group }}</a>
-                    {% endfor %}
-                    <a class="btn btn-sm btn-outline-info addm-btn" href="#" data-operation="addm_sync_utils"
-                       data-addm_group="{{ all_addm_groups|join:"," }}">all</a>
+                <div class="form-group">
+                    <div class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div class="card-text">Run RSYNC Test Shares</div>
+                            <form>
+                                <div class="form-check form-check-inline">
+                                    {% for addm_group in all_addm_groups %}
+                                        <input class="form-check-input addm-group-checkbox" type="checkbox"
+                                               id="addmGroupRsyncTestsCheckbox-{{ addm_group }}" value="{{ addm_group }}">
+                                        <label class="form-check-label" for="addmGroupRsyncTestsCheckbox-{{ addm_group }}"
+                                               style="padding-right: .7em">{{ addm_group }}</label>
+                                    {% endfor %}
+                                    {# FOR ALL: #}
+                                    <input class="form-check-input addm-group-checkbox" type="checkbox"
+                                           id="ddmGroupRsyncTestsCheckbox-all" value="{{ all_addm_groups|join:"," }}">
+                                    <label class="form-check-label" for="ddmGroupRsyncTestsCheckbox-all"
+                                           style="padding-right: .7em">all</label>
+                                </div>
+                                <a id="runADDMRsyncTests" class="btn btn-sm btn-secondary"
+                                   data-operation_key="addm_sync_shares">Run RSYNC Test Shares</a>
+                            </form>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="card-text">Run RSYNC Utils Shares</div>
+                            <form>
+                                <div class="form-check form-check-inline">
+                                    {% for addm_group in all_addm_groups %}
+                                        <input class="form-check-input addm-group-checkbox" type="checkbox"
+                                               id="addmGroupRsyncUtilsCheckbox-{{ addm_group }}" value="{{ addm_group }}">
+                                        <label class="form-check-label" for="addmGroupRsyncUtilsCheckbox-{{ addm_group }}"
+                                               style="padding-right: .7em">{{ addm_group }}</label>
+                                    {% endfor %}
+                                    {# FOR ALL: #}
+                                    <input class="form-check-input addm-group-checkbox" type="checkbox"
+                                           id="addmGroupRsyncUtilsCheckbox-all" value="{{ all_addm_groups|join:"," }}">
+                                    <label class="form-check-label" for="addmGroupRsyncUtilsCheckbox-all"
+                                           style="padding-right: .7em">all</label>
+                                </div>
+                                <a id="runADDMRsyncUtils" class="btn btn-sm btn-secondary"
+                                   data-operation_key="addm_sync_utils">Run RSYNC Utils Shares</a>
+                            </form>
+                        </li>
+                        <li class="list-group-item"></li>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
