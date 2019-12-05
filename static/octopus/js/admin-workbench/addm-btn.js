@@ -46,7 +46,12 @@ function addmCMDKeysSelected(elementId) {
             }
         }
     }
-    console.log(selectedCMDs);
+    if (selectedCMDs.length) {
+        console.log(`selectedCMDs: ${selectedCMDs}`);
+    }
+    else {
+        console.log("No CMD were selected, this could be a wrong operation!")
+    }
     return selectedCMDs;
 }
 
@@ -69,7 +74,9 @@ function addmGroupsSelected() {
             }
         }
     }
-    console.log(checkedADDMs);
+    if (checkedADDMs.length) {
+        console.log(`checkedADDMs: ${checkedADDMs}`);
+    }
     return checkedADDMs;
 }
 
@@ -78,22 +85,24 @@ function addmGroupsSelected() {
  * @returns {[]}
  */
 function addmBranchSelected() {
-    let checkedADDMGroups = [];
+    let addmBranchSelected = [];
     let checkBoxes = document.getElementsByClassName("addm-branch-checkbox");
 
     for (let checkbox of checkBoxes) {
         if (checkbox.checked) {
-            if (checkedADDMGroups.includes(checkbox.value)) {
+            if (addmBranchSelected.includes(checkbox.value)) {
                 console.log('Already selected');
                 checkbox.checked = false;
             } else {
-                checkedADDMGroups.push(checkbox.value);
+                addmBranchSelected.push(checkbox.value);
                 checkbox.checked = false;
             }
         }
     }
-    console.log(checkedADDMGroups);
-    return checkedADDMGroups;
+    if (addmBranchSelected.length) {
+        console.log(`addmBranchSelected ${addmBranchSelected}`);
+    }
+    return addmBranchSelected;
 }
 
 /**
@@ -101,40 +110,41 @@ function addmBranchSelected() {
  * @param event
  */
 function addmCMDRunGenerate(event) {
-
     let runAddmCMD = event.currentTarget;
-    console.log(event);
 
-    let checkedADDMs = '';
-    let checkedBranch = '';
-    let selectedCMDs = '';
+    let checkedADDMs = [];
+    let checkedBranch = [];
+    let selectedCMDs = [];
 
     checkedADDMs = addmGroupsSelected();
     checkedBranch = addmBranchSelected();
-    selectedCMDs = addmCMDKeysSelected('addmCMDSelect');
+
+    if (runAddmCMD.dataset.selectId) {
+        console.log(`Collect addm commands from multiple selector form selectId: ${runAddmCMD.dataset.selectId}`);
+        // Collect addm commands from multiple selector form.
+        selectedCMDs = addmCMDKeysSelected(runAddmCMD.dataset.selectId);
+        runAddmCMD.dataset.command_key = selectedCMDs.join(',');
+        delete runAddmCMD.dataset.selectId;
+    }
 
     if (runAddmCMD.dataset.operation_key) {
+        // on addm_cleanup use key addm_cleanup from btn data (addm_sync_shares, addm_sync_utils)
         console.log("Leave current operation_key from btn: " + runAddmCMD.dataset.operation_key)
     } else {
+        // Other operations use default if above is false
         runAddmCMD.dataset.operation_key = 'addm_cmd_run';
     }
 
     runAddmCMD.dataset.addm_group = checkedADDMs.join(',');
-    runAddmCMD.dataset.command_key = selectedCMDs.join(',');
     runAddmCMD.dataset.addm_branch = checkedBranch.join(',');
-
-    console.log(runAddmCMD.dataset);
 
     let toastBase = getToastDraft(runAddmCMD.dataset);
     let toastReady = fillToastBodyWithTaskDetails(runAddmCMD.dataset, toastBase);
+
     appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+    // RESTAdminOperationsPOST(runAddmCMD.dataset, toastReady);
 
-    RESTAdminOperationsPOST(runAddmCMD.dataset, toastReady);
-
-    runAddmCMD.dataset.operation_key = '';
-    runAddmCMD.dataset.addm_group = '';
-    runAddmCMD.dataset.command_key = '';
-    runAddmCMD.dataset.addm_branch = '';
+    delete runAddmCMD.dataset;
 
     showToastTask(toastReady.id); // Make toast visible
     $('.show').modal('hide');
@@ -176,12 +186,31 @@ $(document).ready(function () {
 });
 
 /**
+ * Modal for addmServiceButtonsModal
+ * Render Toast when task fired
+ */
+$(document).ready(function () {
+    $('#addmServiceButtonsModal').on('show.bs.modal', function (event) {
+        console.log("Working on addmServiceButtonsModal modal!");
+        let relTableRow = event.relatedTarget.parentNode.parentNode;
+
+        let runSingleAddmCMD = document.getElementById("runSingleAddmCMD");
+        runSingleAddmCMD.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
+        runSingleAddmCMD.dataset.selectId = 'addmSingleCMDSelect';
+
+        // if previous exec
+        runSingleAddmCMD.removeEventListener('click', addmCMDRunGenerate);
+        runSingleAddmCMD.addEventListener("click", addmCMDRunGenerate);
+
+    });
+});
+
+/**
  * Modal for addmCleanupButtons
  * Render Toast when task fired
  */
 $(document).ready(function () {
     $('#addmCleanupButtons').on('show.bs.modal', function (event) {
-        // let modal = document.getElementById("addmCleanupButtons");
         console.log("Working on addmCleanupButtons modal!");
         let runADDMCleanup = document.getElementById("runADDMCleanup");
         // if previous exec
@@ -197,41 +226,12 @@ $(document).ready(function () {
  */
 $(document).ready(function () {
     $('#addmCMDRun').on('show.bs.modal', function (event) {
-        // let modal = document.getElementById("addmCMDRun");
         console.log("Working on addmCMDRun modal!");
         let runAddmCMD = document.getElementById("runAddmCMD");
+        runAddmCMD.dataset.selectId = 'addmCMDSelect';
         // if previous exec
         runAddmCMD.removeEventListener('click', addmCMDRunGenerate);
         runAddmCMD.addEventListener("click", addmCMDRunGenerate);
-
-    });
-});
-
-/**
- * Modal for addmServiceButtonsModal
- * Render Toast when task fired
- */
-$(document).ready(function () {
-    $('#addmServiceButtonsModal').on('show.bs.modal', function (event) {
-        console.log("Working on addmServiceButtonsModal modal!");
-        let relTableRow = event.relatedTarget.parentNode.parentNode;
-        console.log(relTableRow.cells['addm_host'].textContent);
-        let runSingleAddmCMD = document.getElementById("runSingleAddmCMD");
-        runSingleAddmCMD.addEventListener("click", function (event) {
-            let selectedCMDs = addmCMDKeysSelected('addmSingleCMDSelect');
-            runSingleAddmCMD.dataset.operation_key = 'addm_cmd_run';
-            runSingleAddmCMD.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
-            runSingleAddmCMD.dataset.command_key = selectedCMDs.join(',');
-            console.log(runSingleAddmCMD.dataset);
-
-            let toastBase = getToastDraft(runSingleAddmCMD.dataset);
-            let toastReady = fillToastBodyWithTaskDetails(runSingleAddmCMD.dataset, toastBase);
-            appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
-
-            RESTAdminOperationsPOST(runSingleAddmCMD.dataset, toastReady);
-            showToastTask(toastReady.id); // Make toast visible
-            hideModal('addmServiceButtonsModal'); // Make toast visible
-        });
 
     });
 });
@@ -242,7 +242,6 @@ $(document).ready(function () {
  */
 $(document).ready(function () {
     $('#addmSYNCButtons').on('show.bs.modal', function (event) {
-        // let modal = document.getElementById("addmCMDRun");
         console.log("Working on addmCMDRun modal!");
         let runADDMRsyncTests = document.getElementById("runADDMRsyncTests");
         let runADDMRsyncUtils = document.getElementById("runADDMRsyncUtils");

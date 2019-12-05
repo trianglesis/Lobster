@@ -733,6 +733,10 @@ function getToastDraft(btnDataSet) {
     // Assign new toast copy a value ID based on item ID (case id or case unique attrs)
     if (btnDataSet.addm_group) {
         toastBase.id = `${btnDataSet.operation_key}-${btnDataSet.addm_group}`;
+    } else if (btnDataSet.addm_host && btnDataSet.command_key) {
+        toastBase.id = `${btnDataSet.addm_host}-${btnDataSet.command_key}`;
+    } else if (btnDataSet.addm_group && btnDataSet.command_key) {
+        toastBase.id = `${btnDataSet.addm_group}-${btnDataSet.command_key}`;
     } else {
         toastBase.id = `${btnDataSet.operation_key}`;
     }
