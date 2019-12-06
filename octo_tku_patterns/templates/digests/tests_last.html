@@ -205,12 +205,14 @@
     {# LOAD: actionsModal#}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
 
-    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
-    <script src="{% static 'octopus/js/digest/test-last-modal.js' %}"></script>
-    <script src="{% static 'octopus/js/digest/test-last-toast.js' %}"></script>
+    <script src="{% static 'octopus/js/test-run/modal-toast-for-test-tables.js' %}"></script>
+    <script src="{% static 'octopus/js/test-run/run-tests-modal-toast-test-tables.js' %}"></script>
 
+    <script type="text/javascript">
+        let tests_digest_json = {{ tests_digest_json|safe }};
+    </script>
+{#    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>#}
 {#    <script src="{% static 'octopus/js/digest/test-last-run-selected.js' %}"></script>#}
-
     {% comment %}Use dynamic tabs{% endcomment %}
     {% if not selector.addm_name %}<script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>{% endif %}
     {% comment %}DEBUG{% endcomment %}

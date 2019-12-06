@@ -228,13 +228,16 @@
                             <a href="#"
                                id="unit-wipe-run"
                                data-wipe="1"
+                               data-test_mode="test_by_id"
                                class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
                             <a href="#"
                                id="unit-p4-run"
                                data-refresh="1"
+                               data-test_mode="test_by_id"
                                class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
                             <a href="#"
                                id="unit-instant-run"
+                               data-test_mode="test_by_id"
                                class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
                         </div>
                     {% else %}
@@ -250,11 +253,14 @@
                     <div class="btn-group btn-group-sm w-100" style="padding: 5px 5% 5px 5%">
                         <a href="#" id="wipe-run"
                            data-wipe="1"
+                           data-test_mode="test_by_id"
                            class="btn btn-sm btn-outline-warning {% popover 'hover' 'top' "Run test.py" 'Wipe current logs and run test.py. Most common mode suitable for every test execution.' %}"><i class="fas fa-terminal"></i> Run</a>
                         <a href="#" id="p4-run"
                            data-refresh="1"
+                           data-test_mode="test_by_id"
                            class="btn btn-sm btn-outline-warning {% popover 'hover' 'top' "Run test.py and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
                         <a href="#" id="instant-run"
+                           data-test_mode="test_by_id"
                            class="btn btn-sm btn-outline-warning {% popover 'hover' 'top' "Run test.py and keep logs" 'Instant run test.py, keep logs. Only for extra debugging, keep current logs to compare them with the new result.' %}"><i class="fas fa-bolt"></i> Run & keep logs</a>
                     </div>
                     {% comment %}
@@ -268,15 +274,18 @@
                             <a href="#"
                                id="wipe-run-case-meta"
                                data-wipe="1"
+                               data-test_mode="test_by_change"
                                data-change="{{ selector.change }}"
                                class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{ selector.change }}</a>
                             <a href="#"
                                id="p4-run-case-meta"
                                data-refresh="1"
+                               data-test_mode="test_by_change"
                                data-change="{{ selector.change }}"
                                class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {{ selector.change }}</a>
                             <a href="#"
                                id="instant-run-case-meta"
+                               data-test_mode="test_by_change"
                                data-change="{{ selector.change }}"
                                class="btn btn-sm btn-outline-warning">Instant run all tests in {{ selector.change }}, keep logs</a>
                         </div>
@@ -291,16 +300,19 @@
                             <a href="#"
                                id="wipe-run-case-meta"
                                data-wipe="1"
+                               data-test_mode="test_by_user"
                                data-change_user="{{ selector.change_user }}"
                                class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests for {{ selector.change_user }}</a>
                             <a href="#"
                                id="p4-run-case-meta"
                                data-refresh="1"
+                               data-test_mode="test_by_user"
                                data-change_user="{{ selector.change_user }}"
                                class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests for {{ selector.change_user }}</a>
                             <a href="#"
                                id="instant-run-case-meta"
                                data-change_user="{{ selector.change_user }}"
+                               data-test_mode="test_by_user"
                                class="btn btn-sm btn-outline-warning">Instant run all tests for {{ selector.change_user }}, keep logs</a>
                         </div>
                     {% comment %}
@@ -314,15 +326,18 @@
                             <a href="#"
                                id="wipe-run-case-meta"
                                data-wipe="1"
+                               data-test_mode="test_by_change_ticket"
                                data-change_ticket="{{ selector.change_ticket }}"
                                class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{ selector.change_ticket }}</a>
                             <a href="#"
                                id="p4-run-case-meta"
                                data-refresh="1"
+                               data-test_mode="test_by_change_ticket"
                                data-change_ticket="{{ selector.change_ticket }}"
                                class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {{selector.change_ticket}}</a>
                             <a href="#"
                                id="instant-run-case-meta"
+                               data-test_mode="test_by_change_ticket"
                                data-change_ticket="{{ selector.change_ticket }}"
                                class="btn btn-sm btn-outline-warning">Instant run all tests in {{ selector.change_ticket }}, keep logs</a>
                         </div>
@@ -337,15 +352,18 @@
                             <a href="#"
                                id="wipe-run-case-meta"
                                data-wipe="1"
+                               data-test_mode="test_by_change_review"
                                data-change_review="{{ selector.change_review }}"
                                class="btn btn-sm btn-outline-warning">Wipe current logs and run all tests in {{ selector.change_review }}</a>
                             <a href="#"
                                id="p4-run-case-meta"
                                data-refresh="1"
+                               data-test_mode="test_by_change_review"
                                data-change_review="{{ selector.change_review }}"
                                class="btn btn-sm btn-outline-warning">P4 Sync, wipe logs and run all tests in {{ selector.change_review }}</a>
                             <a href="#"
                                id="instant-run-case-meta"
+                               data-test_mode="test_by_change_review"
                                data-change_review="{{ selector.change_review }}"
                                class="btn btn-sm btn-outline-warning">Instant run all tests in {{ selector.change_review }}, keep logs</a>
                         </div>

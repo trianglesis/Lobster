@@ -24,7 +24,8 @@ $(document).ready(function () {
         // console.table(caseData);
 
         // Fill modal body with divs:
-        fillModalBody(modal, caseData);
+        let excludeIds = ['case_depot_path', 'test_time_weight', 'test_cases_group', 'change_time'];
+        fillModalBody(modal, caseData, excludeIds);
 
         // No need to get any addm name or test status on cases table page:
         composeLogsHyperlinks(caseData, '', '');

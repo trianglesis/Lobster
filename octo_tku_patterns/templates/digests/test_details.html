@@ -289,9 +289,12 @@
     {# Show test actions modal, make active buttons #}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
-    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
-    <script src="{% static 'octopus/js/digest/test-details-modal.js' %}"></script>
-    <script src="{% static 'octopus/js/digest/test-details-toast.js' %}"></script>
+    <script type="module" src="{% static 'octopus/js/test-run/modal-toast-for-test-tables.js' %}"></script>
+{#    <script src="{% static 'octopus/js/test-run/run-tests-modal-toast-test-tables.js' %}"></script>#}
+
+{#    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>#}
+{#    <script src="{% static 'octopus/js/digest/test-details-modal.js' %}"></script>#}
+{#    <script src="{% static 'octopus/js/digest/test-details-toast.js' %}"></script>#}
     <div class="debug-context">
         {% if request.GET.debug %}
             <p>DEBUG enabled</p>

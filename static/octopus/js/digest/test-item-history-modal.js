@@ -48,6 +48,8 @@ function fillModalBodyHyperlinksButtons(caseItem, caseData, modal, event) {
 
     composeCaseHyperlinks(caseData);
     // Fill modal body with divs:
-    fillModalBody(modal, caseData);
+    // Arr of ids will be not be shown to user as visible in modal-variables
+    let excludeIds = ['case_depot_path', 'test_time_weight', 'test_cases_group', 'change_time'];
+    fillModalBody(modal, caseData, excludeIds);
     console.log('Modal body is ready now!')
 }

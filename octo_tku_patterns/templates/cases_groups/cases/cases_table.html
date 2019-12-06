@@ -43,40 +43,31 @@
                     <li class="list-group-item border-light">
                         <i class="fas fa-undo"></i>
                         <a class="badge {% is_active 'pattern_library' None 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?{{ selector_pattern_library }}">All</a>
-                    </li>
+                           href="{% url 'test_cases' %}?{{ selector_pattern_library }}">All</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-tape"></i>
                         <a class="badge {% is_active 'pattern_library' 'BLADE_ENCLOSURE' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?pattern_library=BLADE_ENCLOSURE;{{ selector_pattern_library }}">BLADE_ENCLOSURE</a>
-                    </li>
+                           href="{% url 'test_cases' %}?pattern_library=BLADE_ENCLOSURE;{{ selector_pattern_library }}">BLADE_ENCLOSURE</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-cloud"></i>
                         <a class="badge {% is_active 'pattern_library' 'CLOUD' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?pattern_library=CLOUD;{{ selector_pattern_library }}">CLOUD</a>
-                    </li>
+                           href="{% url 'test_cases' %}?pattern_library=CLOUD;{{ selector_pattern_library }}">CLOUD</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-cube"></i>
                         <a class="badge {% is_active 'pattern_library' 'CORE' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?pattern_library=CORE;{{ selector_pattern_library }}">CORE</a>
-                    </li>
+                           href="{% url 'test_cases' %}?pattern_library=CORE;{{ selector_pattern_library }}">CORE</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-balance-scale"></i>
                         <a class="badge {% is_active 'pattern_library' 'LOAD_BALANCER' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?pattern_library=LOAD_BALANCER;{{ selector_pattern_library }}">LOAD_BALANCER</a>
-                    </li>
+                           href="{% url 'test_cases' %}?pattern_library=LOAD_BALANCER;{{ selector_pattern_library }}">LOAD_BALANCER</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-truck-loading"></i>
                         <a class="badge {% is_active 'pattern_library' 'MANAGEMENT_CONTROLLERS' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?pattern_library=MANAGEMENT_CONTROLLERS;{{ selector_pattern_library }}">MANAGEMENT_CONTROLLERS</a>
-                    </li>
+                           href="{% url 'test_cases' %}?pattern_library=MANAGEMENT_CONTROLLERS;{{ selector_pattern_library }}">MANAGEMENT_CONTROLLERS</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-network-wired"></i>
                         <a class="badge {% is_active 'pattern_library' 'NETWORK' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?pattern_library=NETWORK;{{ selector_pattern_library }}">NETWORK</a>
-                    </li>
+                           href="{% url 'test_cases' %}?pattern_library=NETWORK;{{ selector_pattern_library }}">NETWORK</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-hdd"></i>
                         <a class="badge {% is_active 'pattern_library' 'STORAGE' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?pattern_library=STORAGE;{{ selector_pattern_library }}">STORAGE</a>
-                    </li>
+                           href="{% url 'test_cases' %}?pattern_library=STORAGE;{{ selector_pattern_library }}">STORAGE</a></li>
                     <li class="list-group-item border-light"><i class="fab fa-centos"></i>
                         <a class="badge {% is_active 'pattern_library' 'SYSTEM' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?pattern_library=SYSTEM;{{ selector_pattern_library }}">SYSTEM</a>
-                    </li>
+                           href="{% url 'test_cases' %}?pattern_library=SYSTEM;{{ selector_pattern_library }}">SYSTEM</a></li>
                 </ul>
             </div>
             <div class="card border-light card-autosize">
@@ -84,28 +75,22 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item border-light"><i class="fas fa-calendar-day"></i>
                         <a class="badge {% is_active 'last_days' None 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?{{ selector_last_days }}">All</a>
-                    </li>
+                           href="{% url 'test_cases' %}?{{ selector_last_days }}">All</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-calendar-day"></i>
                         <a class="badge {% is_active 'last_days' '1' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?last_days=1;{{ selector_last_days }}">Today</a>
-                    </li>
+                           href="{% url 'test_cases' %}?last_days=1;{{ selector_last_days }}">Today</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-calendar-week"></i>
                         <a class="badge {% is_active 'last_days' '7' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?last_days=7;{{ selector_last_days }}">Week</a>
-                    </li>
+                           href="{% url 'test_cases' %}?last_days=7;{{ selector_last_days }}">Week</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-calendar-alt"></i>
                         <a class="badge {% is_active 'last_days' '30' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?last_days=30;{{ selector_last_days }}">Release</a>
-                    </li>
+                           href="{% url 'test_cases' %}?last_days=30;{{ selector_last_days }}">Release</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-calendar"></i>
                         <a class="badge {% is_active 'last_days' '360' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?last_days=360;{{ selector_last_days }}">Last year</a>
-                    </li>
+                           href="{% url 'test_cases' %}?last_days=360;{{ selector_last_days }}">Last year</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-moon"></i>
                         <a class="badge {% is_active 'last_days' '730' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?last_days=730;{{ selector_last_days }}">Night routine (TBA)</a>
-                    </li>
+                           href="{% url 'test_cases' %}?last_days=730;{{ selector_last_days }}">Night routine (TBA)</a></li>
                 </ul>
             </div>
             <div class="card border-light card-autosize">
@@ -114,31 +99,19 @@
                     <li class="list-group-item border-light">
                         <i class="fas fa-undo"></i>
                         <a class="badge {% is_active 'test_type' None 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?{{ selector_test_type }}">
-                            All
-                        </a>
-                    </li>
+                           href="{% url 'test_cases' %}?{{ selector_test_type }}">All</a></li>
                     <li class="list-group-item border-light">
                         <i class="fas fa-scroll"></i>
                         <a class="badge {% is_active 'test_type' 'tku_patterns' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?test_type=tku_patterns;{{ selector_test_type }}">
-                            tku_patterns
-                        </a>
-                    </li>
+                           href="{% url 'test_cases' %}?test_type=tku_patterns;{{ selector_test_type }}">tku_patterns</a></li>
                     <li class="list-group-item border-light">
                         <i class="fab fa-python"></i>
                         <a class="badge {% is_active 'test_type' 'main_python' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?test_type=main_python;{{ selector_test_type }}">
-                            main_python
-                        </a>
-                    </li>
+                           href="{% url 'test_cases' %}?test_type=main_python;{{ selector_test_type }}">main_python</a></li>
                     <li class="list-group-item border-light">
                         <i class="fas fa-plug"></i>
                         <a class="badge {% is_active 'test_type' 'octo_tests' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?test_type=octo_tests;{{ selector_test_type }}">
-                            (TBA) octo_tests
-                        </a>
-                    </li>
+                           href="{% url 'test_cases' %}?test_type=octo_tests;{{ selector_test_type }}">(TBA) octo_tests</a></li>
                 </ul>
             </div>
         </div>
@@ -200,13 +173,13 @@
                                 </a>
                             {% endif %}
                         </td>
-                        <td class="small-font align-middle break-all">{{ case.test_case_depot_path }}</td>
-                        <td class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight }}{% else %}0{% endif %}</td>
+                        <td id="case_depot_path" class="small-font align-middle break-all">{{ case.test_case_depot_path }}</td>
+                        <td id="test_time_weight" class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight }}{% else %}0{% endif %}</td>
                         <td class="small-font center_txt">
                             {{ case.change_time|timezone:"Europe/London"|naturaltime }}
                             {% comment %}{{ pattern.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}{% endcomment %}
                         </td>
-                        <td class="row-txt-center-sm">
+                        <td id="test_cases_group" class="row-txt-center-sm">
                             {% if case.related_test_cases %}
                                 {% for group in case.related_test_cases.all %}
                                     <a class="badge badge-info" {% popover 'hover' 'bottom' None 'Go to group' %}
@@ -216,7 +189,7 @@
                             {% endif %}
                         </td>
                         <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
-                        <td class="actions_button">
+                        <td id="actions" class="actions_button">
                             <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                     data-target="#actionsModal">Actions
                             </button>
@@ -227,6 +200,7 @@
                         <td id="change_user" style="display:none">{{ case.change_user }}</td>
                         <td id="change_review" style="display:none">{{ case.change_review }}</td>
                         <td id="change_ticket" style="display:none">{{ case.change_ticket }}</td>
+                        <td id="change_time" style="display:none">{{ case.change_time }}</td>
                     </tr>
                     {% endwith %}
                 {% endfor %}

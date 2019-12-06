@@ -55,7 +55,8 @@
                         <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                 data-target="#actionsModal"
                                 data-tst_status="{{ selector.tst_status }}"
-                                data-addm_name="{{ selector.addm_name }}">Actions</button></td>
+                                data-addm_name="{{ selector.addm_name }}"
+                                data-case_id="{{ test.case_id }}">Actions</button></td>
                     <td id="tooltip"><a class="btn btn-sm" {% tooltip_tku_test 'hover' 'right' test %}><i class="far fa-eye"></i></a></td>
                     <td id="change" style="display:none">{{ test.change }}</td>
                     <td id="change_review" style="display:none">{{ test.change_review }}</td>

@@ -3,59 +3,38 @@ Input requests - output pages with some results.
 
 """
 
-import datetime
-from django.utils import timezone
-from operator import itemgetter
-
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import permission_required
-from django.db.models import Max, Q
-from django.http import HttpResponse
-from django.template import loader
-
-from django import forms
-from django.utils.decorators import method_decorator
-
-from django.views.generic import TemplateView, ListView, DetailView
-from django.views.generic.edit import UpdateView, CreateView
-from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView, DayMixin, MonthMixin, YearMixin
-
-from octo.octo_celery import app
-from celery.result import AsyncResult
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
-
-from rest_framework.decorators import api_view
-from rest_framework import authentication, permissions
-
-from octo_adm.user_operations import UserCheck
-from octo_adm.request_service import SelectorRequestsHelpers
-
-from run_core.addm_operations import ADDMOperations
-
-from octo.helpers.tasks_run import Runner
-
-from octo.helpers.tasks_helpers import TMail
-from octo.helpers.tasks_mail_send import Mails
-
-from octo.models import CeleryTaskmeta
-from octo.api.serializers import CeleryTaskmetaSerializer
-
-from octo_tku_patterns.models import TestLast, TestHistory, TestCases, TestCasesDetails
-from octo_tku_patterns.model_views import *
-
-from octo_tku_patterns.table_oper import PatternsDjangoTableOper, PatternsDjangoModelRaw
-from octo_tku_patterns.tasks import TPatternRoutine, TPatternParse, TaskPrepare
-from octo_tku_patterns.user_test_balancer import OptionalTestsSelect
-
-# from octo_tku_patterns.task_prep import TaskPrepare
-
 # Python logger
 import logging
+
+from celery.result import AsyncResult
+from django import forms
+from django.contrib.auth.decorators import login_required
+from django.core import serializers
+from django.db.models import Q
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.template import loader
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView
+from django.views.generic.edit import UpdateView, CreateView
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from octo.api.serializers import CeleryTaskmetaSerializer
+from octo.models import CeleryTaskmeta
+from octo_adm.user_operations import UserCheck
+from octo_tku_patterns.model_views import *
+from octo_tku_patterns.models import TestLast, TestHistory, TestCases, TestCasesDetails
+from octo_tku_patterns.table_oper import PatternsDjangoTableOper, PatternsDjangoModelRaw
+from octo_tku_patterns.tasks import TPatternRoutine
+
+from octo_tku_patterns.api.serializers import TestLastSerializer
+
+# from octo_tku_patterns.task_prep import TaskPrepare
 
 log = logging.getLogger("octo.octologger")
 
@@ -241,7 +220,10 @@ class TestLastDigestListView(ListView):
         if self.request.method == 'GET':
             # log.debug("METHOD: GET - show test cases digest")
             context = super(TestLastDigestListView, self).get_context_data(**kwargs)
-            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            # log.debug("qs: %s", context.get('object_list').values())
+            # qs_json = TestLastSerializer(context.get('object_list'))
+            qs_json = serializers.serialize('json', context.get('object_list'))
+            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names, tests_digest_json=qs_json)
             return context
 
     def get_queryset(self):

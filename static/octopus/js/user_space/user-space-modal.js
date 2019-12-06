@@ -22,7 +22,9 @@ $(document).ready(function () {
         // console.table(caseData);
 
         // Fill modal body with divs:
-        fillModalBody(modal, caseData);
+        // Arr of ids will be not be shown to user as visible in modal-variables
+        let excludeIds = ['case_depot_path', 'test_time_weight', 'test_cases_group', 'change_time'];
+        fillModalBody(modal, caseData, excludeIds);
 
         // Paste hypelinks on buttons with log views:
         let button = getButtonFromEvent(event);
