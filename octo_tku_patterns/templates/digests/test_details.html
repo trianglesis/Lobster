@@ -286,11 +286,18 @@
     <script src="{% static 'octopus/js/test_details/parsing-test-details-test-output.js' %}"></script>
     <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>
     <script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>
+    {# Actions button #}
     {# Show test actions modal, make active buttons #}
+    {# LOAD: Toast#}
     {% include 'digests/includes/toast_popup.html' %}
+    {# LOAD: actionsModal#}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
-    <script type="module" src="{% static 'octopus/js/test-run/modal-toast-for-test-tables.js' %}"></script>
-{#    <script src="{% static 'octopus/js/test-run/run-tests-modal-toast-test-tables.js' %}"></script>#}
+    {# JS Actions modal and toast: #}
+    <script src="{% static 'octopus/js/user-test-run/test_details-modals-toasts.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
+    <script type="text/javascript">
+        let tests_digest_json = {{ test_detail|tku_patterns_json:'TestLast'|safe }};
+    </script>
 
 {#    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>#}
 {#    <script src="{% static 'octopus/js/digest/test-details-modal.js' %}"></script>#}
