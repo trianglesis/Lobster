@@ -209,7 +209,7 @@
     <script src="{% static 'octopus/js/test-run/run-tests-modal-toast-test-tables.js' %}"></script>
 
     <script type="text/javascript">
-        let tests_digest_json = {{ tests_digest_json|safe }};
+        let tests_digest_json = {{ tests_digest|tku_patterns_json:'TestLatestDigestAll'|safe }};
     </script>
 {#    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>#}
 {#    <script src="{% static 'octopus/js/digest/test-last-run-selected.js' %}"></script>#}

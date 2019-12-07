@@ -21,6 +21,8 @@ $(document).ready(function () {
     });
 });
 
+
+
 /**
  * Draw modal with case/test info and buttons to browse logs, case and run tests with different modes
  * caseData comes from Global variable after parseTableRowForCaseData!
@@ -28,21 +30,11 @@ $(document).ready(function () {
 $(document).ready(function () {
     $('#actionsModal').on('show.bs.modal', function (event) {
         let button = getButtonFromEvent(event);  // Get some context values from modal button 'Actions'
-
-        console.log(tests_digest_json);
-
+        let relCases = makeCaseTestDataSet(tests_digest_json, button.data('case_id'));
         let modal = document.getElementById("actionsModal");
-        // let tableRow = getTableRowFromEvent(event);  // Get table row where this button pressed
-        // parseTableRowForCaseData(tableRow);  // Parse all row cells to caseData arr
-
-        for (let testItem of tests_digest_json) {
-            if (testItem.fields.case_id === button.data('case_id')) {
-                console.log(testItem.fields)
-            }
-        }
 
         // Fill modal body with divs:
-        fillModalBody(modal, caseData, excludeIds);
+        fillModalBodyNew(modal, relCases);
         // Paste hyperlinks on buttons with log views:
         let addm_name_url = detectADDMSelectorFromContext(button, caseData);  // Add addm name anchor to next page
         let tst_status_url = detectTestStatusSelectorFromContext(button, caseData);  // Add tst_status context to href
@@ -50,8 +42,10 @@ $(document).ready(function () {
         composeLogsHyperlinks(caseData, addm_name_url, tst_status_url);  // href for test last -> test logs
         composeCaseHyperlinks(caseData);  // href to case full view
         assignTestCaseTestButtons(caseData);  // Make buttons for test execution with data attrs of case ids
-    });
+    })
 });
+
+
 
 /**
  * This is an event listener and toast maker for pattern test cases on page: /octo_tku_patterns/tests_last/

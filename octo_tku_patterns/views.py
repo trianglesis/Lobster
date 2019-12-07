@@ -32,7 +32,7 @@ from octo_tku_patterns.models import TestLast, TestHistory, TestCases, TestCases
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper, PatternsDjangoModelRaw
 from octo_tku_patterns.tasks import TPatternRoutine
 
-from octo_tku_patterns.api.serializers import TestLastSerializer
+
 
 # from octo_tku_patterns.task_prep import TaskPrepare
 
@@ -220,10 +220,7 @@ class TestLastDigestListView(ListView):
         if self.request.method == 'GET':
             # log.debug("METHOD: GET - show test cases digest")
             context = super(TestLastDigestListView, self).get_context_data(**kwargs)
-            # log.debug("qs: %s", context.get('object_list').values())
-            # qs_json = TestLastSerializer(context.get('object_list'))
-            qs_json = serializers.serialize('json', context.get('object_list'))
-            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names, tests_digest_json=qs_json)
+            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
             return context
 
     def get_queryset(self):

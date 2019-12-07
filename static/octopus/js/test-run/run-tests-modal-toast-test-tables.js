@@ -83,6 +83,59 @@ function fillModalBody(modal, caseData, excludeIds) {
     }
 }
 
+function fillModalBodyNew(modal, testItemsJSON) {
+    // Create in modal body:
+    // let modal_variables = modal.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
+    let modal_variables = document.getElementById('modal-variables');
+    // Remove extra children if any found. Could be leftovers from previous modal draw!
+    while (modal_variables.firstChild) {
+        modal_variables.firstChild.remove();
+    }
+    let caseAttrs = [
+        'tkn_branch',
+        'pattern_library',
+        'pattern_folder_name',
+        'case_id',
+        'change_ticket',
+        'change_review',
+        'change_user',
+        'change',
+        'test_py_path',
+    ];
+    let div = document.createElement('div');
+    let div = document.createElement('div');
+
+
+    // Make table sum of one testcase test counters
+    let tr = document.createElement('tr');
+    let colNames = ['addm_name', 'fails', 'error', 'passed', 'skipped'];
+    for (let name of colNames) {
+        let td = document.createElement('td');
+        td.innerText = name;
+        tr.appendChild(td);
+    }
+    modal_variables.appendChild(tr);
+
+    // Fill modal body > modal variables with testItemsJSON attributes:
+    for (let testItem of testItemsJSON) {
+        if (testItem) {
+
+            // Create table:
+            let tr = document.createElement('tr');
+            tr.setAttribute('id', testItem['addm_name']);
+            for (let key in testItem) {
+                if (testItem.hasOwnProperty(key) && colNames.includes(key)) {
+                    let td = document.createElement('td');
+                    td.setAttribute('class', key);
+                    td.innerText = testItem[key];
+                    tr.appendChild(td);
+                }
+            }
+            modal_variables.appendChild(tr);
+        }
+    }
+}
+
 /**
  * For USER_TEST_RUN_FROM_TEST_CASE_TABLES, #actionsModal
  * Try to see if we have an addm_name in context, which could be passed here from button data.
@@ -357,7 +410,6 @@ let fillToastBodyWithTestAttributes_ = new Object({
     }
 });
 
-
 function fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset) {
     let toastBody = toastBase.childNodes[3];  // Path to toast body.
     let testDetails = document.createElement('div');
@@ -592,4 +644,16 @@ function toastModifySuccess(taskObj, toastId) {
         }
     }
     toastPublished.childNodes[3].appendChild(task_status);
+}
+
+
+function makeCaseTestDataSet(dataJSON, case_id) {
+    let caseTestDataset = [];
+        for (let testItem of dataJSON) {
+            if (parseInt(testItem['case_id']) === parseInt(case_id)) {
+                // console.log(testItem);
+                caseTestDataset.push(testItem);
+            }
+        }
+    return caseTestDataset
 }

@@ -10,8 +10,11 @@ from django.template import loader, Template, Context
 
 from octo.config_cred import cred
 
-from octo_tku_patterns.models import TestCases
 from run_core.models import AddmDev
+
+import json
+from django.core import serializers as django_serializers
+from octo_tku_patterns.api.serializers import *
 
 register = template.Library()
 log = logging.getLogger("octo.octologger")
@@ -466,3 +469,27 @@ def tku_package_used(package, ga_candidate_max, released_tkn_max):
 @register.simple_tag()
 def all_addm_groups():
     return AddmDev.objects.all().values_list('addm_group', flat=True).order_by('addm_group').distinct()
+
+
+@register.filter()
+def tku_patterns_json(test_digest_qs, model_name=None):
+
+    if model_name == 'TestCases':
+        serializer = TestCasesSerializer(test_digest_qs, many=True)
+        serializer = serializer.data
+    elif model_name == 'TestCasesDetails':
+        serializer = TestCasesDetailsSerializer(test_digest_qs, many=True)
+        serializer = serializer.data
+    elif model_name == 'TestLast':
+        serializer = TestLastSerializer(test_digest_qs, many=True)
+        serializer = serializer.data
+    elif model_name == 'TestLatestDigestAll':
+        serializer = TestLatestDigestAllSerializer(test_digest_qs, many=True)
+        serializer = serializer.data
+    elif model_name == 'TestHistory':
+        serializer = TestHistorySerializer(test_digest_qs, many=True)
+        serializer = serializer.data
+    else:
+        serializer = django_serializers.serialize('json', test_digest_qs)
+    # return str(JSONRenderer().render(serializer.data))
+    return json.dumps(serializer)
