@@ -296,8 +296,6 @@
         let cases_json = {{ search_results.cases|tku_patterns_json:'TestCases'|safe }};
     </script>
 
-    {% comment %}Use dynamic tabs{% endcomment %}
-
     {% comment %}DEBUG{% endcomment %}
     <div class="debug-context">
         {% if request.GET.debug %}

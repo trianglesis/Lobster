@@ -140,7 +140,7 @@
                             <td class="actions_button">
                                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                     data-target="#actionsModal"
-                                    data-test_id="{{ case.id }}">Actions
+                                    data-case_id="{{ case.id }}">Actions
                             </button>
                             </td>
                             <td id="case_id" style="display:none">{{ case.id }}</td>
@@ -171,17 +171,26 @@
         </ul>
         <span class="navbar-text">Octopus automation</span>
     </nav>
-    {# Coloring rows #}
+    {% comment %}
+        Draw test table rows with colored statuses:
+    {% endcomment %}
     <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>
-    {# Show test actions modal, make active buttons #}
+    {% comment %}
+    Actions:
+        - Load toast popup
+        - Load modal with actions
+        - Import methods for test_latest page: Modal and Toast
+        - Import general operations module for Modal, Toast, Parsing, REST and other operations.
+        - Convert test/cases QuerySet to simple JSON with template tag and serealize.
+    {% endcomment %}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
-    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
-    {# For tests table actiosn: #}
-    <script src="{% static 'octopus/js/digest/test-details-modal.js' %}"></script>
-    <script src="{% static 'octopus/js/digest/test-details-toast.js' %}"></script>
-{#     For cases table actions #}
-{#    <script src="{% static 'octopus/js/cases_groups/cases-details-modal.js' %}"></script>#}
-{#    <script src="{% static 'octopus/js/cases_groups/cases-details-toast.js' %}"></script>#}
-
+    <script src="{% static 'octopus/js/user-test-run/user_space-modals-toasts.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
+    <script type="text/javascript">
+        let cases_json = {{ objects.user_cases|tku_patterns_json:'TestCases'|safe }};
+    </script>
+    {% comment %}
+        DEBUG PART
+    {% endcomment %}
 {% endblock %}

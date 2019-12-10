@@ -329,11 +329,12 @@ function eventListenerForCaseTestButtons(funcToRun) {
     let test_instant_run = document.getElementById("instant-run");
     // Clear buttons dataset from any extra options:
     let testButtonUseKeys = ['wipe', 'refresh', 'test_mode', 'test_function'];
-    let testButtonDataset = new Object({'test_mode': ''});
 
     if (test_wipe_run) {
         test_wipe_run.addEventListener("click", function () {
+            let testButtonDataset = new Object({'test_mode': ''});
             // console.log("test_wipe_run click");
+            // console.log(test_wipe_run.dataset);
             for (let [key, value] of Object.entries(test_wipe_run.dataset)) {
                 if (testButtonUseKeys.includes(key)) {
                     testButtonDataset[key] = value;
@@ -344,7 +345,9 @@ function eventListenerForCaseTestButtons(funcToRun) {
     }
     if (test_p4_run) {
         test_p4_run.addEventListener("click", function () {
+            let testButtonDataset = new Object({'test_mode': ''});
             // console.log("test_p4_run click");
+            // console.log(test_p4_run.dataset);
             for (let [key, value] of Object.entries(test_p4_run.dataset)) {
                 if (testButtonUseKeys.includes(key)) {
                     testButtonDataset[key] = value;
@@ -355,7 +358,9 @@ function eventListenerForCaseTestButtons(funcToRun) {
     }
     if (test_instant_run) {
         test_instant_run.addEventListener("click", function () {
+            let testButtonDataset = new Object({'test_mode': ''});
             // console.log("test_instant_run click");
+            // console.log(test_instant_run.dataset);
             for (let [key, value] of Object.entries(test_instant_run.dataset)) {
                 if (testButtonUseKeys.includes(key)) {
                     testButtonDataset[key] = value;
@@ -372,6 +377,7 @@ function eventListenerForCaseTestButtons(funcToRun) {
 
     if (unit_wipe_run) {
         unit_wipe_run.addEventListener("click", function () {
+            let testButtonDataset = new Object({'test_mode': ''});
             // console.log("unit_wipe_run click");
             for (let [key, value] of Object.entries(unit_wipe_run.dataset)) {
                 if (testButtonUseKeys.includes(key)) {
@@ -383,6 +389,7 @@ function eventListenerForCaseTestButtons(funcToRun) {
     }
     if (unit_p4_run) {
         unit_p4_run.addEventListener("click", function () {
+            let testButtonDataset = new Object({'test_mode': ''});
             // console.log("unit_p4_run click");
             for (let [key, value] of Object.entries(unit_p4_run.dataset)) {
                 if (testButtonUseKeys.includes(key)) {
@@ -394,6 +401,7 @@ function eventListenerForCaseTestButtons(funcToRun) {
     }
     if (unit_instant_run) {
         unit_instant_run.addEventListener("click", function () {
+            let testButtonDataset = new Object({'test_mode': ''});
             // console.log("unit_instant_run click");
             for (let [key, value] of Object.entries(unit_instant_run.dataset)) {
                 if (testButtonUseKeys.includes(key)) {
@@ -443,11 +451,7 @@ function getToastDraftWithId(caseData) {
 function fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset) {
     let toastBody = toastBase.childNodes[3];  // Path to toast body.
     let testDetails = document.createElement('div');
-    let testMode = document.createElement('div');
-
     testDetails.setAttribute('id', testButtonDataset.test_mode);
-    testMode.setAttribute('id', 'test_mode');
-
     // Depend on data-test_mode="" attribute fill toast with caseData details:
     if (testButtonDataset.test_mode === 'test_by_id') {
         testDetails.innerText = 'Will run test by case id';
@@ -501,17 +505,16 @@ function fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset)
     }
     // Add case and test details to toast body:
     toastBody.append(testDetails);
-
+    let testMode = document.createElement('div');
+    testMode.setAttribute('id', 'test_mode');
     if (testButtonDataset.wipe) {
         testMode.innerText = `Wipe latest logs`;
-        toastBase.childNodes[3].appendChild(testMode);
     } else if (testButtonDataset.refresh) {
         testMode.innerText = `Run p4 sync, wipe latest logs`;
-        toastBase.childNodes[3].appendChild(testMode);
     } else {
         testMode.innerText = `Instant run, keep logs, no p4 sync`;
-        toastBase.childNodes[3].appendChild(testMode);
     }
+    toastBody.append(testMode);
 
     return toastBase
 }
