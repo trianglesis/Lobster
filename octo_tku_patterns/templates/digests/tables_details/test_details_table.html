@@ -22,23 +22,29 @@
                     {% if test.addm_name == var_addm_name or not var_addm_name %}
                         <tr>
                             <td id='case_unit' class="list-nostyle">
+                                <li class="pattern_library">{{ test.tkn_branch }}</li>
                                 <li class="pattern_library">{{ test.pattern_library }}</li>
                                 <li class="pattern_folder_name">{{ test.pattern_folder_name }}</li>
                             </td>
-                            <td id="test_unit" class="list-nostyle txt-center-prewrap {% popover 'hover' 'top' None 'Show all logs for current test method from history records. Click me' %}"
-                                onclick="window.document.location='{% url "test_item_history" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}'" >
-                                <li class="tst_class">{{ test.tst_class }}</li>
-                                <li class="tst_name">{{ test.tst_name }}</li>
-                                <li id="tst_status" class="tst_status">{% if not test.tst_status == 'ok' %}{{ test.tst_status }}{% endif %}</li>
+                            <td id="test_unit" class="list-nostyle txt-center-prewrap">
+                                <li class="tst_class {% popover 'hover' 'top' None 'Show all logs for current test method from history records. Click me' %}"
+                                    onclick="window.document.location='{% url "test_item_history" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}'"
+                                    style="cursor: pointer">{{ test.tst_class }}</li>
+                                {# TODO: Add here copy&paste for test to clipboard? #}
+                                <li class="tst_name {% popover 'hover' 'top' 'Future (TBV)' 'Push to copy&paste full test path + TestClass.test000_method for console usage' %}">{{ test.tst_name }}</li>
+                                <li id="tst_status" class="tst_status">{% if not test.tst_status == 'ok' %}{{ test.tst_status }} <span class="text {% popover 'hover' 'top' 'Future (TBV)' 'Failed test tip, show suggestion about how to fix some kind of issues. (TBV Vote for this)' %}"><i class="fas fa-info"></i></span>{% endif %}</li>
                                 <li id="tst_message" class="tst_message">{% if not test.tst_message == ' ... ' %}{{ test.tst_message }}{% endif %}</li>
                             </td>
-                            <td id="fail_message" class="txt-monospace txt-left-prewrap fail_message {% popover 'hover' 'top' 'Future (TBV)' 'Failed test tip, show suggestion about how to fix some kind of issues. (TBV Vote for this)' %}">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
+                            <td id="fail_message" class="txt-monospace txt-left-prewrap fail_message">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
                             <td id="test_date_time" class="txt-center-prewrap {% popover 'hover' 'top' None test.test_date_time|timezone:"Europe/London" %}">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
                             <td id="addm_name" class="txt-center-prewrap {% popover 'hover' 'top' None 'Browse related ADDM to see scan details.' %}"><a href="http://{{ test.addm_host }}.bmc.com/ui/DiscoveryHome">{{ test.addm_name }}</a></td>
                             <td class="actions_button">
                                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                         data-target="#actionsModal"
                                         data-test_id="{{ test.id }}"
+                                        {% if "found" in request.path %}
+                                            data-test_py_path="{{ test.test_py_path }}"
+                                        {% endif %}
                                         data-tst_status="{{ context.selector.tst_status }}"
                                         data-addm_name="{{ context.selector.addm_name }}">Actions
                                 </button>

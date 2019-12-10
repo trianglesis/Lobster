@@ -17,8 +17,8 @@ $(document).ready(function () {
         let foundActual = cell.innerText.match(Actual);
         let foundExpected = cell.innerText.match(Expected);
         if (foundActual && foundExpected) {
-            console.log(`foundActual ${foundActual}`);
-            console.log(`foundExpected ${foundExpected}`);
+            // console.log(`foundActual ${foundActual}`);
+            // console.log(`foundExpected ${foundExpected}`);
             cell.innerText = `${foundActual}\n${foundExpected}`
         } else if (cell.innerText.match(AssertionError)) {
             cell.innerText = `${cell.innerText.match(AssertionError)}`

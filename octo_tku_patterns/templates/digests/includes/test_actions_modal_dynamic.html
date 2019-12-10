@@ -228,10 +228,13 @@
                         </div>
                         <div class="list-group text-center" style="padding: 5px 5% 5px 5%">
                             <a href="#"
-                               id="see-logs-history"
-                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test method log" 'Show logs for single unit test method.' %}"><i class="fas fa-history"></i> Unit history</a>
+                               id="see-logs"
+                               class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test log" 'Show all not passed tests for current test case. Select only latest records from daily run.' %}">See test.py logs output</a>
                         </div>
-                        <!-- Case unit test actions:  -->
+                        {% comment %}
+                            Better not to show test method run here, because search results could show outdated test methods.
+                        {% endcomment %}
+                        {% comment %}<!-- Case unit test actions:  -->
                         <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
                         <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
@@ -248,7 +251,7 @@
                                id="unit-instant-run"
                                data-test_mode="test_by_id"
                                class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and keep logs" 'Instant run test.py, keep logs. Only for extra debugging, keep current logs to compare them with the new result.' %}"><i class="fas fa-bolt"></i> Run & keep logs</a>
-                        </div>
+                        </div>{% endcomment %}
                     {% else %}
                         <div class="test-actions-modal-name">Somewhere else...</div>
                         <a class="btn btn-sm btn-outline-info disabled">Else</a>

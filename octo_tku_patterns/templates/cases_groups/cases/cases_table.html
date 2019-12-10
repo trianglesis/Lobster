@@ -191,7 +191,8 @@
                         <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
                         <td id="actions" class="actions_button">
                             <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
-                                    data-target="#actionsModal">Actions
+                                    data-target="#actionsModal"
+                                    data-case_id="{{ case.id }}">Actions
                             </button>
                         </td>
                         <td id="case_id" style="display:none">{{ case.id }}</td>

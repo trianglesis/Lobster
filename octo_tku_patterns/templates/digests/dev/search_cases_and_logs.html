@@ -147,7 +147,8 @@
                             <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
                             <td class="actions_button">
                                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
-                                        data-target="#actionsModal">Actions
+                                        data-target="#actionsModal"
+                                        data-case_id="{{ case.id }}">Actions
                                 </button>
                             </td>
                             <td id="case_id" style="display:none">{{ case.id }}</td>
@@ -267,19 +268,36 @@
         </ul>
         <span class="navbar-text">Octopus automation</span>
     </nav>
-    {# Coloring rows #}
+    {% comment %}
+        Parse test results and cut all extra traceback messages, leave only comparison msg
+    {% endcomment %}
+    <script src="{% static 'octopus/js/test_details/parsing-test-details-test-output.js' %}"></script>
+    {% comment %}
+        Make ADDM tabs dynamical
+    {% endcomment %}
+    {% if not selector.addm_name %}<script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>{% endif %}
+    {% comment %}
+        Draw test table rows with colored statuses:
+    {% endcomment %}
     <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>
-
-    {# Actions button #}
-    {# Show test actions modal, make active buttons #}
+    {% comment %}
+    Actions:
+        - Load toast popup
+        - Load modal with actions
+        - Import methods for test_latest page: Modal and Toast
+        - Import general operations module for Modal, Toast, Parsing, REST and other operations.
+        - Convert test/cases QuerySet to simple JSON with template tag and serealize.
+    {% endcomment %}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
-    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
-    <script src="{% static 'octopus/js/digest/test-details-modal.js' %}"></script>
-    <script src="{% static 'octopus/js/digest/test-details-toast.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/found-modals-toasts.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
+    <script type="text/javascript">
+        let cases_json = {{ search_results.cases|tku_patterns_json:'TestCases'|safe }};
+    </script>
 
     {% comment %}Use dynamic tabs{% endcomment %}
-    {% if not selector.addm_name %}<script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>{% endif %}
+
     {% comment %}DEBUG{% endcomment %}
     <div class="debug-context">
         {% if request.GET.debug %}

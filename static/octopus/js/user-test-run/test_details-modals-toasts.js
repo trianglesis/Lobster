@@ -55,13 +55,11 @@ function fillModalBodyAfterREST(caseItem) {
     // Assign REST result case data to this var to use for post task and toast drawing
     caseDataREST = caseItem;
     // We only require case_id key attr for buttons, there is no reason to pass whole data
-    let buttonCaseDataSet = [
-        {
-            'case_id': caseItem['id'],
-            'tst_class': relCasesTestLogs[0]['tst_class'],
-            'tst_name': relCasesTestLogs[0]['tst_name'],
-        }
-        ]; // {Array}
+    let buttonCaseDataSet = {
+        'case_id': caseItem['id'],
+        'tst_class': relCasesTestLogs[0]['tst_class'],
+        'tst_name': relCasesTestLogs[0]['tst_name'],
+    };
 
     // Fill modal body with case details after REST:
     let caseAttrs = ['id', 'tkn_branch', 'pattern_library', 'pattern_folder_name', 'test_py_path',
@@ -73,8 +71,8 @@ function fillModalBodyAfterREST(caseItem) {
     let tst_status_url = detectTestStatusSelectorFromContext(button, relCasesTestLogs);  // Add tst_status context to href
 
     composeLogsHyperlinksNew(relCasesTestLogs, addm_name_url, tst_status_url);  // href for test last -> test logs
-    composeCaseHyperlinksNew(buttonCaseDataSet);  // href to case full view
-    assignTestCaseTestButtonsNew(buttonCaseDataSet);  // Make buttons for test execution with data attrs of case ids
+    composeCaseHyperlinksNew(buttonCaseDataSet['case_id']);  // href to case full view
+    assignTestCaseTestButtonsNew(buttonCaseDataSet['case_id']);  // Make buttons for test execution with data attrs of case ids
     assignTestCaseUnitTestButtons(buttonCaseDataSet);
 }
 

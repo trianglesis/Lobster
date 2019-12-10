@@ -10,18 +10,21 @@ function getButtonFromEvent(event) {
  *
  * @param {JSON} dataJSON
  * @param {string} case_id
+ * @param testPyPath
  * @returns {[]}
  */
-function makeCaseTestDataSet(dataJSON, case_id) {
+function makeCaseTestDataSet(dataJSON, case_id = undefined, testPyPath = undefined) {
     let caseTestDataset = [];
         for (let testItem of dataJSON) {
             //For case on last test
-            if (parseInt(testItem['case_id']) === parseInt(case_id)) {
+            if (case_id && (parseInt(testItem['case_id']) === parseInt(case_id))) {
                 // console.log(testItem);
                 caseTestDataset.push(testItem);
-
             // For test on test details tables
-            } else if (parseInt(testItem['id']) === parseInt(case_id)) {
+            } else if (case_id && (parseInt(testItem['id']) === parseInt(case_id))) {
+                caseTestDataset.push(testItem);
+            // For test in found or when need to sort out related items from JSON by test_py_path
+            } else if (testPyPath && (testItem['test_py_path'] === testPyPath)) {
                 caseTestDataset.push(testItem);
             }
         }
@@ -189,20 +192,19 @@ function composeLogsHyperlinksNew(caseDataJSON, addm_name_url, tst_status_url) {
 
 /**
  *
- * @param {Array} caseDataJSON usually an array of case/tests data in json format. Pass array with single item
+ * @param {string} caseId usually an array of case/tests data in json format. Pass array with single item
  * for cases gained from REST request or single selection.
  */
-function composeCaseHyperlinksNew(caseDataJSON) {
-    let caseData = caseDataJSON[0];
+function composeCaseHyperlinksNew(caseId) {
     let seeCaseInfo = document.getElementById('all-info');
     if (seeCaseInfo) {
-        seeCaseInfo.href = `/octo_tku_patterns/test_case/${caseData['case_id']}`;
+        seeCaseInfo.href = `/octo_tku_patterns/test_case/${caseId}`;
     } else {
         // console.log("Cannot find element id for seeCaseInfo " + seeCaseInfo)
     }
     let editCase = document.getElementById('edit-case');
     if (editCase) {
-        editCase.href = `/octo_tku_patterns/test_case/change/${caseData['case_id']}`;
+        editCase.href = `/octo_tku_patterns/test_case/change/${caseId}`;
     } else {
         // console.log("Cannot find element id for seeCaseInfo " + seeCaseInfo)
     }
@@ -210,28 +212,27 @@ function composeCaseHyperlinksNew(caseDataJSON) {
 
 /**
  *
- * @param {Array} caseDataJSON caseDataJSON usually an array of case/tests data in json format. Pass array with single item
+ * @param {string} caseId caseDataJSON usually an array of case/tests data in json format. Pass array with single item
  * for cases gained from REST request or single selection.
  */
-function assignTestCaseTestButtonsNew(caseDataJSON) {
-    let caseData = caseDataJSON[0];
+function assignTestCaseTestButtonsNew(caseId) {
     let test_wipe_run = document.getElementById(
         "wipe-run");
     if (test_wipe_run) {
         test_wipe_run.setAttribute(
-            'data-case_id', caseData['case_id']);
+            'data-case_id', caseId);
     }
     let test_p4_run = document.getElementById(
         "p4-run");
     if (test_p4_run) {
         test_p4_run.setAttribute(
-            'data-case_id', caseData['case_id']);
+            'data-case_id', caseId);
     }
     let test_instant_run = document.getElementById(
         "instant-run");
     if (test_instant_run) {
         test_instant_run.setAttribute(
-            'data-case_id', caseData['case_id']);
+            'data-case_id', caseId);
     }
 }
 
@@ -242,7 +243,7 @@ function assignTestCaseTestButtonsNew(caseDataJSON) {
  * for cases gained from REST request or single selection.
  */
 function assignTestCaseUnitTestButtons(caseDataJSON) {
-    let caseData = caseDataJSON[0];
+    let caseData = caseDataJSON;
     // Test case Unit test run:
     let unit_wipe_run = document.getElementById("unit-wipe-run");
     let unit_p4_run = document.getElementById("unit-p4-run");

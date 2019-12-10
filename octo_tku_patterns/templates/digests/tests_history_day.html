@@ -286,7 +286,7 @@
     {% comment %}
         Make ADDM tabs dynamical
     {% endcomment %}
-    <script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>
+    {% if not selector.addm_name %}<script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>{% endif %}
     {% comment %}
         Draw test table rows with colored statuses:
     {% endcomment %}

@@ -289,7 +289,7 @@
     {% comment %}
         Make ADDM tabs dynamical
     {% endcomment %}
-    <script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>
+    {% if not selector.addm_name %}<script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>{% endif %}
     {% comment %}
         Draw test table rows with colored statuses:
     {% endcomment %}
@@ -309,6 +309,9 @@
     <script type="text/javascript">
         let tests_digest_json = {{ test_detail|tku_patterns_json:'TestLast'|safe }};
     </script>
+    {% comment %}
+        DEBUG PART
+    {% endcomment %}
     <div class="debug-context">
         {% if request.GET.debug %}
             <p>DEBUG enabled</p>
