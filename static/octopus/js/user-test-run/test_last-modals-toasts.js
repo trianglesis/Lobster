@@ -13,22 +13,36 @@ $(document).ready(function () {
 $(document).ready(function () {
     $('#actionsModal').on('show.bs.modal', function (event) {
         let button = getButtonFromEvent(event);  // Get some context values from modal button 'Actions'
-        relCases = makeCaseTestDataSet(tests_digest_json, button.data('case_id'));
         let modal = document.getElementById("actionsModal");
 
-        // Fill modal body with divs:
-        let caseAttrs = [
-            'tkn_branch', 'pattern_library', 'pattern_folder_name',
-            'case_id', 'change_ticket', 'change_review', 'change_user', 'change', 'test_py_path'];
-        fillModalBodyNew(modal, relCases, caseAttrs);
-        fillModalBodyTableTestFails(relCases);
-        // Paste hyperlinks on buttons with log views:
-        let addm_name_url = detectADDMSelectorFromContext(button, relCases);  // Add addm name anchor to next page
-        let tst_status_url = detectTestStatusSelectorFromContext(button, relCases);  // Add tst_status context to href
+        if (button.data && button.data('run_selected')) {
+            console.log('Run multiple by selected');
+            let selectedTestsCaseIDs = testTableCheckBoxesCollect('test-last-rerun-select');
+            casesIds = selectedTestsCaseIDs.join(',');
+            console.log(casesIds);
+            hideHyperlinks();
+            relCases = makeCaseTestDataSet(tests_digest_json, '', '', casesIds);
+            console.log(relCases);
+            fillModalBodyWithMultipleCases(modal, relCases);
 
-        composeLogsHyperlinksNew(relCases, addm_name_url, tst_status_url);  // href for test last -> test logs
-        composeCaseHyperlinksNew(relCases[0]['case_id']);  // href to case full view
-        assignTestCaseTestButtonsNew(relCases[0]['case_id']);  // Make buttons for test execution with data attrs of case ids
+        } else {
+            console.log('Simple single test run');
+            relCases = makeCaseTestDataSet(tests_digest_json, button.data('case_id'));
+            // Fill modal body with divs:
+            let caseAttrs = [
+                'tkn_branch', 'pattern_library', 'pattern_folder_name',
+                'case_id', 'change_ticket', 'change_review', 'change_user', 'change', 'test_py_path'];
+            fillModalBodyNew(modal, relCases, caseAttrs);
+            fillModalBodyTableTestFails(relCases);
+            // Paste hyperlinks on buttons with log views:
+            let addm_name_url = detectADDMSelectorFromContext(button, relCases);  // Add addm name anchor to next page
+            let tst_status_url = detectTestStatusSelectorFromContext(button, relCases);  // Add tst_status context to href
+
+            composeLogsHyperlinksNew(relCases, addm_name_url, tst_status_url);  // href for test last -> test logs
+            composeCaseHyperlinksNew(relCases[0]['case_id']);  // href to case full view
+            assignTestCaseTestButtonsNew(relCases[0]['case_id']);  // Make buttons for test execution with data attrs of case ids
+        }
+
     })
 });
 

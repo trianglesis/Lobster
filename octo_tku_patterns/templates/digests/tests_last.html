@@ -79,14 +79,9 @@
         <!-- Navbar right part content -->
         <div class="nav-reports-right digest-test-log-levels">
             <div class="btn-group dropleft reexecute-failed-tests">
-                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Re-execute(TBA)</button>
-                <div class="dropdown-menu">
-                    <h6 class="dropdown-header">Run selected tests</h6>
-                    <a class="dropdown-item" id="TestLast-RunSelected" href="#"><i class="fas fa-terminal"></i> selected</a>
-                    <h6 class="dropdown-header">Run failed tests</h6>
-                    <a class="dropdown-item disabled" href="#">Run all at once</a>
-                    <a class="dropdown-item disabled" href="#">Run and balance</a>
-                </div>
+                <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                        data-run_selected="true"
+                        data-target="#actionsModal" >Actions</button>
             </div>
             <!-- Change test log level browse: -->
             <nav class="nav-item dropdown">

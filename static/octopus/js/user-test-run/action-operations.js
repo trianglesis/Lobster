@@ -19,24 +19,60 @@ function secondsToTime(secNum) {
  * @param {Array} dataJSON
  * @param {string} case_id
  * @param testPyPath
+ * @param casesIds
  * @returns {[]}
  */
-function makeCaseTestDataSet(dataJSON, case_id = undefined, testPyPath = undefined) {
-    let caseTestDataset = [];
-        for (let testItem of dataJSON) {
-            //For case on last test
-            if (case_id && (parseInt(testItem['case_id']) === parseInt(case_id))) {
-                // console.log(testItem);
-                caseTestDataset.push(testItem);
+function makeCaseTestDataSet(dataJSON,
+                             case_id = undefined,
+                             testPyPath = undefined,
+                             casesIds = []) {
+    let caseTestDataArr = [];
+    for (let testItem of dataJSON) {
+        //For case on last test
+        if (case_id && (parseInt(testItem['case_id']) === parseInt(case_id))) {
+            // console.log(testItem);
+            caseTestDataArr.push(testItem);
             // For test on test details tables
-            } else if (case_id && (parseInt(testItem['id']) === parseInt(case_id))) {
-                caseTestDataset.push(testItem);
+        } else if (case_id && (parseInt(testItem['id']) === parseInt(case_id))) {
+            caseTestDataArr.push(testItem);
             // For test in found or when need to sort out related items from JSON by test_py_path
-            } else if (testPyPath && (testItem['test_py_path'] === testPyPath)) {
-                caseTestDataset.push(testItem);
+        } else if (testPyPath && (testItem['test_py_path'] === testPyPath)) {
+            caseTestDataArr.push(testItem);
+            // For multiple selection via checkboxes. Compare page QS JSON with array of casesIds (from checkboxes)
+        } else if (casesIds && casesIds[0]) {
+            if (casesIds.includes(testItem['id']) || casesIds.includes(testItem['case_id'])) {
+                // TODO: Make unique, do not push items with the same case_id/id
+                caseTestDataArr.push(testItem);
             }
         }
-    return caseTestDataset
+    }
+    return caseTestDataArr
+}
+
+/**
+ * Collect all selected tests
+ * @param elementId
+ * @returns {[]}
+ */
+function testTableCheckBoxesCollect(elementId) {
+    let selectedTestsCaseIDs = [];
+    let checkBoxes = document.getElementsByClassName("test-last-rerun-select");
+
+    for (let checkbox of checkBoxes) {
+        if (checkbox.checked) {
+            if (selectedTestsCaseIDs.includes(checkbox.value)) {
+                console.log('Already selected');
+                checkbox.checked = false;
+            } else {
+                selectedTestsCaseIDs.push(checkbox.value);
+                checkbox.checked = false;
+            }
+        }
+    }
+    if (selectedTestsCaseIDs.length) {
+        console.log(`selectedTestsCaseIDs ${selectedTestsCaseIDs}`);
+    }
+    return selectedTestsCaseIDs;
 }
 
 /**
@@ -270,10 +306,18 @@ function hideHyperlinks() {
     let seeCaseInfo = document.getElementById('all-info');
     let editCase = document.getElementById('edit-case');
 
-    seeLogs.style.display = 'none';
-    seeLogsHist.style.display = 'none';
-    seeCaseInfo.style.display = 'none';
-    editCase.style.display = 'none';
+    if (seeLogs && seeLogs.style) {
+        seeLogs.style.display = 'none';
+    }
+    if (seeLogsHist && seeLogsHist.style) {
+        seeLogsHist.style.display = 'none';
+    }
+    if (seeCaseInfo && seeCaseInfo.style) {
+        seeCaseInfo.style.display = 'none';
+    }
+    if (editCase && editCase.style) {
+        editCase.style.display = 'none';
+    }
 
 }
 
