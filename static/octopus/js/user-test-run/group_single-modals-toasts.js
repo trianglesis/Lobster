@@ -60,8 +60,8 @@ function testRunPrepareToast(testButtonDataset) {
         // Check test modes from button dataset
         let caseData_alt = {'case_id': casesIds};  // Override usual caseData obj with new assigned all cases IDs
         composeTestDataSet(caseData_alt, testButtonDataset);
-        console.log("TO REST");
-        console.log(testButtonDataset);
+        // console.log("TO REST");
+        // console.log(testButtonDataset);
         new RESTPostTask(testButtonDataset, toastBase); //  Now, keeping our toast ID in memory, make a request to GET actual task_id status:
     // Single case run:
     } else {
@@ -73,8 +73,8 @@ function testRunPrepareToast(testButtonDataset) {
         appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
         // Check test modes from button dataset
         composeTestDataSet(caseData, testButtonDataset);
-        console.log("TO REST");
-        console.log(testButtonDataset);
+        // console.log("TO REST");
+        // console.log(testButtonDataset);
         new RESTPostTask(testButtonDataset, toastBase); //  Now, keeping our toast ID in memory, make a request to GET actual task_id status:
     }
 

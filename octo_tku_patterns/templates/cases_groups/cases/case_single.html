@@ -13,6 +13,14 @@
 {% load template_simplify %}
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-actions-modal-toast.css' %}"/>
+    <!-- Toast draw here -->
+    <div aria-live="polite" aria-atomic="true" style="position: relative">
+        <!-- Position it -->
+        <div style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 1"></div>
+        </div>
+    </div>
     <div style="padding: 1% 0 0 2%;">
         <a href="{% url 'test_cases' %}" class="btn btn-sm btn-light">{% select_icon 'arrow-left' 34 'right' 0.2 %}Back
             to all</a>
@@ -193,7 +201,10 @@
                        href="{% url 'test_item_history' %}?tst_status=notpass;tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
                        title="Show all tests for this case from history...(long) not passed"><i class="fas fa-history"></i> History tests</a>
                     </div>
-                    <a class="btn btn-outline-warning" href="#">Run test</a>
+                    <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                            data-target="#actionsModal"
+                            data-case_id="{{ case.id }}">Actions
+                    </button>
                     <a class="btn btn-danger disabled" href="#">Delete(TBA?)</a>
                 </div>
             </div>
@@ -218,132 +229,22 @@
         </ul>
         <span class="navbar-text">Octopus automation</span>
     </nav>
-
+    {% comment %}
+    Actions:
+        - Load toast popup
+        - Load modal with actions
+        - Import methods for test_latest page: Modal and Toast
+        - Import general operations module for Modal, Toast, Parsing, REST and other operations.
+        - Convert test/cases QuerySet to simple JSON with template tag and serealize.
+    {% endcomment %}
+    {% include 'digests/includes/toast_popup.html' %}
+    {% include 'digests/includes/test_actions_modal_dynamic.html' %}
+    <script src="{% static 'octopus/js/user-test-run/test_case-modals-toasts.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
+    <script type="text/javascript">
+        let cases_json = [];
+        cases_json.push({{ case|tku_patterns_json:'TestCases'|safe }});
+    </script>
     {% if DEBUG %}
-        {% comment %}
-                <ul>
-                    <li>
-                        {% if case.test_type == 'tku_patterns' %}
-                            <i class="fas fa-scroll"></i>
-                        {% else %}
-                            <i class="fab fa-python"></i>
-                        {% endif %}
-                        {{case.test_type}} <span class="badge badge-light case-hint">*test type</span>
-                    </li>
-                    <li>
-                        {% if case.tkn_branch == 'tkn_main' %}
-                            {% select_icon 'git-branch' 20 'right' 0.1 %}{{ case.tkn_branch }}
-                        {% elif case.tkn_branch == 'tkn_ship' %}
-                            {% select_icon 'git-merge' 20 'right' 0.1 %}{{ case.tkn_branch }}
-                        {% else %}
-                            {% select_icon 'git-commit' 20 'right' 0.1 %} {{ case.test_case_depot_path }}
-                        {% endif %}<span class="badge badge-light case-hint">*branch</span>
-                    </li>
-                    {% if case.pattern_library %}
-                        <li>
-                            {% select_icon_patt_kw_library case.pattern_library %} {{ case.pattern_library }} <span class="badge badge-light case-hint">*pattern library</span>
-                        </li>
-                    {% endif %}
-                    {% if case.pattern_folder_name %}
-                        <li>
-                             <i class="far fa-folder"></i> {{ case.pattern_folder_name }}<span class="badge badge-light case-hint">*pattern_folder_name</span>
-                        </li>
-                    {% endif %}
-                    {% if case.pattern_folder_path %}
-                        <li>
-                             <i class="far fa-folder-open"></i> {{ case.pattern_folder_path }}<span class="badge badge-light case-hint">*pattern_folder_path</span>
-                        </li>
-                    {% endif %}
-                    {% if case.pattern_library_path %}
-                        <li>
-                             {% select_icon 'repo' 18 'right' .2 %}{{ case.pattern_library_path }}<span class="badge badge-light case-hint">*pattern_library_path</span>
-                        </li>
-                    {% endif %}
-                    {% if case.test_case_dir %}
-                        <li>
-                            <i class="far fa-folder"></i> {{ case.test_case_dir }}<span class="badge badge-light case-hint">*test_case_dir</span>
-                        </li>
-                    {% endif %}
-                    <li>
-                        <i class="fas fa-pencil-ruler"></i>
-                        {{ case.change }}
-                        <span class="badge badge-light case-hint">*change</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-comment-alt"></i>
-                        {{ case.change_desc }}
-                        <span class="badge badge-light case-hint">*change_desc</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-user-tie"></i>
-                        {{ case.change_user }}
-                        <span class="badge badge-light case-hint">*change_user</span>
-                    </li>
-                    <li>
-                        <i class="far fa-eye"></i>
-                        {{ case.change_review }}
-                        <span class="badge badge-light case-hint">*change_review</span>
-                    </li>
-                    <li>
-                        <i class="fab fa-jira"></i>
-                        {{ case.change_ticket }}
-                        <span class="badge badge-light case-hint">*change_ticket</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-stopwatch"></i>
-                        {{ case.change_time }}
-                        <span class="badge badge-light case-hint">*change_time</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-vials"></i>
-                        {{ case.test_case_depot_path }}
-                        <span class="badge badge-light case-hint">*test_case_depot_path</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-anchor"></i>
-                        {{ case.test_py_path }}
-                        <span class="badge badge-light case-hint">*test_py_path</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-vials"></i>
-                        {{ case.test_py_path_template }}
-                        <span class="badge badge-light case-hint">*test_py_path_template</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-vials"></i>
-                        {{ case.test_dir_path }}
-                        <span class="badge badge-light case-hint">*test_dir_path</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-vials"></i>
-                        {{ case.test_dir_path_template }}
-                        <span class="badge badge-light case-hint">*test_dir_path_template</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-weight-hanging"></i>
-                        {{ case.test_time_weight }}
-                        <span class="badge badge-light case-hint">*test_time_weight</span>
-                    </li>
-                    <li>
-                        <i class="far fa-calendar-alt"></i>
-                        {{ case.created_time }}
-                        <span class="badge badge-light case-hint">*created_time</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-sitemap"></i>
-                        {% if case.related_test_cases %}{% for group in case.related_test_cases.all %}{{ group.title }}, {% endfor %}{% endif %}
-                        <span class="badge badge-light case-hint">*related_test_cases</span>
-                    </li>
-                </ul>
-{% endcomment %}
-        <p>TODO:</p>
-        <ul>
-            <li>Add buttons: run test</li>
-            <li>Add buttons: edit (no need to del?)</li>
-            <li>Add buttons: see latest results</li>
-            <li>Add buttons: see history results</li>
-            <li>Add buttons: see additional statistics?</li>
-            <li>Add buttons: add to group?</li>
-        </ul>
     {% endif %}
 {% endblock %}

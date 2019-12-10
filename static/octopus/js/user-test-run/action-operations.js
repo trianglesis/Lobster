@@ -16,7 +16,7 @@ function secondsToTime(secNum) {
 
 /**
  *
- * @param {JSON} dataJSON
+ * @param {Array} dataJSON
  * @param {string} case_id
  * @param testPyPath
  * @returns {[]}
@@ -189,6 +189,9 @@ function composeLogsHyperlinksNew(caseDataJSON, addm_name_url, tst_status_url) {
             seeLogs.href = `/octo_tku_patterns/test_details/?test_py_path=${
                 caseData['test_py_path']}${tst_status_url}${addm_name_url}`;
         }
+        if (seeLogs.style && seeLogs.style.display === 'none') {
+            seeLogs.style.display = 'inline-block'
+        }
     } else {
         // console.log("Cannot find element id for seeLogs " + seeLogs)
     }
@@ -222,17 +225,12 @@ function composeLogsHyperlinksNew(caseDataJSON, addm_name_url, tst_status_url) {
                     caseData['test_py_path']}${tst_status_url}${addm_name_url}`;
             }
         }
+        if (seeLogsHist.style && seeLogsHist.style.display === 'none') {
+            seeLogsHist.style.display = 'inline-block'
+        }
     } else {
         // console.log("Cannot find element id for seeLogsHist " + seeLogsHist)
     }
-
-    if (seeLogs.style.display === 'none') {
-        seeLogs.style.display = 'inline-block'
-    }
-    if (seeLogsHist.style.display === 'none') {
-        seeLogsHist.style.display = 'inline-block'
-    }
-
 }
 
 /**
@@ -244,23 +242,21 @@ function composeCaseHyperlinksNew(caseId) {
     let seeCaseInfo = document.getElementById('all-info');
     if (seeCaseInfo) {
         seeCaseInfo.href = `/octo_tku_patterns/test_case/${caseId}`;
+        if (seeCaseInfo.style && seeCaseInfo.style.display === 'none') {
+            seeCaseInfo.style.display = 'inline-block'
+        }
     } else {
         // console.log("Cannot find element id for seeCaseInfo " + seeCaseInfo)
     }
     let editCase = document.getElementById('edit-case');
     if (editCase) {
         editCase.href = `/octo_tku_patterns/test_case/change/${caseId}`;
+        if (editCase.style && editCase.style.display === 'none') {
+            editCase.style.display = 'inline-block'
+        }
     } else {
         // console.log("Cannot find element id for seeCaseInfo " + seeCaseInfo)
     }
-
-    if (seeCaseInfo.style.display === 'none') {
-        seeCaseInfo.style.display = 'inline-block'
-    }
-    if (editCase.style.display === 'none') {
-        editCase.style.display = 'inline-block'
-    }
-
 }
 
 /**
@@ -442,7 +438,7 @@ function eventListenerForCaseTestButtons(funcToRun) {
     }
     if (test_p4_run) {
         test_p4_run.addEventListener("click", function () {
-            let testButtonDataset = new Object({'test_mode': ''});
+            let testButtonDataset = new Object({'test_mode': '', 'multiple_cases': undefined});
             // console.log("test_p4_run click");
             // console.log(test_p4_run.dataset);
             for (let [key, value] of Object.entries(test_p4_run.dataset)) {
@@ -455,7 +451,7 @@ function eventListenerForCaseTestButtons(funcToRun) {
     }
     if (test_instant_run) {
         test_instant_run.addEventListener("click", function () {
-            let testButtonDataset = new Object({'test_mode': ''});
+            let testButtonDataset = new Object({'test_mode': '', 'multiple_cases': undefined});
             // console.log("test_instant_run click");
             // console.log(test_instant_run.dataset);
             for (let [key, value] of Object.entries(test_instant_run.dataset)) {

@@ -37,7 +37,7 @@ $(document).ready(function () {
 
 function testRunPrepareToast(testButtonDataset) {
     caseData = relCases[0];
-    console.log(caseData);
+    // console.log(caseData);
     // caseData comes from Global variable!
     let toastBase = getToastDraftWithId(caseData);  // Make unique copy of toast draft
     let toastReady = fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset);  // fill toast with data
@@ -45,8 +45,8 @@ function testRunPrepareToast(testButtonDataset) {
     // Check test modes from button dataset
     composeTestDataSet(caseData, testButtonDataset);
 
-    console.log("TO REST");
-    console.log(testButtonDataset);
+    // console.log("TO REST");
+    // console.log(testButtonDataset);
 
     new RESTPostTask(testButtonDataset, toastBase); //  Now, keeping our toast ID in memory, make a request to GET actual task_id status:
 

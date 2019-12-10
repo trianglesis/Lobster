@@ -475,8 +475,12 @@ def all_addm_groups():
 def tku_patterns_json(test_digest_qs, model_name=None):
 
     if model_name == 'TestCases':
-        serializer = TestCasesSerializer(test_digest_qs, many=True)
-        serializer = serializer.data
+        try:
+            serializer = TestCasesSerializer(test_digest_qs, many=True)
+            serializer = serializer.data
+        except TypeError:
+            serializer = TestCasesSerializer(test_digest_qs)
+            serializer = serializer.data
     elif model_name == 'TestCasesDetails':
         serializer = TestCasesDetailsSerializer(test_digest_qs, many=True)
         serializer = serializer.data
@@ -490,6 +494,6 @@ def tku_patterns_json(test_digest_qs, model_name=None):
         serializer = TestHistorySerializer(test_digest_qs, many=True)
         serializer = serializer.data
     else:
-        serializer = django_serializers.serialize('json', test_digest_qs)
+        serializer = django_serializers.serialize('json', [test_digest_qs])
     # return str(JSONRenderer().render(serializer.data))
     return json.dumps(serializer)
