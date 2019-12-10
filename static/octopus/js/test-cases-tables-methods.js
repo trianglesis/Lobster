@@ -198,7 +198,7 @@ function collectCasesFromRows(tableRows) {
  * @param modal
  * @param casesData
  */
-function fillModalBodyWithMultipleCases(modal, casesData) {
+function fillModalBodyWithMultipleCases__(modal, casesData) {
     // let modal_variables = modal.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
     let modal_variables = document.getElementById('modal-variables');
     // console.log('Modal modal-variables has children - remove them!');

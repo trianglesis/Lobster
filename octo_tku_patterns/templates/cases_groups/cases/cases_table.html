@@ -227,17 +227,24 @@
         </ul>
         <span class="navbar-text">Octopus automation</span>
     </nav>
-
-
-    {# Actions button #}
-    {# Show test actions modal, make active buttons #}
+    {% comment %}
+    Actions:
+        - Load toast popup
+        - Load modal with actions
+        - Import methods for test_latest page: Modal and Toast
+        - Import general operations module for Modal, Toast, Parsing, REST and other operations.
+        - Convert test/cases QuerySet to simple JSON with template tag and serealize.
+    {% endcomment %}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
-    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
-    <script src="{% static 'octopus/js/cases_groups/cases-details-modal.js' %}"></script>
-    <script src="{% static 'octopus/js/cases_groups/cases-details-toast.js' %}"></script>
-
-
+    <script src="{% static 'octopus/js/user-test-run/user_space-modals-toasts.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
+    <script type="text/javascript">
+        let cases_json = {{ test_cases|tku_patterns_json:'TestCases'|safe }};
+    </script>
+    {% comment %}
+        DEBUG PART
+    {% endcomment %}
     {% if debug %}
         <p>TODO:</p>
         <ul>

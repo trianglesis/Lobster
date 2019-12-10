@@ -65,6 +65,35 @@ function fillModalBodyNew(modal, testItemsJSON, caseAttrs) {
 
 }
 
+function fillModalBodyWithMultipleCases(modal, relCases) {
+    // Create in modal body:
+    let modal_variables = document.getElementById('modal-variables');
+    // Remove extra children if any found. Could be leftovers from previous modal draw!
+    while (modal_variables.firstChild) {
+        modal_variables.firstChild.remove();
+    }
+
+    // Make count of all selected cases:
+    let all_cases_count = document.createElement('div');
+    all_cases_count.innerText = `All cases selected to run: ${relCases.length}`;
+    // Make ETA sum of all test weight indexes
+    let all_cases_sum_t_weight = document.createElement('div');
+    let testsETA = 0;
+    for (let caseItem of relCases) {
+        if (caseItem['test_time_weight']) {
+            testsETA = testsETA + parseInt(caseItem['test_time_weight']);
+        } else {
+            testsETA = testsETA + 300;
+        }
+    }
+    all_cases_sum_t_weight.innerText = `All test time ETA: ${testsETA}`;
+    // Etc
+
+    modal_variables.appendChild(all_cases_count);
+    modal_variables.appendChild(all_cases_sum_t_weight);
+
+}
+
 /**
  *
  * @param testItemsJSON
@@ -188,6 +217,14 @@ function composeLogsHyperlinksNew(caseDataJSON, addm_name_url, tst_status_url) {
     } else {
         // console.log("Cannot find element id for seeLogsHist " + seeLogsHist)
     }
+
+    if (seeLogs.style.display === 'none') {
+        seeLogs.style.display = 'inline-block'
+    }
+    if (seeLogsHist.style.display === 'none') {
+        seeLogsHist.style.display = 'inline-block'
+    }
+
 }
 
 /**
@@ -208,7 +245,47 @@ function composeCaseHyperlinksNew(caseId) {
     } else {
         // console.log("Cannot find element id for seeCaseInfo " + seeCaseInfo)
     }
+
+    if (seeCaseInfo.style.display === 'none') {
+        seeCaseInfo.style.display = 'inline-block'
+    }
+    if (editCase.style.display === 'none') {
+        editCase.style.display = 'inline-block'
+    }
+
 }
+
+/**
+ * In some cases we don't want to show links to logs, for example:
+ * - when /test_cases_group/ select Run all
+ * - any other place where cases/tests selected multiple.
+ */
+function hideHyperlinks() {
+    let seeLogs = document.getElementById('see-logs');
+    let seeLogsHist = document.getElementById('see-logs-history');
+    let seeCaseInfo = document.getElementById('all-info');
+    let editCase = document.getElementById('edit-case');
+
+    seeLogs.style.display = 'none';
+    seeLogsHist.style.display = 'none';
+    seeCaseInfo.style.display = 'none';
+    editCase.style.display = 'none';
+
+}
+
+function makeMultipleCasesIdsStr(relCases) {
+    let multipleCases = [];
+    if (relCases && relCases[0]) {
+        for (let testCase of relCases) {
+            console.log(testCase);
+            multipleCases.push(testCase['id']);
+        }
+    } else {
+        console.log('relCases array is empty! ' + relCases)
+    }
+    return multipleCases.join(',');
+}
+
 
 /**
  *

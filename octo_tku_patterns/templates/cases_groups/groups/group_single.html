@@ -91,7 +91,8 @@
                 <div style="display: flex;justify-content: space-between;padding-top: 20px">
                     <a class="btn btn-warning" href="{% url 'test_cases_group_update' pk=group.id %}">Edit</a>
                     <button type="button" class="btn btn-outline-warning mul-cases-button" data-toggle="modal"
-                            data-target="#mulCasesModal">Run all</button>
+                            data-run_group_all="1"
+                            data-target="#actionsModal">Run all</button>
                     <a class="btn btn-danger disabled" href="#">Delete</a>
                 </div>
             </div>
@@ -118,14 +119,19 @@
         </ul>
         <span class="navbar-text">Octopus automation</span>
     </nav>
-
-    {# Actions button #}
-    {# Show test actions modal, make active buttons #}
+    {% comment %}
+    Actions:
+        - Load toast popup
+        - Load modal with actions
+        - Import methods for test_latest page: Modal and Toast
+        - Import general operations module for Modal, Toast, Parsing, REST and other operations.
+        - Convert test/cases QuerySet to simple JSON with template tag and serealize.
+    {% endcomment %}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
-    {# Run all Button #}
-    {% include 'digests/includes/modal_cases_multiple.html' %}
-    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
-    <script src="{% static 'octopus/js/cases_groups/group-details-modal.js' %}"></script>
-    <script src="{% static 'octopus/js/cases_groups/group-details-toast.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/group_single-modals-toasts.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
+    <script type="text/javascript">
+        let cases_json = {{ group.test_cases.all|tku_patterns_json:'TestCases'|safe }};
+    </script>
 {% endblock %}
