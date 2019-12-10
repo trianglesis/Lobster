@@ -133,5 +133,6 @@
     <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
     <script type="text/javascript">
         let cases_json = {{ group.test_cases.all|tku_patterns_json:'TestCases'|safe }};
+        let groupId = {{group.id}};
     </script>
 {% endblock %}

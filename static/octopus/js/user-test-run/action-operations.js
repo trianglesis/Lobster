@@ -6,6 +6,14 @@ function getButtonFromEvent(event) {
     return $(event.relatedTarget); // Button that triggered the modal
 }
 
+function secondsToTime(secNum) {
+    let hours = Math.floor(secNum / 3600);
+    let minutes = Math.floor((secNum - (hours * 3600)) / 60);
+    let seconds =  secNum - (hours * 3600) - (minutes * 60);
+    return hours+':'+minutes+':'+seconds;
+
+}
+
 /**
  *
  * @param {JSON} dataJSON
@@ -86,7 +94,7 @@ function fillModalBodyWithMultipleCases(modal, relCases) {
             testsETA = testsETA + 300;
         }
     }
-    all_cases_sum_t_weight.innerText = `All test time ETA: ${testsETA}`;
+    all_cases_sum_t_weight.innerText = `All test time ETA hrs: ${secondsToTime(testsETA)}`;
     // Etc
 
     modal_variables.appendChild(all_cases_count);
@@ -277,7 +285,6 @@ function makeMultipleCasesIdsStr(relCases) {
     let multipleCases = [];
     if (relCases && relCases[0]) {
         for (let testCase of relCases) {
-            console.log(testCase);
             multipleCases.push(testCase['id']);
         }
     } else {
@@ -291,25 +298,38 @@ function makeMultipleCasesIdsStr(relCases) {
  *
  * @param {string} caseId caseDataJSON usually an array of case/tests data in json format. Pass array with single item
  * for cases gained from REST request or single selection.
+ * @param multipleCases
  */
-function assignTestCaseTestButtonsNew(caseId) {
+function assignTestCaseTestButtonsNew(caseId, multipleCases= false) {
     let test_wipe_run = document.getElementById(
         "wipe-run");
     if (test_wipe_run) {
-        test_wipe_run.setAttribute(
-            'data-case_id', caseId);
+        test_wipe_run.setAttribute('data-case_id', caseId);
+        if (multipleCases) {
+            test_wipe_run.setAttribute('data-multiple_cases', 'true');
+        } else {
+            test_wipe_run.removeAttribute('data-multiple_cases')
+        }
     }
     let test_p4_run = document.getElementById(
         "p4-run");
     if (test_p4_run) {
-        test_p4_run.setAttribute(
-            'data-case_id', caseId);
+        test_p4_run.setAttribute('data-case_id', caseId);
+        if (multipleCases) {
+            test_p4_run.setAttribute('data-multiple_cases', 'true');
+        } else {
+            test_p4_run.removeAttribute('data-multiple_cases')
+        }
     }
     let test_instant_run = document.getElementById(
         "instant-run");
     if (test_instant_run) {
-        test_instant_run.setAttribute(
-            'data-case_id', caseId);
+        test_instant_run.setAttribute('data-case_id', caseId);
+        if (multipleCases) {
+            test_instant_run.setAttribute('data-multiple_cases', 'true');
+        } else {
+            test_instant_run.removeAttribute('data-multiple_cases')
+        }
     }
 }
 
@@ -405,11 +425,11 @@ function eventListenerForCaseTestButtons(funcToRun) {
     let test_p4_run = document.getElementById("p4-run");
     let test_instant_run = document.getElementById("instant-run");
     // Clear buttons dataset from any extra options:
-    let testButtonUseKeys = ['wipe', 'refresh', 'test_mode', 'test_function'];
+    let testButtonUseKeys = ['wipe', 'refresh', 'test_mode', 'test_function', 'multiple_cases'];
 
     if (test_wipe_run) {
         test_wipe_run.addEventListener("click", function () {
-            let testButtonDataset = new Object({'test_mode': ''});
+            let testButtonDataset = new Object({'test_mode': '', 'multiple_cases': undefined});
             // console.log("test_wipe_run click");
             // console.log(test_wipe_run.dataset);
             for (let [key, value] of Object.entries(test_wipe_run.dataset)) {
@@ -494,22 +514,30 @@ function eventListenerForCaseTestButtons(funcToRun) {
 /**
  *
  * @param {Set} caseData
+ * @param alterId
  */
-function getToastDraftWithId(caseData) {
+function getToastDraftWithId(caseData, alterId = undefined) {
     let toastDraft = document.getElementById('toastDraft'); // Get draft toast from page foot
     let toastBase = toastDraft.children[0].cloneNode(true);  // Toast object
 
     // Set toast values:
     toastBase.setAttribute('data-delay', 30000); // 30 sec. Wait to task mod
     // Assign new toast copy a value ID based on item ID (case id or case unique attrs)
-    if (caseData['case_id']) {
-        toastBase.id = caseData['case_id'];
-    } else if (caseData['cases_ids']) {
-        toastBase.id = caseData['cases_ids'];
-    } else if (caseData['test_id']) {
-        toastBase.id = caseData['test_id'];
+    if (caseData) {
+        if (caseData['case_id']) {
+            toastBase.id = caseData['case_id'];
+        } else if (caseData['cases_ids']) {
+            toastBase.id = caseData['cases_ids'];
+        } else if (caseData['test_id']) {
+            toastBase.id = caseData['test_id'];
+        } else {
+            toastBase.id = `${caseData['tkn_branch']}_${caseData['pattern_library']}_${caseData['pattern_folder_name']}`;
+        }
+    } else if (alterId) {
+        toastBase.id = alterId;
     } else {
-        toastBase.id = `${caseData['tkn_branch']}_${caseData['pattern_library']}_${caseData['pattern_folder_name']}`;
+        toastBase.id = 'NoId-UseDefault';
+        console.log('WARNING: There is no unique attributes to assign as toast ID, use default!')
     }
 
     // Toast elements:
@@ -517,6 +545,7 @@ function getToastDraftWithId(caseData) {
     // toastBase.childNodes[3];  // toast-body
     return toastBase
 }
+
 
 /**
  *
@@ -532,24 +561,35 @@ function fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset)
     // Depend on data-test_mode="" attribute fill toast with caseData details:
     if (testButtonDataset.test_mode === 'test_by_id') {
         testDetails.innerText = 'Will run test by case id';
-        let tknBranchPattLib = document.createElement('div');
-        let patternDirectory = document.createElement('div');
-        tknBranchPattLib.setAttribute('id', 'tknBranchPattLib');
-        patternDirectory.setAttribute('id', 'patternDirectory');
-        tknBranchPattLib.innerText = caseData['pattern_library'];
-        patternDirectory.innerText = caseData['pattern_folder_name'];
-        toastBody.appendChild(tknBranchPattLib);
-        toastBody.appendChild(patternDirectory);
-        // Add extra div with the name of test method if it was found in test button dataset or case Data
-        if (caseData['test_function'] && testButtonDataset.test_function) {
-            let test_function = document.createElement('div');
-            test_function.setAttribute('id', 'testUnitFunction');
-            if (caseData['test_function']) {
-                test_function.innerText = caseData['test_function'];
-            } else if (testButtonDataset.test_function) {
-                test_function.innerText = caseData['test_function'];
+        if (testButtonDataset.multiple_cases && (testButtonDataset.multiple_cases = true)) {
+            // Multiple cases run:
+            console.log("fillToastBodyWithTestAttributes: Multiple cases run!");
+            let casesIds = document.createElement('div');
+            casesIds.innerText = `ids:${caseData}`;
+            casesIds.style.wordWrap = 'break-word';
+            toastBody.appendChild(casesIds);
+        } else {
+            // Single case run:
+            // console.log("fillToastBodyWithTestAttributes: Single case run!");
+            let tknBranchPattLib = document.createElement('div');
+            let patternDirectory = document.createElement('div');
+            tknBranchPattLib.setAttribute('id', 'tknBranchPattLib');
+            patternDirectory.setAttribute('id', 'patternDirectory');
+            tknBranchPattLib.innerText = caseData['pattern_library'];
+            patternDirectory.innerText = caseData['pattern_folder_name'];
+            toastBody.appendChild(tknBranchPattLib);
+            toastBody.appendChild(patternDirectory);
+            // Add extra div with the name of test method if it was found in test button dataset or case Data
+            if (caseData['test_function'] && testButtonDataset.test_function) {
+                let test_function = document.createElement('div');
+                test_function.setAttribute('id', 'testUnitFunction');
+                if (caseData['test_function']) {
+                    test_function.innerText = caseData['test_function'];
+                } else if (testButtonDataset.test_function) {
+                    test_function.innerText = caseData['test_function'];
+                }
+                toastBase.childNodes[3].appendChild(test_function);
             }
-            toastBase.childNodes[3].appendChild(test_function);
         }
 
     } else if (testButtonDataset.test_mode === 'test_by_change') {
@@ -595,6 +635,7 @@ function fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset)
 
     return toastBase
 }
+
 
 /**
  *
