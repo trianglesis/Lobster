@@ -8,8 +8,8 @@ function getButtonFromEvent(event) {
 
 /**
  *
- * @param dataJSON
- * @param case_id
+ * @param {JSON} dataJSON
+ * @param {string} case_id
  * @returns {[]}
  */
 function makeCaseTestDataSet(dataJSON, case_id) {
@@ -28,25 +28,44 @@ function makeCaseTestDataSet(dataJSON, case_id) {
     return caseTestDataset
 }
 
+/**
+ *
+ * @param {HTMLElement} modal
+ * @param testItemsJSON
+ * @param {Array} caseAttrs
+ */
 function fillModalBodyNew(modal, testItemsJSON, caseAttrs) {
+    let firstItem = '';
     // Create in modal body:
     let modal_variables = document.getElementById('modal-variables');
     // Remove extra children if any found. Could be leftovers from previous modal draw!
     while (modal_variables.firstChild) {
         modal_variables.firstChild.remove();
     }
-    // Make modal body block with case details from arr below:
+
+    // Check if array with multiple cases\tests or single JSON item from REST or whatever:
     if (testItemsJSON && testItemsJSON[0]) {
-        let firstItem =testItemsJSON[0];
-        for (let attrK of caseAttrs) {
-            let div = document.createElement('div');
-            div.setAttribute('id', attrK);
-            div.innerText = firstItem[attrK];
-            modal_variables.appendChild(div);
-        }
+        // When test items came from page view via django template tag: QS to JSON (serializer)
+        firstItem = testItemsJSON[0];
+    } else {
+        // When test items came from REST request - this is single case DataSet
+        firstItem = testItemsJSON;
     }
+
+    // Make modal body block with case details from arr below:
+    for (let attrK of caseAttrs) {
+        let div = document.createElement('div');
+        div.setAttribute('id', attrK);
+        div.innerText = firstItem[attrK];
+        modal_variables.appendChild(div);
+    }
+
 }
 
+/**
+ *
+ * @param testItemsJSON
+ */
 function fillModalBodyTableTestFails(testItemsJSON) {
     let modal_variables = document.getElementById('modal-variables');
     // Make table sum of one testcase test counters
@@ -80,6 +99,12 @@ function fillModalBodyTableTestFails(testItemsJSON) {
 
 }
 
+/**
+ *
+ * @param button
+ * @param caseData
+ * @returns {string}
+ */
 function detectADDMSelectorFromContext(button, caseData) {
     let addm_name_url = '';
     // Add addm_name attribute for sort OR to activate tab
@@ -103,6 +128,12 @@ function detectTestStatusSelectorFromContext(button, caseData) {
     return tst_status_url
 }
 
+/**
+ *
+ * @param caseDataJSON
+ * @param {string} addm_name_url
+ * @param {string} tst_status_url
+ */
 function composeLogsHyperlinksNew(caseDataJSON, addm_name_url, tst_status_url) {
     let caseData = caseDataJSON[0];
     let seeLogs = document.getElementById('see-logs');
@@ -156,6 +187,11 @@ function composeLogsHyperlinksNew(caseDataJSON, addm_name_url, tst_status_url) {
     }
 }
 
+/**
+ *
+ * @param {Array} caseDataJSON usually an array of case/tests data in json format. Pass array with single item
+ * for cases gained from REST request or single selection.
+ */
 function composeCaseHyperlinksNew(caseDataJSON) {
     let caseData = caseDataJSON[0];
     let seeCaseInfo = document.getElementById('all-info');
@@ -172,6 +208,11 @@ function composeCaseHyperlinksNew(caseDataJSON) {
     }
 }
 
+/**
+ *
+ * @param {Array} caseDataJSON caseDataJSON usually an array of case/tests data in json format. Pass array with single item
+ * for cases gained from REST request or single selection.
+ */
 function assignTestCaseTestButtonsNew(caseDataJSON) {
     let caseData = caseDataJSON[0];
     let test_wipe_run = document.getElementById(
@@ -195,20 +236,99 @@ function assignTestCaseTestButtonsNew(caseDataJSON) {
 }
 
 /**
+ * Make buttons for test run have required attributes to run test:
+ * Single test.py modes: wipe-run, p4-run, instant-run
+* @param {Array} caseDataJSON caseDataJSON usually an array of case/tests data in json format. Pass array with single item
+ * for cases gained from REST request or single selection.
+ */
+function assignTestCaseUnitTestButtons(caseDataJSON) {
+    let caseData = caseDataJSON[0];
+    // Test case Unit test run:
+    let unit_wipe_run = document.getElementById("unit-wipe-run");
+    let unit_p4_run = document.getElementById("unit-p4-run");
+    let unit_instant_run = document.getElementById("unit-instant-run");
+
+    // Switching visibility of some blocks and block names, when they do not needed:
+    let CaseUnitModalButtons = document.getElementsByClassName("case-unit-modal-buttons");
+    let TestActionsModalName = document.getElementsByClassName("test-actions-modal-name");
+    let SeeLogsHistory = document.getElementById("see-logs-history");
+
+    if (caseData['tst_class'] && caseData['tst_name']) {
+        if (CaseUnitModalButtons[0]) {
+            CaseUnitModalButtons[0].style.display = 'block';
+        }
+        if (TestActionsModalName[0]) {
+            TestActionsModalName[0].style.display = 'block';
+        }
+        if (SeeLogsHistory) {
+            SeeLogsHistory.style.display = 'block';
+        }
+
+        unit_wipe_run.style.display = 'block';
+        unit_p4_run.style.display = 'block';
+        unit_instant_run.style.display = 'block';
+
+        if (unit_wipe_run) {
+            unit_wipe_run.setAttribute(
+                'data-case_id', caseData['case_id']);
+            unit_wipe_run.setAttribute(
+                'data-test_function',
+                `${caseData['tst_class']}+${caseData['tst_name']}`);
+        }
+        if (unit_p4_run) {
+            unit_p4_run.setAttribute(
+                'data-case_id', caseData['case_id']);
+            unit_p4_run.setAttribute(
+                'data-test_function',
+                `${caseData['tst_class']}+${caseData['tst_name']}`);
+        }
+        if (unit_instant_run) {
+            unit_instant_run.setAttribute(
+                'data-case_id', caseData['case_id']);
+            unit_instant_run.setAttribute(
+                'data-test_function',
+                `${caseData['tst_class']}+${caseData['tst_name']}`);
+        }
+    } else {
+        // In case of page fails to give us test_class+test_name we just mark buttons hidden.
+        if (CaseUnitModalButtons[0]) {
+            CaseUnitModalButtons[0].style.display = "none";
+        }
+        if (TestActionsModalName[0]) {
+            TestActionsModalName[0].style.display = "none";
+        }
+        if (SeeLogsHistory) {
+            SeeLogsHistory.style.display = "none";
+        }
+        if (unit_wipe_run) {
+            unit_wipe_run.style.display = "none";
+        }
+        if (unit_p4_run) {
+            unit_p4_run.style.display = "none";
+        }
+        if (unit_instant_run) {
+            unit_instant_run.style.display = "none";
+        }
+    }
+}
+
+/**
  * TOAST OPERATIONS:
  */
 
+
+/**
+ *
+ * @param {function} funcToRun
+ */
 function eventListenerForCaseTestButtons(funcToRun) {
     // Test case testing
     let test_wipe_run = document.getElementById("wipe-run");
     let test_p4_run = document.getElementById("p4-run");
     let test_instant_run = document.getElementById("instant-run");
-
     // Clear buttons dataset from any extra options:
-    let testButtonUseKeys = ['wipe', 'refresh', 'test_mode'];
-    let testButtonDataset = new Object({
-        'test_mode': ''
-    });
+    let testButtonUseKeys = ['wipe', 'refresh', 'test_mode', 'test_function'];
+    let testButtonDataset = new Object({'test_mode': ''});
 
     if (test_wipe_run) {
         test_wipe_run.addEventListener("click", function () {
@@ -243,8 +363,52 @@ function eventListenerForCaseTestButtons(funcToRun) {
             funcToRun(testButtonDataset);
         });
     }
+
+    // Case Unit testing:
+    let unit_wipe_run = document.getElementById("unit-wipe-run");
+    let unit_p4_run = document.getElementById("unit-p4-run");
+    let unit_instant_run = document.getElementById("unit-instant-run");
+
+    if (unit_wipe_run) {
+        unit_wipe_run.addEventListener("click", function () {
+            // console.log("unit_wipe_run click");
+            for (let [key, value] of Object.entries(unit_wipe_run.dataset)) {
+                if (testButtonUseKeys.includes(key)) {
+                    testButtonDataset[key] = value;
+                }
+            }
+            funcToRun(testButtonDataset);
+        });
+    }
+    if (unit_p4_run) {
+        unit_p4_run.addEventListener("click", function () {
+            // console.log("unit_p4_run click");
+            for (let [key, value] of Object.entries(unit_p4_run.dataset)) {
+                if (testButtonUseKeys.includes(key)) {
+                    testButtonDataset[key] = value;
+                }
+            }
+            funcToRun(testButtonDataset);
+        });
+    }
+    if (unit_instant_run) {
+        unit_instant_run.addEventListener("click", function () {
+            // console.log("unit_instant_run click");
+            for (let [key, value] of Object.entries(unit_instant_run.dataset)) {
+                if (testButtonUseKeys.includes(key)) {
+                    testButtonDataset[key] = value;
+                }
+            }
+            funcToRun(testButtonDataset);
+        });
+    }
+
 }
 
+/**
+ *
+ * @param {Set} caseData
+ */
 function getToastDraftWithId(caseData) {
     let toastDraft = document.getElementById('toastDraft'); // Get draft toast from page foot
     let toastBase = toastDraft.children[0].cloneNode(true);  // Toast object
@@ -268,6 +432,13 @@ function getToastDraftWithId(caseData) {
     return toastBase
 }
 
+/**
+ *
+ * @param {HTMLObjectElement} toastBase
+ * @param {set} caseData
+ * @param testButtonDataset
+ * @returns {*}
+ */
 function fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset) {
     let toastBody = toastBase.childNodes[3];  // Path to toast body.
     let testDetails = document.createElement('div');
@@ -344,15 +515,31 @@ function fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset)
     return toastBase
 }
 
+/**
+ *
+ * @param {HTMLObjectElement} toastReady
+ */
 function appendToastToStack(toastReady) {
     // Append new toast to toast stack container:
     document.getElementById('toastStack').appendChild(toastReady);
 }
 
+/**
+ *
+ * @param caseData
+ * @param testButtonDataset
+ */
 function composeTestDataSet(caseData, testButtonDataset) {
     if (testButtonDataset.test_mode === 'test_by_id') {
         // Request selector use cases_ids for single and multiple cases anyway:
-        testButtonDataset.cases_ids = caseData['case_id'];
+        if (caseData['case_id']) {
+            // For test_last digest where QS have attr case_id in it:
+            testButtonDataset.cases_ids = caseData['case_id'];
+        } else if (caseData['id']) {
+            // For test details, history, search or other places, where case data gathered with REST request
+            // using test attributes.
+            testButtonDataset.cases_ids = caseData['id'];
+        }
     } else if (testButtonDataset.test_mode === 'test_by_change') {
         testButtonDataset.change = caseData['change'];
     } else if (testButtonDataset.test_mode === 'test_by_user') {
@@ -371,6 +558,12 @@ function composeTestDataSet(caseData, testButtonDataset) {
  * REST OPERATIONS:
  */
 
+/**
+ *
+ * @param testButtonDataset
+ * @param toastBase
+ * @constructor
+ */
 function RESTPostTask(testButtonDataset, toastBase) {
     console.log(`POST user test: `);
     console.log(testButtonDataset);
@@ -384,10 +577,7 @@ function RESTPostTask(testButtonDataset, toastBase) {
             $.ajaxSettings.beforeSend(xhr, settings)
         },
         "success": function (result) {
-            // console.log(`POST result: ${result}`);
             if (result.task_id) {
-                // console.log("testButtonDataset after POST: ");
-                // console.table(testButtonDataset);
                 // On success - run get task status:
                 toastModifyCaseDataPre(result.task_id, toastBase.id);
                 waitResult(result.task_id, toastBase.id);
@@ -405,12 +595,12 @@ function RESTPostTask(testButtonDataset, toastBase) {
  * Get case details on test digest pages of deeper level: test items, test history.
  * Main important action - this function gets case ID which later used for test run.
  * This approach is much better then pass pattern_lib, folder, branch and so on.
- * @param caseData
- * @param callThen
+ * @param {set} caseData - DataSet of test details log, usually. Or DataSet with 'test_py_path' attribute
+ * @param {function} callThen
  * @constructor
  */
 function RESTGetCaseByTestPyPath(caseData, callThen) {
-    // console.log(`GET user test task by id: ${testButtonDataset.task_id}`);
+    console.log(`RESTGetCaseByTestPyPath: ${caseData['test_py_path']}`);
     let caseItem = {};
     $.ajax({
         "type": "GET",
@@ -422,8 +612,8 @@ function RESTGetCaseByTestPyPath(caseData, callThen) {
         "success": function (result) {
             let caseItem = result.results[0];
             if (caseItem && caseItem.id) {
-                console.log(caseItem);
-                callThen();
+                console.log(`RESTGetCaseByTestPyPath result: ${caseItem.id} - ${caseItem.test_py_path}`);
+                callThen(caseItem);
             } else {
                 console.log("Get Case failed: " + data);
             }
@@ -439,6 +629,11 @@ function RESTGetCaseByTestPyPath(caseData, callThen) {
  * AFTER REST OPERATIONS:
  */
 
+/**
+ *
+ * @param taskId
+ * @param toastId
+ */
 function toastModifyCaseDataPre(taskId, toastId) {
     let toastPublished = document.getElementById(toastId);
     let toastBody = toastPublished.childNodes[3];  // Path to toast body.
@@ -454,6 +649,12 @@ function waitResult(taskID, toastId) {
     }, 5000);
 }
 
+/**
+ *
+ * @param taskID
+ * @param toastId
+ * @constructor
+ */
 function RESTGetTask(taskID, toastId) {
     // console.log(`GET user test task by id: ${testButtonDataset.task_id}`);
     $.ajax({
@@ -484,6 +685,11 @@ function RESTGetTask(taskID, toastId) {
     });
 }
 
+/**
+ *
+ * @param taskObj
+ * @param toastId
+ */
 function toastModifySuccess(taskObj, toastId) {
     let toastPublished = document.getElementById(toastId);
     let task_status = document.createElement('div');  // toast-body

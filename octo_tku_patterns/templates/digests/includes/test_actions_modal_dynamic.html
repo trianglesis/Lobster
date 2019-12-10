@@ -57,13 +57,16 @@
                             <a href="#"
                                id="unit-wipe-run"
                                data-wipe="1"
+                               data-test_mode="test_by_id"
                                class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod" 'Wipe current logs and run test.py. Most common mode suitable for every test execution.' %}"><i class="fas fa-terminal"></i> Run</a>
                             <a href="#"
                                id="unit-p4-run"
                                data-refresh="1"
+                               data-test_mode="test_by_id"
                                class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
                             <a href="#"
                                id="unit-instant-run"
+                               data-test_mode="test_by_id"
                                class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and keep logs" 'Instant run test.py, keep logs. Only for extra debugging, keep current logs to compare them with the new result.' %}"><i class="fas fa-bolt"></i> Run & keep logs</a>
                         </div>
                     {% comment %}
@@ -82,18 +85,21 @@
                         </div>
                         <!-- Case unit test actions:  -->
                         <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
-                        <div class="list-group text-center test_item_history" style="padding: 5px 5% 5px 5%">
+                        <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
                                data-wipe="1"
-                               class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
+                               data-test_mode="test_by_id"
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod" 'Wipe current logs and run test.py. Most common mode suitable for every test execution.' %}"><i class="fas fa-terminal"></i> Run</a>
                             <a href="#"
                                id="unit-p4-run"
                                data-refresh="1"
-                               class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
+                               data-test_mode="test_by_id"
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
                             <a href="#"
                                id="unit-instant-run"
-                               class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
+                               data-test_mode="test_by_id"
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and keep logs" 'Instant run test.py, keep logs. Only for extra debugging, keep current logs to compare them with the new result.' %}"><i class="fas fa-bolt"></i> Run & keep logs</a>
                         </div>
                     {% comment %}
                     TEST HISTORY DAILY BROWSE
@@ -112,18 +118,21 @@
                         </div>
                         <!-- Case unit test actions:  -->
                         <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
-                        <div class="list-group text-center test_item_history" style="padding: 5px 5% 5px 5%">
+                        <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
                                data-wipe="1"
-                               class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
+                               data-test_mode="test_by_id"
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod" 'Wipe current logs and run test.py. Most common mode suitable for every test execution.' %}"><i class="fas fa-terminal"></i> Run</a>
                             <a href="#"
                                id="unit-p4-run"
                                data-refresh="1"
-                               class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
+                               data-test_mode="test_by_id"
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
                             <a href="#"
                                id="unit-instant-run"
-                               class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
+                               data-test_mode="test_by_id"
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and keep logs" 'Instant run test.py, keep logs. Only for extra debugging, keep current logs to compare them with the new result.' %}"><i class="fas fa-bolt"></i> Run & keep logs</a>
                         </div>
                     {% comment %}
                     USER SPACE:
@@ -224,21 +233,21 @@
                         </div>
                         <!-- Case unit test actions:  -->
                         <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
-                        <div class="list-group text-center test_details" style="padding: 5px 5% 5px 5%">
+                        <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
                                data-wipe="1"
                                data-test_mode="test_by_id"
-                               class="btn btn-sm btn-outline-secondary">Wipe current logs and run test unit</a>
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod" 'Wipe current logs and run test.py. Most common mode suitable for every test execution.' %}"><i class="fas fa-terminal"></i> Run</a>
                             <a href="#"
                                id="unit-p4-run"
                                data-refresh="1"
                                data-test_mode="test_by_id"
-                               class="btn btn-sm btn-outline-secondary">P4 Sync, wipe logs and run test unit</a>
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
                             <a href="#"
                                id="unit-instant-run"
                                data-test_mode="test_by_id"
-                               class="btn btn-sm btn-outline-secondary">Instant run test unit, keep logs</a>
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and keep logs" 'Instant run test.py, keep logs. Only for extra debugging, keep current logs to compare them with the new result.' %}"><i class="fas fa-bolt"></i> Run & keep logs</a>
                         </div>
                     {% else %}
                         <div class="test-actions-modal-name">Somewhere else...</div>

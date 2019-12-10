@@ -45,6 +45,10 @@ function testRunPrepareToast(testButtonDataset) {
     appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
     // Check test modes from button dataset
     composeTestDataSet(caseData, testButtonDataset);
+
+    console.log("TO REST");
+    console.log(testButtonDataset);
+
     new RESTPostTask(testButtonDataset, toastBase); //  Now, keeping our toast ID in memory, make a request to GET actual task_id status:
 
     $('#actionsModal').modal('hide');

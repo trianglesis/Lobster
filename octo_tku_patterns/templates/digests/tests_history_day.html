@@ -279,15 +279,36 @@
         </ul>
         <span class="navbar-text">Octopus automation</span>
     </nav>
-    {# Coloring rows #}
-    <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>
+    {% comment %}
+        Parse test results and cut all extra traceback messages, leave only comparison msg
+    {% endcomment %}
+    <script src="{% static 'octopus/js/test_details/parsing-test-details-test-output.js' %}"></script>
+    {% comment %}
+        Make ADDM tabs dynamical
+    {% endcomment %}
     <script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>
-    {# Show test actions modal, make active buttons #}
+    {% comment %}
+        Draw test table rows with colored statuses:
+    {% endcomment %}
+    <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>
+    {% comment %}
+    Actions:
+        - Load toast popup
+        - Load modal with actions
+        - Import methods for test_latest page: Modal and Toast
+        - Import general operations module for Modal, Toast, Parsing, REST and other operations.
+        - Convert test/cases QuerySet to simple JSON with template tag and serealize.
+    {% endcomment %}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
-    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
-    <script src="{% static 'octopus/js/digest/test-details-modal.js' %}"></script>
-    <script src="{% static 'octopus/js/digest/test-details-toast.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/test_details-modals-toasts.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
+    <script type="text/javascript">
+        let tests_digest_json = {{ test_detail|tku_patterns_json:'TestLast'|safe }};
+    </script>
+    {% comment %}
+        DEBUG PART
+    {% endcomment %}
     <div class="debug-context">
         {% if request.GET.debug %}
             <p>DEBUG enabled</p>
