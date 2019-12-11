@@ -621,6 +621,7 @@ function fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset)
             // Multiple cases run:
             console.log("fillToastBodyWithTestAttributes: Multiple cases run!");
             let casesIds = document.createElement('div');
+            casesIds.setAttribute('id', 'multiple_cases');
             casesIds.innerText = `ids:${caseData}`;
             casesIds.style.wordWrap = 'break-word';
             toastBody.appendChild(casesIds);
@@ -876,11 +877,14 @@ function toastModifySuccess(taskObj, toastId) {
     // console.table(caseFullData);
     if (taskObj.state) {
         task_status.innerText = `task: ${taskObj.status} - ${taskObj.state}`;
+        task_status.setAttribute('class', 'task_status-state');
     } else {
         if (taskObj.status === 'FAILURE') {
             task_status.innerText = `task: ${taskObj.status} - please check!`;
+            task_status.setAttribute('class', 'task_status-failed');
         } else {
             task_status.innerText = `task: ${taskObj.status} - wait in queue...`;
+            task_status.setAttribute('class', 'task_status-queue');
         }
     }
     toastPublished.childNodes[3].appendChild(task_status);

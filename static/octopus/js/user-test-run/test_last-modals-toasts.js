@@ -3,6 +3,7 @@
  */
 
 let relCases = [];
+let casesIds = [];
 
 $(document).ready(function () {
     $('#actionsModal').on('hidden.bs.modal', function (event) {
@@ -24,6 +25,7 @@ $(document).ready(function () {
             relCases = makeCaseTestDataSet(tests_digest_json, '', '', casesIds);
             console.log(relCases);
             fillModalBodyWithMultipleCases(modal, relCases);
+            assignTestCaseTestButtonsNew(casesIds, true);  // Make buttons for test execution with data attrs of case ids
 
         } else {
             console.log('Simple single test run');
@@ -51,19 +53,35 @@ $(document).ready(function () {
 });
 
 function testRunPrepareToast(testButtonDataset) {
-    // console.log(testButtonDataset);
-    caseData = relCases[0];
-    // caseData comes from Global variable!
-    let toastBase = getToastDraftWithId(caseData);  // Make unique copy of toast draft
-    let toastReady = fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset);  // fill toast with data
-    appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
-    // Check test modes from button dataset
-    composeTestDataSet(caseData, testButtonDataset);
-
-    // console.log("TO REST");
-    // console.log(testButtonDataset);
-
-    new RESTPostTask(testButtonDataset, toastBase); //  Now, keeping our toast ID in memory, make a request to GET actual task_id status:
+    console.log(testButtonDataset);
+    let toastBase = {'id': 'NoId-UseDefault'};
+    // Multiple cases run:
+    if (testButtonDataset['multiple_cases']) {
+        console.log('Multiple case test run for case group! ' + casesIds);
+        toastBase = getToastDraftWithId(undefined, undefined);  // Make unique copy of toast draft
+        console.log(toastBase.id);
+        let toastReady = fillToastBodyWithTestAttributes(toastBase, casesIds, testButtonDataset);  // fill toast with data
+        appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+        // Check test modes from button dataset
+        let caseData_alt = {'case_id': casesIds};  // Override usual caseData obj with new assigned all cases IDs
+        composeTestDataSet(caseData_alt, testButtonDataset);
+        // console.log("TO REST");
+        // console.log(testButtonDataset);
+        new RESTPostTask(testButtonDataset, toastBase); //  Now, keeping our toast ID in memory, make a request to GET actual task_id status:
+    // Single case run:
+    } else {
+        console.log('Single case select and run test');
+        caseData = relCases[0];
+        // caseData comes from Global variable!
+        let toastBase = getToastDraftWithId(caseData);  // Make unique copy of toast draft
+        let toastReady = fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset);  // fill toast with data
+        appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+        // Check test modes from button dataset
+        composeTestDataSet(caseData, testButtonDataset);
+        // console.log("TO REST");
+        // console.log(testButtonDataset);
+        new RESTPostTask(testButtonDataset, toastBase); //  Now, keeping our toast ID in memory, make a request to GET actual task_id status:
+    }
 
     $('#actionsModal').modal('hide');
     $('#' + toastBase.id).toast('show')

@@ -81,6 +81,20 @@ MODAL styles:
     padding-left: 1.4em;
 }
 
+.modal-variables > #id {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    /*display: none;*/
+}
+
+.modal-variables > #id:before {
+    content: 'Case id:';
+    background-image: url(/static/octicons/svg/key.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
+}
+
 .modal-variables > #test_id {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
@@ -124,6 +138,32 @@ MODAL styles:
 .modal-variables > #change_ticket:before {
     content: 'Change ticket: ';
     background-image: url(/static/fontawesome/svgs/brands/jira.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
+}
+
+.modal-variables > #change_desc {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+.modal-variables > #change_desc:before {
+    content: 'Change desc: ';
+    background-image: url(/static/octicons/svg/note.svg);
+    background-repeat: no-repeat;
+    background-size: 1em;
+    padding-left: 1.4em;
+}
+
+.modal-variables > #change_time {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+}
+
+.modal-variables > #change_time:before {
+    content: 'Change time: ';
+    background-image: url(/static/octicons/svg/clock.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -217,6 +257,10 @@ MODAL styles:
 }
 
 /* TOAST */
+.toast-body {
+    padding: .5rem;!important;
+}
+
 #testOnMetadata {
     font-style: italic;
     font-size: 1em;
@@ -266,29 +310,86 @@ MODAL styles:
     /*color: #a90494;*/
 }
 
+#test_by_id {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/key.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
+}
+
+#multiple_cases {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    background-image: url(/static/octicons/svg/list-unordered.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    padding-left: 1.2rem;
+    margin: .2em;
+}
+
 #test_mode {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    /*color: #006d09;*/
+    background-image: url(/static/octicons/svg/beaker.svg);
     background-repeat: no-repeat;
-    background-size: 1em;
+    background-size: 1.2em;
     padding-left: 1.2rem;
+    margin: .2em;
 }
 
 #task_id {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    /*color: brown;*/
+    background-image: url(/static/octicons/svg/hubot.svg);
     background-repeat: no-repeat;
-    background-size: 1em;
+    background-size: 1.2em;
     padding-left: 1.2rem;
+    margin: .2em;
 }
 
-#task_status {
+/*#task_status {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
     font-weight: bolder;
     background-repeat: no-repeat;
-    background-size: 1em;
+    background-size: 1.2em;
     padding-left: 1.2rem;
+    margin: .2em;
+}*/
+
+.task_status-state {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    background-image: url(/static/octicons/svg/info.svg);
+    font-weight: bolder;
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    padding-left: 1.2rem;
+    margin: .2em;
+
+}
+.task_status-failed {
+    background-color: red;
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    background-image: url(/static/octicons/svg/issue-opened.svg);
+    font-weight: bolder;
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    padding-left: 1.2rem;
+    margin: .2em;
+
+}
+.task_status-queue {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    background-image: url(/static/octicons/svg/check.svg);
+    font-weight: bolder;
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    padding-left: 1.2rem;
+    margin: .2em;
 }
