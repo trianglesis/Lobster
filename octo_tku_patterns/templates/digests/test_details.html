@@ -41,11 +41,11 @@
                         {# URL back to pattern digest should contain tkn_branch, addm_name, tst_status - to know what page to open previuosly #}
                         {% if selector.addm_name %}
                             <a class="btn btn-sm btn-info"
-                               href="{% url 'tests_last' %}?tkn_branch={{ selector.tkn_branch }};addm_name={{ selector.addm_name }}{% if not selector.tst_status %};tst_status=notpass{% else %}tst_status={{ selector.tst_status }}{% endif %}">
+                               href="{% url 'tests_last' %}?tkn_branch={{ selector.tkn_branch }};addm_name={{ selector.addm_name }}{% if not selector.tst_status %};tst_status=notpass{% else %};tst_status={{ selector.tst_status }}{% endif %}">
                                 <i class="fas fa-step-backward"></i> Patterns Digest</a>
                         {% else %}
                             <a class="btn btn-sm btn-info"
-                               href="{% url 'tests_last' %}?tkn_branch={{ selector.tkn_branch }};{% if not selector.tst_status %};tst_status=notpass{% else %}tst_status={{ selector.tst_status }}{% endif %}">
+                               href="{% url 'tests_last' %}?tkn_branch={{ selector.tkn_branch }};{% if not selector.tst_status %};tst_status=notpass{% else %};tst_status={{ selector.tst_status }}{% endif %}">
                                 <i class="fas fa-step-backward"></i> Patterns Digest</a>
                         {% endif %}
                         {% if "test_details" in request.path %}
@@ -247,7 +247,7 @@
             {# Patternt test digest #}
             <li class="nav-item">
                 <a class="nav-link"
-                   href="{% url 'tests_last' %}?tkn_branch={{ selector.tkn_branch }}{% if not selector.tst_status %};tst_status=notpass{% else %}tst_status={{ selector.tst_status }}{% endif %}">
+                   href="{% url 'tests_last' %}?tkn_branch={{ selector.tkn_branch }}{% if not selector.tst_status %};tst_status=notpass{% else %};tst_status={{ selector.tst_status }}{% endif %}">
                     Patterns Test Digest
                 </a>
             </li>
