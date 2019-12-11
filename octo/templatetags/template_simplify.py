@@ -15,6 +15,7 @@ from run_core.models import AddmDev
 import json
 from django.core import serializers as django_serializers
 from octo_tku_patterns.api.serializers import *
+from octo_adm.serializers import AddmDevSerializer
 
 register = template.Library()
 log = logging.getLogger("octo.octologger")
@@ -492,6 +493,9 @@ def tku_patterns_json(test_digest_qs, model_name=None):
         serializer = serializer.data
     elif model_name == 'TestHistory':
         serializer = TestHistorySerializer(test_digest_qs, many=True)
+        serializer = serializer.data
+    elif model_name == 'AddmDev':
+        serializer = AddmDevSerializer(test_digest_qs, many=True)
         serializer = serializer.data
     else:
         serializer = django_serializers.serialize('json', [test_digest_qs])

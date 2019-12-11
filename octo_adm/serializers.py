@@ -46,27 +46,31 @@ class AddmDevSerializer(serializers.ModelSerializer):
         # authenticated = request.user.is_authenticated
         # username = request.user.get_username()
         # user_email = request.user.email
-        admin_users = request.user.groups.filter(name='admin_users').exists()
-        # power_users = request.user.groups.filter(name='power_users').exists()
-        # msg = f'authenticated:{authenticated} username:{username} user_email{user_email} admin_users{admin_users} power_users:{power_users}'
-        # log.debug("request: %s", msg)
-        if admin_users:
-            return obj.tideway_user
+        if request and request.user:
+            admin_users = request.user.groups.filter(name='admin_users').exists()
+            # power_users = request.user.groups.filter(name='power_users').exists()
+            # msg = f'authenticated:{authenticated} username:{username} user_email{user_email} admin_users{admin_users} power_users:{power_users}'
+            # log.debug("request: %s", msg)
+            if admin_users:
+                return obj.tideway_user
 
     def get_tideway_pdw(self, obj):
         request = self.context.get('request')
-        admin_users = request.user.groups.filter(name='admin_users').exists()
-        if admin_users:
-            return obj.tideway_pdw
+        if request and request.user:
+            admin_users = request.user.groups.filter(name='admin_users').exists()
+            if admin_users:
+                return obj.tideway_pdw
 
     def get_root_user(self, obj):
         request = self.context.get('request')
-        admin_users = request.user.groups.filter(name='admin_users').exists()
-        if admin_users:
-            return obj.root_user
+        if request and request.user:
+            admin_users = request.user.groups.filter(name='admin_users').exists()
+            if admin_users:
+                return obj.root_user
 
     def get_root_pwd(self, obj):
         request = self.context.get('request')
-        admin_users = request.user.groups.filter(name='admin_users').exists()
-        if admin_users:
-            return obj.root_pwd
+        if request and request.user:
+            admin_users = request.user.groups.filter(name='admin_users').exists()
+            if admin_users:
+                return obj.root_pwd

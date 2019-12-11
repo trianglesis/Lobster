@@ -146,7 +146,7 @@ function addmCMDRunGenerate(event) {
 
     delete runAddmCMD.dataset;
 
-    showToastTask(toastReady.id); // Make toast visible
+    $('#' + toastReady.id).toast('show');
     $('.show').modal('hide');
 }
 
@@ -160,27 +160,13 @@ function addmCMDRunGenerate(event) {
  */
 $(document).ready(function () {
     $('#addmUIButtonsModal').on('show.bs.modal', function (event) {
-        // let modal = document.getElementById("addmUIButtonsModal");
-        // TODO: Change later to working example or not
-        // let addmDetailsStr = document.getElementById("addm_details_str");
-        // if (addmDetailsStr.firstElementChild) {
-        //   addmDetailsStr.removeChild(addmDetailsStr.firstElementChild);
-        // }
-
+        // console.log(addm_dev_json);
+        let modalBtn = event.relatedTarget;
         let addmButtons = document.getElementsByClassName('addm-btn');
-        let tableRow = getTableRowFromEvent(event);
         let addmHostRe = /(http:\/\/)(\S+)(\.bmc\.com)/;
-
-        // let addm_p = document.createElement('p');  // toast-body
-        // addm_p.innerText = `${tableRow.cells['addm_group'].textContent} | \
-        // ${tableRow.cells['branch_lock'].textContent} | ${tableRow.cells['addm_name'].textContent} | \
-        // ${tableRow.cells['addm_v_int'].textContent} | ${tableRow.cells['addm_host'].textContent} | \
-        // ${tableRow.cells['addm_ip'].textContent}`;
-        // addmDetailsStr.appendChild(addm_p);
-
         for (let btn of addmButtons) {
             let old_href = btn.href;
-            btn.href = old_href.replace(addmHostRe, `$1${tableRow.cells['addm_host'].textContent}$3`);
+            btn.href = old_href.replace(addmHostRe, `$1${modalBtn.dataset['addm_host']}$3`);
         }
     });
 });
@@ -203,11 +189,9 @@ $(document).ready(function () {
         runAddmCleanup.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
         runAddmSyncShares.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
         runAddmSyncUtils.dataset.addm_host = relTableRow.cells['addm_host'].textContent;
-
         runAddmCleanup.dataset.operation_key = 'addm_cleanup';
         runAddmSyncShares.dataset.operation_key = 'addm_sync_shares';
         runAddmSyncUtils.dataset.operation_key = 'addm_sync_utils';
-
         runSingleAddmCMD.dataset.selectId = 'addmSingleCMDSelect';
 
         // if previous exec

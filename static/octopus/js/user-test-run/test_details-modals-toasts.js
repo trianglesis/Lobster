@@ -32,7 +32,7 @@ $(document).ready(function () {
         modal = document.getElementById("actionsModal");
         // Run REST get to obtain related case for this test:
         // Use one
-        RESTGetCaseByTestPyPath(relCasesTestLogs[0], fillModalBodyAfterREST);
+        new RESTGetCaseByTestPyPath(relCasesTestLogs[0], fillModalBodyAfterREST);
     })
 });
 

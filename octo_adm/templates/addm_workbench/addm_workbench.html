@@ -91,7 +91,6 @@
                             <li class="list-group-item">
                                 <span class="card-text fl-left">ADDM Tables old:</span>
                                 <div class="btn-group fl-right">
-                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'old_addm_workbench' %}">ADDM Workbench</a>
                                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'addm_buttons_page' %}">ADDM Buttons</a>
                                 </div>
                             </li>
@@ -242,8 +241,11 @@
     {% include 'addm_workbench/includes/modal_addm_sync.html' %}
 {#    {% include 'addm_workbench/includes/modal_MobaXterm.html' %}#}
     {# JS #}
-    <script src="{% static 'octopus/js/test-cases-tables-methods.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
     <script src="{% static 'octopus/js/admin-workbench/addm-btn.js' %}"></script>
+    <script type="text/javascript">
+        let addm_dev_json = {{ objects|tku_patterns_json:'AddmDev'|safe }};
+    </script>
     {% comment %}DEBUG{% endcomment %}
     <div class="debug-context">
         {% if request.GET.debug %}

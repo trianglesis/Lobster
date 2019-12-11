@@ -31,11 +31,13 @@
                 <td id="buttons">
                     <a type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal"
                        data-target="#addmServiceButtonsModal"
-                       data-addm_id="{{ addm.addm_host }}"
+                       data-addm_id="{{ addm.id }}"
+                       data-addm_host="{{ addm.addm_host }}"
                     >Service</a>
                     <a type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                        data-target="#addmUIButtonsModal"
-                       data-addm_id="{{ addm.addm_host }}"
+                       data-addm_id="{{ addm.id }}"
+                       data-addm_host="{{ addm.addm_host }}"
                     >ADDM UI</a>
                 </td>
                 {# Service: #}

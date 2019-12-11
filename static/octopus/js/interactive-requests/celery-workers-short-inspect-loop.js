@@ -44,6 +44,48 @@ function createWorkerRow(workerQueues) {
 
 }
 
+/**
+ * Inspect workers with short version.
+ * @param workerList
+ * @param tasksBody
+ * @param createWorkerRow
+ * @returns {Array}
+ * @constructor
+ */
+function RESTGetCeleryWorkersQueues(workerList, tasksBody, createWorkerRow) {
+    let data = {};
+    if (tasksBody) {
+        data.task_body = '1';
+    }
+    if (workerList) {
+        data.workers_list = workerList;
+    }
+
+    $.ajax({
+        "type": "GET",
+        "dataType": "json",
+        contentType: "application/json; charset=utf-8",
+        "url": "/inspect_workers_short/",
+        data: data,
+        "beforeSend": function (xhr, settings) {
+            $.ajaxSettings.beforeSend(xhr, settings)
+        },
+        "success": function (result) {
+            // console.log(`GET result: ${result}`);
+            // console.table(result);
+            if (result) {
+                createWorkerRow(result)
+            } else {
+                console.log("Task GET failed, no task found or no status");
+            }
+        },
+        "error": function () {
+            console.log("GET TASK ERROR, something goes wrong...");
+        },
+    });
+    return [];
+}
+
 function repeatInspectContinuously() {
 
 }

@@ -20,10 +20,6 @@ urlpatterns = [
     url(r'^celery/', CeleryWorkbench.as_view(), name='celery_workbench'),
     url(r'^celery_inspect/', CeleryInspect.as_view(), name='celery_inspect'),
 
-
-    # Admin
-    url(r'^old_addm_workbench/', AdminFunctions._old_addm_workbench_widgets, name='old_addm_workbench'),
-
     # ADDM service
     url(r'^addm_buttons_page/', AdminFunctions._old_addm_buttons_page, name='addm_buttons_page'),
     # Celery shed

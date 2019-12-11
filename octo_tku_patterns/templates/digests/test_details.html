@@ -304,8 +304,8 @@
     {% endcomment %}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
-    <script src="{% static 'octopus/js/user-test-run/test_details-modals-toasts.js' %}"></script>
     <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
+    <script src="{% static 'octopus/js/user-test-run/test_details-modals-toasts.js' %}"></script>
     <script type="text/javascript">
         let tests_digest_json = {{ test_detail|tku_patterns_json:'TestLast'|safe }};
     </script>

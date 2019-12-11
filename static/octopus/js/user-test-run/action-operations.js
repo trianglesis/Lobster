@@ -9,8 +9,8 @@ function getButtonFromEvent(event) {
 function secondsToTime(secNum) {
     let hours = Math.floor(secNum / 3600);
     let minutes = Math.floor((secNum - (hours * 3600)) / 60);
-    let seconds =  secNum - (hours * 3600) - (minutes * 60);
-    return hours+':'+minutes+':'+seconds;
+    let seconds = secNum - (hours * 3600) - (minutes * 60);
+    return hours + ':' + minutes + ':' + seconds;
 
 }
 
@@ -349,14 +349,13 @@ function makeMultipleCasesIdsStr(relCases) {
     return multipleCases.join(',');
 }
 
-
 /**
  *
  * @param {string} caseId caseDataJSON usually an array of case/tests data in json format. Pass array with single item
  * for cases gained from REST request or single selection.
  * @param multipleCases
  */
-function assignTestCaseTestButtonsNew(caseId, multipleCases= false) {
+function assignTestCaseTestButtonsNew(caseId, multipleCases = false) {
     let test_wipe_run = document.getElementById(
         "wipe-run");
     if (test_wipe_run) {
@@ -392,7 +391,7 @@ function assignTestCaseTestButtonsNew(caseId, multipleCases= false) {
 /**
  * Make buttons for test run have required attributes to run test:
  * Single test.py modes: wipe-run, p4-run, instant-run
-* @param {Array} caseDataJSON caseDataJSON usually an array of case/tests data in json format. Pass array with single item
+ * @param {Array} caseDataJSON caseDataJSON usually an array of case/tests data in json format. Pass array with single item
  * for cases gained from REST request or single selection.
  */
 function assignTestCaseUnitTestButtons(caseDataJSON) {
@@ -469,7 +468,6 @@ function assignTestCaseUnitTestButtons(caseDataJSON) {
 /**
  * TOAST OPERATIONS:
  */
-
 
 /**
  *
@@ -602,6 +600,29 @@ function getToastDraftWithId(caseData, alterId = undefined) {
     return toastBase
 }
 
+function getToastDraft(btnDataSet) {
+    let toastDraft = document.getElementById('toastDraft'); // Get draft toast from page foot
+    let toastBase = toastDraft.children[0].cloneNode(true);  // Toast object
+    toastBase.setAttribute('data-delay', 30000); // 30 sec. Wait to task mod
+    // Assign new toast copy a value ID based on item ID (case id or case unique attrs)
+
+    if (btnDataSet.addm_group) {
+        toastBase.id = `${btnDataSet.operation_key}-${btnDataSet.addm_group}`;
+
+    } else if (btnDataSet.addm_host && btnDataSet.command_key) {
+        toastBase.id = `${btnDataSet.addm_host}-${btnDataSet.command_key}`;
+
+    } else if (btnDataSet.addm_host && btnDataSet.operation_key) {
+        toastBase.id = `${btnDataSet.addm_host}-${btnDataSet.operation_key}`;
+
+    } else if (btnDataSet.addm_group && btnDataSet.command_key) {
+        toastBase.id = `${btnDataSet.addm_group}-${btnDataSet.command_key}`;
+
+    } else {
+        toastBase.id = `${btnDataSet.operation_key}`;
+    }
+    return toastBase
+}
 
 /**
  *
@@ -692,7 +713,6 @@ function fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset)
 
     return toastBase
 }
-
 
 /**
  *
@@ -787,7 +807,9 @@ function RESTGetCaseByTestPyPath(caseData, callThen) {
         contentType: "application/json; charset=utf-8",
         "url": "/api/v1/cases/octo_test_cases/",
         data: {test_py_path: caseData['test_py_path']},
-        "beforeSend": function (xhr, settings) {$.ajaxSettings.beforeSend(xhr, settings)},
+        "beforeSend": function (xhr, settings) {
+            $.ajaxSettings.beforeSend(xhr, settings)
+        },
         "success": function (result) {
             let caseItem = result.results[0];
             if (caseItem && caseItem.id) {
@@ -888,4 +910,203 @@ function toastModifySuccess(taskObj, toastId) {
         }
     }
     toastPublished.childNodes[3].appendChild(task_status);
+}
+
+
+/**
+ * ADMIN OPTIONS:
+ */
+function fillToastBodyWithTaskDetails(btnDataSet, toastBase) {
+    let div = document.createElement('div');  // toast-body
+    div.setAttribute('id', 'taskOperationType');
+    // Simply show JSON of button data
+    if (btnDataSet.operation_key) {
+        div.innerText = `Adding: ${JSON.stringify(btnDataSet)}`;
+        div.style.wordWrap = 'break-word';
+        toastBase.childNodes[3].appendChild(div);
+    }
+    return toastBase
+}
+
+/**
+ * Simple function to activate button with Admin Operation call, show toast and run task or method.
+ * @param event
+ */
+function buttonActivationADDM(event) {
+    let btn = event.currentTarget;
+    let toastBase = getToastDraft(btn.dataset);
+    let toastReady = fillToastBodyWithTaskDetails(btn.dataset, toastBase);
+    appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+    RESTAdminOperationsPOST(btn.dataset, toastReady);
+    $('#' + toastReady.id).toast('show');
+    if (btn.modalId) {
+        $('#' + btn.modalId).modal('hide');
+    }
+}
+
+// Later make one:
+function buttonActivationUpload(event) {
+    let btn = event.currentTarget;
+    let toastBase = getToastDraft(btn.dataset);
+    let toastReady = fillToastBodyWithTaskDetails(btn.dataset, toastBase);
+    appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
+    RESTUploadOperationsPOST(btn.dataset, toastReady);
+    $('#' + toastReady.id).toast('show');
+    if (btn.modalId) {
+        $('#' + btn.modalId).modal('hide');
+    }
+}
+
+function toastModifyOtherTasksPre(toastReady, tasksSet, message) {
+    let div = document.createElement('div');  // toast-body
+    div.setAttribute('id', 'task_id');
+    if (tasksSet) {
+        div.innerText = `task: ${JSON.stringify(tasksSet)}`;
+    } else {
+        div.innerText = `${message}`;
+    }
+    toastReady.childNodes[3].appendChild(div);
+}
+
+function toastModifyOtherTaskSuccess(toastReady, task) {
+    let task_status = document.createElement('div');  // toast-body
+    task_status.setAttribute('id', 'task_status');
+    if (task.state) {
+        task_status.innerText = `task: ${task.status} - ${task.state}`;
+    } else {
+        if (task.status === 'FAILURE') {
+            task_status.innerText = `task: ${task.status} - please check!`;
+        } else if (task.status) {
+            task_status.innerText = `task: ${task.status} - wait in queue...`;
+        } else if (task) {
+            task_status.innerText = `${JSON.stringify(task)}`;
+        }
+    }
+    toastReady.childNodes[3].appendChild(task_status);
+}
+
+function waitResultTask(toastReady, taskID) {
+    setTimeout(function () {
+        if (typeof taskID === 'object') {
+            for (const [key, task_id] of Object.entries(taskID)) {
+                console.log(`Getting tasks statuses: ${key} ${task_id}`);
+                new RESTGetTaskGeneric(toastReady, task_id);
+            }
+        } else if (typeof taskID === 'string') {
+            new RESTGetTaskGeneric(toastReady, taskID);
+        }
+    }, 15000);
+}
+
+/**
+ * REST ADMIN OPTIONS:
+ */
+
+/**
+ * http://127.0.0.1:8000/octo_admin/task_operation/?operation_key=get_task_status_by_id
+ * @param toastReady
+ * @param taskID
+ * @constructor
+ */
+function RESTGetTaskGeneric(toastReady, taskID) {
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/octo_admin/task_operation/",
+        data: {operation_key: 'get_task_status_by_id', task_id: taskID},
+        "beforeSend": function (xhr, settings) {
+            $.ajaxSettings.beforeSend(xhr, settings)
+        },
+        "success": function (result) {
+            console.log(result);
+            let task = result.response;
+            if (task && task.status) {
+                toastModifyOtherTaskSuccess(toastReady, task);
+            } else if (task) {
+                // May return an array when task was finished and added to DB already:
+                toastModifyOtherTaskSuccess(toastReady, task);
+            } else {
+                toastModifyOtherTaskSuccess(toastReady, task);
+                console.log("Task GET failed, no task found or no status");
+            }
+        },
+        "error": function () {
+            toastModifyOtherTaskSuccess(toastReady, "GET TASK ERROR, something goes wrong...");
+            console.log("GET TASK ERROR, something goes wrong...");
+        },
+    });
+}
+
+/**
+ * Post admin task for addm operations.
+ * Show toast with selected task, addm name ot group and operation key and args
+ * Later get task id, wait, show toast task response.
+ * @param btnDataset
+ * @param toastReady
+ * @returns {*}
+ */
+function RESTAdminOperationsPOST(btnDataset, toastReady) {
+    console.log(btnDataset);
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/octo_admin/admin_operations/",
+        data: btnDataset,
+        "beforeSend": function (xhr, settings) {
+            $.ajaxSettings.beforeSend(xhr, settings)
+        },
+        "success": function (result) {
+            console.log(`POST result: ${result}`);
+            if (result) {
+                console.table(result);
+                toastModifyOtherTasksPre(toastReady, result.task_id);
+                waitResultTask(toastReady, result.task_id);
+            } else {
+                console.log("Task POST send, but haven't been added. No task_id in result!");
+                toastModifyOtherTasksPre(toastReady, undefined,
+                    "Task POST send, but haven't been added. No task_id in result!");
+            }
+        },
+        "error": function () {
+            console.log("POST TASK ERROR, something goes wrong...");
+            toastModifyOtherTasksPre(toastReady, undefined,
+                "POST TASK ERROR, something goes wrong...");
+        },
+    });
+    return btnDataset;
+}
+
+// Later make universal:
+function RESTUploadOperationsPOST(btnDataset, toastReady) {
+    console.log(btnDataset);
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/octo_tku_upload/tku_operations/",
+        data: btnDataset,
+        "beforeSend": function (xhr, settings) {
+            $.ajaxSettings.beforeSend(xhr, settings)
+        },
+        "success": function (result) {
+            console.log(`POST result: ${result}`);
+            if (result) {
+                console.table(result);
+                toastModifyOtherTasksPre(toastReady, result.task_id);
+                waitResultTask(toastReady, result.task_id);
+            } else {
+                console.log("Task POST send, but haven't been added. No task_id in result!");
+                toastModifyOtherTasksPre(toastReady, undefined,
+                    "Task POST send, but haven't been added. No task_id in result!");
+            }
+        },
+        "error": function () {
+            console.log("POST TASK ERROR, something goes wrong...");
+            toastModifyOtherTasksPre(toastReady, undefined,
+                "POST TASK ERROR, something goes wrong...");
+        },
+    });
+    return btnDataset;
 }

@@ -1062,21 +1062,6 @@ class AdminFunctions:
 
     @staticmethod
     @login_required(login_url='/unauthorized_banner/')
-    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
-    def _old_addm_workbench_widgets(request):
-        """
-        Draw useful widgets for workbench page.
-
-        :param request:
-        :return:
-        """
-        user_name, user_string = UserCheck().user_string_f(request)
-        log.debug("<=MAIN Widgets=> workbench_widgets(): %s", user_string)
-        page_widgets = loader.get_template('addm_workbench/addm_workbench_widgets.html')
-        return HttpResponse(page_widgets.render(dict(SUBJECT = "", ACTIVE=True), request))
-
-    @staticmethod
-    @login_required(login_url='/unauthorized_banner/')
     def _old_addm_buttons_page(request):
         page_widgets = loader.get_template('addm_buttons.html')
         user_name, user_string = UserCheck().user_string_f(request)
