@@ -30,10 +30,11 @@
             {% if test.addm_name == var_addm_name or not var_addm_name %}
                 <tr>
                     <td id="test_id_checkbox">
+                        {% if "tests_last" in request.path %}
                         <label for="testId-{{ test.id }}"></label>
                         <input class="test-last-rerun-select"
                                type="checkbox" value="{{ test.case_id }}"
-                               id="testId-{{ test.id }}"></td>
+                               id="testId-{{ test.id }}">{% endif %}</td>
                     <td id="tkn_branch">{{ test.tkn_branch }}</td>
                     <td id="pattern_library" class="txt-center-nowrap table-shrink"><span>{{ test.pattern_library }}</span></td>
                     <td id="pattern_folder_name" class="txt-center-nowrap"><span>{{ test.pattern_folder_name }}</span></td>

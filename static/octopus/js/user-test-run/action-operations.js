@@ -26,6 +26,7 @@ function makeCaseTestDataSet(dataJSON,
                              case_id = undefined,
                              testPyPath = undefined,
                              casesIds = []) {
+    let temp = [];
     let caseTestDataArr = [];
     for (let testItem of dataJSON) {
         //For case on last test
@@ -41,8 +42,23 @@ function makeCaseTestDataSet(dataJSON,
             // For multiple selection via checkboxes. Compare page QS JSON with array of casesIds (from checkboxes)
         } else if (casesIds && casesIds[0]) {
             if (casesIds.includes(testItem['id']) || casesIds.includes(testItem['case_id'])) {
-                // TODO: Make unique, do not push items with the same case_id/id
-                caseTestDataArr.push(testItem);
+
+                // For test last digest where case is presented by "case_id"
+                if (testItem['case_id']) {
+                    if (temp.includes(testItem['case_id'])) {
+                    } else {
+                        temp.push(testItem['case_id']);
+                        caseTestDataArr.push(testItem);
+                    }
+                }
+                // For cases id in test cases table (not tests)
+                if (testItem['id']) {
+                    if (temp.includes(testItem['id'])) {
+                    } else {
+                        temp.push(testItem['id']);
+                        caseTestDataArr.push(testItem);
+                    }
+                }
             }
         }
     }
