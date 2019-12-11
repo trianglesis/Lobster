@@ -161,6 +161,9 @@
     {# JS #}
     <script src="{% static 'octopus/js/celery-inspect/celery-methods.js' %}"></script>
     <script src="{% static 'octopus/js/celery-inspect/celery-inspect.js' %}"></script>
+    <script type="text/javascript">
+        let single_worker = "{{ worker }}";
+    </script>
     {% comment %}DEBUG{% endcomment %}
     <div class="debug-context">
         {% if request.GET.debug %}

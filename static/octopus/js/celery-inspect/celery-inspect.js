@@ -2,10 +2,24 @@
  *
  */
 
-let tabsDataset = {'operation_key': 'tasks_get_active'};
-RESTCeleryTaskPOST(tabsDataset, modifyCeleryTabContent);
+let tabsDataset = {
+    'operation_key': 'tasks_get_active',
+    'workers': undefined,
+};
+let pingWorkers = {
+    'operation_key': 'worker_ping',
+};
+let actualWorkers = [];
+
 
 $(document).ready(function () {
+    console.log("Page loaded, now inspect workers!");
+    console.log(single_worker);
+    // TODO: Initially - get all available workers by pinging all:
+    RESTCeleryTaskPOST(pingWorkers, assignActualWorkers);
+
+    // Inspect all possible workers for active tasks
+    RESTCeleryTaskPOST(tabsDataset, modifyCeleryTabContent);
     eventListenerCeleryTabs(fillCeleryTabs)
 });
 
@@ -17,6 +31,52 @@ function fillCeleryTabs(tabsDataset) {
         console.table(tabsDataset);
     }
     RESTCeleryTaskPOST(tabsDataset, modifyCeleryTabContent);
+}
+
+function modifyCeleryTabContent(tabsDataset, RESTResult) {
+    // console.table(RESTResult);
+    let worker_card = document.getElementById("worker-card");
+    let tab_active = document.getElementById("active");
+    let tab_reserved = document.getElementById("reserved");
+    let tab_active_reserved = document.getElementById("active-reserved");
+    let tab_scheduled = document.getElementById("scheduled");
+    let tab_registered = document.getElementById("registered");
+
+    if (tabsDataset.operation_key === 'tasks_get_active') {
+        console.table(RESTResult.response);
+        tab_active.querySelectorAll('*').forEach(n => n.remove());
+        fillTabTaskTable(tab_active, worker_card, RESTResult)
+    }
+    if (tabsDataset.operation_key === 'tasks_get_reserved') {
+        console.table(RESTResult.response);
+        tab_reserved.querySelectorAll('*').forEach(n => n.remove());
+        fillTabTaskTable(tab_reserved, worker_card, RESTResult)
+    }
+    if (tabsDataset.operation_key === 'tasks_get_active_reserved') {
+        console.table(RESTResult.response);
+        tab_active_reserved.querySelectorAll('*').forEach(n => n.remove());
+        fillTabTaskTableActRes(tab_active_reserved, worker_card, RESTResult)
+    }
+    if (tabsDataset.operation_key === 'tasks_get_scheduled') {
+        console.table(RESTResult.response);
+        tab_scheduled.querySelectorAll('*').forEach(n => n.remove());
+
+        for (const [key, value] of Object.entries(RESTResult.response)) {
+            let item_p = document.createElement('p');
+            item_p.innerText = `${key}: ${value}`;
+            tab_scheduled.appendChild(item_p)
+        }
+    }
+    if (tabsDataset.operation_key === 'tasks_get_registered') {
+        console.table(RESTResult.response);
+        tab_registered.querySelectorAll('*').forEach(n => n.remove());
+
+        for (const [key, value] of Object.entries(RESTResult.response)) {
+            let item_p = document.createElement('p');
+            item_p.innerText = `${key}: ${value}`;
+            tab_registered.appendChild(item_p)
+        }
+    }
 }
 
 function fillTabTaskTable(tabNode, worker_card, RESTResult) {
@@ -113,51 +173,15 @@ function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
 
 function fillWorkerButtons() {
     // TODO: Assign worker names to buttons of each worker card
+}
+
+function assignActualWorkers(dataset, RESTWorkersPingResponse) {
+    if (RESTWorkersPingResponse) {
+        actualWorkers = RESTWorkersPingResponse;
+        console.log(actualWorkers.response);
+    } else {
+        console.log("NO actual workers found by ping!")
+    }
 
 }
 
-function modifyCeleryTabContent(tabsDataset, RESTResult) {
-    // console.table(RESTResult);
-    let worker_card = document.getElementById("worker-card");
-    let tab_active = document.getElementById("active");
-    let tab_reserved = document.getElementById("reserved");
-    let tab_active_reserved = document.getElementById("active-reserved");
-    let tab_scheduled = document.getElementById("scheduled");
-    let tab_registered = document.getElementById("registered");
-
-    if (tabsDataset.operation_key === 'tasks_get_active') {
-        console.table(RESTResult.response);
-        tab_active.querySelectorAll('*').forEach(n => n.remove());
-        fillTabTaskTable(tab_active, worker_card, RESTResult)
-    }
-    if (tabsDataset.operation_key === 'tasks_get_reserved') {
-        console.table(RESTResult.response);
-        tab_reserved.querySelectorAll('*').forEach(n => n.remove());
-        fillTabTaskTable(tab_reserved, worker_card, RESTResult)
-    }
-    if (tabsDataset.operation_key === 'tasks_get_active_reserved') {
-        console.table(RESTResult.response);
-        tab_active_reserved.querySelectorAll('*').forEach(n => n.remove());
-        fillTabTaskTableActRes(tab_active_reserved, worker_card, RESTResult)
-    }
-    if (tabsDataset.operation_key === 'tasks_get_scheduled') {
-        console.table(RESTResult.response);
-        tab_scheduled.querySelectorAll('*').forEach(n => n.remove());
-
-        for (const [key, value] of Object.entries(RESTResult.response)) {
-            let item_p = document.createElement('p');
-            item_p.innerText = `${key}: ${value}`;
-            tab_scheduled.appendChild(item_p)
-        }
-    }
-    if (tabsDataset.operation_key === 'tasks_get_registered') {
-        console.table(RESTResult.response);
-        tab_registered.querySelectorAll('*').forEach(n => n.remove());
-
-        for (const [key, value] of Object.entries(RESTResult.response)) {
-            let item_p = document.createElement('p');
-            item_p.innerText = `${key}: ${value}`;
-            tab_registered.appendChild(item_p)
-        }
-    }
-}
