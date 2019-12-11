@@ -815,7 +815,7 @@ class TaskPrepare:
                 f'refresh={self.refresh};test_py_path={test_item["test_py_path"]}'
 
         # Test task exec:
-        Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=MIN_1, debug_me=True,
+        Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=MIN_40, debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(addm_items=list(addm_set), test_item=test_item,
                                     test_function=self.test_function),

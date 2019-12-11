@@ -45,11 +45,11 @@
         </div>
         <!-- Navbar right part content -->
         <div class="nav-reports-right digest-test-log-levels">
-            <a class="btn btn-sm btn-warning">Revoke active</a>
-            <a class="btn btn-sm btn-warning">Revoke reserved</a>
-            <a class="btn btn-sm btn-warning">Revoke all</a>
-            <a class="btn btn-sm btn-danger">Tasks discard</a>
-            <a class="btn btn-sm btn-danger">Tasks purge</a>
+            <a id="revoke-active-tasks" class="btn btn-sm btn-warning">Revoke active</a>
+            <a id="revoke-reserved-tasks" class="btn btn-sm btn-warning">Revoke reserved</a>
+            <a id="revoke-all-tasks" class="btn btn-sm btn-warning">Revoke all</a>
+            <a id="discard-all-tasks" class="btn btn-sm btn-danger">Tasks discard</a>
+            <a id="purge-all-tasks" class="btn btn-sm btn-danger">Tasks purge</a>
         </div>
     {% endspaceless %}
     </nav>
@@ -120,21 +120,16 @@
                                 <td>args</td>
                                 <td>type</td>
                                 <td>started</td>
+                                <td>actions</td>
                             </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
                     <div class="worker-buttons">
-                        <a href="#" class="badge badge-info">Active tasks</a>
-                        <a href="#" class="badge badge-info">Reserved tasks</a>
-                        <a href="#" class="badge badge-success">Ping worker</a>
-                        <a href="#" class="badge badge-success">Heartbeat worker</a>
-                        <a href="#" class="badge badge-warning">Revoke tasks</a>
                     </div>
                 </div>
 {#                <div class="card-footer card-footer-shrink">#}
-
 {#                </div>#}
             </div>
         </div>

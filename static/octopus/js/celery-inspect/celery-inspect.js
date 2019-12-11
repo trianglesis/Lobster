@@ -15,6 +15,13 @@ let actualWorkers = [];
 $(document).ready(function () {
     console.log("Page loaded, now inspect workers!");
     console.log(single_worker);
+
+    if (single_worker === 'all-workers') {
+        console.log("Inspect all available workers. Not specify");
+    } else {
+        console.log("Inspect one worker: " + single_worker);
+        tabsDataset.workers = single_worker;
+    }
     // TODO: Initially - get all available workers by pinging all:
     RESTCeleryTaskPOST(pingWorkers, assignActualWorkers);
 
@@ -22,7 +29,6 @@ $(document).ready(function () {
     RESTCeleryTaskPOST(tabsDataset, modifyCeleryTabContent);
     eventListenerCeleryTabs(fillCeleryTabs)
 });
-
 
 function fillCeleryTabs(tabsDataset) {
     if (tabsDataset.workers === 'all-workers') {
@@ -91,6 +97,7 @@ function fillTabTaskTable(tabNode, worker_card, RESTResult) {
             let cardBody = workerCardBase.childNodes[3];  // Body
 
             cardHeader.childNodes[0].innerText = `${w_key}`;  // worker name
+            workerButtons(workerCardBase, w_key);
 
             if (w_value && w_value.length > 0) {
                 let taskTableBody = cardBody.firstElementChild.tBodies[0];  // Task table
@@ -104,6 +111,14 @@ function fillTabTaskTable(tabNode, worker_card, RESTResult) {
                         }
                         taskTableBody.appendChild(task_row);
                     }
+                    // Extra td for Actions:
+                    let actions_td = document.createElement('td');
+                    let actions_btn = document.createElement('a');
+                    actions_btn.setAttribute("class", "badge badge-warning revoke-task-by-id");
+                    actions_btn.dataset.task_id = task['id'];
+                    actions_btn.innerText = 'Revoke';
+                    actions_td.appendChild(actions_btn);
+                    task_row.appendChild(actions_td);
                 }
             } else {
                 cardBody.firstElementChild.remove();
@@ -111,6 +126,8 @@ function fillTabTaskTable(tabNode, worker_card, RESTResult) {
             }
             tabNode.appendChild(workerCardBase)
         }
+        // Assign listeners for task operations:
+        eventListenerRevokeBtn(taskOperationsButtonsToast);
     } else {
         console.log("Workers are probably irresponsible, cannot get all tasks!");
         let workerCardBase = worker_card.children[0].cloneNode(true);
@@ -171,10 +188,6 @@ function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
     }
 }
 
-function fillWorkerButtons() {
-    // TODO: Assign worker names to buttons of each worker card
-}
-
 function assignActualWorkers(dataset, RESTWorkersPingResponse) {
     if (RESTWorkersPingResponse) {
         actualWorkers = RESTWorkersPingResponse;
@@ -185,3 +198,14 @@ function assignActualWorkers(dataset, RESTWorkersPingResponse) {
 
 }
 
+function taskOperationsButtonsToast(btnDataset) {
+    console.log(btnDataset);
+    // Make REST request with operation key and opts:
+    RESTCeleryTaskPOST(btnDataset, drawToastConfirm);
+}
+
+function drawToastConfirm(tabsDataset, result) {
+    // Draw toast with confirmation
+    console.log(tabsDataset);
+    console.log(result);
+}
