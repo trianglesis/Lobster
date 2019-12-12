@@ -252,8 +252,13 @@ class TasksOperations:
                 w_tasks = inspect.active().get(worker)
                 tasks.update({worker: w_tasks})
         else:
+            tasks_list = []
             inspect = app.control.inspect()
-            tasks = {'active': inspect.active()}
+            active = inspect.active()
+            for worker_v in active.values():
+                for task in worker_v:
+                    tasks_list.append(task)
+            tasks = dict(active=tasks_list)
         return tasks
 
     @staticmethod
@@ -268,9 +273,13 @@ class TasksOperations:
                 w_tasks = inspect.reserved().get(worker)
                 tasks.update({worker: w_tasks})
         else:
+            tasks_list = []
             inspect = app.control.inspect()
-            # log.debug("inspect %s", inspect)
-            tasks = {'reserved': inspect.reserved()}
+            reserved = inspect.reserved()
+            for worker_v in reserved.values():
+                for task in worker_v:
+                    tasks_list.append(task)
+            tasks = dict(reserved=tasks_list)
         return tasks
 
     @staticmethod
@@ -333,7 +342,7 @@ class TasksOperations:
 
     # Cancel tasks:
     @staticmethod
-    def revoke_task_by_id(task_id, terminate=False):
+    def revoke_task_by_id(task_id, terminate=False, local=False):
         """
         Push the button to cancel current task.
         Tell all (or specific) workers to revoke a task by id.
@@ -342,6 +351,7 @@ class TasksOperations:
 
         :param task_id:
         :param terminate:
+        :param local:
         :return:
         """
         if terminate:
@@ -365,12 +375,12 @@ class TasksOperations:
             children=res.children,
             date_done=res.date_done,
         )
-        log.debug(task_res)
         if task_id == res.id:
             resp = 'Task marked to be revoked!'
         else:
             resp = 'Result task and task to revoke has different ids! Possibly revoke wrong task.'
-
+        if local:
+            return task_res
         return {'resp': resp, 'async_result': task_res}
 
     def revoke_tasks_active(self, **kwargs):
@@ -380,24 +390,16 @@ class TasksOperations:
         :return:
         """
         workers = kwargs.get("workers", None)
-
-        tasks_revoked = 0
-        revoked_names = []
-
+        revoked_count = 0
+        revoked_tasks = []
         active_tasks = self.tasks_get_active(workers=workers)
         if active_tasks:
-            for worker_k, worker_v in active_tasks.items():
+            for worker_v in active_tasks.values():
                 for task in worker_v:
-                    self.revoke_task_by_id(task['id'])
-                    tasks_revoked += 1
-                    revoked_names.append(dict(
-                        task_id=task['id'],
-                        task_name=task['name'],
-                        task_args=task['args'],
-                        task_hostname=task['hostname'],
-                    ))
-
-        return {'tasks_revoked': tasks_revoked, 'revoked_names': revoked_names}
+                    task_res = self.revoke_task_by_id(task['id'], False, True)
+                    revoked_count += 1
+                    revoked_tasks.append(task_res)
+        return {'revoked_tasks': revoked_tasks, 'revoked_count': revoked_count}
 
     def revoke_tasks_reserved(self, **kwargs):
         """
@@ -406,24 +408,16 @@ class TasksOperations:
         :return:
         """
         workers = kwargs.get("workers", None)
-
-        tasks_revoked = 0
-        revoked_names = []
-
-        active_tasks = self.tasks_get_reserved(workers=workers)
-        if active_tasks:
-            for worker_k, worker_v in active_tasks.items():
+        revoked_count = 0
+        revoked_tasks = []
+        reserved = self.tasks_get_reserved(workers=workers)
+        if reserved:
+            for worker_v in reserved.values():
                 for task in worker_v:
-                    self.revoke_task_by_id(task['id'])
-                    tasks_revoked += 1
-                    revoked_names.append(dict(
-                        task_id=task['id'],
-                        task_name=task['name'],
-                        task_args=task['args'],
-                        task_hostname=task['hostname'],
-                    ))
-
-        return {'tasks_revoked': tasks_revoked, 'revoked_names': revoked_names}
+                    task_res = self.revoke_task_by_id(task['id'], False, True)
+                    revoked_count += 1
+                    revoked_tasks.append(task_res)
+        return {'revoked_tasks': revoked_tasks, 'revoked_count': revoked_count}
 
     def revoke_tasks_active_reserved(self, **kwargs):
         workers = kwargs.get("workers", None)

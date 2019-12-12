@@ -636,6 +636,7 @@ class TaskOperationsREST(APIView):
         if not UserCheck.is_admin(self.request.user):
             return {'error': 'User has no admin rights!'}
         workers = self.workers
+        log.debug("workers: %s", workers)
         resp = TasksOperations().revoke_tasks_active(workers=workers)
         return {'response': resp}
 

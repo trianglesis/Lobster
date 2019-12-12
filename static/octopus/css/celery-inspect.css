@@ -1,5 +1,4 @@
 
-
 .celery-content {
     padding: 10px 10px 100px 10px;
     font-size: .875em;
@@ -19,9 +18,11 @@
 .card-header-shrink {
     padding: .2em;
 }
+
 .card-body-shrink {
     padding: .2em;
 }
+
 .card-footer-shrink {
     padding: .2em;
 }
@@ -32,4 +33,97 @@
 
 .worker-buttons {
     float: right;
+}
+
+
+/* TOAST */
+#task-request {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/hubot.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
+}
+
+#task-revoked {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/hubot.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
+}
+
+#task-state {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/pulse.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
+}
+
+#task-status {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/history.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
+}
+
+#task-time {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/clock.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
+}
+
+#revoked-count {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/law.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
+}
+
+#revoked-active{
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/law.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
+}
+
+#revoked-reserved{
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/law.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
+}
+
+
+.revoke-task-id {
+    font-size: .875em;
+    font-family: 'Maven Pro', sans-serif;
+    padding-left: 1.2rem;
+    background-image: url(/static/octicons/svg/hubot.svg);
+    background-repeat: no-repeat;
+    background-size: 1.2em;
+    margin: .2em;
 }
