@@ -3,33 +3,48 @@
  */
 
 let tabsDataset = {
-    'operation_key': 'tasks_get_active',
+    'operation_key': 'tasks_get_active_reserved',
     'workers': undefined,
 };
-let pingWorkers = {
-    'operation_key': 'worker_ping',
-};
+let pingWorkers = {'operation_key': 'worker_ping'};
 let actualWorkers = [];
 
+let TEMP_Rest_response = {"active":{"w_routines@tentacle":[],"w_parsing@tentacle":[],"charlie@tentacle":[{"id":"28e860eb-bfef-4941-965c-7212161ea6e8","name":"octo.tasks.fake_task","args":"['fire_t', 2400]","kwargs":"{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_ship;addm_group=charlie;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/10genMongoDB/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}], 'test_item': {'id': 1009, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_ship', 'pattern_library': 'CORE', 'pattern_folder_name': '10genMongoDB', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/10genMongoDB', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE', 'test_case_dir': '', 'change': '789132', 'change_desc': 'CUSTOMER|DEFECT|DRDC1-14354|Use correct key when none of port, instance or db path are discovered|@1009586\n\nMerging\n\n//addm/tkn_main/tku_patterns/CORE/10genMongoDB/...\n\nto //addm/tkn_main/tku_patterns/CORE/10genMongoDB/...\n', 'change_user': 'yzeinalo', 'change_review': '#1009586', 'change_ticket': 'DRDC1-14354', 'change_time': datetime.dateti..., ...}}}","type":"octo.tasks.fake_task","hostname":"charlie@tentacle","time_start":1576147275.5120533,"acknowledged":true,"delivery_info":{"exchange":"","routing_key":"charlie@tentacle.dq2","priority":null,"redelivered":true},"worker_pid":2688935593832}],"golf@tentacle":[],"alpha@tentacle":[{"id":"92ddad2b-6c45-4eb9-9e73-364bec09c8c0","name":"octo.tasks.fake_task","args":"['fire_t', 2400]","kwargs":"{'t_args': ['tag=t_test_exec_threads;type=user_routine;branch=tkn_main;addm_group=alpha;user_name=octopus_super;refresh=False;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/Common/tests/test.py'], 't_kwargs': {'addm_items': [{...}, {...}, {...}, {...}], 'test_item': {'id': 8, 'test_type': 'tku_patterns', 'tkn_branch': 'tkn_main', 'pattern_library': 'STORAGE', 'pattern_folder_name': 'Common', 'pattern_folder_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/Common', 'pattern_library_path': '/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE', 'test_case_dir': '', 'change': '766638', 'change_desc': '@754252 - New | CUSTOMER | DRDC1-9158 | WELLSFARGO/STORAGE: EMC Isilon discovery via REST API\n', 'change_user': 'pthiyaga', 'change_review': '#754252', 'change_ticket': 'DRDC1-9158', 'change_time': datetime.datetime(2019, 4, 16, 16, 45, 35, tzinfo=<UTC>), 'test_case_depot_path': '//addm/tkn_main/tku_patterns/STORAGE/Common', 'test_py_path': '/home...', ...}}}","type":"octo.tasks.fake_task","hostname":"alpha@tentacle","time_start":1576147275.520032,"acknowledged":true,"delivery_info":{"exchange":"","routing_key":"alpha@tentacle.dq2","priority":null,"redelivered":true},"worker_pid":2228060158256}]},"reserved":{"w_parsing@tentacle":[],"alpha@tentacle":[{"id":"e9e78543-9893-4f9f-a9a3-f97c4cb80278","name":"octo.tasks.fake_task","args":"['fire_t', 10]","kwargs":"{'t_args': ['tag=t_user_mail;mode=finish;addm_group=alpha;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/Common/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'finish', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 6, 'addm_host': 'vl-aus-tkudev-38', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.118', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'alpha', 'disables': None, 'branch_lock': 'tkn_main', 'description': None, 'vm_cluster': 'tku_cluster', 'vm_id': 'vim.VirtualMachine:vm-69'}, {'id': 7, 'addm_host': 'vl-aus-tkudev-39', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.144.119', 'addm_v_code': 'ADDM_11_1',...}}}","type":"octo.tasks.fake_task","hostname":"alpha@tentacle","time_start":null,"acknowledged":false,"delivery_info":{"exchange":"","routing_key":"alpha@tentacle.dq2","priority":null,"redelivered":true},"worker_pid":null}],"golf@tentacle":[],"charlie@tentacle":[{"id":"43402dbf-98da-4cc8-8e44-e5c19c500379","name":"octo.tasks.fake_task","args":"['fire_t', 10]","kwargs":"{'t_args': ['tag=t_user_mail;mode=finish;addm_group=charlie;user_name=octopus_super;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/10genMongoDB/tests/test.py'], 't_kwargs': {'mail_opts': {'mode': 'finish', 'view_obj': {...}, 'test_item': {...}, 'addm_set': <QuerySet [{'id': 12, 'addm_host': 'vl-aus-rem-qa6n', 'addm_name': 'custard_cream', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.106', 'addm_v_code': 'ADDM_11_2', 'addm_v_int': '11.2', 'addm_full_version': '11.2.0.6', 'addm_branch': 'r11_2_0_x', 'addm_owner': 'Alex D', 'addm_group': 'charlie', 'disables': None, 'branch_lock': 'tkn_ship', 'description': None, 'vm_cluster': 'pune', 'vm_id': None}, {'id': 13, 'addm_host': 'vl-aus-rem-qa6p', 'addm_name': 'bobblehat', 'tideway_user': 'tideway', 'tideway_pdw': 'S0m3w@y', 'root_user': 'root', 'root_pwd': 'tidewayroot', 'addm_ip': '172.25.148.107', 'addm_v_code': 'ADDM_11_1', 'addm_v_int': '11.1',...}}}","type":"octo.tasks.fake_task","hostname":"charlie@tentacle","time_start":null,"acknowledged":false,"delivery_info":{"exchange":"","routing_key":"charlie@tentacle.dq2","priority":null,"redelivered":true},"worker_pid":null}],"w_routines@tentacle":[]}};
+console.log("TEMP_Rest_response");
+console.log(TEMP_Rest_response);
 
+/**
+ * Initial run of task inspections with default args: active+reserved for all workers.
+ */
 $(document).ready(function () {
     console.log("Page loaded, now inspect workers!");
-    console.log(single_worker);
+    console.log("Django template global var: single_worker - " + single_worker);
 
+    // Inspect all workers or one selected:
     if (single_worker === 'all-workers') {
         console.log("Inspect all available workers. Not specify");
     } else {
         console.log("Inspect one worker: " + single_worker);
         tabsDataset.workers = single_worker;
     }
-    // TODO: Initially - get all available workers by pinging all:
-    RESTCeleryTaskPOST(pingWorkers, assignActualWorkers);
-
-    // Inspect all possible workers for active tasks
-    RESTCeleryTaskPOST(tabsDataset, modifyCeleryTabContent);
-    eventListenerCeleryTabs(fillCeleryTabs)
+    getWorkersTaskStatuses(tabsDataset);
 });
 
+/**
+ * Initial task inspect for active and reserved on page open.
+ * If worker is globally assigned - show only worker related tasks.
+ */
+function getWorkersTaskStatuses() {
+    // Inspect all workers (or one selected) for active+reserved tasks:
+    RESTCeleryTaskPOST(tabsDataset, modifyCeleryTabContent);
+    // Assign listeners for each tab:
+    eventListenerCeleryTabs(fillCeleryTabs);
+}
+
+/**
+ * Task inspect when tab pushed, of worker selected - show only worker related tasks
+ * @param tabsDataset
+ */
 function fillCeleryTabs(tabsDataset) {
     if (tabsDataset.workers === 'all-workers') {
         console.log("All workers!");
@@ -40,43 +55,41 @@ function fillCeleryTabs(tabsDataset) {
 }
 
 function modifyCeleryTabContent(tabsDataset, RESTResult) {
-    // console.table(RESTResult);
+    RESTResult.response = TEMP_Rest_response;
+
     let worker_card = document.getElementById("worker-card");
+    let tab_active_reserved = document.getElementById("active-reserved");
     let tab_active = document.getElementById("active");
     let tab_reserved = document.getElementById("reserved");
-    let tab_active_reserved = document.getElementById("active-reserved");
     let tab_scheduled = document.getElementById("scheduled");
     let tab_registered = document.getElementById("registered");
 
-    if (tabsDataset.operation_key === 'tasks_get_active') {
-        console.table(RESTResult.response);
-        tab_active.querySelectorAll('*').forEach(n => n.remove());
-        fillTabTaskTable(tab_active, worker_card, RESTResult)
-    }
-    if (tabsDataset.operation_key === 'tasks_get_reserved') {
-        console.table(RESTResult.response);
-        tab_reserved.querySelectorAll('*').forEach(n => n.remove());
-        fillTabTaskTable(tab_reserved, worker_card, RESTResult)
-    }
     if (tabsDataset.operation_key === 'tasks_get_active_reserved') {
-        console.table(RESTResult.response);
-        tab_active_reserved.querySelectorAll('*').forEach(n => n.remove());
+        prepareTabContent("active-reserved");
         fillTabTaskTableActRes(tab_active_reserved, worker_card, RESTResult)
     }
-    if (tabsDataset.operation_key === 'tasks_get_scheduled') {
-        console.table(RESTResult.response);
-        tab_scheduled.querySelectorAll('*').forEach(n => n.remove());
 
+    if (tabsDataset.operation_key === 'tasks_get_active') {
+        prepareTabContent("active");
+        fillTabTaskTable(tab_active, worker_card, RESTResult)
+    }
+
+    if (tabsDataset.operation_key === 'tasks_get_reserved') {
+        prepareTabContent("reserved");
+        fillTabTaskTable(tab_reserved, worker_card, RESTResult)
+    }
+
+    if (tabsDataset.operation_key === 'tasks_get_scheduled') {
+        prepareTabContent("scheduled");
         for (const [key, value] of Object.entries(RESTResult.response)) {
             let item_p = document.createElement('p');
             item_p.innerText = `${key}: ${value}`;
             tab_scheduled.appendChild(item_p)
         }
     }
-    if (tabsDataset.operation_key === 'tasks_get_registered') {
-        console.table(RESTResult.response);
-        tab_registered.querySelectorAll('*').forEach(n => n.remove());
 
+    if (tabsDataset.operation_key === 'tasks_get_registered') {
+        prepareTabContent("registered");
         for (const [key, value] of Object.entries(RESTResult.response)) {
             let item_p = document.createElement('p');
             item_p.innerText = `${key}: ${value}`;
@@ -85,127 +98,9 @@ function modifyCeleryTabContent(tabsDataset, RESTResult) {
     }
 }
 
-function fillTabTaskTable(tabNode, worker_card, RESTResult) {
-    let argsShow = ['id', 'name', 'args', 'time_start', 'type'];
-    // let tasks = unpackActiveReserved(RESTResult.response);
-
-    if (RESTResult.response) {
-        for (const [w_key, w_value] of Object.entries(RESTResult.response)) {
-
-            let workerCardBase = worker_card.children[0].cloneNode(true);
-            let cardHeader = workerCardBase.childNodes[1];  // Header
-            let cardBody = workerCardBase.childNodes[3];  // Body
-
-            cardHeader.childNodes[0].innerText = `${w_key}`;  // worker name
-            workerButtons(workerCardBase, w_key);
-
-            if (w_value && w_value.length > 0) {
-                let taskTableBody = cardBody.firstElementChild.tBodies[0];  // Task table
-                for (let task of w_value) {
-                    let task_row = document.createElement('tr');
-                    for (const [key, val] of Object.entries(task)) {
-                        if (argsShow.includes(key)) {
-                            let key_td = document.createElement('td');
-                            key_td.innerText = `${val}`;
-                            task_row.appendChild(key_td);
-                        }
-                        taskTableBody.appendChild(task_row);
-                    }
-                    // Extra td for Actions:
-                    let actions_td = document.createElement('td');
-                    let actions_btn = document.createElement('a');
-                    actions_btn.setAttribute("class", "badge badge-warning revoke-task-by-id");
-                    actions_btn.dataset.task_id = task['id'];
-                    actions_btn.innerText = 'Revoke';
-                    actions_td.appendChild(actions_btn);
-                    task_row.appendChild(actions_td);
-                }
-            } else {
-                cardBody.firstElementChild.remove();
-                cardBody.innerText = 'Queue is empty.'
-            }
-            tabNode.appendChild(workerCardBase)
-        }
-        // Assign listeners for task operations:
-        eventListenerRevokeBtn(taskOperationsButtonsToast);
-    } else {
-        console.log("Workers are probably irresponsible, cannot get all tasks!");
-        let workerCardBase = worker_card.children[0].cloneNode(true);
-        let cardHeader = workerCardBase.childNodes[1];  // Header
-        let cardBody = workerCardBase.childNodes[3];  // Body
-        cardHeader.innerText = `Worker cannot be inspected`;
-        cardBody.innerText = `Celery workers could become irresponsible, so Django cannot inspect them. 
-    It does not mean tasks are not running, we only cannot inspect them.
-    Please restart Django App and Celery workers or ask Admin for support.`;
-        tabNode.appendChild(workerCardBase);
-    }
-}
-
-function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
-    let argsShow = ['id', 'name', 'args', 'time_start', 'type'];
-    // let tasks = unpackActiveReserved(RESTResult.response);
-
-    for (const [ins_key, ins_value] of Object.entries(RESTResult.response)) {
-        if (ins_value) {
-            console.log(`stat: ${ins_key}`);
-            for (const [w_key, w_value] of Object.entries(ins_value)) {
-
-                if (w_value.length > 0) {
-                    let workerCardBase = worker_card.children[0].cloneNode(true);
-                    let cardHeader = workerCardBase.childNodes[1];  // Header
-                    let cardBody = workerCardBase.childNodes[3];  // Body
-
-                    cardHeader.childNodes[0].innerText = `${w_key}`;  // worker name
-
-                    if (w_value && w_value.length > 0) {
-                        let taskTableBody = cardBody.firstElementChild.tBodies[0];  // Task table
-                        for (let task of w_value) {
-                            let task_row = document.createElement('tr');
-                            for (const [key, val] of Object.entries(task)) {
-                                if (argsShow.includes(key)) {
-                                    let key_td = document.createElement('td');
-                                    key_td.innerText = `${val}`;
-                                    task_row.appendChild(key_td);
-                                }
-                                taskTableBody.appendChild(task_row);
-                            }
-                        }
-                    }
-                    tabNode.appendChild(workerCardBase)
-                }
-            }
-        } else {
-            console.log("Workers are probably irresponsible, cannot get all tasks!");
-            let workerCardBase = worker_card.children[0].cloneNode(true);
-            let cardHeader = workerCardBase.childNodes[1];  // Header
-            let cardBody = workerCardBase.childNodes[3];  // Body
-            cardHeader.innerText = `Worker cannot be inspected`;
-            cardBody.innerText = `Celery workers could become irresponsible, so Django cannot inspect them. 
-            It does not mean tasks are not running, we only cannot inspect them.
-            Please restart Django App and Celery workers or ask Admin for support.`;
-            tabNode.appendChild(workerCardBase);
-        }
-    }
-}
-
-function assignActualWorkers(dataset, RESTWorkersPingResponse) {
-    if (RESTWorkersPingResponse) {
-        actualWorkers = RESTWorkersPingResponse;
-        console.log(actualWorkers.response);
-    } else {
-        console.log("NO actual workers found by ping!")
-    }
-
-}
 
 function taskOperationsButtonsToast(btnDataset) {
     console.log(btnDataset);
     // Make REST request with operation key and opts:
     RESTCeleryTaskPOST(btnDataset, drawToastConfirm);
-}
-
-function drawToastConfirm(tabsDataset, result) {
-    // Draw toast with confirmation
-    console.log(tabsDataset);
-    console.log(result);
 }

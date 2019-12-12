@@ -253,7 +253,7 @@ class TasksOperations:
                 tasks.update({worker: w_tasks})
         else:
             inspect = app.control.inspect()
-            tasks = inspect.active()
+            tasks = {'active': inspect.active()}
         return tasks
 
     @staticmethod
@@ -270,7 +270,7 @@ class TasksOperations:
         else:
             inspect = app.control.inspect()
             # log.debug("inspect %s", inspect)
-            tasks = inspect.reserved()
+            tasks = {'reserved': inspect.reserved()}
         return tasks
 
     @staticmethod
@@ -284,7 +284,7 @@ class TasksOperations:
                 tasks.update({worker: w_tasks})
         else:
             inspect = app.control.inspect()
-            tasks = inspect.scheduled()
+            tasks = {'scheduled': inspect.scheduled()}
         return tasks
 
     @staticmethod
@@ -328,7 +328,7 @@ class TasksOperations:
                 tasks.update({worker: w_tasks})
         else:
             inspect = app.control.inspect()
-            tasks = inspect.registered()
+            tasks = {'registered': inspect.registered()}
         return tasks
 
     # Cancel tasks:
@@ -345,10 +345,33 @@ class TasksOperations:
         :return:
         """
         if terminate:
-            resp = app.control.revoke(task_id, terminate=terminate, signal='SIGTERM')
+            app.control.revoke(task_id, terminate=terminate, signal='SIGTERM')
         else:
-            resp = app.control.revoke(task_id)
-        return resp
+            app.control.revoke(task_id)
+        res = AsyncResult(task_id)
+        task_res = dict(
+            task_id=task_id,
+            id=res.id,
+            status=res.status,
+            traceback=res.traceback,
+            worker=res.worker,
+            state=res.state,
+            queue=res.queue,
+            retries=res.retries,
+            parent=res.parent,
+            name=res.name,
+            args=res.args,
+            kwargs=res.kwargs,
+            children=res.children,
+            date_done=res.date_done,
+        )
+        log.debug(task_res)
+        if task_id == res.id:
+            resp = 'Task marked to be revoked!'
+        else:
+            resp = 'Result task and task to revoke has different ids! Possibly revoke wrong task.'
+
+        return {'resp': resp, 'async_result': task_res}
 
     def revoke_tasks_active(self, **kwargs):
         """

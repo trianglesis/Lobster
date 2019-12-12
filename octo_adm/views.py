@@ -623,6 +623,7 @@ class TaskOperationsREST(APIView):
             return {'error': 'User has no admin rights!'}
         task_id = self.task_id
         resp = TasksOperations.revoke_task_by_id(task_id=task_id)
+
         return {'response': resp}
 
     def revoke_tasks_active(self):
