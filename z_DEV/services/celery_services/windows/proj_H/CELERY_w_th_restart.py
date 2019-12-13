@@ -5,18 +5,28 @@ from queue import Queue
 from threading import Thread
 import subprocess
 
+"""
+nssm.exe edit CELERY_routines && nssm.exe edit CELERY_alpha && nssm.exe edit CELERY_charlie && nssm.exe edit CELERY_golf && nssm.exe edit CELERY_parsing && nssm.exe edit CELERY_Flower
+"""
+
 commands_list = [
     'nssm.exe restart CELERY_routines',
+    # 'net stop CELERY_routines && net start CELERY_routines',
 
     'nssm.exe restart CELERY_alpha',
+    # 'net stop CELERY_alpha && net start CELERY_alpha',
 
     'nssm.exe restart CELERY_charlie',
+    # 'net stop CELERY_charlie && net start CELERY_charlie',
 
     'nssm.exe restart CELERY_golf',
+    # 'net stop CELERY_golf && net start CELERY_golf',
 
     'nssm.exe restart CELERY_parsing',
+    # 'net stop CELERY_parsing && net start CELERY_parsing',
 
     'nssm.exe restart CELERY_Flower',
+    # 'net stop CELERY_Flower && net start CELERY_Flower',
 ]
 
 

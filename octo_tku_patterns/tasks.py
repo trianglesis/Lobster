@@ -395,9 +395,10 @@ class TaskPrepare:
     def fake_fun(self):
         """
         For debug purposes, just run all tasks as fake_task with showing all inputs and outputs: args, kwargs.
+        Local NT environment cannot properly work with celery + threading. Tasks cannot be proceeded in usual manner.
+        Should always be fake run!
         :return:
         """
-
         if os.name == "nt":  # Always fake run on local test env:
             self.fake_run = True
             log.debug("<=TaskPrepare=> Fake run for NT options: %s", self.options)

@@ -28,7 +28,7 @@ function eventListenerCeleryTabs(funcToRun) {
     let navActiveReservedTab = document.getElementById("nav-active-reserved-tab");
     // let navActiveTab = document.getElementById("nav-active-tab");
     // let navReservedTab = document.getElementById("nav-reserved-tab");
-    let navScheduledTab = document.getElementById("nav-scheduled-tab");
+    // let navScheduledTab = document.getElementById("nav-scheduled-tab");
     let navRegisteredTab = document.getElementById("nav-registered-tab");
 
     navActiveReservedTab.addEventListener("click", function () {
@@ -46,11 +46,11 @@ function eventListenerCeleryTabs(funcToRun) {
     //     // data-operation_key="tasks_get_reserved"
     //     funcToRun(navReservedTab.dataset)
     // });
-    navScheduledTab.addEventListener("click", function () {
+/*    navScheduledTab.addEventListener("click", function () {
         // data-workers="{{ worker }}"
         // data-operation_key="tasks_get_scheduled"
         funcToRun(navScheduledTab.dataset)
-    });
+    });*/
     navRegisteredTab.addEventListener("click", function () {
         // data-workers="{{ worker }}"
         // data-operation_key="tasks_get_registered"
@@ -105,7 +105,7 @@ function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
     Please restart Django App and Celery workers or ask Admin for support.`;
         tabNode.appendChild(workerCardBase);
     } else {
-        let argsShow = ['id', 'name', 'args', 'time_start', 'type'];
+        let argsShow = ['id', 'name', 'args', 'kwargs', 'time_start', 'type'];
         for (let [w_key, _] of Object.entries(activeTasks)) {
             let w_tasks = activeTasks[w_key];  // Having the same logic for both. Get by worker key
             let w_reserved = reservedTasks[w_key];  // Having the same logic for both. Get by worker key
@@ -156,7 +156,6 @@ function fillScheduledRegisteredTasks(tabNode, worker_card, RESTResult) {
             // Set card header span as worker key:
             cardHeader.childNodes[0].innerText = `${w_key}`;  // Card header span
             if (w_tasks && w_tasks.length) {
-
             }
             tabNode.appendChild(workerCardBase);
         }
@@ -171,7 +170,6 @@ function fillScheduledRegisteredTasks(tabNode, worker_card, RESTResult) {
             // Set card header span as worker key:
             cardHeader.childNodes[0].innerText = `${w_key}`;  // Card header span
             if (w_tasks && w_tasks.length) {
-                console.log(w_tasks);
                 taskRegisteredTableFillRow(w_tasks, cardBody);
             }
             tabNode.appendChild(workerCardBase);
@@ -251,7 +249,35 @@ function taskTableFillRow(tasksObj, argsShow, taskTableBody) {
         for (let [t_key, t_val] of Object.entries(task)) {
             if (argsShow.includes(t_key)) {
                 let key_td = document.createElement('td');
-                key_td.innerText = `${t_val}`;
+                key_td.setAttribute('class', `td-task-${t_key}`);
+
+                // Task ARGS
+                if (t_key === 'args') {
+                    if (t_val[0]) {
+                        key_td.innerText = `${t_val[0].split(';').join('\n')}`;
+                    } else {
+                        key_td.innerText = `${t_val}`;
+                    }
+
+                // Task NAME and TYPE
+                } else if (t_key === 'name' || t_key === 'type') {
+                    if (t_val[0]) {
+                        key_td.innerText = `${t_val[0].split('.').join('\n')}`;
+                    } else {
+                        key_td.innerText = `${t_val}`;
+                    }
+
+                // Task KWARGS
+                } else if (t_key === 'kwargs') {
+                    if (t_val['test_item']) {
+                        key_td.innerText = `branch: ${t_val['test_item']['tkn_branch']
+                        }\nLibrary :${t_val['test_item']['pattern_library']
+                        }\nDir: ${t_val['test_item']['pattern_folder_name']
+                        }\nt: ${t_val['test_item']['test_time_weight']}`;
+                    }
+                } else {
+                    key_td.innerText = `${t_val}`;
+                }
                 task_row.appendChild(key_td);
             }
             taskTableBody.appendChild(task_row);
@@ -478,78 +504,4 @@ function RESTCeleryTaskPOST(tabsDataset, nextFunc) {
         },
     });
     return 'testButtonDataset';
-}
-
-
-function revokeTaskDrawToastConfirm(tabsDataset, result) {
-    // Draw toast with confirmation
-    console.log("drawToastConfirm");
-    console.log(tabsDataset);
-    console.log(result);
-    let async_result = result.response["async_result"];
-    let dataAttrs = [
-        {"desc": "id", "value": async_result["task_id"], "param": "task-request", "attr": "id"},
-        {"desc": "id", "value": async_result["id"], "param": "task-revoked", "attr": "id"},
-        {"desc": "State", "value": async_result["state"], "param": "task-state", "attr": "id"},
-        {"desc": "Status", "value": async_result["status"], "param": "task-status", "attr": "id"},
-        {"desc": "Date time", "value": async_result["date_done"], "param": "task-time", "attr": "id"},
-    ];
-    let toastBase = getToastDraftWithId(async_result["id"], "Task revoke");  // Make unique copy of toast draft
-    let toastReady = fillToastBodyWithTestAttributes(toastBase, dataAttrs);  // fill toast with data
-    appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
-    $('#' + toastBase.id).toast('show')
-}
-
-function fillTabTaskTable_(tabNode, worker_card, RESTResult) {
-    let argsShow = ['id', 'name', 'args', 'time_start', 'type'];
-    // let tasks = unpackActiveReserved(RESTResult.response);
-
-    if (RESTResult.response) {
-        for (const [w_key, w_value] of Object.entries(RESTResult.response)) {
-
-            let workerCardBase = worker_card.children[0].cloneNode(true);
-            let cardHeader = workerCardBase.childNodes[1];  // Header
-            let cardBody = workerCardBase.childNodes[3];  // Body
-
-            cardHeader.childNodes[0].innerText = `${w_key}`;  // worker name
-
-            if (w_value && w_value.length > 0) {
-                let taskTableBody = cardBody.firstElementChild.tBodies[0];  // Task table
-                for (let task of w_value) {
-                    let task_row = document.createElement('tr');
-                    for (const [key, val] of Object.entries(task)) {
-                        if (argsShow.includes(key)) {
-                            let key_td = document.createElement('td');
-                            key_td.innerText = `${val}`;
-                            task_row.appendChild(key_td);
-                        }
-                        taskTableBody.appendChild(task_row);
-                    }
-                    // Extra td for Actions:
-                    let actions_td = document.createElement('td');
-                    let actions_btn = document.createElement('a');
-                    actions_btn.setAttribute("class", "badge badge-warning revoke-task-by-id");
-                    actions_btn.dataset.task_id = task['id'];
-                    actions_btn.innerText = 'Revoke';
-                    actions_td.appendChild(actions_btn);
-                    task_row.appendChild(actions_td);
-                }
-            } else {
-                cardBody.firstElementChild.remove();
-                cardBody.innerText = 'Queue is empty.'
-            }
-            tabNode.appendChild(workerCardBase)
-        }
-
-    } else {
-        console.log("Workers are probably irresponsible, cannot get all tasks!");
-        let workerCardBase = worker_card.children[0].cloneNode(true);
-        let cardHeader = workerCardBase.childNodes[1];  // Header
-        let cardBody = workerCardBase.childNodes[3];  // Body
-        cardHeader.innerText = `Worker cannot be inspected`;
-        cardBody.innerText = `Celery workers could become irresponsible, so Django cannot inspect them. 
-    It does not mean tasks are not running, we only cannot inspect them.
-    Please restart Django App and Celery workers or ask Admin for support.`;
-        tabNode.appendChild(workerCardBase);
-    }
 }

@@ -61,6 +61,10 @@ class TestExecutor:
         isinstance(addm_items, dict), "Addm items should be a dict: %s" % type(addm_items)
         isinstance(test_item, dict), "Test item should be a dict: %s " % type(test_item)
 
+        if os.name == 'nt':
+            sleep(6000)
+            return 'Finish run here!'
+
         thread_list = []
         test_outputs = []
         ts = time()

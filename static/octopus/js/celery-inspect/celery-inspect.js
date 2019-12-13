@@ -61,7 +61,7 @@ function modifyCeleryTabContent(tabsDataset, RESTResult) {
     let tabActiveReserved = document.getElementById("active-reserved");
     // let tabActive = document.getElementById("active");
     // let tabReserved = document.getElementById("reserved");
-    let tabScheduled = document.getElementById("scheduled");
+    // let tabScheduled = document.getElementById("scheduled");
     let tabRegistered = document.getElementById("registered");
 
     if (tabsDataset.operation_key === 'tasks_get_active_reserved') {
@@ -78,15 +78,14 @@ function modifyCeleryTabContent(tabsDataset, RESTResult) {
     //     prepareTabContent("reserved");
     //     fillTabTaskTable_(tab_reserved, worker_card, RESTResult)
     // }
-
-    if (tabsDataset.operation_key === 'tasks_get_scheduled') {
-        prepareTabContent("scheduled");
-        for (const [key, value] of Object.entries(RESTResult.response)) {
-            let item_p = document.createElement('p');
-            item_p.innerText = `${key}: ${value}`;
-            fillScheduledRegisteredTasks(tabScheduled, workerCard, RESTResult);
-        }
-    }
+    // if (tabsDataset.operation_key === 'tasks_get_scheduled') {
+    //     prepareTabContent("scheduled");
+    //     for (const [key, value] of Object.entries(RESTResult.response)) {
+    //         let item_p = document.createElement('p');
+    //         item_p.innerText = `${key}: ${value}`;
+    //         fillScheduledRegisteredTasks(tabScheduled, workerCard, RESTResult);
+    //     }
+    // }
 
     if (tabsDataset.operation_key === 'tasks_get_registered') {
         prepareTabContent("registered");
