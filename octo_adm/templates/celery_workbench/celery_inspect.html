@@ -59,12 +59,12 @@
                 <a class="nav-item nav-link btn-outline-warning active" id="nav-active-reserved-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_active_reserved"
                    data-toggle="tab" href="#nav-active-reserved" role="tab"
                    aria-controls="nav-active-reserved" aria-selected="true">Active & reserved</a>
-                <a class="nav-item nav-link btn-outline-success" id="nav-active-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_active"
-                   data-toggle="tab" href="#nav-active" role="tab"
-                   aria-controls="nav-active" aria-selected="false">Active tasks</a>
-                <a class="nav-item nav-link btn-outline-secondary" id="nav-reserved-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_reserved"
-                   data-toggle="tab" href="#nav-reserved" role="tab"
-                   aria-controls="nav-reserved" aria-selected="false">Reserved Tasks</a>
+{#                <a class="nav-item nav-link btn-outline-success" id="nav-active-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_active"#}
+{#                   data-toggle="tab" href="#nav-active" role="tab"#}
+{#                   aria-controls="nav-active" aria-selected="false">Active tasks</a>#}
+{#                <a class="nav-item nav-link btn-outline-secondary" id="nav-reserved-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_reserved"#}
+{#                   data-toggle="tab" href="#nav-reserved" role="tab"#}
+{#                   aria-controls="nav-reserved" aria-selected="false">Reserved Tasks</a>#}
                 <a class="nav-item nav-link btn-outline-secondary" id="nav-scheduled-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_scheduled"
                    data-toggle="tab" href="#nav-scheduled" role="tab"
                    aria-controls="nav-scheduled" aria-selected="false">Scheduled Tasks</a>
@@ -77,12 +77,12 @@
               <div class="tab-pane fade show active" id="nav-active-reserved" role="tabpanel" aria-labelledby="nav-active-reserved-tab">
                   <div id="active-reserved"></div>
               </div>
-              <div class="tab-pane fade" id="nav-active" role="tabpanel" aria-labelledby="nav-active-tab">
+              {% comment %}<div class="tab-pane fade" id="nav-active" role="tabpanel" aria-labelledby="nav-active-tab">
                   <div id="active"></div>
               </div>
               <div class="tab-pane fade" id="nav-reserved" role="tabpanel" aria-labelledby="nav-reserved-tab">
                   <div id="reserved"></div>
-              </div>
+              </div>{% endcomment %}
               <div class="tab-pane fade" id="nav-scheduled" role="tabpanel" aria-labelledby="nav-scheduled-tab">
                   <div id="scheduled"></div>
               </div>

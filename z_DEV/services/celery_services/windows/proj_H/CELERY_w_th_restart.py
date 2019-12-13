@@ -6,23 +6,17 @@ from threading import Thread
 import subprocess
 
 commands_list = [
-    'nssm.exe stop CELERY_routines',
-    'nssm.exe start CELERY_routines',
+    'nssm.exe restart CELERY_routines',
 
-    'nssm.exe stop CELERY_alpha',
-    'nssm.exe start CELERY_alpha',
+    'nssm.exe restart CELERY_alpha',
 
-    'nssm.exe stop CELERY_charlie',
-    'nssm.exe start CELERY_charlie',
+    'nssm.exe restart CELERY_charlie',
 
-    'nssm.exe stop CELERY_golf',
-    'nssm.exe start CELERY_golf',
+    'nssm.exe restart CELERY_golf',
 
-    'nssm.exe stop CELERY_parsing',
-    'nssm.exe start CELERY_parsing',
+    'nssm.exe restart CELERY_parsing',
 
-    'nssm.exe stop CELERY_Flower',
-    'nssm.exe start CELERY_Flower',
+    'nssm.exe restart CELERY_Flower',
 ]
 
 

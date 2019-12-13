@@ -18,6 +18,9 @@
 .card-header-shrink {
     padding: .2em;
 }
+.card-header-shrink > span:nth-child(2) {
+    padding-left: 1em;
+}
 
 .card-body-shrink {
     padding: .2em;
@@ -28,7 +31,7 @@
 }
 
 .tasks-card {
-    margin-top: 2em;
+    margin-top: .2em;
 }
 
 .worker-buttons {

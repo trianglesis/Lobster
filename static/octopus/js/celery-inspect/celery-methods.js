@@ -20,15 +20,14 @@ function eventListenerCeleryMainButtons(funcToRun) {
     });
 }
 
-
 /**
  *
  * @param funcToRun
  */
 function eventListenerCeleryTabs(funcToRun) {
     let navActiveReservedTab = document.getElementById("nav-active-reserved-tab");
-    let navActiveTab = document.getElementById("nav-active-tab");
-    let navReservedTab = document.getElementById("nav-reserved-tab");
+    // let navActiveTab = document.getElementById("nav-active-tab");
+    // let navReservedTab = document.getElementById("nav-reserved-tab");
     let navScheduledTab = document.getElementById("nav-scheduled-tab");
     let navRegisteredTab = document.getElementById("nav-registered-tab");
 
@@ -37,16 +36,16 @@ function eventListenerCeleryTabs(funcToRun) {
         // data-operation_key="tasks_get_active_reserved"
         funcToRun(navActiveReservedTab.dataset)
     });
-    navActiveTab.addEventListener("click", function () {
-        // data-workers="{{ worker }}"
-        // data-operation_key="tasks_get_active"
-        funcToRun(navActiveTab.dataset)
-    });
-    navReservedTab.addEventListener("click", function () {
-        // data-workers="{{ worker }}"
-        // data-operation_key="tasks_get_reserved"
-        funcToRun(navReservedTab.dataset)
-    });
+    // navActiveTab.addEventListener("click", function () {
+    //     // data-workers="{{ worker }}"
+    //     // data-operation_key="tasks_get_active"
+    //     funcToRun(navActiveTab.dataset)
+    // });
+    // navReservedTab.addEventListener("click", function () {
+    //     // data-workers="{{ worker }}"
+    //     // data-operation_key="tasks_get_reserved"
+    //     funcToRun(navReservedTab.dataset)
+    // });
     navScheduledTab.addEventListener("click", function () {
         // data-workers="{{ worker }}"
         // data-operation_key="tasks_get_scheduled"
@@ -126,8 +125,12 @@ function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
             }
             if (!(w_tasks && w_tasks.length) && !(w_reserved && w_reserved.length)) {
                 cardBody.firstElementChild.remove();
-                cardBody.innerText = 'Queue is empty';
-                tabNode.appendChild(workerCardBase)
+                let span = document.createElement('span');
+                span.innerText = 'Queue is empty';
+                cardHeader.appendChild(span);
+                tabNode.appendChild(workerCardBase);
+                cardBody.remove();
+                cardFooter.remove();
             } else {
                 // Append table of tasks only if there are tasks
                 tabNode.appendChild(workerCardBase);
@@ -135,6 +138,45 @@ function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
                 workerButtonsAssign(w_key, cardFooter);
             }
         }
+    }
+}
+
+function fillScheduledRegisteredTasks(tabNode, worker_card, RESTResult) {
+    let scheduled = RESTResult.response['scheduled'];  // Iter over workers from this array
+    let registered = RESTResult.response['registered'];  // Call by worker key from iter of above
+    console.log(`fillScheduledRegisteredTasks:`, RESTResult.response);
+
+    if (scheduled) {
+        for (let [w_key, _] of Object.entries(scheduled)) {
+            let workerCardBase = worker_card.children[0].cloneNode(true);  // Clone card for all workers, even if empty
+            let w_tasks = scheduled[w_key];  // Having the same logic for both. Get by worker key
+            let cardHeader = workerCardBase.childNodes[1];  // Header - add worker key
+            let cardBody = workerCardBase.childNodes[3];  // Body - copy/add table of tasks
+            let taskTableBody = cardBody.firstElementChild.tBodies[0];  // Task table
+            // Set card header span as worker key:
+            cardHeader.childNodes[0].innerText = `${w_key}`;  // Card header span
+            if (w_tasks && w_tasks.length) {
+
+            }
+            tabNode.appendChild(workerCardBase);
+        }
+
+    } else if (registered) {
+        for (let [w_key, _] of Object.entries(registered)) {
+            let workerCardBase = worker_card.children[0].cloneNode(true);  // Clone card for all workers, even if empty
+            let w_tasks = registered[w_key];  // Having the same logic for both. Get by worker key
+            let cardHeader = workerCardBase.childNodes[1];  // Header - add worker key
+            let cardBody = workerCardBase.childNodes[3];  // Body - copy/add table of tasks
+            let taskTableBody = cardBody.firstElementChild.remove();  // Task table
+            // Set card header span as worker key:
+            cardHeader.childNodes[0].innerText = `${w_key}`;  // Card header span
+            if (w_tasks && w_tasks.length) {
+                console.log(w_tasks);
+                taskRegisteredTableFillRow(w_tasks, cardBody);
+            }
+            tabNode.appendChild(workerCardBase);
+        }
+
     }
 }
 
@@ -216,6 +258,19 @@ function taskTableFillRow(tasksObj, argsShow, taskTableBody) {
         }
         // Assign revoke button for each task obj in row:
         taskTableRowActionsButton(task, task_row);
+    }
+}
+
+function taskRegisteredTableFillRow(tasksObj, taskTableBody) {
+    for (let [id, task] of Object.entries(tasksObj)) {
+        let task_row = document.createElement('tr');
+        let int_td = document.createElement('td');
+        let key_td = document.createElement('td');
+        int_td.innerText = `${id}`;
+        key_td.innerText = `${task}`;
+        task_row.appendChild(int_td);
+        task_row.appendChild(key_td);
+        taskTableBody.appendChild(task_row);
     }
 }
 
@@ -424,7 +479,6 @@ function RESTCeleryTaskPOST(tabsDataset, nextFunc) {
     });
     return 'testButtonDataset';
 }
-
 
 
 function revokeTaskDrawToastConfirm(tabsDataset, result) {

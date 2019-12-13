@@ -66,12 +66,14 @@ def test_logger():
         log_name = "WEB_octopus.log"
         cons_handler = logging.StreamHandler(stream=sys.stdout)
         cons_handler.setLevel(logging.DEBUG)
-        cons_format = logging.Formatter('%(asctime)-24s'
-                                        '%(levelname)-8s'
-                                        '%(module)-20s'
-                                        '%(funcName)-22s'
-                                        'L:%(lineno)-6s'
-                                        '%(message)8s')
+        cons_format = logging.Formatter(
+            '%(asctime)-24s'
+            '%(levelname)-8s'
+            '%(module)-20s'
+            '%(funcName)-22s'
+            'L:%(lineno)-6s'
+            '%(message)8s'
+        )
         cons_handler.setFormatter(cons_format)
         log.addHandler(cons_handler)
     else:

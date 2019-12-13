@@ -6,7 +6,7 @@ $(document).ready(function () {
 function getCeleryWorkersStatus() {
     let workersList = [];
     let tasksBody = undefined;
-    let workerQueues = new RESTGetCeleryWorkersQueues(workersList, tasksBody, createWorkerRow);
+    let workerQueues = RESTGetCeleryWorkersQueues(workersList, tasksBody, createWorkerRow);
     // console.table(workerQueues);
     createWorkerRow(workerQueues);
     repeatInspectContinuously();
@@ -24,7 +24,6 @@ function createWorkerRow(workerQueues) {
             let workerTaskCountCell = document.createElement('td');
             let workerTaskCountButton = document.createElement('a');
 
-
             workerRow.setAttribute('id', workerName);
             workerNameCell.setAttribute('class', 'bg-light text-dark');
             workerNameCell.style.textAlign = `left`;
@@ -33,7 +32,6 @@ function createWorkerRow(workerQueues) {
             workerTaskCountButton.href = `/octo_admin/workers_status_single/?worker_name=${workerName}`;
             workerTaskCountButton.textContent = `${workerName}`;
             workerTaskCountCell.innerText = `${workerValue['all_tasks_len']}`;
-
 
             workerNameCell.appendChild(workerTaskCountButton);
             workerRow.appendChild(workerNameCell);
