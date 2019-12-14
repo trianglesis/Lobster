@@ -62,6 +62,7 @@ class TestExecutor:
         isinstance(test_item, dict), "Test item should be a dict: %s " % type(test_item)
 
         if os.name == 'nt':
+            # TODO: For local debug!
             sleep(6000)
             return 'Finish run here!'
 
@@ -155,9 +156,10 @@ class TestExecutor:
 
             log.debug("CMD-> '%s'", cmd)
             # Test execution:
+            # TODO: DEBUG EXEC
             cmd = 'ls'
             log.debug("Making FAKE TEST %s", cmd)
-            sleep(10)
+            sleep(900)
             _, stdout, stderr = ssh.exec_command(cmd)
             std_out_err_d = self.std_read(out=stdout, err=stderr, mode=test_output_mode, mgs="<=TEST=>")
 
