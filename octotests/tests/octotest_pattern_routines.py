@@ -51,7 +51,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def setUp(self) -> None:
         octo_tests.PatternTestUtils.setUp(self)
-        self.fake_run_on(True)
+        # self.fake_run_on(True)
         self.silent_on(True)
         self.debug_on(True)
         self.wipe_logs(False)

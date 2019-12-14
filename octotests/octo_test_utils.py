@@ -55,7 +55,8 @@ class PatternTestUtils(unittest.TestCase):
 
         self.user_name = None
         self.user_email = None
-        self.fake_run = None
+        self.fake_run = False
+        self.silent = False
 
         self.date_from = None
         self.date_to = None
@@ -68,7 +69,6 @@ class PatternTestUtils(unittest.TestCase):
         self.test_output_mode = False
 
         self.all_tests_w = 0
-        self.request = dict()
 
     def setUp(self) -> None:
         self.user_and_mail()
@@ -81,8 +81,7 @@ class PatternTestUtils(unittest.TestCase):
         self.put_test_cases()
 
     def tearDown(self) -> None:
-        sleep(3)
-        log.debug("<=PatternTestUtils=> Test finished, request: %s", self.request)
+        log.debug("<=PatternTestUtils=> Test finished")
 
     def check_tasks(self, tasks):
 
@@ -104,7 +103,7 @@ class PatternTestUtils(unittest.TestCase):
         return tasks_res
 
     def debug_output(self, tasks_res):
-        if self.request.get('debug') or self.debug:
+        if self.debug:
             tasks_json = json.dumps(tasks_res, indent=2, ensure_ascii=False, default=pformat)
             print(tasks_json)
 
@@ -117,9 +116,11 @@ class PatternTestUtils(unittest.TestCase):
         :return:
         """
         if user_name and user_email:
-            self.request.update(user_name=user_name, user_email=user_email)
+            self.user_name = user_name
+            self.user_email = user_email
         else:
-            self.request.update(user_name='OctoTests', user_email='OctoTests')
+            self.user_name = 'OctoTests'
+            self.user_email = 'OctoTests'
 
     def fake_run_on(self, fake):
         """
@@ -129,7 +130,6 @@ class PatternTestUtils(unittest.TestCase):
         :return:
         """
         if fake:
-            self.request.update(fake_run=True)
             self.fake_run = True
             log.debug("<=PatternTestUtils=> Fake Run test tasks")
         else:
@@ -142,19 +142,19 @@ class PatternTestUtils(unittest.TestCase):
         :return:
         """
         if silent:
-            self.request.update(silent=True)
+            self.silent = True
         else:
             log.debug("<=PatternTestUtils=> Will send confirmation and step emails.")
 
     def debug_on(self, debug):
         if debug:
-            self.request.update(debug=True)
+            self.debug = True
         else:
             log.debug("<=PatternTestUtils=> Will send confirmation and step emails.")
 
     def wipe_logs(self, wipe_logs):
         if wipe_logs and not self.fake_run:
-            self.request.update(wipe_logs=True)
+            self.wipe_logs = True
             # TODO: Make wipe
             log.debug("<=PatternTestUtils=> Will wipe logs.")
 
@@ -264,13 +264,14 @@ class PatternTestUtils(unittest.TestCase):
                           t_task_time_limit=test_t_w+1000)
 
     def finish_mail(self, _addm_group):
-        log.debug("finish_mail add task")
-        self.mail_kwargs.update(mode='fin')
-        Runner.fire_t(TSupport.t_long_mail, fake_run=self.fake_run,
-                      t_queue=_addm_group+'@tentacle.dq2',
-                      t_args=[self.mail_task_arg],
-                      t_kwargs=self.mail_kwargs,
-                      t_routing_key = 'z_{}.night_routine_mail'.format(_addm_group))
+        if not self.silent:
+            log.debug("finish_mail add task")
+            self.mail_kwargs.update(mode='fin')
+            Runner.fire_t(TSupport.t_long_mail, fake_run=self.fake_run,
+                          t_queue=_addm_group+'@tentacle.dq2',
+                          t_args=[self.mail_task_arg],
+                          t_kwargs=self.mail_kwargs,
+                          t_routing_key = 'z_{}.night_routine_mail'.format(_addm_group))
 
 
 class UploadTaskUtils(unittest.TestCase):

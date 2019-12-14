@@ -316,8 +316,10 @@ class ADDMStaticOperations:
         if not isinstance(addm_group_l, list):
             addm_group_l = addm_group_l.split(',')
 
-        # TODO: Remove for not home env
+        # TODO: Return simply the group without ping, verification and occupy.
         if fake_run:
+            return addm_group_l
+        if os.name == 'nt':
             return addm_group_l
 
         if isinstance(addm_group_l, list):
