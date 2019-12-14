@@ -15,7 +15,6 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # self.fake_run_on(True)
         # self.silent_on(True)
         self.debug_on(True)
-        self.wipe_logs_on(True)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
 
     def test_001_night_routine_main(self):
@@ -23,6 +22,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.select_test_cases(tkn_branch='tkn_main', last_days=3)
         self.excluded_group()
         self.queryset = self.queryset.exclude(change_time__range=['2019-10-30', '2019-11-07'])
+        self.wipe_logs_on(True)
         self.run_case()
 
     def test_002_night_routine_ship(self):
@@ -30,6 +30,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.select_test_cases(tkn_branch='tkn_ship', last_days=60)
         self.queryset = self.queryset.exclude(change_time__range=['2019-11-25', '2019-11-27'])
         self.excluded_group()
+        self.wipe_logs_on(True)
         self.run_case()
 
     def test003_between_dates_main(self):
@@ -39,6 +40,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # HERE: queryset will be set, so we can make django model manager exclude some?
         self.queryset = self.queryset.exclude(change_time__range=['2019-10-30', '2019-11-07'])
         self.queryset = self.queryset.exclude(change_time__range=['2019-11-25', '2019-11-27'])
+        self.wipe_logs_on(True)
         self.run_case()
 
 
