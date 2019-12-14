@@ -309,11 +309,15 @@ class TasksOperations:
         workers = kwargs.get("workers", ())
         if workers:
             tasks = dict()
+            active = dict()
+            reserved = dict()
             inspect = app.control.inspect(workers)
             for worker in workers:
                 w_active = inspect.active().get(worker)
                 w_reserved = inspect.reserved().get(worker)
-                tasks.update({worker: {"active": w_active, "reserved": w_reserved}})
+                active.update({worker: w_active})
+                reserved.update({worker: w_reserved})
+            tasks.update(active=active, reserved=reserved)
         else:
             inspect = app.control.inspect()
             active = inspect.active()
@@ -331,10 +335,12 @@ class TasksOperations:
         workers = kwargs.get("workers", ())
         if workers:
             tasks = dict()
+            registered = dict()
             inspect = app.control.inspect(workers)
             for worker in workers:
                 w_tasks = inspect.registered().get(worker)
-                tasks.update({worker: w_tasks})
+                registered.update({worker: w_tasks})
+            tasks.update(registered=registered)
         else:
             inspect = app.control.inspect()
             tasks = {'registered': inspect.registered()}

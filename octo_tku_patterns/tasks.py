@@ -454,7 +454,8 @@ class TaskPrepare:
         log.info("<=TaskPrepare=> HERE: make single mail task to confirm tests were started")
 
         # 9. Wipe logs when worker is free, if needed
-        self.wipe_logs(cases_to_test)
+        # TODO: DO not wile logs during dev
+        # self.wipe_logs(cases_to_test)
 
         # 10. Finish all test mail? If we want to show this routine finished, but tests are still run...
         log.info("<=TaskPrepare=> HERE: make single mail task and the end of addm_worker queue")
@@ -736,6 +737,7 @@ class TaskPrepare:
         return addm_group
 
     def addm_set_select(self, addm_group=None):
+        # TODO: Return only JSON-friendly and required for test run values (passwords could not be excluded =( )
         queryset = AddmDev.objects.all()
         if self.options.get('addm_group'):
             log.info("<=TaskPrepare=> ADDM_GROUP from request params: '%s'", self.options.get('addm_group'))
@@ -764,7 +766,9 @@ class TaskPrepare:
             log.debug("<=TaskPrepare=> Adding task to sync addm group: '%s'", addm['addm_group'])
             t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
                     f'fake={self.fake_run};start_time={self.start_time}'
-            Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=self.fake_run,
+
+            # TODO: Not SYNC during debug:
+            Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=True,
                           t_args=[t_tag], t_kwargs=dict(addm_items=list(addm_set)),
                           t_queue=addm['addm_group'] + '@tentacle.dq2',
                           t_routing_key='TExecTest.t_addm_rsync_threads.{0}'.format(addm['addm_group']))
@@ -784,7 +788,8 @@ class TaskPrepare:
                 t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'test_py_path={test_item["test_py_path"]}'
 
-                Runner.fire_t(TSupport.t_user_test, fake_run=self.fake_run, t_args=[t_tag],
+                # TODO: Not send emails during debug:
+                Runner.fire_t(TSupport.t_user_test, fake_run=True, t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
                               t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
 
@@ -813,7 +818,7 @@ class TaskPrepare:
         task_r_key = '{}.TExecTest.t_test_exec_threads.{}'.format(addm['addm_group'], test_item["pattern_folder_name"])
         t_tag = f'tag=t_test_exec_threads;type=user_routine;branch={test_item["tkn_branch"]};' \
                 f'addm_group={addm["addm_group"]};user_name={self.user_name};' \
-                f'refresh={self.refresh};test_py_path={test_item["test_py_path"]}'
+                f'refresh={self.refresh};t_ETA={test_item["test_time_weight"]};test_case_path={test_item["test_case_depot_path"]}'
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=MIN_40, debug_me=True,

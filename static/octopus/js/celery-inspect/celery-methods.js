@@ -94,7 +94,7 @@ function fillTabTaskTableActRes(tabNode, worker_card, RESTResult) {
     // If REST request failed - probably celery worker just go somewhere - show warning:
     console.log(`fillTabTaskTableActRes:`, RESTResult.response);
 
-    if (!activeTasks && !reservedTasks) {
+    if (!activeTasks) {
         console.log("Workers are probably irresponsible, cannot get all tasks!");
         let workerCardBase = worker_card.children[0].cloneNode(true);
         let cardHeader = workerCardBase.childNodes[1];  // Header
@@ -253,27 +253,31 @@ function taskTableFillRow(tasksObj, argsShow, taskTableBody) {
 
                 // Task ARGS
                 if (t_key === 'args') {
-                    if (t_val[0]) {
-                        key_td.innerText = `${t_val[0].split(';').join('\n')}`;
+                    if (t_val) {
+                        key_td.innerText = `${t_val.split(';').join('\n')}`;
                     } else {
                         key_td.innerText = `${t_val}`;
                     }
 
                 // Task NAME and TYPE
                 } else if (t_key === 'name' || t_key === 'type') {
-                    if (t_val[0]) {
-                        key_td.innerText = `${t_val[0].split('.').join('\n')}`;
+                    if (t_val) {
+                        key_td.innerText = `${t_val.split('.').join('\n')}`;
                     } else {
                         key_td.innerText = `${t_val}`;
                     }
 
                 // Task KWARGS
                 } else if (t_key === 'kwargs') {
+                    // Way worked on Celery 4.4.0.rc5
                     if (t_val['test_item']) {
                         key_td.innerText = `branch: ${t_val['test_item']['tkn_branch']
                         }\nLibrary :${t_val['test_item']['pattern_library']
                         }\nDir: ${t_val['test_item']['pattern_folder_name']
                         }\nt: ${t_val['test_item']['test_time_weight']}`;
+                    // Usual output
+                    } else {
+                    //    Do not show anything.
                     }
                 } else {
                     key_td.innerText = `${t_val}`;

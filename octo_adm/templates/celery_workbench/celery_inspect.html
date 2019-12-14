@@ -56,19 +56,19 @@
         <div class="celery-workers-tabs">
             <nav>
               <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-                <a class="nav-item nav-link btn-outline-warning active" id="nav-active-reserved-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_active_reserved"
+                <a class="nav-item nav-link btn-outline-warning active" id="nav-active-reserved-tab" data-workers="{{ workers }}" data-operation_key="tasks_get_active_reserved"
                    data-toggle="tab" href="#nav-active-reserved" role="tab"
                    aria-controls="nav-active-reserved" aria-selected="true">Active & reserved</a>
-{#                <a class="nav-item nav-link btn-outline-success" id="nav-active-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_active"#}
+{#                <a class="nav-item nav-link btn-outline-success" id="nav-active-tab" data-workers="{{ workers }}" data-operation_key="tasks_get_active"#}
 {#                   data-toggle="tab" href="#nav-active" role="tab"#}
 {#                   aria-controls="nav-active" aria-selected="false">Active tasks</a>#}
-{#                <a class="nav-item nav-link btn-outline-secondary" id="nav-reserved-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_reserved"#}
+{#                <a class="nav-item nav-link btn-outline-secondary" id="nav-reserved-tab" data-workers="{{ workers }}" data-operation_key="tasks_get_reserved"#}
 {#                   data-toggle="tab" href="#nav-reserved" role="tab"#}
 {#                   aria-controls="nav-reserved" aria-selected="false">Reserved Tasks</a>#}
-{#                <a class="nav-item nav-link btn-outline-secondary" id="nav-scheduled-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_scheduled"#}
+{#                <a class="nav-item nav-link btn-outline-secondary" id="nav-scheduled-tab" data-workers="{{ workers }}" data-operation_key="tasks_get_scheduled"#}
 {#                   data-toggle="tab" href="#nav-scheduled" role="tab"#}
 {#                   aria-controls="nav-scheduled" aria-selected="false">Scheduled Tasks</a>#}
-                <a class="nav-item nav-link btn-outline-secondary" id="nav-registered-tab" data-workers="{{ worker }}" data-operation_key="tasks_get_registered"
+                <a class="nav-item nav-link btn-outline-secondary" id="nav-registered-tab" data-workers="{{ workers }}" data-operation_key="tasks_get_registered"
                    data-toggle="tab" href="#nav-registered" role="tab"
                    aria-controls="nav-registered" aria-selected="false">Registered Tasks</a>
               </div>
@@ -141,7 +141,7 @@
     <script src="{% static 'octopus/js/celery-inspect/celery-methods.js' %}"></script>
     <script src="{% static 'octopus/js/celery-inspect/celery-inspect.js' %}"></script>
     <script type="text/javascript">
-        let single_worker = "{{ worker }}";
+        let single_worker = "{{ workers }}";
     </script>
     {% comment %}DEBUG{% endcomment %}
     <div class="debug-context">

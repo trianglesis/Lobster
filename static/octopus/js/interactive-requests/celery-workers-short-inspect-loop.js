@@ -29,7 +29,7 @@ function createWorkerRow(workerQueues) {
             workerNameCell.style.textAlign = `left`;
             workerTaskCountCell.setAttribute('class', 'bg-light text-center text-dark');
             workerTaskCountButton.setAttribute('class', 'btn btn-sm-er btn-outline-dark');
-            workerTaskCountButton.href = `/octo_admin/workers_status_single/?worker_name=${workerName}`;
+            workerTaskCountButton.href = `/octo_admin/celery_inspect/?workers=${workerName.split('@')[0]}`;
             workerTaskCountButton.textContent = `${workerName}`;
             workerTaskCountCell.innerText = `${workerValue['all_tasks_len']}`;
 

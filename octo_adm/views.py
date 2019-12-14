@@ -77,9 +77,9 @@ class CeleryInspect(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CeleryInspect, self).get_context_data(**kwargs)
-        worker = self.request.GET.get('worker', 'all-workers')
+        workers = self.request.GET.get('workers', 'all-workers')
         context.update(
-            worker=worker,
+            workers=workers,
             objects={},
         )
         return context
