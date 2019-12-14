@@ -1,28 +1,24 @@
-from time import sleep
 import datetime
-from django.utils import timezone
-import unittest
-import logging
-from celery.result import AsyncResult
-
-from run_core.addm_operations import ADDMOperations
-
-from octo_tku_patterns.models import TestCases, TestCasesDetails
-from octo_tku_patterns.tasks import TaskPrepare
-from octo_tku_patterns.table_oper import PatternsDjangoTableOper
-from octo_tku_patterns.night_test_balancer import BalanceNightTests
-
-from octo_tku_upload.tasks import UploadTaskPrepare
-from octo_tku_upload.models import TkuPackagesNew as TkuPackages
-
-from octo.helpers.tasks_run import Runner
-
-from octo.tasks import TSupport
-from octo_tku_patterns.tasks import TPatternParse, TPatternExecTest
-
 # DEBUG TOOLS
 import json
+import logging
+import unittest
 from pprint import pformat
+from time import sleep
+
+from celery.result import AsyncResult
+from django.utils import timezone
+
+from octo.config_cred import mails
+from octo.helpers.tasks_run import Runner
+from octo.tasks import TSupport
+from octo_tku_patterns.models import TestCases, TestCasesDetails
+from octo_tku_patterns.night_test_balancer import BalanceNightTests
+from octo_tku_patterns.table_oper import PatternsDjangoTableOper
+from octo_tku_patterns.tasks import TPatternParse, TPatternExecTest
+from octo_tku_upload.models import TkuPackagesNew as TkuPackages
+from octo_tku_upload.tasks import UploadTaskPrepare
+from run_core.addm_operations import ADDMOperations
 
 log = logging.getLogger("octo.octologger")
 
@@ -120,7 +116,7 @@ class PatternTestUtils(unittest.TestCase):
             self.user_email = user_email
         else:
             self.user_name = 'OctoTests'
-            self.user_email = 'OctoTests'
+            self.user_email = mails['admin']
 
     def fake_run_on(self, fake):
         """

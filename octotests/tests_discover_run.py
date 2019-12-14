@@ -72,7 +72,8 @@ class TestRunnerLoc:
                                            env=my_env,
                                            shell=True,
                                            )
-                stdout, stderr = run_cmd.communicate(timeout=30)
+                # Timeout for 10 min, usually this takes few minutes
+                stdout, stderr = run_cmd.communicate(timeout=600)
                 stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
                 run_cmd.wait(timeout=300)  # wait until command finished
                 run_results.append({'stdout': stdout, 'stderr': stderr})

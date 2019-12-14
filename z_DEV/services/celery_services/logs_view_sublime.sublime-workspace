@@ -11,18 +11,31 @@
 			"file": "windows/logs/routines_out.log",
 			"settings":
 			{
-				"buffer_size": 88245,
+				"buffer_size": 225,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"contents": "[2019-11-29 10:27:27,898: INFO/MainProcess] Connected to amqp://octo_user:**@127.0.0.1:5672/tentacle\n[2019-11-29 10:27:27,907: INFO/MainProcess] mingle: searching for neighbors\n[2019-11-29 10:27:28,920: INFO/MainProcess] mingle: all alone\n[2019-11-29 10:27:28,935: WARNING/MainProcess] d:\\projects\\pycharmprojects\\lobster\\venv\\lib\\site-packages\\celery\\fixups\\django.py:202: UserWarning: Using settings.DEBUG leads to a memory leak, never use this setting in production environments!\n  warnings.warn('Using settings.DEBUG leads to a memory leak, never '\n[2019-11-29 10:27:28,935: INFO/MainProcess] w_routines@tentacle ready.\n[2019-11-29 10:27:28,937: INFO/MainProcess] pidbox: Connected to amqp://octo_user:**@127.0.0.1:5672/tentacle.\n[2019-11-29 10:27:33,819: INFO/MainProcess] sync with alpha@tentacle\n[2019-11-29 10:27:33,905: INFO/MainProcess] Canceling queue default\n[2019-11-29 10:27:34,844: INFO/MainProcess] Canceling queue default\n[2019-11-29 10:27:35,020: INFO/MainProcess] sync with charlie@tentacle\n[2019-11-29 10:27:36,641: INFO/MainProcess] Canceling queue default\n[2019-11-29 10:27:36,650: INFO/MainProcess] sync with golf@tentacle\n[2019-11-29 10:27:37,476: INFO/MainProcess] sync with w_parsing@tentacle\n[2019-11-29 10:27:37,926: INFO/MainProcess] Canceling queue default\n[2019-11-29 10:30:28,984: WARNING/MainProcess] Traceback (most recent call last):\n[2019-11-29 10:30:28,985: WARNING/MainProcess] File \"d:\\projects\\pycharmprojects\\lobster\\venv\\lib\\site-packages\\eventlet\\hubs\\selects.py\", line 59, in wait\n    listeners.get(fileno, hub.noop).cb(fileno)\n[2019-11-29 10:30:28,985: WARNING/MainProcess] File \"d:\\projects\\pycharmprojects\\lobster\\venv\\lib\\site-packages\\celery\\worker\\pidbox.py\", line 120, in loop\n    connection.drain_events(timeout=1.0)\n[2019-11-29 10:30:28,985: WARNING/MainProcess] File \"d:\\projects\\pycharmprojects\\lobster\\venv\\lib\\site-packages\\kombu\\connection.py\", line 315, in drain_events\n    return self.transport.drain_events(self.connection, **kwargs)\n[2019-11-29 10:30:28,985: WARNING/MainProcess] File \"d:\\projects\\pycharmprojects\\lobster\\venv\\lib\\site-packages\\kombu\\transport\\pyamqp.py\", line 103, in drain_events\n    return connection.drain_events(**kwargs)\n[2019-11-29 10:30:28,985: WARNING/MainProcess] File \"d:\\projects\\pycharmprojects\\lobster\\venv\\lib\\site-packages\\amqp\\connection.py\", line 500, in drain_events\n    while not self.blocking_read(timeout):\n[2019-11-29 10:30:28,985: WARNING/MainProcess] File \"d:\\projects\\pycharmprojects\\lobster\\venv\\lib\\site-packages\\amqp\\connection.py\", line 505, in blocking_read\n    frame = self.transport.read_frame()\n[2019-11-29 10:30:28,985: WARNING/MainProcess] File \"d:\\projects\\pycharmprojects\\lobster\\venv\\lib\\site-packages\\amqp\\transport.py\", line 252, in read_frame\n    frame_header = read(7, True)\n[2019-11-29 10:30:28,985: WARNING/MainProcess] File \"d:\\projects\\pycharmprojects\\lobster\\venv\\lib\\site-packages\\amqp\\transport.py\", line 444, in _read\n    raise IOError('Server unexpectedly closed connection')\n[2019-11-29 10:30:28,985: WARNING/MainProcess] OSError: Server unexpectedly closed connection\n[2019-11-29 10:30:28,985: WARNING/MainProcess] Removing descriptor: 1440\n\nworker: Hitting Ctrl+C again will terminate all running tasks!\n\nworker: Warm shutdown (MainProcess)\n",
-			"file": "windows/logs/w_routines_err.log",
-			"file_size": 3313,
-			"file_write_time": 132194904882227083,
+			"file": "windows/logs/routines_err.log",
 			"settings":
 			{
-				"buffer_size": 3275,
+				"buffer_size": 2688,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "windows/logs/parsing_out.log",
+			"settings":
+			{
+				"buffer_size": 224,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "windows/logs/parsing_err.log",
+			"settings":
+			{
+				"buffer_size": 2620,
 				"line_ending": "Windows"
 			}
 		},
@@ -38,7 +51,7 @@
 			}
 		},
 		{
-			"contents": "\nmysqldump octopus_dev_copy octo_test_history --where=\"test_date_time BETWEEN '2019-09-01 00:00:00' and '2019-12-12 00:00:00'\"  > OctoTestHist-Sep-Dec.sql -u root -pTH_mysql_r00t\n",
+			"contents": "\nmysqldump octopus_dev_copy octo_test_history --where=\"test_date_time BETWEEN '2019-09-01 00:00:00' and '2019-12-31 00:00:00'\"  > OctoTestHist-Sep-Dec.sql -u root -pTH_mysql_r00t\n",
 			"settings":
 			{
 				"buffer_size": 179,
@@ -49,7 +62,7 @@
 			"file": "windows/logs/alpha_err.log",
 			"settings":
 			{
-				"buffer_size": 3824,
+				"buffer_size": 2616,
 				"line_ending": "Windows"
 			}
 		},
@@ -57,7 +70,7 @@
 			"file": "windows/logs/alpha_out.log",
 			"settings":
 			{
-				"buffer_size": 212,
+				"buffer_size": 220,
 				"line_ending": "Windows"
 			}
 		},
@@ -65,7 +78,15 @@
 			"file": "windows/logs/charlie_err.log",
 			"settings":
 			{
-				"buffer_size": 1869,
+				"buffer_size": 2618,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "windows/logs/charlie_out.log",
+			"settings":
+			{
+				"buffer_size": 222,
 				"line_ending": "Windows"
 			}
 		},
@@ -73,7 +94,23 @@
 			"file": "windows/logs/golf_err.log",
 			"settings":
 			{
-				"buffer_size": 1866,
+				"buffer_size": 2614,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "windows/logs/flower_out.log",
+			"settings":
+			{
+				"buffer_size": 244,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "windows/logs/flower_err.log",
+			"settings":
+			{
+				"buffer_size": 1011,
 				"line_ending": "Windows"
 			}
 		},
@@ -81,7 +118,7 @@
 			"file": "windows/logs/golf_out.log",
 			"settings":
 			{
-				"buffer_size": 211,
+				"buffer_size": 219,
 				"line_ending": "Windows"
 			}
 		}
@@ -136,10 +173,13 @@
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/proj_H",
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/proj_H/bat_start",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/mysqld"
 	],
 	"file_history":
 	[
+		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/w_routines_err.log",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/proj_H/alpha.bat",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/celery_batch_restart.bat",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/restarts/start_all_celery_bin.cmd",
@@ -149,7 +189,6 @@
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/golf_out_log",
 		"/D/Projects/PycharmProjects/lobster/venv/Lib/site-packages/babel/locale-data/en_KY.dat",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/charlie_err.log",
-		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/w_routines_err.log",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/w_parsing_err.log",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/alpha_err.log",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/alpha_out.log",
@@ -254,7 +293,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 5,
 			"sheets":
 			[
 				{
@@ -263,15 +302,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 88245,
+						"buffer_size": 225,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								88245,
-								88245
+								217,
+								217
 							]
 						],
 						"settings":
@@ -281,27 +320,27 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 14441.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "windows/logs/w_routines_err.log",
+					"file": "windows/logs/routines_err.log",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3275,
+						"buffer_size": 2688,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2947,
-								2947
+								0,
+								0
 							]
 						],
 						"settings":
@@ -312,11 +351,67 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
+					"file": "windows/logs/parsing_out.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 224,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "windows/logs/parsing_err.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2620,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
 					"file": "windows/logs/w_parsing_err.log",
 					"semi_transient": false,
 					"settings":
@@ -340,11 +435,11 @@
 						"translation.y": 399.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 13,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
+					"buffer": 5,
 					"semi_transient": false,
 					"settings":
 					{
@@ -355,8 +450,8 @@
 						"selection":
 						[
 							[
-								179,
-								179
+								178,
+								1
 							]
 						],
 						"settings":
@@ -368,7 +463,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -378,20 +473,20 @@
 			"sheets":
 			[
 				{
-					"buffer": 4,
+					"buffer": 6,
 					"file": "windows/logs/alpha_err.log",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3824,
+						"buffer_size": 2616,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3609,
-								3609
+								734,
+								734
 							]
 						],
 						"settings":
@@ -399,19 +494,19 @@
 							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 378.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 7,
 					"file": "windows/logs/alpha_out.log",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 212,
+						"buffer_size": 220,
 						"regions":
 						{
 						},
@@ -430,72 +525,16 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "windows/logs/charlie_err.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1869,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 362.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "windows/logs/golf_err.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1866,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 362.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
 					"buffer": 8,
-					"file": "windows/logs/golf_out.log",
+					"file": "windows/logs/charlie_err.log",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 211,
+						"buffer_size": 2618,
 						"regions":
 						{
 						},
@@ -515,6 +554,146 @@
 						"zoom_level": 1.0
 					},
 					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "windows/logs/charlie_out.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 222,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								214,
+								214
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "windows/logs/golf_err.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2614,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "windows/logs/flower_out.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 244,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "windows/logs/flower_err.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1011,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "windows/logs/golf_out.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 219,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
 					"type": "text"
 				}
 			]
@@ -553,7 +732,7 @@
 		"rows":
 		[
 			0.0,
-			0.488547021388,
+			0.260120625449,
 			1.0
 		]
 	},
@@ -596,7 +775,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},
@@ -604,7 +783,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 200.0,
+	"side_bar_width": 295.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
