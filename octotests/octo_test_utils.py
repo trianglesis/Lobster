@@ -13,6 +13,7 @@ from octo.config_cred import mails
 from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
 from octo_tku_patterns.models import TestCases, TestCasesDetails
+from octo_tku_patterns.models import TestLast
 from octo_tku_patterns.night_test_balancer import BalanceNightTests
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
 from octo_tku_patterns.tasks import TPatternParse, TPatternExecTest
@@ -148,11 +149,11 @@ class PatternTestUtils(unittest.TestCase):
         else:
             log.debug("<=PatternTestUtils=> Will send confirmation and step emails.")
 
-    def wipe_logs(self, wipe_logs):
+    def wipe_logs_on(self, wipe_logs):
         if wipe_logs and not self.fake_run:
+            log.debug("<=PatternTestUtils=> Will wipe logs. Branch %s", self.branch)
             self.wipe_logs = True
-            # TODO: Make wipe
-            log.debug("<=PatternTestUtils=> Will wipe logs.")
+            TestLast.objects.filter(tkn_branch__exact=self.branch).delete()
 
     def select_test_cases(self, **sel_opts):
         self.queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)

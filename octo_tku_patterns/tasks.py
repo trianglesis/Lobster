@@ -454,7 +454,7 @@ class TaskPrepare:
         log.info("<=TaskPrepare=> HERE: make single mail task to confirm tests were started")
 
         # 9. Wipe logs when worker is free, if needed
-        # TODO: DO not wile logs during dev
+        # TODO: DO not wile logs during dev user test run
         # self.wipe_logs(cases_to_test)
 
         # 10. Finish all test mail? If we want to show this routine finished, but tests are still run...
