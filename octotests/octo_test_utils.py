@@ -130,6 +130,7 @@ class PatternTestUtils(unittest.TestCase):
         """
         if fake:
             self.request.update(fake_run=True)
+            self.fake_run = True
             log.debug("<=PatternTestUtils=> Fake Run test tasks")
         else:
             log.debug("<=PatternTestUtils=> Real Run test tasks")
@@ -167,7 +168,7 @@ class PatternTestUtils(unittest.TestCase):
 
     def get_branched_addm_groups(self):
         self.addm_group_l = BalanceNightTests().get_available_addm_groups(
-            branch=self.branch, user_name=self.user_name)
+            branch=self.branch, user_name=self.user_name, fake_run=self.fake_run)
 
     def select_addm_set(self):
         self.addm_set = ADDMOperations.select_addm_set(

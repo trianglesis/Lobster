@@ -59,7 +59,7 @@ class TPatternRoutine:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_patt_routines',
-              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
     def t_patt_routines(t_tag, **kwargs):
         """
         Can run routines tasks as test methods from unit test case class.
@@ -69,7 +69,7 @@ class TPatternRoutine:
         :return:
         """
         log.info("<=t_upload_routines=> Running task %s", kwargs)
-        return TestRunnerLoc().run_subprocess(**kwargs)
+        TestRunnerLoc().run_subprocess(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_night_tests',
@@ -249,7 +249,7 @@ class PatternRoutineCases:
 
         log.debug("<=nightly_test=> TESTS ALL: Overall tests to run: %s", len(sorted_tests_l))
         """ 2. Chunk tests on even groups for selected amount of addms """
-        addm_group_l = BalanceNightTests().get_available_addm_groups(branch=branch, user_name=user_name)
+        addm_group_l = BalanceNightTests().get_available_addm_groups(branch=branch, user_name=user_name, fake_run=fake_run)
         addm_tests_balanced = BalanceNightTests().test_weight_balancer(addm_group=addm_group_l, test_items=sorted_tests_l)
 
         """ 2.1 Start filling queues with selected tests for selected ADDM items (querysets) """

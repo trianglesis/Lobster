@@ -79,7 +79,8 @@ app.conf.update(
     worker_disable_rate_limits=True,
     worker_concurrency=1,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-concurrency
     worker_lost_wait=30,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-lost-wait
-    worker_max_memory_per_child=120000,  # 120 MB
+    worker_max_memory_per_child=120000,  # 120 MB X 10 = 1200 MB
+    worker_max_tasks_per_child=100,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-max-tasks-per-child
 
     # Useful
     # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-log-format

@@ -133,14 +133,14 @@ class BalanceNightTests:
         return workers.get(branch, [])
 
     @staticmethod
-    def workers_validate_and_occupy(addm_group_l, user_name):
-        addm_group_l = ADDMStaticOperations.addm_groups_validate(addm_group=addm_group_l, user_name=user_name)
+    def workers_validate_and_occupy(addm_group_l, user_name, fake_run=False):
+        addm_group_l = ADDMStaticOperations.addm_groups_validate(addm_group=addm_group_l, user_name=user_name, fake_run=fake_run)
         return addm_group_l
 
-    def get_available_addm_groups(self, branch, user_name):
+    def get_available_addm_groups(self, branch, user_name, fake_run=False):
         addm_group_l = self.select_addm_list_for_branch(branch=branch)
         log.debug("Selected set of ADDMs addm_group_l: %s", addm_group_l)
-        available_addm_w = self.workers_validate_and_occupy(addm_group_l=addm_group_l, user_name=user_name)
+        available_addm_w = self.workers_validate_and_occupy(addm_group_l=addm_group_l, user_name=user_name, fake_run=fake_run)
         return available_addm_w
 
     def test_weight_balancer(self, addm_group, test_items):

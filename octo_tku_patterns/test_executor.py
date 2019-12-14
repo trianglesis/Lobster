@@ -63,7 +63,7 @@ class TestExecutor:
 
         if os.name == 'nt':
             # TODO: For local debug!
-            sleep(6000)
+            sleep(600)
             return 'Finish run here!'
 
         thread_list = []
@@ -398,14 +398,10 @@ class TestExecutor:
         test_data_res = dict(
             # Part from tku_patterns table
             tkn_branch=test_item_d['tkn_branch'],
+
             pattern_library=test_item_d['pattern_library'],
-            pattern_file_name=test_item_d['pattern_file_name'],
             pattern_folder_name=test_item_d['pattern_folder_name'],
-            pattern_file_path=test_item_d['pattern_file_path'],
             test_py_path=test_item_d['test_py_path'],
-            pattern_folder_path_depot=test_item_d['pattern_folder_path_depot'],
-            pattern_file_path_depot=test_item_d['pattern_file_path_depot'],
-            is_key_pattern=test_item_d['is_key_pattern'],
             # Part from test parsed data
             tst_message=test_res.get('tst_message', ''),
             tst_name=test_res.get('tst_name', ''),
@@ -417,13 +413,16 @@ class TestExecutor:
             fail_module=test_res.get('fail_module', ''),
             fail_class=test_res.get('fail_class', ''),
             fail_message=test_res.get('fail_message', ''),
-            time_spent_test=test_res.get('time_spent_test', ''),
+
             # Part from addm_dev table
             addm_name=addm_item_d['addm_name'],
             addm_group=addm_item_d['addm_group'],
             addm_v_int=addm_item_d['addm_v_int'],
             addm_host=addm_item_d['addm_host'],
-            addm_ip=addm_item_d['addm_ip'])
+            addm_ip=addm_item_d['addm_ip'],
+
+            time_spent_test=test_res.get('time_spent_test', ''),
+        )
 
         # Insert everything:
         # TODO: If not parsed or traceback occurs - save with default pattern name and raw output:

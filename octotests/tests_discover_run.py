@@ -2,6 +2,7 @@ import importlib
 import logging
 import os
 import unittest
+import subprocess
 from unittest import TestSuite
 
 from octo.win_settings import BASE_DIR
@@ -19,8 +20,6 @@ class TestRunnerLoc:
     """
 
     def run_subprocess(self, **kwargs):
-        import subprocess
-
         test_py_path = kwargs.get('test_py_path', None)  # full path to octotest_upload_tku.py
         test_method = kwargs.get('test_method', None)  # test001_product_content_update_tkn_main
         test_class = kwargs.get('test_class', None)  # OctoTestCaseUpload
@@ -36,8 +35,10 @@ class TestRunnerLoc:
 
         # DEV: Set paths to test and working dir:
         if os.name == 'nt':
-            test_env = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
-            octo_core = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster'
+            # test_env = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
+            # octo_core = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster'
+            test_env = 'D:\\Projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
+            octo_core = 'D:\\Projects\\PycharmProjects\\lobster'
             activate = 'activate.bat'
             deactivate = 'deactivate.bat'
         else:
@@ -69,15 +70,14 @@ class TestRunnerLoc:
                                            stderr=subprocess.PIPE,
                                            cwd=octo_core,
                                            env=my_env,
+                                           shell=True,
                                            )
-                run_cmd.communicate()
-                stdout, stderr = run_cmd.communicate()
+                stdout, stderr = run_cmd.communicate(timeout=30)
                 stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
-                run_cmd.wait()
+                run_cmd.wait(timeout=300)  # wait until command finished
                 run_results.append({'stdout': stdout, 'stderr': stderr})
                 # log.debug('<=TEST=> stdout %s', stdout)
                 # log.debug('<=TEST=> stderr %s', stderr)
-
             except Exception as e:
                 log.error("<=run_subprocess=> Error during operation for: %s %s", cmd, e)
         log.debug("<=run_subprocess=> run_results: %s", run_results)
