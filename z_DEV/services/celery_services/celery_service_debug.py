@@ -31,9 +31,13 @@ CELERYD_NODES = [
     "golf@tentacle",
 ]
 
-commands_list_start = "python {CELERY_BIN} multi start {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} --logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
-commands_list_stop = "python {CELERY_BIN} multi stopwait {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} --logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
-commands_list_restart = "python {CELERY_BIN} multi restart {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} --logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
+commands_list_start = "python {CELERY_BIN} multi start {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} " \
+                      "--logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
+commands_list_stop = "python {CELERY_BIN} multi kill {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} " \
+                     "--logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
+commands_list_restart = "python {CELERY_BIN} multi restart {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} " \
+                        "--logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
+commands_list_kill = "pkill -9 -f 'celery worker'"
 
 
 def th_run(args):
@@ -45,6 +49,7 @@ def th_run(args):
         start=commands_list_start,
         stop=commands_list_stop,
         restart=commands_list_restart,
+        kill=commands_list_kill,
     )
 
     ts = time()
@@ -107,5 +112,5 @@ def worker_restart(**args_d):
 
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-m', '--mode', choices=['start', 'stop', 'restart'], required=True)
+parser.add_argument('-m', '--mode', choices=['start', 'stop', 'restart', 'kill'], required=True)
 th_run(parser.parse_args())

@@ -49,7 +49,8 @@ default_exchange = Exchange('default', type='direct', durable=False)
 app.conf.update(
     accept_content=['json', 'pickle', 'application/x-python', 'application/json', 'application/x-python-serialize'],
     task_serializer='pickle',
-    result_serializer='json',
+    result_serializer='json',  # https://docs.celeryproject.org/en/master/userguide/calling.html#calling-serializers
+    result_extended=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#result-extended
     # Do not set! Or logic will not wait of task OK: # task_ignore_result=True,
     # task_track_started = True,
 
@@ -58,6 +59,7 @@ app.conf.update(
     # https://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#keeping-results
     # 1406, "Data too long for column 'result' at row 1" - it's not so important to keep it in DB
     result_backend = cred['result_backend'],
+    database_engine_options = {'pool_timeout': 90},
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#beat-scheduler
     beat_scheduler='django_celery_beat.schedulers:DatabaseScheduler',
@@ -68,87 +70,68 @@ app.conf.update(
     task_default_routing_key='default',
     task_default_exchange_type='direct',
 
-    # https://docs.celeryproject.org/en/master/userguide/configuration.html#task-default-delivery-mode
-    task_default_delivery_mode='transient',
-
-    # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-create-missing-queues
-    task_create_missing_queues=True,  # By Default
+    task_default_delivery_mode='transient',  # https://docs.celeryproject.org/en/master/userguide/configuration.html#task-default-delivery-mode
+    task_create_missing_queues=True,  # By Default  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-create-missing-queues
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#worker-prefetch-multiplier
-    worker_prefetch_multiplier=0,
+    worker_prefetch_multiplier=100,  # Keep 100, to lower RAM consume and keep most in RabbitMQ
 
     worker_disable_rate_limits=True,
-    worker_concurrency=1,
-    worker_lost_wait=30,
-    worker_max_memory_per_child=120000,
+    worker_concurrency=1,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-concurrency
+    worker_lost_wait=30,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-lost-wait
+    worker_max_memory_per_child=120000,  # 120 MB
 
     # Useful
     # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-log-format
-
-    # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-timer-precision
-    worker_timer_precision=5,
-    # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-enable-remote-control
-    worker_enable_remote_control=True,
-
-    # https://docs.celeryproject.org/en/master/userguide/configuration.html#task-send-sent-event
-    task_send_sent_event=True,
-
-    # http://docs.celeryproject.org/en/latest/userguide/configuration.html#events
-    worker_send_task_events=True,  # -E at worker service
+    worker_timer_precision=5,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-timer-precision
+    worker_enable_remote_control=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-enable-remote-control
+    # task_send_sent_event=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#task-send-sent-event
+    worker_send_task_events=True,  # -E at worker service # http://docs.celeryproject.org/en/latest/userguide/configuration.html#events
     worker_pool_restarts=True,
 
     # Maybe this should be disabled to allow workers to get ALL tasks in queue.
-    # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-task_acks_late
-    # http://docs.celeryproject.org/en/master/faq.html#faq-acks-late-vs-retry
-    task_acks_late=True,  # By Default
-    acks_late=True,
-
-    # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-acks-on-failure-or-timeout
-    task_acks_on_failure_or_timeout=True,
-
-    # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-reject-on-worker-lost
+    task_acks_late=False,  # By Default # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-task_acks_late
+    acks_late=False,  # http://docs.celeryproject.org/en/master/faq.html#faq-acks-late-vs-retry
+    task_acks_on_failure_or_timeout=True,  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-acks-on-failure-or-timeout
     # Setting this to true allows the message to be re-queued instead, so that the task will execute again by the same worker, or another worker.
-    task_reject_on_worker_lost=False,
+    task_reject_on_worker_lost=False,  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-reject-on-worker-lost
 
-    # http://docs.celeryproject.org/en/latest/userguide/configuration.html#broker-pool-limit
-    broker_pool_limit=None,
+    broker_pool_limit=None,  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#broker-pool-limit
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#broker-connection-timeout
     broker_connection_timeout=60,
     broker_connection_retry=True,
     broker_connection_max_retries=0,
 
-    # Dev IDEA:
-    # http://docs.celeryproject.org/en/latest/userguide/configuration.html#worker-direct
-    worker_direct=True,
+    worker_direct=True,  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#worker-direct
 
 )
 
-# if not os.name == "nt":
-#     app.control.cancel_consumer(
-#         'default',
-#         destination=[
-#             'w_routines@tentacle',
-#             'alpha@tentacle',
-#             'beta@tentacle',
-#             'charlie@tentacle',
-#             'delta@tentacle',
-#             'echo@tentacle',
-#             'foxtrot@tentacle',
-#             'golf@tentacle',
-#             'w_development@tentacle',
-#         ])
-# else:
-#     app.control.cancel_consumer(
-#         'default',
-#         destination=[
-#             'w_routines@tentacle',
-#             'alpha@tentacle',
-#             'beta@tentacle',
-#             'charlie@tentacle',
-#             'delta@tentacle',
-#             'echo@tentacle',
-#             'foxtrot@tentacle',
-#             'golf@tentacle',
-#             'w_development@tentacle',
-#         ])
+if not os.name == "nt":
+    app.control.cancel_consumer(
+        'default',
+        destination=[
+            'w_routines@tentacle',
+            'alpha@tentacle',
+            'beta@tentacle',
+            'charlie@tentacle',
+            'delta@tentacle',
+            'echo@tentacle',
+            'foxtrot@tentacle',
+            'golf@tentacle',
+            'w_development@tentacle',
+        ])
+else:
+    app.control.cancel_consumer(
+        'default',
+        destination=[
+            'w_routines@tentacle',
+            'alpha@tentacle',
+            'beta@tentacle',
+            'charlie@tentacle',
+            'delta@tentacle',
+            'echo@tentacle',
+            'foxtrot@tentacle',
+            'golf@tentacle',
+            'w_development@tentacle',
+        ])
