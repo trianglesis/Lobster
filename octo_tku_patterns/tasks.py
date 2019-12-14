@@ -767,8 +767,7 @@ class TaskPrepare:
             t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
                     f'fake={self.fake_run};start_time={self.start_time}'
 
-            # TODO: Not SYNC during debug:
-            Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=True,
+            Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=self.fake_run,
                           t_args=[t_tag], t_kwargs=dict(addm_items=list(addm_set)),
                           t_queue=addm['addm_group'] + '@tentacle.dq2',
                           t_routing_key='TExecTest.t_addm_rsync_threads.{0}'.format(addm['addm_group']))
@@ -842,8 +841,8 @@ class TaskPrepare:
         # log.debug("<=TaskPrepare=> User test user_test_add: \n%s", t_tag_d)
         self.t_tag = t_tag_d
 
-    # TODO: ????
     def test_and_addm_check(self, addm_set, test_item):
+        # TODO: Check when worker was not assigned:
         if not addm_set or not test_item:
             log.debug("<=TaskPrepare=> TestCaseRunTest: "
                       "Cannot start user test no addm set or test item can be found in database %s", self.user_name)

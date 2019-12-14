@@ -118,8 +118,6 @@ class TestExecutor:
         Before run it will load tkn_main_bashrc/tkn_ship_bashrc to activate paths to python, tideway, core etc.
 
         """
-        # TODO: Check paramiko to use env from here, not from bashrc
-        my_env = os.environ.copy()
 
         ts = time()
         ssh = args_d.get('ssh')
@@ -156,16 +154,11 @@ class TestExecutor:
 
             log.debug("CMD-> '%s'", cmd)
             # Test execution:
-            # TODO: DEBUG EXEC
-            cmd = 'ls'
-            log.debug("Making FAKE TEST %s", cmd)
-            sleep(900)
             _, stdout, stderr = ssh.exec_command(cmd)
             std_out_err_d = self.std_read(out=stdout, err=stderr, mode=test_output_mode, mgs="<=TEST=>")
 
             time_spent_test = time() - ts
             log.debug("<=TEST=> FINISH %s", test_info)
-            update_save = 'Fake update table!!!!!'
             update_save = self.parse_test_result(stderr_output=std_out_err_d['stderr_output'],
                                                  test_item=test_item,
                                                  addm_item=addm_item,
@@ -174,7 +167,6 @@ class TestExecutor:
             ssh.close()
             # Put test results into a thread queue output:
             test_q.put(update_save)
-            # test_q.put('test fake')
         else:
             msg = "<=TEST ERROR=> Test has no test_py_path value! {}".format(test_item)
             log.error(msg)
