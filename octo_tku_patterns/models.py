@@ -61,8 +61,8 @@ class TestLast(models.Model):
         #     ),
         # )
         indexes = [
-            models.Index(fields=['test_py_path'], name='test_test_py_path'),
-            models.Index(fields=['test_date_time'], name='test_date_time'),
+            models.Index(fields=['test_py_path'], name='test_last_test_py_path'),
+            models.Index(fields=['test_date_time'], name='test_last_date_time'),
             models.Index(fields=[
                 'tkn_branch',
                 'pattern_library',
@@ -70,26 +70,23 @@ class TestLast(models.Model):
                 'tst_name',
                 'tst_class',
                 'addm_name',
-            ], name='test_unique'),
+            ], name='test_last_test_unique'),
         ]
 
 
 class TestHistory(models.Model):
     # Pattern details:
     tkn_branch = models.CharField(max_length=10)
-    pattern_library = models.CharField(max_length=255)
-    pattern_file_name = models.CharField(max_length=255)
+
+    pattern_library = models.CharField(max_length=100)
     pattern_folder_name = models.CharField(max_length=255)
-    pattern_file_path = models.CharField(max_length=255, blank=True, null=True)
-    test_py_path = models.CharField(max_length=255, blank=True, null=True)
-    pattern_folder_path_depot = models.CharField(max_length=255, blank=True, null=True)
-    pattern_file_path_depot = models.TextField(blank=True, null=True)
-    is_key_pattern = models.NullBooleanField(null=True)
+    test_py_path = models.CharField(max_length=255)
+
     # Test details:
-    tst_message = models.TextField(blank=True, null=True)
     tst_name = models.CharField(max_length=255)
     tst_module = models.CharField(max_length=255)
     tst_class = models.CharField(max_length=255)
+    tst_message = models.TextField(blank=True, null=True)
     tst_status = models.TextField(blank=True, null=True)
     fail_status = models.TextField(blank=True, null=True)
     fail_name = models.TextField(blank=True, null=True)
@@ -100,30 +97,42 @@ class TestHistory(models.Model):
     addm_name = models.CharField(max_length=20)
     addm_group = models.CharField(max_length=10)
     addm_v_int = models.CharField(max_length=20, blank=True, null=True)
-    addm_host = models.CharField(max_length=50)
+    addm_host = models.CharField(max_length=20)
     addm_ip = models.CharField(max_length=20, blank=True, null=True)
     # Time & date details:
     time_spent_test = models.CharField(max_length=20, blank=True, null=True)
     # Left it in ITC by default, then will convert to UK or UA:
-    test_date_time = models.DateTimeField(unique=True, auto_now_add=True)
+    test_date_time = models.DateTimeField(unique=False, auto_now_add=True)
 
     class Meta:
         managed = True
         db_table = 'octo_test_history'
-        unique_together = (
-            (
+        # unique_together = (
+        #     (
+        #         'tkn_branch',
+        #         'pattern_library',
+        #         'pattern_folder_name',
+        #         'test_py_path',
+        #         'tst_name',
+        #         'tst_module',
+        #         'tst_class',
+        #         'test_date_time',
+        #         'addm_name',
+        #         'addm_host',
+        #     ),
+        # )
+        indexes = [
+            models.Index(fields=['test_py_path'], name='test_history_test_py_path'),
+            models.Index(fields=['test_date_time'], name='test_history_date_time'),
+            models.Index(fields=[
                 'tkn_branch',
                 'pattern_library',
                 'pattern_folder_name',
-                'pattern_file_name',
                 'tst_name',
-                'tst_module',
                 'tst_class',
-                'test_date_time',
                 'addm_name',
-                'addm_host',
-            ),
-        )
+            ], name='test_history_test_unique'),
+        ]
 
 
 class TestCases(models.Model):

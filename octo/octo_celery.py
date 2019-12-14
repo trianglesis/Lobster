@@ -36,6 +36,7 @@ app = Celery('octo',
 # app.config_from_object('django.conf:settings', namespace='CELERY')
 #  The backend is specified via the backend argument to Celery,
 #  (or via the result_backend setting if you choose to use a configuration module):
+# https://docs.celeryproject.org/en/master/userguide/configuration.html
 
 """
 LOBSTER:
