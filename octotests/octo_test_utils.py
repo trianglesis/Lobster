@@ -14,6 +14,7 @@ from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
 from octo_tku_patterns.models import TestCases, TestCasesDetails
 from octo_tku_patterns.models import TestLast
+from run_core.models import AddmDev
 from octo_tku_patterns.night_test_balancer import BalanceNightTests
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
 from octo_tku_patterns.tasks import TPatternParse, TPatternExecTest
@@ -61,6 +62,7 @@ class PatternTestUtils(unittest.TestCase):
         self.queryset = TestCases.objects.all()
 
         self.addm_group_l = []
+        self.addm_set = AddmDev.objects.filter(disables__isnull=True).values()
         self.mail_task_arg = ''
         self.mail_kwargs = dict()
         self.test_output_mode = False
@@ -81,9 +83,7 @@ class PatternTestUtils(unittest.TestCase):
         log.debug("<=PatternTestUtils=> Test finished")
 
     def check_tasks(self, tasks):
-
         tasks_res = dict()
-
         if not tasks:
             msg = 'No tasks returned from case execution!'
             raise Exception(msg)
@@ -95,7 +95,6 @@ class PatternTestUtils(unittest.TestCase):
             if res.status == 'FAILURE' or res.state == 'FAILURE':
                 msg = f'Task execution finished with failure status: \n\t{task.id}\n\t"{res.result}"'
                 raise Exception(msg)
-
         self.debug_output(tasks_res)
         return tasks_res
 
@@ -278,7 +277,7 @@ class UploadTaskUtils(unittest.TestCase):
         self.user_name = None
         self.user_email = None
         self.fake_run = None
-        self.request = dict()
+        self.request = dict()  # TODO: No need request, we'll run as task
 
     def setUp(self) -> None:
         self.user_and_mail()
@@ -305,13 +304,10 @@ class UploadTaskUtils(unittest.TestCase):
                     raise Exception(f'No package can be found in database with type: {package}, maybe WGET can help')
 
     def check_tasks(self, tasks):
-
         tasks_res = dict()
-
         if not tasks:
             msg = 'No tasks returned from case execution!'
             raise Exception(msg)
-
         for task in tasks:
             res = AsyncResult(task.id)
             # tasks_res.update({task.id: dict(status=res.status, result=res.result, state=res.state, args=res.args, kwargs=res.kwargs)})
@@ -319,7 +315,6 @@ class UploadTaskUtils(unittest.TestCase):
             if res.status == 'FAILURE' or res.state == 'FAILURE':
                 msg = f'Task execution finished with failure status: \n\t{task.id}\n\t"{res.result}"'
                 raise Exception(msg)
-
         self.debug_output(tasks_res)
         return tasks_res
 
