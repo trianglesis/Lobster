@@ -12,174 +12,67 @@
     <body>
     {{ subject }}
     <br>
-    <div style="padding: 1%">
-        {# Table for header: #}
-        <br>
-        <table id="table-subject">
-            <tr>
-                {% if mail_opts.mode == 'init' %}
-                    <td style="background-color: #bee5eb;">User test routine has been initialized. Now processing test
-                        tasks and
-                        balancing workers.
-                    </td>
-                {% elif mail_opts.mode == 'start' %}
-                    <td style="background-color: #36e6dd;">User test started. See details, wait for test finish email
-                        confirmation.
-                    </td>
-                {% elif mail_opts.mode == 'finish' %}
-                    <td style="background-color: #c3e6cb;">User test finished. This is confirmation email. You can see
-                        the logs
-                        now.
-                    </td>
-                {% elif mail_opts.mode == 'fail' %}
-                    <td style="background-color: #f5c6cb;">User test routine failed. Cannot proceed further, please
-                        re-run or ask
-                        assistance.
-                    </td>
-                {% else %}
-                    <td style="background-color: #ffe8a1;">This is unusual behaviour. Cannot proceed further, please
-                        re-run or ask
-                        assistance.
-                    </td>
-                {% endif %}
-            </tr>
-        </table>
-        <br>
-        <br>
-        {% if mail_opts.mode == 'finish' %}
-            <ul>
-                <li>
-                    {# When user selected one test case of pattern #}
-                    {% if mail_opts.view_obj.context.selector.tkn_branch %}
-                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ mail_opts.view_obj.context.selector.tkn_branch }};pattern_library={{ mail_opts.view_obj.context.selector.pattern_library }};pattern_folder_name={{ mail_opts.view_obj.context.selector.pattern_folder_name }};tst_status=None">
+    <br>
+    <table id="table-subject">
+        <tr>
+            {% if mail_opts.mode == 'init' %}
+                <td style="background-color: #bee5eb;">User test routine has been initialized. Now processing test
+                    tasks and
+                    balancing workers.
+                </td>
+            {% elif mail_opts.mode == 'start' %}
+                <td style="background-color: #36e6dd;">User test started. See details, wait for test finish email
+                    confirmation.
+                </td>
+            {% elif mail_opts.mode == 'finish' %}
+                <td style="background-color: #c3e6cb;">User test finished. This is confirmation email. You can see
+                    the logs
+                    now.
+                </td>
+            {% elif mail_opts.mode == 'fail' %}
+                <td style="background-color: #f5c6cb;">User test routine failed. Cannot proceed further, please
+                    re-run or ask
+                    assistance.
+                </td>
+            {% else %}
+                <td style="background-color: #ffe8a1;">This is unusual behaviour. Cannot proceed further, please
+                    re-run or ask for assistance.
+                </td>
+            {% endif %}
+        </tr>
+    </table>
+    <br>
+    {% if mail_opts.mode == 'finish' %}
+        <ul>
+            <li>
+                {# This is pattern related #}
+                {% if mail_opts.test_item.pattern_folder_name %}
+                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ mail_opts.test_item.tkn_branch }};pattern_library={{ mail_opts.test_item.pattern_library }};pattern_folder_name={{ mail_opts.test_item.pattern_folder_name }};tst_status=None">
                         => Test logs <=
                     </a>
-                    {# When user select test case by id, date, multiple ids from case group or single test case not related to pattern #}
-                    {% else %}
-                        {# This is pattern related #}
-                        {% if mail_opts.test_item.pattern_folder_name %}
-                        <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ mail_opts.test_item.tkn_branch }};pattern_library={{ mail_opts.test_item.pattern_library }};pattern_folder_name={{ mail_opts.test_item.pattern_folder_name }};tst_status=None">
-                            => Test logs <=
-                        </a>
-                        {# This is case not pattern related: #}
-                        {% else %}
-                            <a href="http://{{ domain }}/octo_tku_patterns/test_details/?test_py_path={{ mail_opts.test_item.test_py_path }};tst_status=None">
-                                => Test logs <=
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                </li>
-            </ul>
-        {% endif %}
-        <br>
-        <br>
-        {# Table for user selector options: #}
-        {% if mail_opts.view_obj %}
-            <span id="selector-span" style="font-size: 1.2em;margin-bottom: 1em;display: inline-block;">You have selected:</span>
-            <table id="table-selector">
-                <tr>
-                    <td style="font-weight: bold;">For:</td>
-                    <td style="font-weight: lighter;">{{ mail_opts.view_obj.user_name }}</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold;">Email:</td>
-                    <td style="font-weight: lighter;">{{ mail_opts.view_obj.user_email }}</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td rowspan="{{ mail_opts.view_obj.context.selector|length|add:1 }}">Context:</td>
-                </tr>
-                {% for k, v in mail_opts.view_obj.context.selector.items %}
-                    {% if v and not v == 'None' %}
-                        <tr>
-                            <td style="font-weight: bold;">{{ k }}</td>
-                            <td style="font-weight: lighter;">{{ v }}</td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </table>
-        {% endif %}
-        <br>
-        <br>
-        {# Table for user selector options: #}
-        {% if mail_opts.test_item %}
-            <span id="selector-span">Octopus have processed:</span>
-            <table id="table-test-item">
-                {% for k, v in mail_opts.test_item.items %}
-                    {% if v and not v == 'None' %}
-                        <tr>
-                            <td style="font-weight: bold;">{{ k }}</td>
-                            <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">{{ v }}</td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </table>
-        {% endif %}
-        <br>
-        <br>
-        {# Table for ADDM set if needed #}
-        {% if mail_opts.addm_set %}
-            <span id="selector-span">ADDM Set has been chosen for this test:</span>
-            <table id="table-addm-set">
-                <thead>
-                <tr>
-                    <td style="font-weight: bold;">branch</td>
-                    <td style="font-weight: bold;">name</td>
-                    <td style="font-weight: bold;">version</td>
-                    <td style="font-weight: bold;">Host</td>
-                    <td style="font-weight: bold;"></td>
-                </tr>
-                </thead>
-                {% for addm in mail_opts.addm_set %}
-                    <tr>
-                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">{{ addm.branch_lock }}</td>
-                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">{{ addm.addm_name }}</td>
-                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">{{ addm.addm_full_version }}</td>
-                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">{{ addm.addm_host }}/{{ addm.addm_ip }}</td>
-                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">
-                            <a title="ADDM SetupModelTaxonomy"
-                               style="font-size: 0.9em;"
-                               href="http://{{ addm.addm_host }}.bmc.com/ui/DataHome">Data Home
-                            </a>
-                        </td>
-                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">
-                            <a title="ADDM SetupModelTaxonomy"
-                               style="font-size: 0.9em;"
-                               href="http://{{ addm.addm_host }}.bmc.com/ui/SetupModelTaxonomy">Taxonomy
-                            </a>
-                        </td>
-                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">
-                            <a title="ADDM DiscoveryHome"
-                               style="font-size: 0.9em;"
-                               href="http://{{ addm.addm_host }}.bmc.com/ui/DiscoveryHome">Discovery
-                            </a>
-                        </td>
-                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">
-                            <a title="ADDM DiscoveryKnowledgeManagement"
-                               style="font-size: 0.9em;"
-                               href="http://{{ addm.addm_host }}.bmc.com/ui/DiscoveryKnowledgeManagement">TKU
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
-        {% endif %}
-        <br>
-        <br>
-        {% if mail_opts.view_obj %}
-            <span id="selector-span"
-                  style="font-size: 1.2em;margin-bottom: 1em;display: inline-block;">Request (for full debug):</span>
-            <table id="table-selector">
-                {% for k, v in mail_opts.view_obj.request.items %}
+                    {# This is case not pattern related: #}
+                {% else %}
+                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?test_py_path={{ mail_opts.test_item.test_py_path }};tst_status=None">
+                        => Test logs <=
+                    </a>
+                {% endif %}
+            </li>
+        </ul>
+    {% endif %}
+    {# Table for user selector options: #}
+    {% if mail_opts.test_item %}
+        <span id="selector-span">Octopus have processed:</span>
+        <table id="table-test-item">
+            {% for k, v in mail_opts.test_item.items %}
+                {% if v and not v == 'None' %}
                     <tr>
                         <td style="font-weight: bold;">{{ k }}</td>
-                        <td style="font-weight: lighter;">{{ v }}</td>
+                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">{{ v }}</td>
                     </tr>
-                {% endfor %}
-            </table>
-        {% endif %}
-    </div>
+                {% endif %}
+            {% endfor %}
+        </table>
+    {% endif %}
     </body>
 {% endblock %}
 </html>

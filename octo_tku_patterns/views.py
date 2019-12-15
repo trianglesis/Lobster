@@ -638,6 +638,7 @@ class MailTestAddedDev(TemplateView):
         self.context = super(MailTestAddedDev, self).get_context_data(**kwargs)
 
     def get_context_data(self, **kwargs):
+        from octo.helpers.tasks_helpers import TMail
         from octo.win_settings import SITE_DOMAIN, SITE_SHORT_NAME
         from octo.config_cred import mails
 
@@ -760,3 +761,32 @@ class MailTestAddedDev(TemplateView):
             )
 
             return self.context
+
+
+def dev_mail_user_test(request):
+    __url_path = '/octo_tku_patterns/mail_test_added_dev/'
+    from octo_tku_patterns.models import TestCases
+    test_item = TestCases.objects.filter(id='115').values()
+    test_item = test_item[0]
+
+    from octo.helpers.tasks_helpers import TMail
+    mode = request.GET.get('mode', 'init')
+
+    if mode == 'init':
+        mail_opts = {'mode': 'init', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
+                     'user_email': 'oleksandr_danylchenko_cw@bmc.com'}
+    elif mode == 'start':
+        mail_opts = {'mode': 'start', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
+                     'user_email': 'oleksandr_danylchenko_cw@bmc.com', 'test_item': test_item}
+    elif mode == 'finish':
+        mail_opts = {'mode': 'finish', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
+                     'user_email': 'oleksandr_danylchenko_cw@bmc.com', 'test_item': test_item}
+    elif mode == 'fail':
+        mail_opts = {'mode': 'fail', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
+                     'user_email': 'oleksandr_danylchenko_cw@bmc.com', 'test_item': test_item}
+    else:
+        mail_opts = {'mode': 'init', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
+                     'user_email': 'oleksandr_danylchenko_cw@bmc.com'}
+
+    mail_html = TMail().user_test(mail_opts)
+    return HttpResponse(mail_html)

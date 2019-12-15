@@ -347,6 +347,7 @@ class TaskPrepare:
     def __init__(self, obj):
         # Initial view requests:
         self.view_obj = obj
+        log.debug("view_obj: %s", self.view_obj)
         if isinstance(self.view_obj, dict):
             self.options = self.view_obj.get('context')
             self.request = self.view_obj.get('request')
@@ -435,7 +436,7 @@ class TaskPrepare:
         log.warning("TASK PSEUDO RUNNING in TaskPrepare.run_tku_patterns")
 
         # 0. Init test mail?
-        self.mail_status(mail_opts=dict(mode='init', view_obj=self.view_obj))
+        self.mail_status(mail_opts=dict(mode='init'))
 
         # 1. Select cases for test
         cases_to_test = self.case_selection()
@@ -685,7 +686,7 @@ class TaskPrepare:
         assert isinstance(tests_grouped, dict), 'Test tests_grouped should be a dict: %s' % type(tests_grouped)
 
         tku_patterns_tests = tests_grouped.get('tku_patterns', {})
-        log.debug("<=TaskPrepare=> tku_patterns_tests: %s", tku_patterns_tests)
+        # log.debug("<=TaskPrepare=> tku_patterns_tests: %s", tku_patterns_tests)
 
         for branch_k, branch_cases in tku_patterns_tests.items():
             if branch_cases:
@@ -698,19 +699,12 @@ class TaskPrepare:
                 self.addm_rsync(addm_set)
 
                 for test_item in branch_cases:
-                    # log.debug("<=TaskPrepare=> test_item: %s", test_item)
-
                     # 7.1 Fire task for test starting
-                    self.mail_status(mail_opts=dict(
-                        mode='start', view_obj=self.view_obj, test_item=test_item, addm_set=addm_set))
-
+                    self.mail_status(mail_opts=dict(mode='start', test_item=test_item, addm_set=addm_set))
                     # 7.2 Fire task for test execution
                     self.test_exec(addm_set, test_item)
-
                     # 7.3 Add mail task after one test, so it show when one test was finished.
-                    log.info("<=TaskPrepare=> HERE: for test item make test task")
-                    self.mail_status(mail_opts=dict(
-                        mode='finish', view_obj=self.view_obj, test_item=test_item, addm_set=addm_set))
+                    self.mail_status(mail_opts=dict(mode='finish', test_item=test_item, addm_set=addm_set))
             else:
                 log.debug("<=TaskPrepare=> This branch had no selected tests to run: '%s'", branch_k)
 
@@ -747,7 +741,7 @@ class TaskPrepare:
                 addm_group__exact=addm_group,
                 disables__isnull=True
             ).values()
-        log.info("<=TaskPrepare=> Will use selected addm_set to run test: %s",  addm_set)
+        # log.info("<=TaskPrepare=> Will use selected addm_set to run test: %s",  addm_set)
         return addm_set
 
     def addm_rsync(self, addm_set):
@@ -772,12 +766,12 @@ class TaskPrepare:
 
     def mail_status(self, mail_opts):
         mode = mail_opts.get('mode')
+        mail_opts.update(request=self.request)
+        mail_opts.update(user_email=self.user_email)
 
         if not self.silent:
             log.info("<=TaskPrepare=> Mail sending, mode: %s", mode)
-            if mail_opts.get('addm_set') and mail_opts.get('test_item'):
-                log.debug("<=TaskPrepare=> MAIL when test item and addm set is TRUE")
-
+            if mail_opts.get('test_item') and mail_opts.get('addm_set'):
                 addm = mail_opts.get('addm_set').first()
                 test_item = mail_opts.get('test_item')
 
@@ -785,15 +779,12 @@ class TaskPrepare:
                 t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'test_py_path={test_item["test_py_path"]}'
 
-                Runner.fire_t(TSupport.t_user_test, fake_run=self.fake_run, t_args=[t_tag],
+                Runner.fire_t(TSupport.t_user_test, fake_run=False, t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
                               t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
-
             elif mode == 'init':
-                log.debug("<=TaskPrepare=> MAIL when INIT")
                 TMail().user_test(mail_opts)
             else:
-                log.debug("<=TaskPrepare=> MAIL when ELSE")
                 TMail().user_test(mail_opts)
         else:
             log.info("<=TaskPrepare=> Mail silent mode. Do not send massages. Current stage: %s", mode)
@@ -809,15 +800,13 @@ class TaskPrepare:
         assert isinstance(addm_set, QuerySet), "Addm set should be a QuerySet: %s" % type(addm_set)
 
         addm = addm_set.first()
-        log.info("<=TaskPrepare=> Add task - test exec. Not executing now, just log!")
-
         task_r_key = '{}.TExecTest.t_test_exec_threads.{}'.format(addm['addm_group'], test_item["pattern_folder_name"])
         t_tag = f'tag=t_test_exec_threads;type=user_routine;branch={test_item["tkn_branch"]};' \
                 f'addm_group={addm["addm_group"]};user_name={self.user_name};' \
                 f'refresh={self.refresh};t_ETA={test_item["test_time_weight"]};test_case_path={test_item["test_case_depot_path"]}'
 
         # Test task exec:
-        Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=MIN_40, debug_me=True,
+        Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=10, debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(addm_items=list(addm_set), test_item=test_item,
                                     test_function=self.test_function),

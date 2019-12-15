@@ -59,7 +59,7 @@ urlpatterns = [
     # Test History Today view:
     path('test_history_today/', TestHistoryTodayArchiveView.as_view(), name="test_history_archive_today"),
     # DEV
-    path('mail_test_added_dev/', MailTestAddedDev.as_view(), name="mail_test_added_dev"),
+    path('mail_test_added_dev/', dev_mail_user_test, name="mail_test_added_dev"),
 
 
 ]

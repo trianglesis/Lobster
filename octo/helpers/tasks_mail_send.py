@@ -27,6 +27,7 @@ class Mails:
         :param mail_args: dict
         :return:
         """
+        fake_run = mail_args.get('fake_run', False)
         mail_html = mail_args.get('mail_html', '')   # When nothing to render - send just plain text
         body      = mail_args.get('body', False)     # When nothing to render - send just plain text
         subject   = mail_args.get('subject', False)  # When nothing to render - send just plain text
@@ -44,8 +45,8 @@ class Mails:
             subject = txt.format('No Subject added', ' - ', curr_hostname)
 
         msg = f"mail_html={mail_html} body={body} subject={subject} send_to={send_to} send_cc={send_cc}"
-        if os.name == "nt":
-            log.debug('Sending short email confirmation: \n\t%s', msg)
+        if fake_run:
+            log.debug('Sending short email confirmation: \n\t%s', (subject, send_to, send_cc))
         else:
             connection = mail.get_connection()
             connection.open()

@@ -355,37 +355,26 @@ class TMail:
 
     def user_test(self, mail_opts):
         test_added = loader.get_template('service/emails/statuses/test_added.html')
-        mode = mail_opts.get('mode')
-        view_obj = mail_opts.get('view_obj')
-        # log.debug("<=TMail.user_test=> view_obj: %s", view_obj.request)
-
-        if isinstance(view_obj, dict):
-            request = view_obj['request']
-            user_email = view_obj.get('user_email')
-        else:
-            request = view_obj.request.get('selector')
-            user_email = view_obj.request.get('user_email')
+        mode = mail_opts.get('mode')  # Mode decision
+        request = mail_opts.get('request')  # Initial stage
+        test_item = mail_opts.get('test_item')  # When test are sorted and prepared
+        user_email = mail_opts.get('user_email')
 
         # When run-finish a single test case: show it'a attributes.
         # Pattern related case has one set of attrs, py case - another:
         subject_str = 'Placeholder'
         if mode == 'start' or mode == 'finish':
-            if mail_opts['test_item']['tkn_branch']:
-                subject_str = f'{mail_opts["test_item"]["tkn_branch"]} | ' \
-                              f'{mail_opts["test_item"]["pattern_library"]} | ' \
-                              f'{mail_opts["test_item"]["pattern_folder_name"]} '
+            if test_item['tkn_branch']:
+                subject_str = f'{test_item["tkn_branch"]} | ' \
+                              f'{test_item["pattern_library"]} | ' \
+                              f'{test_item["pattern_folder_name"]} '
             else:
-                subject_str = f'{mail_opts["test_item"]["test_py_path_template"]} '
+                subject_str = f'{test_item["test_py_path_template"]} '
 
         # Cases can be selected by attribute names, last days, date from or by id
         # Depending on those options - compose different subjects for 'init' mail
         if request.get('cases_ids', False):
             init_subject = f'selected cases: {request.get("cases_ids", None)}'
-        elif request.get('tkn_branch', False):
-            init_subject = f'{request.get("tkn_branch", None)} | ' \
-                           f'{request.get("pattern_library", None)} | {request.get("pattern_folder_name", None)}'
-        elif request.get('last_days', False):
-            init_subject = f'select tests by last_days {request.get("last_days", None)}'
         else:
             init_subject = f'run custom.'
 
@@ -397,15 +386,15 @@ class TMail:
             ),
             # This stage is when routine prepare task to run
             start=dict(
-                subject=f'[{SITE_SHORT_NAME}] Test case started: {subject_str}'
+                subject=f'[{SITE_SHORT_NAME}] User test started: {subject_str}'
             ),
             # This stage is when routine added task and finish loop step
             finish=dict(
-                subject=f'[{SITE_SHORT_NAME}] Test case finished: {subject_str}'
+                subject=f'[{SITE_SHORT_NAME}] User test finished: {subject_str}'
             ),
             # This stage is when routine had any issues
             fail=dict(
-                subject=f'[{SITE_SHORT_NAME}] Test task failed: : {init_subject}',
+                subject=f'[{SITE_SHORT_NAME}] User test failed: : {init_subject}',
             ),
         )
         # send_cc = [mails['admin', ]
@@ -416,8 +405,8 @@ class TMail:
                 mail_opts=mail_opts,
             )
         )
-        # log.debug("<=MailTRoutines=> mail_args: %s", mail_args)
         Mails.short(subject=mode_context[mode].get('subject'),
                     send_to=[user_email],
                     send_cc=mail_opts.get('send_cc', self.m_user_test),
                     mail_html=mail_html)
+        return mail_html
