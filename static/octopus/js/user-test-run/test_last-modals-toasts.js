@@ -53,6 +53,7 @@ $(document).ready(function () {
 });
 
 function testRunPrepareToast(testButtonDataset) {
+    console.log("testRunPrepareToast");
     console.log(testButtonDataset);
     let toastBase = {'id': 'NoId-UseDefault'};
     // Multiple cases run:
@@ -73,7 +74,7 @@ function testRunPrepareToast(testButtonDataset) {
         console.log('Single case select and run test');
         caseData = relCases[0];
         // caseData comes from Global variable!
-        let toastBase = getToastDraftWithId(caseData);  // Make unique copy of toast draft
+        toastBase = getToastDraftWithId(caseData);  // Make unique copy of toast draft
         let toastReady = fillToastBodyWithTestAttributes(toastBase, caseData, testButtonDataset);  // fill toast with data
         appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
         // Check test modes from button dataset

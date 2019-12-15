@@ -346,21 +346,14 @@ class TaskPrepare:
 
     def __init__(self, obj):
         # Initial view requests:
+        assert isinstance(obj, dict), 'TaskPrepare obj arg should be a dict!'
         self.view_obj = obj
-        log.debug("view_obj: %s", self.view_obj)
-        if isinstance(self.view_obj, dict):
-            self.options = self.view_obj.get('context')
-            self.request = self.view_obj.get('request')
-            # Assign generated context for further usage:
-            self.selector = self.options.get('selector', {})
-            self.user_name = self.view_obj.get('user_name')
-            self.user_email = self.view_obj.get('user_email')
-        else:
-            self.request = obj.request
-            self.options = obj.request
-            self.user_name = self.request.get('user_name', 'octopus_super')
-            self.user_email = self.request.get('user_email', None)
-            self.selector = self.request.get('selector', {})
+        self.options = self.view_obj.get('context')
+        self.request = self.view_obj.get('request')
+        # Assign generated context for further usage:
+        self.selector = self.options.get('selector', {})
+        self.user_name = self.view_obj.get('user_name')
+        self.user_email = self.view_obj.get('user_email')
 
         # Define fake run:
         self.fake_run = False
@@ -376,6 +369,7 @@ class TaskPrepare:
         # Internal statuses:
         self.silent = False
         self.silent_run()
+        # Exclude tests using predefined cases group:
         self.exclude = False
         self.excluding()
 
@@ -448,7 +442,7 @@ class TaskPrepare:
         self.sync_depot()
 
         # 4. Balance grouped tests on workers based on test_type, tkn_branch
-        self.tku_patterns_tests_balance(self.tests_grouped)
+        self.tests_balance(self.tests_grouped)
 
         # 8. Start tests mail send:
         log.info("<=TaskPrepare=> HERE: make single mail task to confirm tests were started")
@@ -676,7 +670,7 @@ class TaskPrepare:
         # log.debug("<=TaskPrepare=> grouped: %s", grouped)
         return grouped
 
-    def tku_patterns_tests_balance(self, tests_grouped):
+    def tests_balance(self, tests_grouped):
         """
         Balance selected and grouped tests between worker groups.
 
@@ -692,7 +686,7 @@ class TaskPrepare:
             if branch_cases:
                 log.debug("<=TaskPrepare=> Balancing tests for branch: '%s'", branch_k)
                 # 5. Assign free worker for test cases run
-                addm_group = self.addm_group_get_available(tkn_branch=branch_k)
+                addm_group = self.addm_group_get(tkn_branch=branch_k)
                 addm_set = self.addm_set_select(addm_group=addm_group)
 
                 # 6. Sync current ADDM set with actual data from Octopus, after p4 sync finished it's work:
@@ -708,7 +702,7 @@ class TaskPrepare:
             else:
                 log.debug("<=TaskPrepare=> This branch had no selected tests to run: '%s'", branch_k)
 
-    def addm_group_get_available(self, tkn_branch):
+    def addm_group_get(self, tkn_branch):
         """
         Check addm groups for available and mininal loaded worker.
         Depends on branch.
@@ -779,7 +773,7 @@ class TaskPrepare:
                 t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'test_py_path={test_item["test_py_path"]}'
 
-                Runner.fire_t(TSupport.t_user_test, fake_run=False, t_args=[t_tag],
+                Runner.fire_t(TSupport.t_user_test, fake_run=self.fake_run, t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
                               t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
             elif mode == 'init':
