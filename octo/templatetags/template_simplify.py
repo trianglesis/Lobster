@@ -491,6 +491,9 @@ def tku_patterns_json(test_digest_qs, model_name=None):
     elif model_name == 'TestLatestDigestAll':
         serializer = TestLatestDigestAllSerializer(test_digest_qs, many=True)
         serializer = serializer.data
+    elif model_name == 'TestHistoryDigestDaily':
+        serializer = TestHistoryDigestDailySerializer(test_digest_qs, many=True)
+        serializer = serializer.data
     elif model_name == 'TestHistory':
         serializer = TestHistorySerializer(test_digest_qs, many=True)
         serializer = serializer.data

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from octo_tku_patterns.models import *
-from octo_tku_patterns.model_views import TestLatestDigestAll
+from octo_tku_patterns.model_views import TestLatestDigestAll, TestHistoryDigestDaily
 
 from django.contrib.auth import get_user_model
 
@@ -147,6 +147,37 @@ class TestHistorySerializer(serializers.ModelSerializer):
 class TestLatestDigestAllSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestLatestDigestAll
+        fields = (
+            'test_type',
+            'tkn_branch',
+            'addm_name',
+            'pattern_library',
+            'pattern_folder_name',
+            'time_spent_test',
+            'test_date_time',
+            'addm_v_int',
+            'change',
+            'change_user',
+            'change_review',
+            'change_ticket',
+            'change_desc',
+            'change_time',
+            'test_case_depot_path',
+            'test_time_weight',
+            'test_py_path',
+            'case_id',
+            'test_items_prepared',
+            'fails',
+            'error',
+            'passed',
+            'skipped',
+        )
+
+
+# Model views (pre-saved) model
+class TestHistoryDigestDailySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestHistoryDigestDaily
         fields = (
             'test_type',
             'tkn_branch',
