@@ -75,7 +75,6 @@ class TPatternRoutine:
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_night_tests',
               soft_time_limit=HOURS_1, task_time_limit=HOURS_2)
     @exception
-    # TODO: Integrate with the t_test_prep
     def t_routine_night_tests(t_tag, **kwargs):
         log.debug("t_tag: %s", t_tag)
         return PatternRoutineCases.nightly_test(**kwargs)
@@ -454,8 +453,7 @@ class TaskPrepare:
         log.info("<=TaskPrepare=> HERE: make single mail task to confirm tests were started")
 
         # 9. Wipe logs when worker is free, if needed
-        # TODO: DO not wile logs during dev user test run
-        # self.wipe_logs(cases_to_test)
+        self.wipe_logs(cases_to_test)
 
         # 10. Finish all test mail? If we want to show this routine finished, but tests are still run...
         log.info("<=TaskPrepare=> HERE: make single mail task and the end of addm_worker queue")
@@ -787,8 +785,7 @@ class TaskPrepare:
                 t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'test_py_path={test_item["test_py_path"]}'
 
-                # TODO: Not send emails during debug:
-                Runner.fire_t(TSupport.t_user_test, fake_run=True, t_args=[t_tag],
+                Runner.fire_t(TSupport.t_user_test, fake_run=self.fake_run, t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
                               t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
 

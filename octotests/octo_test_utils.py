@@ -257,8 +257,8 @@ class PatternTestUtils(unittest.TestCase):
                           t_args=[t_tag],
                           t_kwargs=dict(addm_items=addm_item, test_item=test_item, test_output_mode=self.test_output_mode),
                           t_routing_key=r_key,
-                          t_soft_time_limit=test_t_w+900,
-                          t_task_time_limit=test_t_w+1000)
+                          t_soft_time_limit=test_t_w+300,
+                          t_task_time_limit=test_t_w+600)
 
     def finish_mail(self, _addm_group):
         if not self.silent:

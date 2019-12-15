@@ -19,7 +19,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def test_001_night_routine_main(self):
         self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', last_days=3)
+        self.select_test_cases(tkn_branch='tkn_main', last_days=60)
         self.excluded_group()
         self.queryset = self.queryset.exclude(change_time__range=['2019-10-30', '2019-11-07'])
         self.wipe_logs_on(True)
