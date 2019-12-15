@@ -44,6 +44,29 @@
                     </div>
                 </nav>
             </div>
+
+            <!-- Day browsing -->
+            <div class="btn-group btn-group-sm" role="group">
+                {% if previous_day %}
+                    <a class="btn btn-sm btn-light"
+                       href="{% url 'test_history_digest_day' year=previous_day|date:'Y' month=previous_day|date:'b' day=previous_day|date:'d' %}?{{ selector_str }}">
+                        <i class="fas fa-backward"></i> {{ previous_day|date:"F j, Y" }}
+                    </a>
+                {% endif %}
+                {% if day %}
+                <a class="btn btn-sm btn-light disabled"
+                   href="{% url 'test_history_digest_day' year=day|date:'Y' month=day|date:'b' day=day|date:'d' %}?{{ selector_str }}">
+                    <i class="fas fa-play"></i> {{ day }}
+                </a>
+                {% endif %}
+                {% if next_day %}
+                    <a class="btn btn-sm btn-light"
+                       href="{% url 'test_history_digest_day' year=next_day|date:'Y' month=next_day|date:'b' day=next_day|date:'d' %}?{{ selector_str }}">
+                        <i class="fas fa-forward"></i> {{ next_day }}
+                    </a>
+                {% endif %}
+            </div>
+
             <!-- Change branch here: -->
             <div class="digest-branch">
                 <nav class="nav-item dropdown">

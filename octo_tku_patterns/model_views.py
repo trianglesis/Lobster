@@ -53,6 +53,40 @@ class TestLatestDigestAll(models.Model):
         return '{0} - {1}: t{2}'.format(self.tkn_branch, self.test_py_path, self.time_spent_test)
 
 
+class TestHistoryDigestDaily(models.Model):
+    test_type            = models.CharField(max_length=255)
+    tkn_branch           = models.CharField(max_length=255)
+    addm_name            = models.CharField(max_length=255)
+    pattern_library      = models.CharField(max_length=255)
+    pattern_folder_name  = models.CharField(max_length=255)
+    time_spent_test      = models.FloatField()
+    test_date_time       = models.DateTimeField()
+    addm_v_int           = models.CharField(max_length=255)
+    change               = models.CharField(max_length=255)
+    change_user          = models.CharField(max_length=255)
+    change_review        = models.CharField(max_length=255)
+    change_ticket        = models.CharField(max_length=255)
+    change_desc          = models.TextField()
+    change_time          = models.DateTimeField()
+    test_case_depot_path = models.CharField(max_length=255)
+    test_time_weight     = models.CharField(max_length=255)
+    test_py_path         = models.CharField(max_length=255)
+    # test_id              = models.CharField(max_length=255)
+    case_id              = models.CharField(max_length=255)
+    test_items_prepared  = models.IntegerField()
+    fails                = models.IntegerField()
+    error                = models.IntegerField()
+    passed               = models.IntegerField()
+    skipped              = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = "test_history_digest_daily"
+
+    def __str__(self):
+        return '{0} - {1}: t{2}'.format(self.tkn_branch, self.test_py_path, self.time_spent_test)
+
+
 class TestLatestDigestFailed(models.Model):
     test_type            = models.CharField(max_length=255)
     tkn_branch           = models.CharField(max_length=255)

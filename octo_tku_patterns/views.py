@@ -208,7 +208,7 @@ class TestLastDigestListView(ListView):
     __url_path = '/octo_tku_patterns/tests_last/'
     template_name = 'digests/tests_last.html'
     context_object_name = 'tests_digest'
-    # Check if this is usefule case to have queryset loaded on view class init:
+    # Check if this is useful case to have queryset loaded on view class init:
 
     def get_context_data(self, **kwargs):
         # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_context_data")
@@ -374,6 +374,66 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
         context = super(TestHistoryTodayArchiveView, self).get_context_data(**kwargs)
         context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
+
+
+# Test History Digest Today View:
+class TestHistoryDigestTodayView(TodayArchiveView):
+    __url_path = '/octo_tku_patterns/test_history_digest_today/'
+    model = TestHistory
+    date_field = "test_date_time"
+    allow_future = False
+    allow_empty = True
+    template_name = 'digests/tests_last.html'
+    context_object_name = 'tests_digest'
+
+    def get_context_data(self, **kwargs):
+        # Get unique addm names based on table latest run:
+        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
+        if self.request.method == 'GET':
+            context = super(TestHistoryDigestTodayView, self).get_context_data(**kwargs)
+            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            return context
+
+
+# Test History Digest Daily View:
+class TestHistoryDigestDailyView(DayArchiveView):
+    __url_path = '/octo_tku_patterns/test_history_digest_day/'
+    model = TestHistoryDigestDaily
+    date_field = "test_date_time"
+    allow_future = False
+    allow_empty = True
+    template_name = 'digests/tests_last.html'
+    context_object_name = 'tests_digest'
+
+    def get_context_data(self, **kwargs):
+        # UserCheck().logator(self.request, 'info', "<=TestHistoryDigestDailyView=> get_context_data")
+        # Get unique addm names based on table latest run:
+        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
+        # log.debug("TestHistoryDigestDailyView addm_names explain \n%s", addm_names.explain())
+        if self.request.method == 'GET':
+            # log.debug("METHOD: GET - show test cases digest")
+            context = super(TestHistoryDigestDailyView, self).get_context_data(**kwargs)
+            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            return context
+
+    def get_queryset(self):
+        # UserCheck().logator(self.request, 'info', "<=TestHistoryDigestDailyView=> get_queryset")
+        sel_opts = compose_selector(self.request.GET)
+        queryset = TestHistoryDigestDaily.objects.all()
+
+        if sel_opts.get('addm_name'):
+            # log.debug("use: addm_name")
+            queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
+        if sel_opts.get('tkn_branch'):
+            # log.debug("use: tkn_branch")
+            queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
+        if sel_opts.get('change_user'):
+            # log.debug("use: change_user")
+            queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
+
+        queryset = tst_status_selector(queryset, sel_opts)
+        # log.debug("TestHistoryDigestDailyView queryset explain \n%s", queryset.explain())
+        return queryset
 
 
 # Cases

@@ -58,6 +58,12 @@ urlpatterns = [
     path('test_history_day/<int:year>/<str:month>/<int:day>/', TestHistoryDayArchiveView.as_view(), name="test_history_archive_day"),
     # Test History Today view:
     path('test_history_today/', TestHistoryTodayArchiveView.as_view(), name="test_history_archive_today"),
+
+    # Example: /2018/nov/10/
+    path('test_history_digest_day/<int:year>/<str:month>/<int:day>/', TestHistoryDigestDailyView.as_view(), name="test_history_digest_day"),
+    # Test History Digest daily view:
+    path('test_history_digest_today/', TestHistoryDigestTodayView.as_view(), name="test_history_digest_today"),
+
     # DEV
     path('mail_test_added_dev/', dev_mail_user_test, name="mail_test_added_dev"),
 
