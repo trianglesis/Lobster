@@ -379,7 +379,7 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
 # Test History Digest Today View:
 class TestHistoryDigestTodayView(TodayArchiveView):
     __url_path = '/octo_tku_patterns/test_history_digest_today/'
-    model = TestHistory
+    model = TestHistoryDigestDaily
     date_field = "test_date_time"
     allow_future = False
     allow_empty = True
