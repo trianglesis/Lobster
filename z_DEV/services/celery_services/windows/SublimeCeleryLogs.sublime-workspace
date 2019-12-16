@@ -8,12 +8,12 @@
 	"buffers":
 	[
 		{
-			"contents": "D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\z_DEV\\services\\celery_services\\windows\\alpha.bat\nD:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\",
+			"contents": "git clone https://github.com/trianglesis/Lobster.git /var/www/Lobster_git/\ngit pull https://github.com/trianglesis/Lobster.git /var/www/Lobster_git/\ngit pull https://github.com/trianglesis/Lobster.git /var/www/Lobster_git\nls /var/www/Lobster_git\nclone -f https://github.com/trianglesis/Lobster.git /var/www/Lobster_git/\ngit clone -f https://github.com/trianglesis/Lobster.git /var/www/Lobster_git/\ngit clone https://github.com/trianglesis/Lobster.git /var/www/Lobster_git/\nls /var/www/octopus/\ncd /var/www/octopus/\ngit\ngit pull\n\n\ncp -rf /home/user/Lobster/* /var/www/octopus/*\ncp -r /var/www/Lobster_git/* /var/www/octopus/*\n\nrsync -a --progress --prune-empty-dirs --log-file=/var/www/octopus/sync.log --include \"*\" --include \"*/\" /home/user/Lobster/ /var/www/octopus/",
 			"settings":
 			{
-				"buffer_size": 201,
+				"buffer_size": 768,
 				"line_ending": "Windows",
-				"name": "D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\project"
+				"name": "git clone https://github.com/trianglesis/Lobster.g"
 			}
 		}
 	],
@@ -129,6 +129,7 @@
 	},
 	"file_history":
 	[
+		"/D/perforce/addm/main/code/python/discovery/heuristics/restapi.py",
 		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/WEB_octopus.log",
 		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/golf_err.log",
 		"/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/charlie_err.log",
@@ -140,7 +141,7 @@
 	],
 	"find":
 	{
-		"height": 23.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -237,21 +238,23 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 201,
+						"buffer_size": 768,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								201,
-								201
+								493,
+								493
 							]
 						],
 						"settings":
 						{
-							"auto_name": "D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\project",
-							"syntax": "Packages/Text/Plain text.tmLanguage"
+							"auto_name": "git clone https://github.com/trianglesis/Lobster.g",
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
