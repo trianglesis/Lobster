@@ -41,16 +41,26 @@
                     <td id="addm_name"><span>{{ test.addm_name }}</span></td>
                     <td id="addm_v_int">{{ test.addm_v_int }}</td>
                     <td id="change_user">{{ test.change_user }}</td>
-                    <td id="test_items_prepared" class="{% popover 'hover' 'top' None 'All tests with all statuses. Click me' %}"
-                        onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }}#{{ test.addm_name }}'" >{{ test.test_items_prepared }}</td>
-                    <td id="fails" class="{% popover 'hover' 'top' None 'All failed and errors. Click me' %}"
-                        onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=notpass#{{ test.addm_name }}'" >{{ test.fails }}</td>
-                    <td id="error" class="{% popover 'hover' 'top' None 'Show test errors only. Click me' %}"
-                        onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=error#{{ test.addm_name }}'" >{{ test.error }}</td>
-                    <td id="passed" class="{% popover 'hover' 'top' None 'Show all test passed. Click me' %}"
-                        onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=pass#{{ test.addm_name }}'" >{{ test.passed }}</td>
-                    <td id="skipped" class="{% popover 'hover' 'top' None 'Show all skipped tests. Click me' %}"
-                        onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=skip#{{ test.addm_name }}'" >{{ test.skipped }}</td>
+                    <td id="test_items_prepared" class="{% popover 'hover' 'top' None 'Show all' %}">
+                        <a style="color: black"
+                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }}#{{ test.addm_name }}">{{ test.test_items_prepared }}</a>
+                    </td>
+                    <td id="fails" class="{% popover 'hover' 'top' None 'Show failed/errors' %}">
+                        <a style="color: black"
+                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=notpass#{{ test.addm_name }}">{{ test.fails }}</a>
+                    </td>
+                    <td id="error" class="{% popover 'hover' 'top' None 'Show errors' %}">
+                        <a style="color: black"
+                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=error#{{ test.addm_name }}">{{ test.error }}</a>
+                    </td>
+                    <td id="passed" class="{% popover 'hover' 'top' None 'Show passed' %}">
+                        <a style="color: black"
+                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=pass#{{ test.addm_name }}">{{ test.passed }}</a>
+                    </td>
+                    <td id="skipped" class="{% popover 'hover' 'top' None 'Show skipped' %}">
+                        <a style="color: black"
+                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=skip#{{ test.addm_name }}">{{ test.skipped }}</a>
+                    </td>
                     <td id="test_date_time" class="txt-center-prewrap {% popover 'hover' 'top' None test.test_date_time|timezone:"Europe/London" %}">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
                     <td id="action" class="actions_button">
                         <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"

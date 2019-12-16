@@ -37,28 +37,32 @@
                         <td class="text-center table-light text-dark" {% popover 'hover' 'top' None 'Overall tests run' %}>
                             {{ addm.patterns_count }}
                         </td>
-                        <td class="text-center table-light text-success" {% popover 'hover' 'top' "See all succeeded" 'Success rate pass + skipped / tests count' %}
-                            onclick="window.document.location='{% url "tests_last" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=pass;addm_name={{ addm.addm_name }}';">
-                            {% percent_pass_test addm.passed addm.skipped addm.tests_count %}%
+                        <td class="text-center table-light" {% popover 'hover' 'top' "See all succeeded" 'Success rate pass + skipped / tests count' %}>
+                            <a class="badge badge-light text-success"
+                               href="{% url "tests_last" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=pass;addm_name={{ addm.addm_name }}">{% percent_pass_test addm.passed addm.skipped addm.tests_count %}%</a>
                         </td>
                         <td class="text-center table-light usual" {% popover 'hover' 'top' None 'Overall tests functions test001 and so on' %}>
                             {{ addm.tests_count }}
                         </td>
-                        <td class="text-center table-light usual" {% popover 'hover' 'top' "See all passed" 'Success rate pass + skipped / tests count' %}
-                            onclick="window.document.location='{% url "tests_last" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=pass;addm_name={{ addm.addm_name }}';">
-                            {{ addm.passed }}
+                        <td class="text-center table-light usual" {% popover 'hover' 'top' "See all passed" 'Success rate pass + skipped / tests count' %}>
+                            <a class="badge badge-light text-dark"
+                               href="{% url "tests_last" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=pass;addm_name={{ addm.addm_name }}">{{ addm.passed }}</a>
+
                         </td>
-                        <td class="text-center table-light text-danger" {% popover 'hover' 'top' "See log failed" 'Show all test logs with fail status' %}
-                            onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ addm.tkn_branch }};tst_status=fail;addm_name={{ addm.addm_name }}#{{ addm.addm_name }}';">
-                            {{ addm.fails }}
+                        <td class="text-center table-light" {% popover 'hover' 'top' "See log failed" 'Show all test logs with fail status' %}>
+                            <a class="badge badge-light text-danger"
+                               href="{% url "test_details" %}?tkn_branch={{ addm.tkn_branch }};tst_status=fail;addm_name={{ addm.addm_name }}#{{ addm.addm_name }}">{{ addm.fails }}</a>
+
                         </td>
-                        <td class="text-center table-light text-warning" {% popover 'hover' 'top' "See log errors" 'Show all test logs with error status' %}
-                            onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=error;addm_name={{ addm.addm_name }}#{{ addm.addm_name }}';">
-                            {{ addm.error }}
+                        <td class="text-center table-light" {% popover 'hover' 'top' "See log errors" 'Show all test logs with error status' %}>
+                            <a class="badge badge-light text-warning"
+                               href="{% url "test_details" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=error;addm_name={{ addm.addm_name }}#{{ addm.addm_name }}">{{ addm.error }}</a>
+
                         </td>
-                        <td class="text-center table-light text-info" {% popover 'hover' 'top' "See log skipped" 'Show all test logs with skipped status' %}
-                            onclick="window.document.location='{% url "test_details" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=skip;addm_name={{ addm.addm_name }}#{{ addm.addm_name }}';">
-                            {{ addm.skipped }}
+                        <td class="text-center table-light" {% popover 'hover' 'top' "See log skipped" 'Show all test logs with skipped status' %}>
+                            <a class="badge badge-light text-info"
+                               href="{% url "test_details" %}?tkn_branch={{ addm.tkn_branch }}&tst_status=skip;addm_name={{ addm.addm_name }}#{{ addm.addm_name }}">{{ addm.skipped }}</a>
+
                         </td>
                         <td class="text-center table-light usual" {% popover 'hover' 'top' "See patterns report" 'Summarize test statuses by cases' %}>
                             <a class="badge badge-secondary" title="Table of patterns"
