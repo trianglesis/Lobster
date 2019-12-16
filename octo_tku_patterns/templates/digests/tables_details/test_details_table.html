@@ -36,9 +36,9 @@
                                 <li id="tst_status" class="tst_status">{% if not test.tst_status == 'ok' %}{{ test.tst_status }} <span class="text {% popover 'hover' 'top' 'Future (TBV)' 'Failed test tip, show suggestion about how to fix some kind of issues. (TBV Vote for this)' %}"><i class="fas fa-info"></i></span>{% endif %}</li>
                                 <li id="tst_message" class="tst_message">{% if not test.tst_message == ' ... ' %}{{ test.tst_message }}{% endif %}</li>
                             </td>
-                            <td id="fail_message" class="txt-monospace txt-left-prewrap fail_message">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
-                            <td id="test_date_time" class="txt-center-prewrap {% popover 'hover' 'top' None test.test_date_time|timezone:"Europe/London" %}">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
-                            <td id="addm_name" class="txt-center-prewrap {% popover 'hover' 'top' None 'Browse related ADDM to see scan details.' %}"><a href="http://{{ test.addm_host }}.bmc.com/ui/DiscoveryHome">{{ test.addm_name }}</a></td>
+                            <td id="fail_message" class="txt-monospace txt-left-prewrap fail_message text-center">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
+                            <td id="test_date_time" class="txt-center-prewrap {% popover 'hover' 'top' None test.test_date_time|timezone:"Europe/London" %}">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}<br>t:{{ test.time_spent_test|f_sec }}</td>
+                            <td id="addm_name" class="txt-center-prewrap {% popover 'hover' 'top' None 'Browse related ADDM to see scan details.' %}"><a href="http://{{ test.addm_host }}.bmc.com/ui/DiscoveryHome">{{ test.addm_name }}<br>{{ test.addm_host }}</a></td>
                             <td class="actions_button">
                                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                         data-target="#actionsModal"
@@ -54,7 +54,6 @@
                             <td id="tkn_branch" style="display:none">{{ test.tkn_branch }}</td>
                             <td id="pattern_library" style="display:none">{{ test.pattern_library }}</td>
                             <td id="pattern_folder_name" style="display:none">{{ test.pattern_folder_name }}</td>
-                            <td id="pattern_file_name" style="display:none">{{ test.pattern_file_name }}</td>
                             <td id="fail_status" style="display:none">{{ test.fail_status }}</td>
                             <td id="fail_name" style="display:none">{{ test.fail_name }}</td>
                             <td id="fail_class" style="display:none">{{ test.fail_class }}</td>
