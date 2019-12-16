@@ -417,6 +417,12 @@ function assignTestCaseUnitTestButtons(caseDataJSON) {
             SeeLogsHistory.style.display = 'block';
         }
 
+        let caseUnitModalButtons = document.getElementById("case-unit-modal-buttons");
+        let testMethSpan = document.createElement("span");
+        console.log(unit_wipe_run.dataset);
+        testMethSpan.innerText = ` ${caseData['tst_class']}.${caseData['tst_name']}`;
+        caseUnitModalButtons.appendChild(testMethSpan);
+
         unit_wipe_run.style.display = 'block';
         unit_p4_run.style.display = 'block';
         unit_instant_run.style.display = 'block';
@@ -525,6 +531,7 @@ function eventListenerForCaseTestButtons(funcToRun) {
     let unit_wipe_run = document.getElementById("unit-wipe-run");
     let unit_p4_run = document.getElementById("unit-p4-run");
     let unit_instant_run = document.getElementById("unit-instant-run");
+
 
     if (unit_wipe_run) {
         unit_wipe_run.addEventListener("click", function () {

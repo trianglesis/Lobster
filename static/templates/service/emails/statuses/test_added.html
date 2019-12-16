@@ -48,7 +48,7 @@
                 {# This is pattern related #}
                 {% if mail_opts.test_item.pattern_folder_name %}
                     <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ mail_opts.test_item.tkn_branch }};pattern_library={{ mail_opts.test_item.pattern_library }};pattern_folder_name={{ mail_opts.test_item.pattern_folder_name }};tst_status=None">
-                        => Test logs <=
+                        See logs: {{ mail_opts.test_item.tkn_branch }} - {{ mail_opts.test_item.pattern_library }}/{{ mail_opts.test_item.pattern_folder_name }}
                     </a>
                     {# This is case not pattern related: #}
                 {% else %}

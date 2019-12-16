@@ -52,7 +52,7 @@
                                class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test method log" 'Show logs for single unit test method.' %}"><i class="fas fa-history"></i> Unit history</a>
                         </div>
                         <!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
+                        <div class="case-unit-modal-buttons" id="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
                         <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
@@ -63,7 +63,7 @@
                                id="unit-p4-run"
                                data-refresh="1"
                                data-test_mode="test_by_id"
-                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Sync & run</a>
                             <a href="#"
                                id="unit-instant-run"
                                data-test_mode="test_by_id"
@@ -95,7 +95,7 @@
                                id="unit-p4-run"
                                data-refresh="1"
                                data-test_mode="test_by_id"
-                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Sync & run</a>
                             <a href="#"
                                id="unit-instant-run"
                                data-test_mode="test_by_id"
@@ -117,7 +117,7 @@
                             <a class="btn btn-sm btn-outline-info disabled">History Browse (dead end)</a>
                         </div>
                         <!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
+                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i><span> Test method:</span></div>
                         <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
@@ -128,7 +128,7 @@
                                id="unit-p4-run"
                                data-refresh="1"
                                data-test_mode="test_by_id"
-                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Sync & run</a>
                             <a href="#"
                                id="unit-instant-run"
                                data-test_mode="test_by_id"
@@ -246,7 +246,7 @@
                                id="unit-p4-run"
                                data-refresh="1"
                                data-test_mode="test_by_id"
-                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
+                               class="btn btn-sm btn-outline-secondary {% popover 'hover' 'top' "Run test.py TestCase.TestMethod and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Sync & run</a>
                             <a href="#"
                                id="unit-instant-run"
                                data-test_mode="test_by_id"
@@ -272,7 +272,7 @@
                            id="p4-run"
                            data-refresh="1"
                            data-test_mode="test_by_id"
-                           class="btn btn-sm btn-outline-warning {% popover 'hover' 'top' "Run test.py and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Run & sync</a>
+                           class="btn btn-sm btn-outline-warning {% popover 'hover' 'top' "Run test.py and sync p4" 'P4 Sync, wipe logs and run test.py. Only if you want to sync most recent changes from p4 depot.' %}"><i class="fas fa-sync"></i> Sync & run</a>
                         <a href="#"
                            id="instant-run"
                            data-test_mode="test_by_id"
