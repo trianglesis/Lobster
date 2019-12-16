@@ -7,6 +7,10 @@ table  { border-collapse: collapse; width: 100%; }
 th, td { padding: 8px 16px; }
 th     { background:#eee; }
 
+.table-hoveriz tbody tr:hover  {
+  color: #212529;
+  background-color: rgba(0, 0, 0, 0.075)!important;
+}
 
 .list-nostyle{
     list-style: none;
@@ -82,6 +86,31 @@ th     { background:#eee; }
 .tst-None {
     background-color: #bfcbd4 !important;
 }
+/* Hovers */
+.tst-notpass:hover {
+    background-color: #FEDCDD !important;
+    /*background-color: #E5C4CB !important;*/
+}
+.tst-fail:hover {
+    background-color: #FEDCDD !important;
+    /*background-color: #E5C4CB !important;*/
+}
+.tst-error:hover {
+    background-color: #f5d880 !important;
+    /*background-color: #F9F1D5 !important;*/
+}
+.tst-skip:hover {
+    background-color: #CCC7E1 !important;
+    /*background-color: #9998AE !important;*/
+}
+.tst-pass:hover {
+    background-color: #CFEDCD !important;
+    /*background-color: #C6DABA !important;*/
+}
+.tst-None:hover {
+    background-color: #929ca4 !important;
+}
+
 .dark {
     background-color: #3f454b;
 }

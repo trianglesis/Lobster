@@ -74,14 +74,6 @@ class TSupport:
     @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport.t_user_mail',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
-    def t_user_mail(t_tag, **mail_kwargs):
-        from octo.helpers.tasks_helpers import TMail
-        TMail().user_t(**mail_kwargs)
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport.t_user_mail',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    @exception
     def t_user_test(t_tag, **mail_opts):
         from octo.helpers.tasks_helpers import TMail
         TMail().user_test(**mail_opts)

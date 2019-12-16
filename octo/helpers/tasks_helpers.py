@@ -134,105 +134,6 @@ class TMail:
         else:
             return mail_html
 
-    def user_t(self, **mail_kwargs):
-        """
-        Send mail when user start test execution.
-        And maybe after it finished.
-
-        :return:
-        """
-        test_added = loader.get_template('service/emails/statuses/test_added.html')
-
-        mode = mail_kwargs.get('mode')
-        options = mail_kwargs.get('options')
-        # TODO: If lost - show list
-        test_item = mail_kwargs.get('test_item', dict())
-        patt_folder = options.get('pattern_folder', 'N/A')
-        user_email = options.get('user_email')
-
-        start_time = mail_kwargs.get('start_time', datetime.datetime.now())
-        mail_details = dict(
-            SUBJECT       = 'Test task were lost in nowhere!',
-            TIME_FORMATTED = 'Should be a time when test has been started',
-            TIME_SPENT     = 'Should be a time when test were finished',
-            CURR_HOSTNAME=curr_hostname)
-
-        if isinstance(test_item, dict):
-            mail_details.update(
-                MAIL_DETAILS=OrderedDict(
-                    BRANCH=options.get('branch'),
-                    PATTERN_FOLDER=patt_folder,
-                    TEST_FUNCTION=options.get('test_function'),
-                    USER_NAME=options.get('user_name'),
-                    ADDM_GROUP=mail_kwargs.get('addm_group', ''),
-                    REFRESH=options.get('refresh'),
-                    USER_EMAIL=options.get('user_email'),
-                    PATTERN_LIBRARY=test_item.get('pattern_library', 'N/A'),
-                    PATTERN_FILENAME=test_item.get('pattern_file_name', 'N/A'),
-                    TEST_PY=test_item.get('test_py_path', 'N/A'),
-                    PATTERN_FOLDER_PATH_DEPOT=test_item.get('pattern_folder_path_depot', 'N/A'),
-                    IS_KEY_PATTERN=test_item.get('is_key_pattern', 'N/A'),
-                    TEST_ITEM=test_item,
-                )
-            )
-        elif isinstance(test_item, list):
-            mail_details.update(
-                MAIL_DETAILS=OrderedDict(
-                    TESTED_SET=test_item,
-                    ADDM_GROUP=options.get('addm_group', ''),
-                    WIPE=options.get('wipe', ''),
-                )
-            )
-
-        if mode == 'added':
-            # Set args to ADDED opts:
-            mail_details.update(
-                SUBJECT="1. Test initiated - {} {}".format(patt_folder, mail_kwargs.get('addm_group')),
-                TIME_FORMATTED=start_time.strftime('%Y-%m-%d %H:%M:%S'))
-        elif mode == 'start':
-            # Set args to START opts:
-            mail_details.update(
-                SUBJECT='2. Test started - {} {}'.format(patt_folder, mail_kwargs.get('addm_group')),
-                TIME_FORMATTED=start_time.strftime('%Y-%m-%d %H:%M:%S'))
-        elif mode == 'finish':
-            # finish_time_format = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            time_stamp = datetime.datetime.now() - start_time
-            # Do not pass mail headers and html data as task args - it can escape them!
-            mail_details.update(
-                SUBJECT='3. Test finished - {} {}'.format(patt_folder, mail_kwargs.get('addm_group')),
-                TIME_FORMATTED=start_time.strftime('%Y-%m-%d %H:%M:%S'), TIME_SPENT=time_stamp)
-        elif mode == 'failed':
-            # Set args to START opts:
-            mail_details.update(
-                SUBJECT='0. Test Failed - {} addm group: {}'.format(patt_folder, mail_kwargs.get('addm_group')),
-                TIME_FORMATTED=start_time.strftime('%Y-%m-%d %H:%M:%S'),
-                ERR_OUT=mail_kwargs.get('err_out')
-            )
-        elif mode == 'added_optional':
-            # Set args to ADDED opts:
-            mail_details.update(
-                SUBJECT="1. Test started - optional set of patterns {}".format(mail_kwargs.get('addm_group')),
-                TIME_FORMATTED=start_time.strftime('%Y-%m-%d %H:%M:%S'),)
-        elif mode == 'finish_optional':
-            # finish_time_format = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            time_stamp = datetime.datetime.now() - start_time
-            # Do not pass mail headers and html data as task args - it can escape them!
-            mail_details.update(
-                SUBJECT='2. Test finished - optional set of patterns {}'.format(patt_folder, mail_kwargs.get('addm_group')),
-                TIME_FORMATTED=start_time.strftime('%Y-%m-%d %H:%M:%S'),
-                TIME_SPENT=time_stamp,)
-        else:
-            # This should make mail task fail, so we'll see it in Flower
-            raise Exception("Mail cannot be send, mode attribute is not set! {}".format(mail_kwargs))
-
-        # send_cc = [mails['admin', ]
-        mail_html = test_added.render(mail_details)
-        # log.debug("<=MailTRoutines=> mail_args: %s", mail_args)
-        Mails.short(subject=mail_details.get('SUBJECT'),
-                    send_to=mail_kwargs.get('user_email', user_email),
-                    send_cc=mail_kwargs.get('send_cc', self.m_user_test),
-                    mail_html=mail_html)
-
     def upload_t(self, send=True, **mail_kwargs):
         stage = mail_kwargs.get('stage')
         start_time = mail_kwargs.get('start_time')
@@ -374,7 +275,7 @@ class TMail:
         # Cases can be selected by attribute names, last days, date from or by id
         # Depending on those options - compose different subjects for 'init' mail
         if request.get('cases_ids', False):
-            init_subject = f'selected cases: {request.get("cases_ids", None)}'
+            init_subject = f'selected cases id: {request.get("cases_ids", None)}'
         else:
             init_subject = f'run custom.'
 

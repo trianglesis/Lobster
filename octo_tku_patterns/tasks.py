@@ -822,11 +822,5 @@ class TaskPrepare:
         self.t_tag = t_tag_d
 
     def test_and_addm_check(self, addm_set, test_item):
-        # TODO: Check when worker was not assigned:
         if not addm_set or not test_item:
-            log.debug("<=TaskPrepare=> TestCaseRunTest: "
-                      "Cannot start user test no addm set or test item can be found in database %s", self.user_name)
-            msg = "Cannot get addm_set or test_item from local database."
-            Runner.fire_t(TSupport.t_user_mail, fake_run=self.fake_run, t_args=[self.t_tag],
-                          t_kwargs=dict(mode='failed', start_time=self.start_time, options=self.options,
-                                        err_out='Test cannot be added to queue - no addm set or test items found in DB! ' + msg))
+            self.mail_status(mail_opts=dict(mode='fail', test_item=test_item))

@@ -6,7 +6,7 @@
     {% spaceless %}
         <!-- ADDM logs table content: -->
         <div class="test-unit-content">
-            <table class="table table-bordered table-responsive-sm table-hover table-sm test-unit-table">
+            <table class="table {% comment %}table-hoveriz{% endcomment %} table-bordered table-responsive-sm table-sm test-unit-table">
                 <thead>
                 <!-- ADDM table Head: -->
                 <th>Path</th>
@@ -16,7 +16,7 @@
                 <th>ADDM name</th>
                 <th>Actions</th>
                 </thead>
-                <tbody class="table-shrink">
+                <tbody>
                 <!-- ADDM table rows in cycle: -->
                 {% for test in test_detail %}
                     {% if test.addm_name == var_addm_name or not var_addm_name %}
@@ -76,7 +76,7 @@
                     {% endif %}
                 {% endfor %}
                 </tbody>
-                <tfoot
+                <tfoot>
                 <!-- ADDM table foot: -->
                 <th>Path</th>
                 <th>Tst Class.unit</th>

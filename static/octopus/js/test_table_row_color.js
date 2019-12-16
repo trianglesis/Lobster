@@ -37,15 +37,20 @@ $(document).ready(function () {
                         // console.table(trData);
 
                         if (tdNode_fails > 0) {
-                            currentRow.className = 'tst-notpass'
+                            currentRow.className = 'tst-notpass';
+                            // currentRow.style.backgroundColor = '#E5C4CB';
                         } else if (tdNode_error >= 1 && tdNode_fails <= 0) {
-                            currentRow.className = 'tst-error'
+                            currentRow.className = 'tst-error';
+                            // currentRow.style.backgroundColor = '#F9F1D5';
                         } else if (tdNode_passed > 0 && tdNode_error < 1 && tdNode_fails < 1) {
-                            currentRow.className = 'tst-pass'
+                            currentRow.className = 'tst-pass';
+                            // currentRow.style.backgroundColor = '#C6DABA';
                         } else if (tdNode_skipped > 0 && tdNode_passed < 1) {
-                            currentRow.className = 'tst-skip'
+                            currentRow.className = 'tst-skip';
+                            // currentRow.style.backgroundColor = '#9998AE';
                         } else {
-                            currentRow.className = 'tst-None'
+                            currentRow.className = 'tst-None';
+                            // currentRow.style.backgroundColor = '#bfcbd4';
                         }
                         // Table with single test.py logs
                     } else if (tableRows[t_row].cells['tst_status']) {
@@ -55,11 +60,22 @@ $(document).ready(function () {
 
                             let tdNode_tst_status = tableRows[t_row].cells['tst_status'].textContent;
 
-                            if (tdNode_tst_status === 'ERROR') {currentRow.className = 'tst-error'
-                            } else if (tdNode_tst_status === 'FAIL') {currentRow.className = 'tst-notpass'
-                            } else if (tdNode_tst_status === 'ok') {currentRow.className = 'tst-pass'
-                            } else if (tdNode_tst_status === 'skip') {currentRow.className = 'tst-skip'
-                            } else {currentRow.className = 'tst-None'}
+                            if (tdNode_tst_status === 'ERROR') {
+                                currentRow.className = 'tst-error';
+                                // currentRow.style.backgroundColor = '#F9F1D5';
+                            } else if (tdNode_tst_status === 'FAIL') {
+                                currentRow.className = 'tst-notpass';
+                                // currentRow.style.backgroundColor = '#E5C4CB';
+                            } else if (tdNode_tst_status === 'ok') {
+                                currentRow.className = 'tst-pass';
+                                // currentRow.style.backgroundColor = '#C6DABA';
+                            } else if (tdNode_tst_status === 'skip') {
+                                currentRow.className = 'tst-skip';
+                                // currentRow.style.backgroundColor = '#9998AE';
+                            } else {
+                                currentRow.className = 'tst-None';
+                                // currentRow.style.backgroundColor = '#bfcbd4';
+                            }
                         } else {
                             // console.log("No tst status cell found in this row or it's empty")
                         }
