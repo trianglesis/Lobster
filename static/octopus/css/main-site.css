@@ -47,3 +47,7 @@
     /*font-family: 'Assistant', sans-serif;*/
     /*font-family: 'Nunito', sans-serif;*/
 }
+
+.badge {
+    font-weight: 500!important;
+}
