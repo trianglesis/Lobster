@@ -134,7 +134,8 @@
                         <i class="far fa-check-circle"></i>
                         <span class="text-success"> Pass</span>
                     {% else %}
-                        <i class="fas fa-vials"></i> All
+                        <i class="fas fa-vials"></i>
+                        <span class="text-dark"> All</span>
                     {% endif %}
                 </a>
                 <!-- Choose log level -->
@@ -167,7 +168,7 @@
                     <a class="nav-link text-secondary"
                        {% if "test_details" in request.path %}href="{% url 'test_details' %}?{{ selector_tst_status }}"
                        {% elif "test_item_history" in request.path %}href="{% url 'test_item_history' %}?{{ selector_tst_status }}"{% else %}{% endif %}>
-                        <i class="fas fa-vials"></i>All</a>
+                        <i class="fas fa-vials"></i> All</a>
                 </div>
             </nav>
         </div>

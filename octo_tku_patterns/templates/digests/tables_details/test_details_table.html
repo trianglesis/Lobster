@@ -7,10 +7,10 @@
         <!-- ADDM logs table content: -->
         <div class="test-unit-content">
             <table class="table table-bordered table-responsive-sm table-hover table-sm test-unit-table">
-                <thead class="table-dark">
+                <thead>
                 <!-- ADDM table Head: -->
                 <th>Path</th>
-                <th>Tst Class.unit</th>
+                <th>Test name</th>
                 <th>Fail message</th>
                 <th>Tested</th>
                 <th>ADDM name</th>
@@ -27,11 +27,12 @@
                                 <li class="pattern_folder_name">{{ test.pattern_folder_name }}</li>
                             </td>
                             <td id="test_unit" class="list-nostyle txt-center-prewrap">
-                                <li class="tst_class {% popover 'hover' 'top' None 'Show all logs for current test method from history records. Click me' %}"
-                                    onclick="window.document.location='{% url "test_item_history" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}'"
-                                    style="cursor: pointer">{{ test.tst_class }}</li>
                                 {# TODO: Add here copy&paste for test to clipboard? #}
-                                <li class="tst_name {% popover 'hover' 'top' 'Future (TBV)' 'Push to copy&paste full test path + TestClass.test000_method for console usage' %}">{{ test.tst_name }}</li>
+                                <li class="tst_class {% popover 'hover' 'top' 'Future (TBV)' 'Push to copy&paste full test path + TestClass.test000_method for console usage' %}">{{ test.tst_class }}</li>
+                                <li class="tst_name {% popover 'hover' 'top' None 'Show all logs for current test method from history records' %}">
+                                    <a style="cursor: pointer"
+                                       href="{% url "test_item_history" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">{{ test.tst_name }}</a>
+                                </li>
                                 <li id="tst_status" class="tst_status">{% if not test.tst_status == 'ok' %}{{ test.tst_status }} <span class="text {% popover 'hover' 'top' 'Future (TBV)' 'Failed test tip, show suggestion about how to fix some kind of issues. (TBV Vote for this)' %}"><i class="fas fa-info"></i></span>{% endif %}</li>
                                 <li id="tst_message" class="tst_message">{% if not test.tst_message == ' ... ' %}{{ test.tst_message }}{% endif %}</li>
                             </td>
@@ -75,7 +76,7 @@
                     {% endif %}
                 {% endfor %}
                 </tbody>
-                <tfoot class="table-dark">
+                <tfoot
                 <!-- ADDM table foot: -->
                 <th>Path</th>
                 <th>Tst Class.unit</th>

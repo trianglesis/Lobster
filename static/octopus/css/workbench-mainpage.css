@@ -6,6 +6,17 @@
     padding: .1rem !important;
     vertical-align: middle;
 }
+.table-info {
+    text-align: center;
+    font-size: .875em;
+    /*font-family: 'Maven Pro', sans-serif!important;*/
+    /*font-family: 'Catamaran', sans-serif!important;*/
+    /*font-family: 'Open Sans', sans-serif!important;*/
+    /*font-family: 'Jaldi', sans-serif!important;*/
+    /*font-family: 'BenchNine', sans-serif!important;*/
+    font-family: 'Assistant', sans-serif!important;
+    /*font-family: 'Nunito', sans-serif!important;*/
+}
 
 .col-shrink {
     padding-right: .2em;
