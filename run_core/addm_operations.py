@@ -194,8 +194,10 @@ class ADDMStaticOperations:
         """
         from octo_adm.tasks import TaskADDMService
 
-        command_key = kwargs.get('command_key', None)
+        command_key = kwargs.get('command_key', [])
         fake_run = kwargs.get('fake_run', False)
+
+        assert isinstance(command_key, list), "command_key should be a list!"
 
         tasks_ids = dict()
         addm_set = self.addm_set_selections(**kwargs)

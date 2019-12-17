@@ -751,7 +751,7 @@ class AdminOperationsREST(APIView):
         self.admin_users = ''
         self.power_users = ''
         # options:
-        self.command_key = []
+        self.command_key = ''
         self.subject = ''
         self.addm_branch = None
         self.addm_id = None
@@ -964,7 +964,7 @@ class AdminOperationsREST(APIView):
 
         t_tag = f'tag=t_addm_cmd_routine.{self.command_key};user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_kwargs = dict(
-            command_key=self.command_key,
+            command_key=self.command_key.split(','),
             subject=self.subject,
             user_name=self.user_name,
             user_mail=self.user_email,
