@@ -949,7 +949,7 @@ class AdminOperationsREST(APIView):
             addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
-        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag], t_kwargs=t_kwargs)
+        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=self.fake_run, t_args=[t_tag], t_kwargs=t_kwargs)
         # task = TaskADDMService.t_addm_cmd_routine.apply_async(args=[t_tag], kwargs=t_kwargs)
         return {'task_id': task.id}
 
@@ -974,7 +974,7 @@ class AdminOperationsREST(APIView):
             addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
-        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag],
+        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=self.fake_run, t_args=[t_tag],
                              t_kwargs=t_kwargs)
         return {'task_id': task.id}
 
@@ -997,7 +997,7 @@ class AdminOperationsREST(APIView):
             addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
-        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag],
+        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=self.fake_run, t_args=[t_tag],
                              t_kwargs=t_kwargs)
         return {'task_id': task.id}
 
@@ -1025,7 +1025,7 @@ class AdminOperationsREST(APIView):
             addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
-        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=False, t_args=[t_tag],
+        task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=self.fake_run, t_args=[t_tag],
                              t_kwargs=t_kwargs)
         return {'task_id': task.id}
 
