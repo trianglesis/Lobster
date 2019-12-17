@@ -141,10 +141,11 @@ class ADDMCommandsAdmin(admin.ModelAdmin):
         'description',
         'created_at',
         'private',
+        'interactive',
     )
     readonly_fields = ('created_at',)
-    list_display = ('command_key', 'command_value', 'created_at', 'private',)
-    list_filter = ('command_key', 'created_at', 'private')
+    list_display = ('command_key', 'command_value', 'created_at', 'private', 'interactive')
+    list_filter = ('command_key', 'created_at', 'private', 'interactive')
     ordering = ('command_key',)
 
 # admin.site.register(Options)
