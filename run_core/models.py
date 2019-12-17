@@ -40,6 +40,7 @@ class ADDMCommands(models.Model):
     command_value = models.TextField(_('command value'), blank=True, null=True)
 
     private = models.NullBooleanField(_('private value'), null=True)
+    interactive = models.NullBooleanField(_('interactive mode'), null=True)
     description = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now=True)
