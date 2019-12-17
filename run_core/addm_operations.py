@@ -133,8 +133,7 @@ class ADDMStaticOperations:
         for addm_item in addm_set:
             log.debug("addm_item: %s %s", addm_item, type(addm_item))
 
-            # TODO: Remove for not home env
-            if not fake_run:
+            if os.name == 'nt':
                 ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
             else:
                 ssh = True
@@ -220,18 +219,12 @@ class ADDMStaticOperations:
 
                 t_tag = f'tag=t_addm_cmd_thread;type=task;command_k={operation_cmd.command_key};'
                 t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd, fake_run=True)
-                task = TaskADDMService.t_addm_cmd_thread.apply_async(
-                    queue=f'{addm_}@tentacle.dq2',
-                    args=[t_tag],
-                    kwargs=t_kwargs,
-                    routing_key=f'{addm_}.addm_custom_cmd'
-                )
-                # task = Runner.fire_t(TaskADDMService.t_addm_cmd_thread, fake_run=fake_run,
-                #                      t_queue=f'{addm_}@tentacle.dq2',
-                #                      t_args=[t_tag],
-                #                      t_kwargs=t_kwargs,
-                #                      t_routing_key=f'{addm_}.addm_custom_cmd'
-                #                      )
+                task = Runner.fire_t(TaskADDMService.t_addm_cmd_thread, fake_run=fake_run,
+                                     t_queue=f'{addm_}@tentacle.dq2',
+                                     t_args=[t_tag],
+                                     t_kwargs=t_kwargs,
+                                     t_routing_key=f'{addm_}.addm_custom_cmd'
+                                     )
                 log.debug("<=_old_addm_cmd=> Added task: %s", task)
                 tasks_ids.update({addm_: task.id})
         return tasks_ids
