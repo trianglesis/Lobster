@@ -245,7 +245,7 @@ class ADDMStaticOperations:
             msg = f"STEP 2 Iter: {iter_n} response: {resp.decode('utf-8').replace(chr(27), ';').replace('[0G', '#').replace('[K', '|').replace('  ', ' ')}"
             log.debug(msg)
             resp_l.append(msg)
-            sleep(10)  # Most operations will run longer that 10 sec.
+            sleep(30)  # Most operations will run longer that 30 sec.
 
             # Check:
             if b'Finished interactive CMD' in buff:
