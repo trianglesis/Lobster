@@ -122,6 +122,8 @@ class ADDMStaticOperations:
         assert isinstance(addm_set, QuerySet), 'Should be AddmDev QuerySet'
         assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
         cmd_k = operation_cmd.command_key
+        cmd_interactive = operation_cmd.interactive
+        log.debug("<=threaded_exec_cmd=> cmd_interactive: %s", cmd_interactive)
         th_list = []
         th_out = []
         ts = time()
@@ -133,9 +135,14 @@ class ADDMStaticOperations:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
             if ssh:
                 th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item["addm_group"]} - {addm_item["addm_host"]} {addm_item["addm_ip"]}'
-                args_d = dict(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh, fake_run=fake_run)
+                args_d = dict(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
                 try:
-                    cmd_th = Thread(target=self.run_static_cmd, name=th_name, kwargs=args_d)
+                    if cmd_interactive:
+                        log.info("<=threaded_exec_cmd=> Interactive shell CMD mode.")
+                        cmd_th = Thread(target=self.run_interactive_cmd, name=th_name, kwargs=args_d)
+                    else:
+                        log.info("<=threaded_exec_cmd=> Static CMD mode.")
+                        cmd_th = Thread(target=self.run_static_cmd, name=th_name, kwargs=args_d)
                     cmd_th.start()
                     th_list.append(cmd_th)
                 except Exception as e:
@@ -152,7 +159,7 @@ class ADDMStaticOperations:
         return {cmd_k: th_out, 'time': time() - ts}
 
     @staticmethod
-    def run_static_cmd(out_q, addm_item, operation_cmd, ssh, fake_run=None):
+    def run_static_cmd(out_q, addm_item, operation_cmd, ssh):
         assert isinstance(addm_item, dict), 'Should be dict converted from QuerySet.values()'
         assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
 
@@ -166,26 +173,108 @@ class ADDMStaticOperations:
         if cmd:
             # noinspection PyBroadException
             try:
-                # TODO: Remove for not home env
-                if not fake_run:
-                    _, stdout, stderr = ssh.exec_command(cmd)
-                    output_d = {cmd_k: dict(out=stdout.readlines(),
-                                            err=stderr.readlines(),
-                                            addm=addm_instance,
-                                            cmd_item=cmd,
-                                            timest=time() - ts)}
-                    log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
-                    out_q.put(output_d)
-                else:
-                    out_q.put(f'Fake run of cmd: {cmd_k} - "{cmd}" on: {addm_item["addm_name"]}')
-
+                _, stdout, stderr = ssh.exec_command(cmd)
+                output_d = {cmd_k: dict(out=stdout.readlines(),
+                                        err=stderr.readlines(),
+                                        addm=addm_instance,
+                                        cmd_item=cmd,
+                                        timest=time() - ts)}
+                log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
+                out_q.put(output_d)
             except Exception as e:
                 log.error("<=ADDM Oper=> Error during operation for: %s %s", cmd, e)
-                return {cmd_k: dict(out='Traceback', err=e, addm=addm_instance)}
+                out_q.put({cmd_k: dict(out='Traceback', err=e, addm=addm_instance)})
         else:
             msg = '<=CMD=> Skipped for "{}" {}'.format(cmd_k, addm_instance)
             log.info(msg)
-            return {cmd_k: dict(out='Skipped', msg=msg, addm=addm_instance)}
+            out_q.put({cmd_k: dict(out='Skipped', msg=msg, addm=addm_instance)})
+
+    def run_interactive_cmd(self, out_q, addm_item, operation_cmd, ssh):
+        assert isinstance(addm_item, dict), 'Should be dict converted from QuerySet.values()'
+        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
+
+        cmd_k = operation_cmd.command_key
+        cmd = operation_cmd.command_value
+
+        addm_instance = f"ADDM: {addm_item['addm_name']} - {addm_item['addm_host']}"
+        ts = time()
+
+        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operation_cmd.command_key, addm_instance, operation_cmd.command_value)
+        if cmd:
+            # noinspection PyBroadException
+            try:
+                resp_l = self.invoke_interactive(ssh, cmd, addm_instance)
+                output_d = {cmd_k: dict(resp_l=resp_l, addm=addm_instance, cmd_item=cmd, timest=time() - ts)}
+                out_q.put(output_d)
+            except Exception as e:
+                log.error("<=ADDM Oper=> Error during operation for: %s %s", cmd, e)
+                out_q.put({cmd_k: dict(out='Traceback', err=e, addm=addm_instance)})
+        else:
+            msg = '<=CMD=> Skipped for "{}" {}'.format(cmd_k, addm_instance)
+            log.info(msg)
+            out_q.put({cmd_k: dict(out='Skipped', msg=msg, addm=addm_instance)})
+
+    @staticmethod
+    def invoke_interactive(ssh, cmd, addm_instance):
+        resp = "Nothing executed."
+        resp_l = []
+
+        # Initial run:
+        buff = b''
+        iter_n = 0
+        shell = ssh.invoke_shell()
+        while not buff.endswith(b' ~]$ '):
+            resp = shell.recv(9999)
+            buff += resp
+            iter_n += 1
+            msg = f"STEP 1 Iter: {iter_n} response: {resp.decode('utf-8').replace(chr(27), ';').replace('[0G', '#').replace('[K', '|').replace('  ', ' ')}"
+            # log.debug(msg)
+            resp_l.append(msg)
+            sleep(2)
+
+        shell.send(cmd + '\n')  # Send CMD, clear Buffer to empty:
+        sleep(2)
+        shell.recv(9999)  # Get cmd from buffer to make it empty.
+        buff = b''  # Wipe buff before wait for new resp
+
+        iter_n = 0
+        while buff.find(b'Finished interactive CMD') < 0:
+            resp = shell.recv(9999)
+            iter_n += 1
+            buff += resp
+            msg = f"STEP 2 Iter: {iter_n} response: {resp.decode('utf-8').replace(chr(27), ';').replace('[0G', '#').replace('[K', '|').replace('  ', ' ')}"
+            log.debug(msg)
+            resp_l.append(msg)
+            sleep(10)  # Most operations will run longer that 10 sec.
+
+            # Check:
+            if b'Finished interactive CMD' in buff:
+                msg = f'Finished interactive CMD: {addm_instance} Out: {resp.decode("utf-8")}'
+                log.info(msg)
+                resp_l.append(f"FINISH: '{msg}' buffer: '{buff}'")
+                return resp_l
+
+            elif buff.find(b'ERROR: Failed to start services') > 0:
+                msg = f'Failed to restart services: {addm_instance} Out: {resp.decode("utf-8")}'
+                log.error(msg)
+                resp_l.append(f"ERROR: '{msg}' buffer: '{buff}'")
+                return resp_l
+
+            elif buff.find(b'This machine is locked') > 0:
+                msg = "Model wipe require unlock!"
+                log.error(msg)
+                resp_l.append(f"ERROR: '{msg}' buffer: '{buff}'")
+                return resp_l
+
+            elif buff.endswith(b' ~]$ '):
+                msg = "Interactive CMD finished, shell new line!"
+                log.warning(msg)
+                resp_l.append(f"FINISH: '{msg}' buffer: '{buff}'")
+                return resp_l
+
+        resp_l.append(f"Finish ok: {resp.decode('utf-8')}")
+        log.info("<=invoke_interactive=> Interactive CMD run finished! %s resp_l: %s", addm_instance, resp_l)
+        return resp_l
 
     def run_operation_cmd(self, **kwargs):
         """
