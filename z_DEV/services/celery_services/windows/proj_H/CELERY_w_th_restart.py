@@ -11,21 +11,33 @@ nssm.exe edit CELERY_routines && nssm.exe edit CELERY_alpha && nssm.exe edit CEL
 
 commands_list = [
     'nssm.exe restart CELERY_routines',
+    # 'nssm.exe stop CELERY_routines',
+    # 'nssm.exe start CELERY_routines',
     # 'net stop CELERY_routines && net start CELERY_routines',
 
     'nssm.exe restart CELERY_alpha',
+    # 'nssm.exe stop CELERY_alpha',
+    # 'nssm.exe start CELERY_alpha',
     # 'net stop CELERY_alpha && net start CELERY_alpha',
 
     'nssm.exe restart CELERY_charlie',
+    # 'nssm.exe stop CELERY_charlie',
+    # 'nssm.exe start CELERY_charlie',
     # 'net stop CELERY_charlie && net start CELERY_charlie',
 
     'nssm.exe restart CELERY_golf',
+    # 'nssm.exe stop CELERY_golf',
+    # 'nssm.exe start CELERY_golf',
     # 'net stop CELERY_golf && net start CELERY_golf',
 
     'nssm.exe restart CELERY_parsing',
+    # 'nssm.exe stop CELERY_parsing',
+    # 'nssm.exe start CELERY_parsing',
     # 'net stop CELERY_parsing && net start CELERY_parsing',
 
     'nssm.exe restart CELERY_Flower',
+    # 'nssm.exe stop CELERY_Flower',
+    # 'nssm.exe start CELERY_Flower',
     # 'net stop CELERY_Flower && net start CELERY_Flower',
 ]
 
@@ -59,7 +71,10 @@ def worker_restart(**args_d):
     cmd = args_d.get('cmd')
     test_q = args_d.get('test_q')
 
-    octo_core = "D:\\Projects\\PycharmProjects\\lobster\\"
+    if "KBP1" in os.getenv('COMPUTERNAME', 'defaultValue'):
+        octo_core = "D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster"
+    else:
+        octo_core = "D:\\Projects\\PycharmProjects\\lobster\\"
     my_env = os.environ.copy()
     print(f"Run: {cmd}")
 

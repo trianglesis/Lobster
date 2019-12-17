@@ -119,9 +119,6 @@ class ADDMStaticOperations:
         operation_cmd = kwargs.get('operation_cmd', None)
         fake_run = kwargs.get('fake_run', False)
 
-        log.debug("addm_set: %s %s", addm_set, type(addm_set))
-        log.debug("FAKE_RUN: %s", fake_run)
-
         assert isinstance(addm_set, QuerySet), 'Should be AddmDev QuerySet'
         assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
         cmd_k = operation_cmd.command_key
@@ -133,11 +130,7 @@ class ADDMStaticOperations:
         for addm_item in addm_set:
             log.debug("addm_item: %s %s", addm_item, type(addm_item))
 
-            if os.name == 'nt':
-                ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
-            else:
-                ssh = True
-
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
             if ssh:
                 th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item["addm_group"]} - {addm_item["addm_host"]} {addm_item["addm_ip"]}'
                 args_d = dict(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh, fake_run=fake_run)
@@ -211,21 +204,18 @@ class ADDMStaticOperations:
         commands_set = self.select_operation(command_key)
         # Run new instance of task+threaded for each command:
         for operation_cmd in commands_set:
-            # Assign each task on related worker based on ADDM group name:
+            # Assign each task on related worker based on ADDM group name:FAKE_RUN:
             for addm_ in addm_group_l:
                 # Get only one current addm group from iter step
                 addm_grouped_set = addm_set.filter(addm_group__exact=addm_)
-                log.debug("addm_grouped_set: %s", addm_grouped_set)
-
                 t_tag = f'tag=t_addm_cmd_thread;type=task;command_k={operation_cmd.command_key};'
-                t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd, fake_run=True)
+                t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd, fake_run=fake_run)
                 task = Runner.fire_t(TaskADDMService.t_addm_cmd_thread, fake_run=fake_run,
                                      t_queue=f'{addm_}@tentacle.dq2',
                                      t_args=[t_tag],
                                      t_kwargs=t_kwargs,
                                      t_routing_key=f'{addm_}.addm_custom_cmd'
                                      )
-                log.debug("<=_old_addm_cmd=> Added task: %s", task)
                 tasks_ids.update({addm_: task.id})
         return tasks_ids
 

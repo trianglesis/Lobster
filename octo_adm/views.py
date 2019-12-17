@@ -757,7 +757,7 @@ class AdminOperationsREST(APIView):
         self.addm_id = None
         self.addm_host = None
         self.addm_group = ''
-        self.fake_run = True
+        self.fake_run = False
         self.goto_ = 'http://'+curr_hostname+'/octo_admin/admin_operations/?operation_key='
 
     def task_operations(self):
@@ -789,7 +789,7 @@ class AdminOperationsREST(APIView):
     def metadata_options_set(self):
         if self.request.POST:
             self.operation_key = self.request.POST.get('operation_key', None)
-            self.fake_run = self.request.POST.get('fake_run', True)  # TODO: Debug, remove default True
+            self.fake_run = self.request.POST.get('fake_run', False)
             self.command_key = self.request.POST.get('command_key', None)
             self.addm_group = self.request.POST.get('addm_group', None)
             self.addm_branch = self.request.POST.get('addm_branch', None)
@@ -797,7 +797,7 @@ class AdminOperationsREST(APIView):
             self.addm_host = self.request.POST.get('addm_host', None)
         elif self.request.GET:
             self.operation_key = self.request.GET.get('operation_key', None)
-            self.fake_run = self.request.GET.get('fake_run', True)  # TODO: Debug, remove default True
+            self.fake_run = self.request.GET.get('fake_run', False)
             self.command_key = self.request.GET.get('command_key', None)
             self.addm_group = self.request.GET.get('addm_group', None)
             self.addm_branch = self.request.GET.get('addm_branch', None)
