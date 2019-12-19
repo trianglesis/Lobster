@@ -269,7 +269,7 @@ class TestExecutor:
         return dict(std_output=std_output, stderr_output=stderr_output)
 
     @tst_exception
-    def parse_test_result(self, **test_reult) -> dict:
+    def parse_test_result(self, **test_out) -> dict:
         # noinspection SpellCheckingInspection,PyPep8
         """
             Parse test result during run and add to database.
@@ -327,16 +327,16 @@ class TestExecutor:
 
 
             THIS TUNED ONLY FOR VERBOSE OUTPUTS!
-            :param test_reult:
+            :param test_out:
             :return:
         """
         last_save = dict(table="last", saved=False)
         hist_save = dict(table="history", saved=False)
 
-        stderr_output = test_reult.get('stderr_output', '').replace('\r', '')
-        test_item = test_reult.get('test_item', {})
-        addm_item = test_reult.get('addm_item', {})
-        time_spent_test = test_reult.get('time_spent_test', None)
+        stderr_output = test_out.get('stderr_output', '').replace('\r', '')
+        test_item = test_out.get('test_item', {})
+        addm_item = test_out.get('addm_item', {})
+        time_spent_test = test_out.get('time_spent_test', None)
 
         test_name_f_verb_re = re.compile(
             r'(?P<test_name>test(?:\S+|)_|\S+)\s'
@@ -346,13 +346,6 @@ class TestExecutor:
 
         # Do not use tst_status to compose RE group to match the result, test_name.module.class is enough.
         re_draft_5 = r'[A-Z]+\:\s({0})\s\(({1})\.({2})\)\n\-+(?P<fail_message>(?:\n.*(?<!=|-))+)'
-        test_parsed = dict()
-
-        # kwargs_d = dict(
-        #         option_key=f"TestExecutor_std_out_err_d_{test_item['tkn_branch']}-{test_item['pattern_folder_name']}-{test_item['pattern_folder_name']}-{addm_item['addm_name']}",
-        #         option_value=stderr_output,
-        #         description=f"Test output {test_item['test_py_path']}",)
-        # save_error_log(kwargs_d)
         # log.debug("<=PARSE_TEST_RESULT=>  -> stderr_output %s", stderr_output)
         test_output = re.match(test_name_f_verb_re, stderr_output)
         if test_output:  # Search for all test declarations after run. In TOP if content.
@@ -370,26 +363,13 @@ class TestExecutor:
                 for detail in test_fil_details:
                     test_res.update(fail_message=detail.group('fail_message').replace("-" * 70, "").replace("=" * 70, ""))
 
-                if test_item and addm_item:
-                    # Django model way to insert into LAST TESTS table:
-                    last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item))
-                    if not os.name == 'nt':
-                        hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item))
-                else:
-                    # TODO: DEBUG return
-                    test_parsed.update({item.group('test_name'): test_res})
+                last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item))
+                hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item))
         else:
-            # In case when traceback occurs BEFORE test actually executed:
             test_res = dict(tst_status='ERROR', fail_message=stderr_output, time_spent_test=time_spent_test)
             log.error("<=PARSE_TEST_RESULT=> test_res %s", test_res)
-            # When test has an error in itself - save only to last table, not to the history:
             last_save.update(saved=self.model_save_insert(TestLast, test_res, test_item, addm_item))
-
-        if test_item and addm_item:
-            return {'last': last_save, 'history': hist_save}
-        else:
-            # TODO: DEBUG return
-            return test_parsed
+        return {'last': last_save, 'history': hist_save}
 
     @staticmethod
     @tst_exception
