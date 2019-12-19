@@ -158,6 +158,7 @@ class TestExecutor:
         # return 'All tests took {}'.format(time() - ts)
         return 'All tests Took {} Out {}'.format(time() - ts, test_outputs)
 
+    @tst_exception
     def test_exec(self, **args_d):
         """
         This function execute tests for patterns.
@@ -368,7 +369,6 @@ class TestExecutor:
                     time_spent_test=time_spent_test
                 )
                 # Check the other part of content for fail|error details with composed regex:
-                # fail_details_srt = re_draft_3.format(tst_status, tst_name, tst_module, tst_class)
                 fail_details_srt = re_draft_4.format(item.group('test_name'), item.group('module'), item.group('class'))
                 log.debug("<=PARSE_TEST_RESULT=> Parse test output with: %s", fail_details_srt)
                 test_fil_details = re.finditer(fail_details_srt, stderr_output, re.MULTILINE)
@@ -376,17 +376,20 @@ class TestExecutor:
                 for detail in test_fil_details:
                     test_res.update(fail_message=detail.group('message').replace("-" * 70, "").replace("=" * 70, ""))
 
-                # Django model way to insert into LAST TESTS table:
-                # last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item))
-                # hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item))
-                # TODO: DEBUG return
-                test_parsed.update({item.group('test_name'): test_res})
+                if test_item and addm_item:
+                    # Django model way to insert into LAST TESTS table:
+                    last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item))
+                    hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item))
+                else:
+                    # TODO: DEBUG return
+                    test_parsed.update({item.group('test_name'): test_res})
         else:
             # In case when traceback occurs BEFORE test actually executed:
             test_res = dict(tst_status='ERROR', fail_message=stderr_output, time_spent_test=time_spent_test)
             log.error("<=PARSE_TEST_RESULT=> test_res %s", test_res)
             # When test has an error in itself - save only to last table, not to the history:
             last_save.update(saved=self.model_save_insert(TestLast, test_res, test_item, addm_item))
+
         if test_item and addm_item:
             return {'last': last_save, 'history': hist_save}
         else:
