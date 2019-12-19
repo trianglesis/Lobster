@@ -13,5 +13,5 @@ if __name__ == "__main__":
         # log.info("Test out: %s", test_out.option_value)
         stderr_output = test_out.option_value
         parsed = TestExecutor().parse_test_result(stderr_output=stderr_output, test_item=None, addm_item=None, time_spent_test=None)
-        log.debug("Parsed values: %s", parsed)
+        log.info("Parsed values: %s", parsed)
 

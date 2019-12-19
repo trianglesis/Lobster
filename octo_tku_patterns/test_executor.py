@@ -350,7 +350,7 @@ class TestExecutor:
             r'(?P<status>.+$)', re.MULTILINE)
 
         # Do not use tst_status to compose RE group to match the result, test_name.module.class is enough.
-        re_draft_4 = r'({0})\s\(({1})\.({2})\)(?P<message>(?:\n.*(?<!^))+|.+)'
+        re_draft_4 = r'({0})\s\(({1})\.({2})\)(?P<fail_message>(?:\n.*(?<!^))+|.+)'
         test_parsed = dict()
 
         # log.debug("<=PARSE_TEST_RESULT=>  -> stderr_output %s", stderr_output)
@@ -374,7 +374,7 @@ class TestExecutor:
                 test_fil_details = re.finditer(fail_details_srt, stderr_output, re.MULTILINE)
 
                 for detail in test_fil_details:
-                    test_res.update(fail_message=detail.group('message').replace("-" * 70, "").replace("=" * 70, ""))
+                    test_res.update(fail_message=detail.group('fail_message').replace("-" * 70, "").replace("=" * 70, ""))
 
                 if test_item and addm_item:
                     # Django model way to insert into LAST TESTS table:
@@ -383,6 +383,7 @@ class TestExecutor:
                 else:
                     # TODO: DEBUG return
                     test_parsed.update({item.group('test_name'): test_res})
+                    log.debug("ONE test_res: %s", test_res)
         else:
             # In case when traceback occurs BEFORE test actually executed:
             test_res = dict(tst_status='ERROR', fail_message=stderr_output, time_spent_test=time_spent_test)
