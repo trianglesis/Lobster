@@ -346,7 +346,6 @@ class TestExecutor:
 
         # Do not use tst_status to compose RE group to match the result, test_name.module.class is enough.
         re_draft_5 = r'[A-Z]+\:\s({0})\s\(({1})\.({2})\)\n\-+(?P<fail_message>(?:\n.*(?<!=|-))+)'
-        # log.debug("<=PARSE_TEST_RESULT=>  -> stderr_output %s", stderr_output)
         test_output = re.match(test_name_f_verb_re, stderr_output)
         if test_output:  # Search for all test declarations after run. In TOP if content.
             test_cases = re.finditer(test_name_f_verb_re, stderr_output)
