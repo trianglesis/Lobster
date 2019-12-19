@@ -21,7 +21,7 @@ $(document).ready(function () {
             console.log(`foundExpected ${foundExpected[0]}`);
             cell.innerText = `${foundActual[0]}\n${foundExpected[0]}`
         } else if (cell.innerText.match(AssertionError)) {
-            cell.innerText = `${cell.innerText.match(AssertionError)}`
+            // cell.innerText = `${cell.innerText.match(AssertionError)}`
         } else if (cell.innerText.match(AssertionErrorFound)) {
             cell.innerText = `${cell.innerText.match(AssertionErrorFound)}`
         } else if (cell.innerText.match(AssertionErrorServererror)) {
