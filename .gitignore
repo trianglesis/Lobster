@@ -118,7 +118,6 @@ octo/common/__pycache__/
 octo/helpers/__pycache__/
 works/helpers/__pycache__/
 octo_tku_upload/__pycache__/
-octo_tku_patterns/migrations/
 octo/templatetags/__pycache__/
 octo_tku_patterns/__pycache__/
 octo_tku_upload/api/__pycache__/
