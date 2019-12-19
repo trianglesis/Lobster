@@ -394,7 +394,7 @@ class TaskPrepare:
         :return:
         """
         if os.name == "nt":  # Always fake run on local test env:
-            self.fake_run = True
+            # self.fake_run = True
             log.debug("<=TaskPrepare=> Fake run for NT options: %s", self.options)
             log.debug("<=TaskPrepare=> Fake run for NT request: %s", self.request)
 
@@ -717,7 +717,7 @@ class TaskPrepare:
         branch_w = WorkerGetAvailable.branched_w(tkn_branch)
         addm_group = branch_w[0]
 
-        if not self.fake_run:
+        if not self.fake_run and not os.name == 'nt':
             addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
         log.debug("<=TaskPrepare=> Get available addm_group: '%s'", addm_group)
         return addm_group

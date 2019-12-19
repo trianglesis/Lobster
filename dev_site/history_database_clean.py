@@ -12,12 +12,12 @@ if __name__ == "__main__":
 
     def select_unwanted_results():
         unwanted_query = TestHistory.objects.filter(
-            Q(fail_status__exact='ERROR:') |
-            Q(fail_status__exact='ERROR') |
-            Q(fail_status__exact='WARNING') |
-            Q(fail_status__exact='unexpected success') |
-            Q(fail_status__regex=r"skipped \'Version is") |
-            Q(fail_status__regex=r"testutils\.MY_dml_test_utils")
+            Q(tst_status__exact='ERROR:') |
+            Q(tst_status__exact='ERROR') |
+            Q(tst_status__exact='WARNING') |
+            Q(tst_status__exact='unexpected success') |
+            Q(tst_status__regex=r"skipped \'Version is") |
+            Q(tst_status__regex=r"testutils\.MY_dml_test_utils")
         ).defer()
         log.debug("Count unwanted_query: %s", unwanted_query.count())
         log.debug("unwanted_query.query %s", unwanted_query.query)
@@ -30,7 +30,6 @@ if __name__ == "__main__":
                    `octo_test_history`.`pattern_library`,
                    `octo_test_history`.`pattern_file_name`,
                    `octo_test_history`.`pattern_folder_name`,
-                   `octo_test_history`.`fail_status`,
                    `octo_test_history`.`tst_name`,
                    `octo_test_history`.`tst_status`,
                    `octo_test_history`.`addm_name`,
@@ -72,7 +71,7 @@ if __name__ == "__main__":
         return addm_name_query
 
     def select_errors_all():
-        errors_query = TestHistory.objects.filter(fail_status__exact='ERROR:')
+        errors_query = TestHistory.objects.filter(tst_status__exact='ERROR:')
         log.debug("Count errors_query: %s", errors_query.count())
         log.debug("unwanted_query.query %s", errors_query.query)
         return errors_query

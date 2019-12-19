@@ -162,7 +162,7 @@ class WorkerGetAvailable:
                 subject = 'Cannot get worker to run your test, workers may be down.'
                 body = '''Arguments: \n branch = {} \n branch_w = {} \n excluded_w = {} \n actual_w = {} \n running_w = {}
                 '''.format(branch, branch_w, excluded_w, actual_w, running_w)
-                Mails.short(subject=subject, body=body, send_to=user_mail)
+                Mails.short(subject=subject, body=body, send_to=[user_mail])
                 return []
         else:
             log.warning("<=WorkerGetAvailable=> There is no available workers! All excluded.")
@@ -170,7 +170,7 @@ class WorkerGetAvailable:
             subject = 'Cannot get worker to run your test, workers may be busy.'
             body = '''Arguments: \n branch = {} \n branch_w = {} \n excluded_w = {} \n actual_w = {}
             '''.format(branch, branch_w, excluded_w, actual_w)
-            Mails.short(subject=subject, body=body, send_to=user_mail)
+            Mails.short(subject=subject, body=body, send_to=[user_mail])
             return []
 
 

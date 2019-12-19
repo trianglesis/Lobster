@@ -33,10 +33,10 @@
                                     <a style="cursor: pointer"
                                        href="{% url "test_item_history" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">{{ test.tst_name }}</a>
                                 </li>
-                                <li id="tst_status" class="tst_status">{% if not test.tst_status == 'ok' %}{{ test.tst_status }} <span class="text {% popover 'hover' 'top' 'Future (TBV)' 'Failed test tip, show suggestion about how to fix some kind of issues. (TBV Vote for this)' %}"><i class="fas fa-info"></i></span>{% endif %}</li>
-                                <li id="tst_message" class="tst_message">{% if not test.tst_message == ' ... ' %}{{ test.tst_message }}{% endif %}</li>
+                                <li id="tst_status" class="tst_status">{{ test.tst_status }}{% if not test.tst_status == 'ok' %} <span class="text {% popover 'hover' 'top' 'Future (TBV)' 'Failed test tip, show suggestion about how to fix some kind of issues. (TBV Vote for this)' %}"><i class="fas fa-info"></i></span>{% endif %}</li>
+                                <li id="tst_message" class="tst_message">{{ test.tst_message }}</li>
                             </td>
-                            <td id="fail_message" class="txt-monospace txt-left-prewrap fail_message text-center">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
+                            <td id="fail_message" class="txt-monospace txt-left-prewrap fail_message">{% spaceless %}{{ test.fail_message }}{% endspaceless %}</td>
                             <td id="test_date_time" class="txt-center-prewrap {% popover 'hover' 'top' None test.test_date_time|timezone:"Europe/London" %}">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}<br>t:{{ test.time_spent_test|f_sec }}</td>
                             <td id="addm_name" class="txt-center-prewrap {% popover 'hover' 'top' None 'Browse related ADDM to see scan details.' %}"><a href="http://{{ test.addm_host }}.bmc.com/ui/DiscoveryHome">{{ test.addm_name }}<br>{{ test.addm_host }}</a></td>
                             <td class="actions_button">
@@ -54,15 +54,11 @@
                             <td id="tkn_branch" style="display:none">{{ test.tkn_branch }}</td>
                             <td id="pattern_library" style="display:none">{{ test.pattern_library }}</td>
                             <td id="pattern_folder_name" style="display:none">{{ test.pattern_folder_name }}</td>
-                            <td id="fail_status" style="display:none">{{ test.fail_status }}</td>
-                            <td id="fail_name" style="display:none">{{ test.fail_name }}</td>
-                            <td id="fail_class" style="display:none">{{ test.fail_class }}</td>
                             <td id="time_spent_test" style="display:none">{{ test.time_spent_test }}</td>
                             <td id="tst_status" style="display:none">{{ test.tst_status }}</td>
                             <td id="tst_class" style="display:none">{{ test.tst_class }}</td>
                             <td id="tst_name" style="display:none">{{ test.tst_name }}</td>
                             <td id="tst_module" style="display:none">{{ test.tst_module }}</td>
-                            <td id="fail_module" style="display:none">{{ test.fail_module }}</td>
                             <td id="addm_group" style="display:none">{{ test.addm_group }}</td>
                             <td id="addm_v_int" style="display:none">{{ test.addm_v_int }}</td>
                             <td id="addm_host" style="display:none">{{ test.addm_host }}</td>

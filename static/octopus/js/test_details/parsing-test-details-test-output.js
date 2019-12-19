@@ -1,7 +1,7 @@
 $(document).ready(function () {
     let failMessagesCells = document.getElementsByClassName('fail_message');
-    let Actual = /(?:Actual|Actual - Expected:)(.*)/g;
-    let Expected = /(?:Expected|Expected - Actual:)(.*)/g;
+    let Actual = /(?:Actual - Expected:)(.*)/g;
+    let Expected = /(?:Expected - Actual:)(.*)/g;
     let AssertionError = /AssertionError:(.*)/gms;
     let AssertionErrorFound = /AssertionError: Found (.*)/g;
     let AssertionErrorServererror = /AssertionError: Server error (.*)/g;
@@ -17,9 +17,9 @@ $(document).ready(function () {
         let foundActual = cell.innerText.match(Actual);
         let foundExpected = cell.innerText.match(Expected);
         if (foundActual && foundExpected) {
-            // console.log(`foundActual ${foundActual}`);
-            // console.log(`foundExpected ${foundExpected}`);
-            cell.innerText = `${foundActual}\n${foundExpected}`
+            console.log(`foundActual ${foundActual[0]}`);
+            console.log(`foundExpected ${foundExpected[0]}`);
+            cell.innerText = `${foundActual[0]}\n${foundExpected[0]}`
         } else if (cell.innerText.match(AssertionError)) {
             cell.innerText = `${cell.innerText.match(AssertionError)}`
         } else if (cell.innerText.match(AssertionErrorFound)) {

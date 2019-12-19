@@ -27,10 +27,6 @@ class TestLast(models.Model):
     tst_class = models.CharField(max_length=255)
     tst_message = models.TextField(blank=True, null=True)
     tst_status = models.TextField(blank=True, null=True)
-    fail_status = models.TextField(blank=True, null=True)
-    fail_name = models.TextField(blank=True, null=True)
-    fail_module = models.TextField(blank=True, null=True)
-    fail_class = models.TextField(blank=True, null=True)
     fail_message = models.TextField(blank=True, null=True)
     # ADDM details:
     addm_name = models.CharField(max_length=20)
@@ -46,20 +42,6 @@ class TestLast(models.Model):
     class Meta:
         managed = True
         db_table = 'octo_test_last'
-        # unique_together = (
-        #     (
-        #         'tkn_branch',
-        #         'pattern_library',
-        #         'pattern_folder_name',
-        #         'test_py_path',
-        #         'tst_name',
-        #         'tst_module',
-        #         'tst_class',
-        #         'test_date_time',
-        #         'addm_name',
-        #         'addm_host',
-        #     ),
-        # )
         indexes = [
             models.Index(fields=['test_py_path'], name='test_last_test_py_path'),
             models.Index(fields=['test_date_time'], name='test_last_date_time'),
@@ -88,10 +70,7 @@ class TestHistory(models.Model):
     tst_class = models.CharField(max_length=255)
     tst_message = models.TextField(blank=True, null=True)
     tst_status = models.TextField(blank=True, null=True)
-    fail_status = models.TextField(blank=True, null=True)
-    fail_name = models.TextField(blank=True, null=True)
-    fail_module = models.TextField(blank=True, null=True)
-    fail_class = models.TextField(blank=True, null=True)
+
     fail_message = models.TextField(blank=True, null=True)
     # ADDM details:
     addm_name = models.CharField(max_length=20)
@@ -107,20 +86,6 @@ class TestHistory(models.Model):
     class Meta:
         managed = True
         db_table = 'octo_test_history'
-        # unique_together = (
-        #     (
-        #         'tkn_branch',
-        #         'pattern_library',
-        #         'pattern_folder_name',
-        #         'test_py_path',
-        #         'tst_name',
-        #         'tst_module',
-        #         'tst_class',
-        #         'test_date_time',
-        #         'addm_name',
-        #         'addm_host',
-        #     ),
-        # )
         indexes = [
             models.Index(fields=['test_py_path'], name='test_history_test_py_path'),
             models.Index(fields=['test_date_time'], name='test_history_date_time'),

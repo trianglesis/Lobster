@@ -32,14 +32,14 @@ def tst_exception(function):
     def wrapper(*args, **kwargs):
         # Normally, we always have a test_item and addm_item:
         if not kwargs.get('test_item', None):
-            log.debug("tst_exception: args %s ", args)
-            log.debug("tst_exception: kwargs %s", kwargs)
+            # log.debug("tst_exception: args %s ", args)
+            # log.debug("tst_exception: kwargs %s", kwargs)
             log.warning("<=tst_exception=> DEBUG: There is no test_item in kwargs, this is debug run, or issue!")
             return function(*args, **kwargs)
         try:
             return function(*args, **kwargs)
         except Exception as e:
-            if kwargs.get('stderr_output', False) and kwargs.get('test_item', None):
+            if kwargs['stderr_output'] and kwargs['test_item']:
                 log.error("Failed to parse test output, saving to TestOutputs")
                 test_item = kwargs.get('test_item', None)
                 kwargs_d = dict(
@@ -47,7 +47,7 @@ def tst_exception(function):
                     option_value=kwargs.get('stderr_output', 'No Output!'),
                     description=f"Test output parsing issue, saving RAW stderr. {test_item['test_py_path']}",)
                 save_error_log(kwargs_d)
-            elif kwargs.get('db', 'NoTable') and kwargs.get('res', None):
+            elif kwargs['db'] and kwargs['res']:
                 log.error("Failed to save test output into: %s, saving to TestOutputs", kwargs.get('db', 'NoTable'))
                 test_item = kwargs.get('test_item', None)
                 kwargs_d = dict(
@@ -108,11 +108,6 @@ class TestExecutor:
 
         isinstance(addm_items, dict), "Addm items should be a dict: %s" % type(addm_items)
         isinstance(test_item, dict), "Test item should be a dict: %s " % type(test_item)
-
-        if os.name == 'nt':
-            # TODO: For local debug!
-            sleep(600)
-            return 'Finish run here!'
 
         thread_list = []
         test_outputs = []
@@ -338,52 +333,51 @@ class TestExecutor:
         last_save = dict(table="last", saved=False)
         hist_save = dict(table="history", saved=False)
 
-        stderr_output = test_reult.get('stderr_output', None)
+        stderr_output = test_reult.get('stderr_output', '').replace('\r', '')
         test_item = test_reult.get('test_item', {})
-        addm_item = test_reult.get('addm_item', [])
+        addm_item = test_reult.get('addm_item', {})
         time_spent_test = test_reult.get('time_spent_test', None)
 
         test_name_f_verb_re = re.compile(
             r'(?P<test_name>test(?:\S+|)_|\S+)\s'
             r'\((?P<module>\S+)\.(?P<class>\S+)\)'
-            r'(?P<message>(?:(?:\n.*(?<!^)|\s)\.{3}\s))'
+            r'(?P<message>(?:(?:\n.*(?<!^)|\s)\.\.\.\s))'
             r'(?P<status>.+$)', re.MULTILINE)
 
         # Do not use tst_status to compose RE group to match the result, test_name.module.class is enough.
-        re_draft_4 = r'({0})\s\(({1})\.({2})\)(?P<fail_message>(?:\n.*(?<!^))+|.+)'
+        re_draft_5 = r'[A-Z]+\:\s({0})\s\(({1})\.({2})\)\n\-+(?P<fail_message>(?:\n.*(?<!=|-))+)'
         test_parsed = dict()
 
+        # kwargs_d = dict(
+        #         option_key=f"TestExecutor_std_out_err_d_{test_item['tkn_branch']}-{test_item['pattern_folder_name']}-{test_item['pattern_folder_name']}-{addm_item['addm_name']}",
+        #         option_value=stderr_output,
+        #         description=f"Test output {test_item['test_py_path']}",)
+        # save_error_log(kwargs_d)
         # log.debug("<=PARSE_TEST_RESULT=>  -> stderr_output %s", stderr_output)
-        # Check if test has expected output:
         test_output = re.match(test_name_f_verb_re, stderr_output)
         if test_output:  # Search for all test declarations after run. In TOP if content.
             test_cases = re.finditer(test_name_f_verb_re, stderr_output)
-            # log.debug("<=PARSE_TEST_RESULT=> Parse test_cases output with: %s", test_name_f_verb_re)
             for item in test_cases:  # For each found test item do parse:
                 test_res = dict(
-                    tst_message=item.group('message'),
-                    tst_name=item.group('test_name'),
-                    tst_module=item.group('module'),
-                    tst_class=item.group('class'),
-                    tst_status=item.group('status'),
+                    tst_message=item.group('message'), tst_name=item.group('test_name'),
+                    tst_module=item.group('module'), tst_class=item.group('class'),
+                    tst_status=item.group('status').replace('\r', ''),
                     time_spent_test=time_spent_test
                 )
                 # Check the other part of content for fail|error details with composed regex:
-                fail_details_srt = re_draft_4.format(item.group('test_name'), item.group('module'), item.group('class'))
-                # log.debug("<=PARSE_TEST_RESULT=> Parse test output with: %s", fail_details_srt)
-                test_fil_details = re.finditer(fail_details_srt, stderr_output, re.MULTILINE)
-
+                fail_details_srt = re_draft_5.format(item.group('test_name'), item.group('module'), item.group('class'))
+                test_fil_details = re.finditer(fail_details_srt, stderr_output)
                 for detail in test_fil_details:
                     test_res.update(fail_message=detail.group('fail_message').replace("-" * 70, "").replace("=" * 70, ""))
 
                 if test_item and addm_item:
                     # Django model way to insert into LAST TESTS table:
                     last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item))
-                    hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item))
+                    if not os.name == 'nt':
+                        hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item))
                 else:
                     # TODO: DEBUG return
                     test_parsed.update({item.group('test_name'): test_res})
-                    log.debug("ONE test_res: %s", test_res)
         else:
             # In case when traceback occurs BEFORE test actually executed:
             test_res = dict(tst_status='ERROR', fail_message=stderr_output, time_spent_test=time_spent_test)
@@ -406,10 +400,6 @@ class TestExecutor:
         Warning: do not raise exceptions, this should run in Threads so it will wait an output.
             While raise can produce a deadlock for celery worker!
 
-        :type db_model: class
-        :type test_res: dict
-        :type test_item: dict
-        :type addm_item: dict
         :return:
         """
 

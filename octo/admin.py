@@ -353,7 +353,7 @@ class TestLastAdmin(admin.ModelAdmin):
         ('Test results', {
             'fields': (
                 'tst_module', 'tst_class', 'tst_name',
-                ('tst_message', 'tst_status', 'fail_status', 'fail_name', 'fail_module', 'fail_class', 'fail_message'),
+                ('tst_message', 'tst_status', 'fail_message'),
             )
         }),
         (None, {
@@ -410,7 +410,7 @@ class TestHistoryAdmin(admin.ModelAdmin):
         ('Test results', {
             'fields': (
                 'tst_module', 'tst_class', 'tst_name',
-                ('tst_message', 'tst_status', 'fail_status', 'fail_name', 'fail_module', 'fail_class', 'fail_message'),
+                ('tst_message', 'tst_status', 'fail_message'),
             )
         }),
         (None, {
