@@ -358,7 +358,7 @@ class TestExecutor:
         test_output = re.match(test_name_f_verb_re, stderr_output)
         if test_output:  # Search for all test declarations after run. In TOP if content.
             test_cases = re.finditer(test_name_f_verb_re, stderr_output)
-            log.debug("<=PARSE_TEST_RESULT=> Parse test_cases output with: %s", test_name_f_verb_re)
+            # log.debug("<=PARSE_TEST_RESULT=> Parse test_cases output with: %s", test_name_f_verb_re)
             for item in test_cases:  # For each found test item do parse:
                 test_res = dict(
                     tst_message=item.group('message'),
@@ -370,7 +370,7 @@ class TestExecutor:
                 )
                 # Check the other part of content for fail|error details with composed regex:
                 fail_details_srt = re_draft_4.format(item.group('test_name'), item.group('module'), item.group('class'))
-                log.debug("<=PARSE_TEST_RESULT=> Parse test output with: %s", fail_details_srt)
+                # log.debug("<=PARSE_TEST_RESULT=> Parse test output with: %s", fail_details_srt)
                 test_fil_details = re.finditer(fail_details_srt, stderr_output, re.MULTILINE)
 
                 for detail in test_fil_details:
