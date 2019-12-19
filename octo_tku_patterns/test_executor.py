@@ -30,10 +30,10 @@ def tst_exception(function):
     """
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
-        log.debug("tst_exception: args %s ", args)
-        log.debug("tst_exception: kwargs %s", kwargs)
         # Normally, we always have a test_item and addm_item:
         if not kwargs.get('test_item', None):
+            log.debug("tst_exception: args %s ", args)
+            log.debug("tst_exception: kwargs %s", kwargs)
             log.warning("<=tst_exception=> DEBUG: There is no test_item in kwargs, this is debug run, or issue!")
             return function(*args, **kwargs)
         try:
