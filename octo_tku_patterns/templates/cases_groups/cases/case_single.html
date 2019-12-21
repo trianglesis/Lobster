@@ -15,11 +15,11 @@
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-actions-modal-toast.css' %}"/>
     <!-- Toast draw here -->
-    <div aria-live="polite" aria-atomic="true" style="position: relative">
+    <div id="toastStack" aria-live="assertive" aria-atomic="true" style="position: absolute;z-index: 1">
         <!-- Position it -->
-        <div style="position: absolute; top: 0; left: 0;">
-            <div id="toastStack" style="position: absolute;z-index: 1"></div>
-        </div>
+        {% comment %}<div id="toastStack" style="position: absolute; top: 0; left: 0;">
+            <div id="toastStack" style="position: absolute;z-index: 2"></div>
+        </div>{% endcomment %}
     </div>
     <div style="padding: 1% 0 0 2%;">
         <a href="{% url 'test_cases' %}" class="btn btn-sm btn-light">{% select_icon 'arrow-left' 34 'right' 0.2 %}Back

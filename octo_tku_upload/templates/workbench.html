@@ -16,11 +16,11 @@
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/upload-tests.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
     <!-- Toast draw here -->
-    <div aria-live="polite" aria-atomic="true" style="position: relative">
+    <div id="toastStack" aria-live="assertive" aria-atomic="true" style="position: absolute;z-index: 1">
         <!-- Position it -->
-        <div style="position: absolute; top: 0; left: 0;">
+        {% comment %}<div id="toastStack" style="position: absolute; top: 0; left: 0;">
             <div id="toastStack" style="position: absolute;z-index: 2"></div>
-        </div>
+        </div>{% endcomment %}
     </div>
     <!-- Workbench navbar -->
     <nav class="navbar navbar-light test-report-navbar">

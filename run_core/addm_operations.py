@@ -123,15 +123,12 @@ class ADDMStaticOperations:
         assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
         cmd_k = operation_cmd.command_key
         cmd_interactive = operation_cmd.interactive
-        log.debug("<=threaded_exec_cmd=> cmd_interactive: %s", cmd_interactive)
         th_list = []
         th_out = []
         ts = time()
         out_q = Queue()
         addm_set = addm_set.values()
         for addm_item in addm_set:
-            log.debug("addm_item: %s %s", addm_item, type(addm_item))
-
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
             if ssh:
                 th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item["addm_group"]} - {addm_item["addm_host"]} {addm_item["addm_ip"]}'
@@ -284,6 +281,7 @@ class ADDMStaticOperations:
         from octo_adm.tasks import TaskADDMService
 
         command_key = kwargs.get('command_key', [])
+        commands_set = kwargs.get('commands_set', [])
         fake_run = kwargs.get('fake_run', False)
 
         assert isinstance(command_key, list), "command_key should be a list!"
@@ -292,7 +290,9 @@ class ADDMStaticOperations:
         addm_set = self.addm_set_selections(**kwargs)
         addm_group_l = self.addm_groups_distinct_validate(addm_set, fake_run)
         log.info("<=ADDMStaticOperations=> Validated list of ADDM groups: %s", addm_group_l)
-        commands_set = self.select_operation(command_key)
+
+        if not commands_set:
+            commands_set = self.select_operation(command_key)
         # Run new instance of task+threaded for each command:
         for operation_cmd in commands_set:
             # Assign each task on related worker based on ADDM group name:FAKE_RUN:
