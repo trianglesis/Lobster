@@ -3,44 +3,35 @@ OCTO ADM - pages and widgets and functions.
 """
 
 import logging
-from time import sleep
 from datetime import datetime
 
-from django.template import loader
-from django.http import HttpResponse
+from celery.result import AsyncResult
 from django.conf import settings
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
-
+from django.http import HttpResponse
+from django.template import loader
 from django.views.generic import TemplateView, ListView
 from rest_framework import viewsets
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from celery.result import AsyncResult
 from octo.api.serializers import CeleryTaskmetaSerializer
-
-from run_core.models import AddmDev
-from run_core.p4_operations import PerforceOperations
-from run_core.local_operations import LocalPatternsP4Parse
-
-from octo.models import CeleryTaskmeta
 from octo.api.serializers import StandardResultsSetPagination
-
-from octo.helpers.tasks_run import Runner
 from octo.helpers.tasks_oper import TasksOperations, WorkerOperations
-
-from octo_adm.user_operations import UserCheck
+from octo.helpers.tasks_run import Runner
+from octo.models import CeleryTaskmeta
 from octo_adm.request_service import SelectorRequestsHelpers
 from octo_adm.serializers import AddmDevSerializer
-
-from run_core.addm_operations import ADDMStaticOperations
 from octo_adm.tasks import TaskADDMService
-
+from octo_adm.user_operations import UserCheck
 from octo_tku_patterns.tasks import TPatternParse
+from run_core.local_operations import LocalPatternsP4Parse
+from run_core.models import AddmDev
+from run_core.p4_operations import PerforceOperations
+from run_core.addm_operations import ADDMStaticOperations
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'SITE_DOMAIN', None)
@@ -922,24 +913,27 @@ class AdminOperationsREST(APIView):
         if not UserCheck.is_admin(self.request.user):
             return {'error': 'User has no admin rights!'}
 
+        command_key = [
+            "show_addm_version",
+            "test_kill",
+            "tku_install_kill",
+            "tw_scan_control__clear",
+            "tw_pattern_management__remove_all",
+            "tw_model_wipe__force",
+            "wipe_addm_logs",
+            "wipe_addm_pool",
+            "wipe_addm_record",
+            "wipe_rsync_logs",
+            "wipe_tideway_data_installed_tpl_product_content",
+            "wipe_tideway_syslogs",
+            "wipe_tideway_TEMP",
+            "wipe_tpl_files"
+        ]
+        commands_set = ADDMStaticOperations.select_operation(command_key)
         t_tag = f'tag=t_addm_cmd_routine.addm_cleanup;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_kwargs = dict(
-            command_key=[
-                "show_addm_version",
-                "test_kill",
-                "tku_install_kill",
-                "tw_scan_control__clear",
-                "tw_pattern_management__remove_all",
-                "tw_model_wipe__force",
-                "wipe_addm_logs",
-                "wipe_addm_pool",
-                "wipe_addm_record",
-                "wipe_rsync_logs",
-                "wipe_tideway_data_installed_tpl_product_content",
-                "wipe_tideway_syslogs",
-                "wipe_tideway_TEMP",
-                "wipe_tpl_files"
-            ],
+            command_key=command_key,
+            commands_set=commands_set,
             subject=self.subject,
             user_name=self.user_name,
             user_mail=self.user_email,
@@ -949,6 +943,7 @@ class AdminOperationsREST(APIView):
             addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
+
         task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=self.fake_run, t_args=[t_tag], t_kwargs=t_kwargs)
         # task = TaskADDMService.t_addm_cmd_routine.apply_async(args=[t_tag], kwargs=t_kwargs)
         return {'task_id': task.id}
@@ -961,10 +956,13 @@ class AdminOperationsREST(APIView):
         :return cmd_k: task.id """
         if not UserCheck.is_admin(self.request.user):
             return {'error': 'User has no admin rights!'}
-
+        command_key = self.command_key.split(',')
+        # TODO: I can fill the variables of CMD string right here, if neded, using user input or extra input (like: upload_unzip)?
+        commands_set = ADDMStaticOperations.select_operation(command_key)
         t_tag = f'tag=t_addm_cmd_routine.{self.command_key};user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_kwargs = dict(
             command_key=self.command_key.split(','),
+            commands_set=commands_set,
             subject=self.subject,
             user_name=self.user_name,
             user_mail=self.user_email,
@@ -984,10 +982,13 @@ class AdminOperationsREST(APIView):
         Example: operation_key=addm_sync_shares;addm_group=alpha
         :return task: task.id"""
         t_tag = f'tag=t_addm_cmd_routine.addm_sync_shares;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
+        command_key = [
+            "rsync_tku_data",
+        ]
+        commands_set = ADDMStaticOperations.select_operation(command_key)
         t_kwargs = dict(
-            command_key=[
-                "rsync_tku_data",
-            ],
+            command_key=command_key,
+            commands_set=commands_set,
             subject=self.subject,
             user_name=self.user_name,
             user_mail=self.user_email,
@@ -1009,13 +1010,15 @@ class AdminOperationsREST(APIView):
         :return task: task.id"""
         if not UserCheck.is_admin(self.request.user):
             return {'error': 'User has no admin rights!'}
-
+        command_key = [
+            "rsync_python_testutils",
+            "rsync_tideway_utils",
+        ]
+        commands_set = ADDMStaticOperations.select_operation(command_key)
         t_tag = f'tag=t_addm_cmd_routine.addm_sync_utils;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_kwargs = dict(
-            command_key=[
-                "rsync_python_testutils",
-                "rsync_tideway_utils",
-            ],
+            command_key=command_key,
+            commands_set=commands_set,
             subject=self.subject,
             user_name=self.user_name,
             user_mail=self.user_email,
