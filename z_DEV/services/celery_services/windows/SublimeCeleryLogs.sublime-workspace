@@ -11,7 +11,7 @@
 			"file": "logs/w_routines_err.log",
 			"settings":
 			{
-				"buffer_size": 3117,
+				"buffer_size": 5849,
 				"line_ending": "Windows"
 			}
 		},
@@ -19,7 +19,7 @@
 			"file": "logs/w_routines_out.log",
 			"settings":
 			{
-				"buffer_size": 315,
+				"buffer_size": 5122,
 				"line_ending": "Windows"
 			}
 		},
@@ -27,7 +27,7 @@
 			"file": "logs/golf_err.log",
 			"settings":
 			{
-				"buffer_size": 3111,
+				"buffer_size": 39942,
 				"line_ending": "Windows"
 			}
 		},
@@ -35,24 +35,24 @@
 			"file": "/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/WEB_octopus.log",
 			"settings":
 			{
-				"buffer_size": 7945992,
+				"buffer_size": 8029092,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"contents": "\\s(?P<test_name>test002_Unix_active_version)\\s\\((?P<module>__main__)\\.(?P<class>Test_OTMQ_Main)\\)(?P<message>(?:\\n.*(?<!^))+)\n\n\\s(?P<test_name>test002_Unix_active_version)\\s\\((?P<module>__main__)\\.(?P<class>Test_OTMQ_Main)\\)(?P<message>(?:\\n.*(?<!^))+|)\n\n\nREg\n\\s(?P<test_name>test003_Windows_active_version)\\s\\((?P<module>__main__)\\.(?P<class>Test_OTMQ_Main)\\)(?P<message>(?:\\n.*(?<!^))+)\nALT\n\\s(?P<test_name>test003_Windows_active_version)\\s\\((?P<module>__main__)\\.(?P<class>Test_OTMQ_Main)\\)(?P<message>(?:\\n.*(?<!^))+|.*)",
+			"contents": "test10_Unix_extended_discovery_priv (__main__.TestStandalone) ... FAIL\ntest11_Unix_versioning_update (__main__.TestStandalone) ... ok\ntest12_Unix_priv_run_update (__main__.TestStandalone) ... ok\ntest13_Windows_alt_legacy_versioning (__main__.TestStandalone)\nTest for a legacy version coming from a package ... <string>:8: DeprecationWarning: invalid escape sequence \\P\nok\ntest3_one_category_one_tag (__main__.TestStandalone) ... skipped 'Version is less than 11.3'\ntest14_Windows_legacy_active_versioning (__main__.TestStandalone)\nTest for a legacy version coming from an active command ... ok\ntest15_Unix_maxmsgl_maxdepth (__main__.TestStandalone) ... ok\ntest1_configipedia_check (__main__.TestStandalone) ... ok\ntest2_Windows_active_versioning (__main__.TestStandalone) ... ok\ntest3_Windows_mqclient_file_versioning (__main__.TestStandalone) ... ok\ntest4_Windows_package_versioning (__main__.TestStandalone) ... ok\ntest5_Unix_package_versioning (__main__.TestStandalone) ... ok\ntest6_Windows_v6_version (__main__.TestStandalone) ... ok\ntest7_Unix_extended_discovery (__main__.TestStandalone) ... FAIL\ntest8_Windows_legacy_versioning (__main__.TestStandalone) ... ok\ntest9_Windows_new_command (__main__.TestStandalone) ... FAIL\n\n======================================================================\nFAIL: test10_Unix_extended_discovery_priv (__main__.TestStandalone)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 902, in verify_model\n    self.assertEqual(len(nodes), len(expected), msg = \"Found %d nodes, expected %d\" % (len(nodes), len(expected)))\n  File \"/usr/tideway/lib/python3.7/unittest/case.py\", line 852, in assertEqual\n    assertion_func(first, second, msg=msg)\nAssertionError: 1 != 0 : Found 1 nodes, expected 0\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 914, in verify_model\n    raise AssertionError(msg)\nAssertionError: '1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: IBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/SYNC/addm/tkn_main/tku_patterns/CORE/WebsphereMQ/tests/test.py\", line 79, in test10_Unix_extended_discovery_priv\n    self.verify_model(self.SEARCH_QUERY, \"Unix_extended_discovery_priv\", sort_key='key')\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: PUNE/IBM WebSphere MQ Series Queue Manager/ssVFNiO9TEdkC6eht7L0ew== #ElementWithDetail:Detail:Detail:Detail.name ->\n\t\t\t\tIBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\n======================================================================\nFAIL: test7_Unix_extended_discovery (__main__.TestStandalone)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 902, in verify_model\n    self.assertEqual(len(nodes), len(expected), msg = \"Found %d nodes, expected %d\" % (len(nodes), len(expected)))\n  File \"/usr/tideway/lib/python3.7/unittest/case.py\", line 852, in assertEqual\n    assertion_func(first, second, msg=msg)\nAssertionError: 1 != 0 : Found 1 nodes, expected 0\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 914, in verify_model\n    raise AssertionError(msg)\nAssertionError: '1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: IBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/SYNC/addm/tkn_main/tku_patterns/CORE/WebsphereMQ/tests/test.py\", line 60, in test7_Unix_extended_discovery\n    self.verify_model(self.SEARCH_QUERY, \"Unix_extended_discovery\", sort_key='key')\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: PUNE/IBM WebSphere MQ Series Queue Manager/ssVFNiO9TEdkC6eht7L0ew== #ElementWithDetail:Detail:Detail:Detail.name ->\n\t\t\t\tIBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\n======================================================================\nFAIL: test9_Windows_new_command (__main__.TestStandalone)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 902, in verify_model\n    self.assertEqual(len(nodes), len(expected), msg = \"Found %d nodes, expected %d\" % (len(nodes), len(expected)))\n  File \"/usr/tideway/lib/python3.7/unittest/case.py\", line 852, in assertEqual\n    assertion_func(first, second, msg=msg)\nAssertionError: 1 != 0 : Found 1 nodes, expected 0\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 914, in verify_model\n    raise AssertionError(msg)\nAssertionError: '1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue CLUS_REM'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: IBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue CLUS_REM'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/SYNC/addm/tkn_main/tku_patterns/CORE/WebsphereMQ/tests/test.py\", line 74, in test9_Windows_new_command\n    self.verify_model(self.SEARCH_QUERY, \"Windows_new_command\", sort_key='key')\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: LONDON/IBM WebSphere MQ Series Queue Manager/42QF3O3oNA/jSIOWPTgjHA== #ElementWithDetail:Detail:Detail:Detail.name ->\n\t\t\t\tIBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue CLUS_REM'}\nExpected - Actual: set()\n\n\n----------------------------------------------------------------------\nRan 15 tests in 307.182s\n\nFAILED (failures=3)",
 			"settings":
 			{
-				"buffer_size": 524,
+				"buffer_size": 9303,
 				"line_ending": "Windows",
-				"name": "\\s(?P<test_name>test002_Unix_active_version)\\s\\((?"
+				"name": "test10_Unix_extended_discovery_priv (__main__.Test"
 			}
 		},
 		{
 			"file": "logs/golf_out.log",
 			"settings":
 			{
-				"buffer_size": 291,
+				"buffer_size": 7981,
 				"line_ending": "Windows"
 			}
 		}
@@ -167,6 +167,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"Actual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}",
+			"----------------------------------------------------------------------",
 			"After send CMD buff:",
 			"After send CMD resp",
 			"_getTty",
@@ -197,7 +199,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3117,
+						"buffer_size": 5849,
 						"regions":
 						{
 						},
@@ -225,7 +227,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 315,
+						"buffer_size": 5122,
 						"regions":
 						{
 						},
@@ -261,7 +263,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3111,
+						"buffer_size": 39942,
 						"regions":
 						{
 						},
@@ -289,15 +291,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7945992,
+						"buffer_size": 8029092,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								7945992,
-								7945992
+								0,
+								0
 							]
 						],
 						"settings":
@@ -316,24 +318,24 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 524,
+						"buffer_size": 9303,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								253,
-								127
+								2296,
+								2373
 							]
 						],
 						"settings":
 						{
-							"auto_name": "\\s(?P<test_name>test002_Unix_active_version)\\s\\((?",
+							"auto_name": "test10_Unix_extended_discovery_priv (__main__.Test",
 							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 991.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -345,7 +347,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 291,
+						"buffer_size": 7981,
 						"regions":
 						{
 						},

@@ -341,7 +341,7 @@ class LocalPatternsP4Parse:
         test_outputs = []
         test_q = Queue()
 
-        w = 10
+        w = 4
         threads = list(range(w))
         split_patt = self.chunkIt(test_cases, len(threads))
         log.debug("Threads for parse patterns len: %s", len(threads))

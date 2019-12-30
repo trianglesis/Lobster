@@ -23,7 +23,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.excluded_group()
         self.queryset = self.queryset.exclude(change_time__range=['2019-10-30', '2019-11-07'])
         self.wipe_logs_on(True)
-        print(self.addm_set)  # TODO: Way to exclude ADDM from actual addm set if needed
+        # print(self.addm_set)  # TODO: Way to exclude ADDM from actual addm set if needed
         self.run_case()
 
     def test_002_night_routine_ship(self):

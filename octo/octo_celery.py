@@ -79,15 +79,15 @@ app.conf.update(
 
     worker_disable_rate_limits=True,
     worker_concurrency=1,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-concurrency
-    worker_lost_wait=30,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-lost-wait
+    worker_lost_wait=4,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-lost-wait
     worker_max_memory_per_child=120000,  # 120 MB X 10 = 1200 MB
-    worker_max_tasks_per_child=100,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-max-tasks-per-child
+    worker_max_tasks_per_child=1000,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-max-tasks-per-child
 
     # Useful
     # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-log-format
     worker_timer_precision=5,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-timer-precision
     worker_enable_remote_control=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-enable-remote-control
-    # task_send_sent_event=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#task-send-sent-event
+    task_send_sent_event=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#task-send-sent-event
     worker_send_task_events=True,  # -E at worker service # http://docs.celeryproject.org/en/latest/userguide/configuration.html#events
     worker_pool_restarts=True,
 
@@ -101,7 +101,7 @@ app.conf.update(
     broker_pool_limit=None,  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#broker-pool-limit
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#broker-connection-timeout
-    broker_connection_timeout=60,
+    broker_connection_timeout=4,
     broker_connection_retry=True,
     broker_connection_max_retries=0,
 
