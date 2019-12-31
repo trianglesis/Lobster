@@ -21,6 +21,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_main'
         self.select_test_cases(tkn_branch='tkn_main', last_days=60)
         self.excluded_group()
+        # TODO: Add filter to force include key patterns - use group to collect key patterns in it
         self.queryset = self.queryset.exclude(change__in=[
                     '791013',
                     '784570',
