@@ -58,9 +58,9 @@ class TestRunnerLoc:
             test_cmd = f'python -m unittest {test_py_path}'
 
         # Compose CMD run:
-        cmd_list.append(f'{test_env}{activate}')
+        cmd_list.append(f'. {test_env}{activate}')
         cmd_list.append(test_cmd)
-        cmd_list.append(f'{test_env}{deactivate}')
+        cmd_list.append(f'. {test_env}{deactivate}')
 
         for cmd in cmd_list:
             try:
