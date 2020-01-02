@@ -1,34 +1,27 @@
 """
 OCTO ADM - pages and widgets and functions.
 """
-from datetime import datetime
 import logging
+from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import permission_required
+from django.db.models import Q
 from django.http import HttpResponse
 from django.template import loader
-from django.conf import settings
-from django.db.models import Q
-
 from django.views.generic import TemplateView, ListView
 from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from octo.helpers.tasks_helpers import TMail
 from octo.helpers.tasks_run import Runner
 from octo_adm.user_operations import UserCheck
-
+from octo_tku_upload.api.serializers import TkuPackagesNewSerializer
 from octo_tku_upload.models import *
 from octo_tku_upload.table_oper import UploadTKUTableOper
 from octo_tku_upload.tasks import TUploadExec
-from octo_tku_upload.api.serializers import TkuPackagesNewSerializer, UploadTestsNewSerializer
-from octo_tku_upload.tasks import UploadTaskPrepare
-
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'SITE_DOMAIN', None)
@@ -485,6 +478,8 @@ class TKUOperationsREST(APIView):
             (operation_key=tku_install_test;addm_group=golf;package_types=tkn_main_continuous_2069-11-1-000;package_detail=TKU-Product-Content;test_mode=fresh)
         :return:
         """
+
+        # HERE: We no longer require to keep view/request based data
         obj = dict(
             request=self.request.data,
             user_name=self.request.user.username,

@@ -109,6 +109,7 @@ class UploadTaskPrepare:
 
     """
 
+    # TODO: Simplify this, we no longer require view\requests, just use same as for patterns
     def __init__(self, obj):
         # Initial view requests:
         self.view_obj = obj
