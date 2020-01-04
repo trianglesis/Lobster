@@ -137,7 +137,7 @@ class BalanceNightTests:
         addm_group_l = ADDMStaticOperations.addm_groups_validate(addm_group=addm_group_l, user_name=user_name, fake_run=fake_run)
         return addm_group_l
 
-    def get_available_addm_groups(self, branch, user_name, fake_run=False, addm_groups=[]):
+    def get_available_addm_groups(self, branch, user_name, fake_run=False, addm_groups=None):
         """
         Get list of groups assigned to selected branch. Then add sleeping task for each actual group.
          Workers are running sleep task and wait for tests.
@@ -149,6 +149,8 @@ class BalanceNightTests:
         :param fake_run:
         :return:
         """
+        if addm_groups is None:
+            addm_groups = []
         if not addm_groups:
             addm_group_l = self.select_addm_list_for_branch(branch=branch)
         else:

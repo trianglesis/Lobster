@@ -164,7 +164,7 @@ class PatternTestUtils(unittest.TestCase):
 
     def get_branched_addm_groups(self):
         self.addm_group_l = BalanceNightTests().get_available_addm_groups(
-            branch=self.branch, user_name=self.user_name, fake_run=self.fake_run)
+            branch=self.branch, user_name=self.user_name, fake_run=self.fake_run, addm_groups=self.addm_group_l)
 
     def select_addm_set(self):
         self.addm_set = ADDMOperations.select_addm_set(
