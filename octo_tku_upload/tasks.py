@@ -59,7 +59,7 @@ class TUploadExec:
               soft_time_limit=MIN_90, task_time_limit=HOURS_2)
     @exception
     def t_upload_test(t_tag, **kwargs):
-        return UploadTaskPrepare(kwargs['obj']).run_tku_upload()
+        return UploadTaskPrepare(**kwargs).run_tku_upload()
 
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', soft_time_limit=MIN_20, task_time_limit=MIN_40)
@@ -109,35 +109,19 @@ class UploadTaskPrepare:
 
     """
 
-    # TODO: Simplify this, we no longer require view\requests, just use same as for patterns
-    def __init__(self, obj):
+    def __init__(self, **kwargs):
         # Initial view requests:
-        self.view_obj = obj
-        if isinstance(self.view_obj, dict):
-            log.debug("From REST View?")
-            self.request = self.view_obj.get('request')
+        self.data = kwargs.get('data')
 
-            # Assign generated context for further usage:
-            self.user_name = self.view_obj.get('user_name')
-            self.user_email = self.view_obj.get('user_email')
+        # Assign generated context for further usage:
+        self.user_name = kwargs.get('user_name')
+        self.user_email = kwargs.get('user_email')
 
-            self.tku_wget = self.request.get('tku_wget', None)
-            self.test_mode = self.request.get('test_mode', 'custom')
-            self.tku_type = self.request.get('tku_type', None)
-            self.addm_group = self.request.get('addm_group', None)
-            self.package_detail = self.request.get('package_detail', None)
-        else:
-            log.debug("From Test class?")
-            self.request = obj.request
-
-            self.user_name = self.request.get('user_name', 'octopus_super')
-            self.user_email = self.request.get('user_email', None)
-
-            self.tku_wget = self.request.get('tku_wget', None)
-            self.test_mode = self.request.get('test_mode', 'custom')
-            self.tku_type = self.request.get('tku_type', None)
-            self.addm_group = self.request.get('addm_group', None)
-            self.package_detail = self.request.get('package_detail', None)
+        self.tku_wget = self.data.get('tku_wget', None)
+        self.test_mode = self.data.get('test_mode', 'custom')
+        self.tku_type = self.data.get('tku_type', None)
+        self.addm_group = self.data.get('addm_group', None)
+        self.package_detail = self.data.get('package_detail', None)
 
         # Define fake run:
         self.fake_run = False
@@ -166,12 +150,7 @@ class UploadTaskPrepare:
         For debug purposes, just run all tasks as fake_task with showing all inputs and outputs: args, kwargs.
         :return:
         """
-
-        if os.name == "nt":  # Always fake run on local test env:
-            self.fake_run = False
-            log.debug("<=UploadTaskPrepare=> Fake run for NT request: %s", self.request)
-
-        elif self.request.get('fake_run'):
+        if self.data.get('fake_run'):
             self.fake_run = True
             log.debug("<=UploadTaskPrepare=> Fake run = %s", self.fake_run)
 
@@ -180,7 +159,7 @@ class UploadTaskPrepare:
         Indicates when do not send any mails.
         :return:
         """
-        if self.request.get('silent'):
+        if self.data.get('silent'):
             self.silent = True
         log.debug("<=UploadTaskPrepare=> Silent run = %s", self.silent)
 
@@ -235,16 +214,16 @@ class UploadTaskPrepare:
     def packages_assign(self):
         if self.tku_type:
             assert isinstance(self.tku_type, str)
-        if self.request.get('package_types'):
+        if self.data.get('package_types'):
             # String comes from REST POST Request - split on list
-            if isinstance(self.request.get('package_types'), str):
-                _packages = self.request.get('package_types')
+            if isinstance(self.data.get('package_types'), str):
+                _packages = self.data.get('package_types')
                 log.debug("Splitting package_types: %s", _packages)
                 self.package_types = _packages.split(',')
                 log.debug("List package_types: %s", self.package_types)
             # List comes from octo test:
-            elif isinstance(self.request.get('package_types'), list):
-                self.package_types = self.request.get('package_types')
+            elif isinstance(self.data.get('package_types'), list):
+                self.package_types = self.data.get('package_types')
             else:
                 log.warning("Unsupported type of package_types!")
 
@@ -335,21 +314,18 @@ class UploadTaskPrepare:
         """
         t_kwargs = ''
         if self.test_mode == 'fresh' and step_k == 'step_1':
-            log.info(
-                "<=UploadTaskPrepare=> Fresh install: (%s), 1st step (%s) - require TKU wipe and prod content delete!",
-                self.test_mode, step_k)
+            log.info("<=UploadTaskPrepare=> Fresh install: (%s), 1st step (%s) - "
+                     "require TKU wipe and prod content delete!", self.test_mode, step_k)
             t_kwargs = dict(addm_items=self.addm_set, step_k=step_k, test_mode='fresh', user_email=self.user_email)
 
         elif self.test_mode == 'update' and step_k == 'step_1':
-            log.info(
-                "<=UploadTaskPrepare=> Update install: (%s), 1st step (%s) - require TKU wipe and prod content delete!",
-                self.test_mode, step_k)
+            log.info("<=UploadTaskPrepare=> Update install: (%s), 1st step (%s) - "
+                     "require TKU wipe and prod content delete!", self.test_mode, step_k)
             t_kwargs = dict(addm_items=self.addm_set, step_k=step_k, test_mode='update', user_email=self.user_email)
 
         elif self.test_mode == 'step' and step_k == 'step_1':
-            log.info(
-                "<=UploadTaskPrepare=> Step install: (%s), 1st step (%s) - require TKU wipe and prod content delete!",
-                self.test_mode, step_k)
+            log.info("<=UploadTaskPrepare=> Step install: (%s), 1st step (%s) - "
+                     "require TKU wipe and prod content delete!", self.test_mode, step_k)
             t_kwargs = dict(addm_items=self.addm_set, step_k=step_k, test_mode='step', user_email=self.user_email)
 
         else:

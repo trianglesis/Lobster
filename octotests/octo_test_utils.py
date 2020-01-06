@@ -277,24 +277,29 @@ class UploadTaskUtils(unittest.TestCase):
         self.user_name = None
         self.user_email = None
         self.fake_run = None
-        self.request = dict()  # TODO: No need request, we'll run as task
+        self.data = dict()  # TODO: No need data, we'll run as task
 
     def setUp(self) -> None:
         self.user_and_mail()
-        log.debug("<=UploadTaskUtils=> SetUp request %s", self.request)
+        log.debug("<=UploadTaskUtils=> SetUp data %s", self.data)
 
     def run_case(self):
-        tasks = UploadTaskPrepare(self).run_tku_upload()
+        kwargs_ = dict(
+            data=self.data,
+            user_name=self.user_name,
+            user_email=self.user_email,
+        )
+        tasks = UploadTaskPrepare(**kwargs_).run_tku_upload()
         if tasks:
             self.check_tasks(tasks)
 
     def tearDown(self) -> None:
         sleep(3)
-        log.debug("<=UploadTaskUtils=> Test finished, request: %s", self.request)
+        log.debug("<=UploadTaskUtils=> Test finished, data: %s", self.data)
 
     def check_args(self):
-        if self.request.get('package_types'):
-            package_types = self.request.get('package_types')
+        if self.data.get('package_types'):
+            package_types = self.data.get('package_types')
             assert isinstance(package_types, list), 'Package types is not a list!'
             for package in package_types:
                 package_qa = TkuPackages.objects.filter(tku_type__exact=package)
@@ -319,7 +324,7 @@ class UploadTaskUtils(unittest.TestCase):
         return tasks_res
 
     def debug_output(self, tasks_res):
-        if self.request.get('debug') or self.debug:
+        if self.data.get('debug') or self.debug:
             tasks_json = json.dumps(tasks_res, indent=2, ensure_ascii=False, default=pformat)
             print(tasks_json)
 
@@ -332,50 +337,9 @@ class UploadTaskUtils(unittest.TestCase):
         :return:
         """
         if user_name and user_email:
-            self.request.update(user_name=user_name, user_email=user_email)
+            self.data.update(user_name=user_name, user_email=user_email)
         else:
-            self.request.update(user_name='OctoTests', user_email='OctoTests')
-
-    def fake_run_on(self, fake):
-        """
-        For debug purposes only, fill fire tasks with fake mode, showing all args, kwargs.
-        Fake task will be executed on selected worker if any, or on first possible one.
-        :param fake:
-        :return:
-        """
-        if fake:
-            self.request.update(fake_run=True)
-            log.debug("<=UploadTaskUtils=> Fake Run test tasks")
-        else:
-            log.debug("<=UploadTaskUtils=> Real Run test tasks")
-
-    def wget_on(self, wget):
-        """
-        To run WGET before upload to get most latest packages or use as it now saved in local DB.
-        :param wget:
-        :return:
-        """
-        if wget:
-            self.request.update(tku_wget=True)
-        else:
-            log.debug("<=UploadTaskUtils=> No WGET run.")
-
-    def silent_on(self, silent):
-        """
-        Do not send any emails.
-        :param silent:
-        :return:
-        """
-        if silent:
-            self.request.update(silent=True)
-        else:
-            log.debug("<=UploadTaskUtils=> Will send confirmation and step emails.")
-
-    def debug_on(self, debug):
-        if debug:
-            self.request.update(debug=True)
-        else:
-            log.debug("<=UploadTaskUtils=> Will send confirmation and step emails.")
+            self.data.update(user_name='OctoTests', user_email='OctoTests')
 
     @staticmethod
     def select_latest_continuous(tkn_branch):
