@@ -270,26 +270,38 @@ class PatternTestUtils(unittest.TestCase):
                           t_routing_key = 'z_{}.night_routine_mail'.format(_addm_group))
 
 
-class UploadTaskUtils(unittest.TestCase):
+class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
 
     def __init__(self, *args, **kwargs):
         super(UploadTaskUtils, self).__init__(*args, **kwargs)
         self.user_name = None
         self.user_email = None
+
+        self.tku_wget = None
+        self.test_mode = None
+        self.tku_type = None
+        self.addm_group = None
+        self.package_detail = None
+
         self.fake_run = None
-        self.data = dict()  # TODO: No need data, we'll run as task
+
+        self.data = dict()
+
+        self.tasks_added = []
 
     def setUp(self) -> None:
         self.user_and_mail()
         log.debug("<=UploadTaskUtils=> SetUp data %s", self.data)
 
     def run_case(self):
-        kwargs_ = dict(
-            data=self.data,
-            user_name=self.user_name,
-            user_email=self.user_email,
-        )
-        tasks = UploadTaskPrepare(**kwargs_).run_tku_upload()
+        log.info("<=UploadTaskUtils=> Running case!")
+        # kwargs_ = dict(
+        #     data=self.data,
+        #     user_name=self.user_name,
+        #     user_email=self.user_email,
+        # )
+        # tasks = UploadTaskPrepare(**kwargs_).run_tku_upload()
+        tasks = self.run_tku_upload()
         if tasks:
             self.check_tasks(tasks)
 

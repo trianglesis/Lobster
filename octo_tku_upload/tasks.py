@@ -125,7 +125,7 @@ class UploadTaskPrepare:
 
         # Define fake run:
         self.fake_run = False
-        self.fake_fun()
+        self.fake_run_f()
 
         # Internal statuses:
         self.silent = False
@@ -145,7 +145,7 @@ class UploadTaskPrepare:
         self.t_tag = ''
         self.tasks_added = []
 
-    def fake_fun(self):
+    def fake_run_f(self):
         """
         For debug purposes, just run all tasks as fake_task with showing all inputs and outputs: args, kwargs.
         :return:

@@ -35,10 +35,12 @@ class TestRunnerLoc:
 
         # DEV: Set paths to test and working dir:
         if os.name == 'nt':
-            # test_env = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
-            # octo_core = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster'
-            test_env = 'D:\\Projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
-            octo_core = 'D:\\Projects\\PycharmProjects\\lobster'
+            if "KBP1" in os.getenv('COMPUTERNAME', 'defaultValue'):
+                test_env = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
+                octo_core = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster'
+            else:
+                test_env = 'D:\\Projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
+                octo_core = 'D:\\Projects\\PycharmProjects\\lobster'
             activate = 'activate.bat'
             deactivate = 'deactivate.bat'
         else:
@@ -57,10 +59,11 @@ class TestRunnerLoc:
         else:
             test_cmd = f'python -m unittest {test_py_path}'
 
-        # Compose CMD run:
-        cmd_list.append(f'. {test_env}{activate}')
-        cmd_list.append(test_cmd)
-        cmd_list.append(f'. {test_env}{deactivate}')
+        if not os.name == 'nt':
+            # Compose CMD run:
+            cmd_list.append(f'. {test_env}{activate}')
+            cmd_list.append(test_cmd)
+            cmd_list.append(f'. {test_env}{deactivate}')
 
         for cmd in cmd_list:
             try:
