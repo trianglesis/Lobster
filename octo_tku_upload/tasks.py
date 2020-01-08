@@ -138,8 +138,8 @@ class UploadTaskPrepare:
         log.info("<=UploadTaskPrepare=> Prepare tests for user: %s - %s", self.user_name, self.user_email)
 
         self.package_types = ''
-        self.packages = TkuPackages.objects.all()
-        self.addm_set = AddmDev.objects.all()
+        self.packages = dict()
+        self.addm_set = ''
 
         # Current status args:
         self.tku_downloaded = False
@@ -244,41 +244,45 @@ class UploadTaskPrepare:
         """
         self.packages_assign()
         packages = dict()
+        # Mode to install Released TKU and then GA over it:
         if self.test_mode == 'update':
             log.info("<=UploadTaskPrepare=> Will install TKU in UPDATE mode.")
-
-            released_tkn = TkuPackages.objects.filter(tku_type__exact='released_tkn').aggregate(Max('package_type'))
-            package = TkuPackages.objects.filter(tku_type__exact='released_tkn',
-                                                 package_type__exact=released_tkn['package_type__max'])
+            # 1st step - use previously released package:
+            released_tkn = TkuPackages.objects.filter(
+                tku_type__exact='released_tkn').aggregate(Max('package_type'))
+            package = TkuPackages.objects.filter(
+                tku_type__exact='released_tkn',
+                package_type__exact=released_tkn['package_type__max'])
             packages.update(step_1=package)
-
-            ga_candidate = TkuPackages.objects.filter(tku_type__exact='ga_candidate').aggregate(Max('package_type'))
-            package = TkuPackages.objects.filter(tku_type__exact='ga_candidate',
-                                                 package_type__exact=ga_candidate['package_type__max'])
+            # 2nd step - use GA candidate package:
+            ga_candidate = TkuPackages.objects.filter(
+                tku_type__exact='ga_candidate').aggregate(Max('package_type'))
+            package = TkuPackages.objects.filter(
+                tku_type__exact='ga_candidate',
+                package_type__exact=ga_candidate['package_type__max'])
             packages.update(step_2=package)
-
+        # Mode to install any TKU as fresh or step, one by one.
         elif self.test_mode == 'step' or self.test_mode == 'fresh':
-            log.info("<=UploadTaskPrepare=> Install TKU in (%s) mode, package_types (%s)", self.test_mode,
-                     self.package_types)
+            log.info("<=UploadTaskPrepare=> Install TKU in (%s) mode - (%s)", self.test_mode, self.package_types)
             step = 0
             for package_type in self.package_types:
                 step += 1
                 package = TkuPackages.objects.filter(package_type__exact=package_type)
-                # If query return anything other (probably old GA) with released_tkn - prefer last option.
+                # If query return anything other (probably old GA, where pack type could be same)
+                # with released_tkn - prefer last option.
                 package_dis = package.filter(tku_type__exact='released_tkn')
-
-                # log.debug("package: %s", package.values())
-                # log.debug("package_dis: %s", package_dis.values())
-
                 if package_dis:
                     package = package_dis
                 packages.update({f'step_{step}': package})
+        # Mode to install TKU simply.
         else:
             log.info("<=UploadTaskPrepare=> Will install TKU in Custom mode.")
             step = 0
             for package_type in self.package_types:
                 step += 1
                 package = TkuPackages.objects.filter(package_type__exact=package_type)
+                # If query return anything other (probably old GA, where pack type could be same)
+                # with released_tkn - prefer last option.
                 package_dis = package.filter(tku_type__exact='released_tkn')
                 if package_dis:
                     package = package_dis
@@ -353,9 +357,7 @@ class UploadTaskPrepare:
                                      t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
                                      t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail")
                 self.tasks_added.append(task)
-                # UploadTestExec().upload_preparations_threads(addm_items=addm_items, mode='fresh')
                 task = Runner.fire_t(TUploadExec.t_upload_prep,
-                                     # fake_run=self.fake_run, to_sleep=60, to_debug=True,
                                      t_queue=f'{addm_group}@tentacle.dq2',
                                      t_args=[
                                          f"UploadTaskPrepare.addm_prepare;task=t_upload_prep;test_mode={self.test_mode};"
@@ -385,9 +387,7 @@ class UploadTaskPrepare:
                                  t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
                                  t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail")
             self.tasks_added.append(task)
-            # UploadTestExec().upload_unzip_threads(addm_items=addm_items, packages=packages_from_step)
             task = Runner.fire_t(TUploadExec.t_upload_unzip,
-                                 # fake_run=self.fake_run, to_sleep=60, to_debug=True,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[
                                      f"UploadTaskPrepare;task=t_upload_unzip;test_mode={self.test_mode};addm_group={addm_group};user={self.user_name}"],
@@ -415,9 +415,7 @@ class UploadTaskPrepare:
                                  t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
                                  t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail")
             self.tasks_added.append(task)
-            # UploadTestExec().install_tku_threads(addm_items=addm_items)
             task = Runner.fire_t(TUploadExec.t_tku_install,
-                                 # fake_run=self.fake_run, to_sleep=20, to_debug=True,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[
                                      f"UploadTaskPrepare;task=t_tku_install;test_mode={self.test_mode};addm_group={addm_group};user={self.user_name}"],
