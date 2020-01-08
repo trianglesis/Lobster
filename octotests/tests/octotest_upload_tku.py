@@ -60,6 +60,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_ga()
         self.debug = True
         self.silent = True
+        self.tku_wget = True
         self.fake_run = True
         self.test_mode = 'fresh'
 

@@ -283,6 +283,7 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
         self.test_mode = 'custom'
         self.tku_type = None
         self.addm_group = None
+        self.package_types = None
         self.package_detail = None
 
         self.packages = TkuPackages.objects.all()
@@ -304,17 +305,6 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
     def tearDown(self) -> None:
         sleep(3)
         log.debug("<=UploadTaskUtils=> Test finished, data: %s", self.data)
-
-    def check_args(self):
-        if self.data.get('package_types'):
-            package_types = self.data.get('package_types')
-            assert isinstance(package_types, list), 'Package types is not a list!'
-            for package in package_types:
-                package_qa = TkuPackages.objects.filter(tku_type__exact=package)
-                if package_qa:
-                    assert isinstance(package_qa, TkuPackages), 'Selected package is not a QuerySet of TkuPackages'
-                else:
-                    raise Exception(f'No package can be found in database with type: {package}, maybe WGET can help')
 
     def check_tasks(self, tasks):
         tasks_res = dict()

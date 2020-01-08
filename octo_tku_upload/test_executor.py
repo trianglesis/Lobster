@@ -38,9 +38,12 @@ def thread_exceptions(function):
             step_k = kwargs.get('step_k', None)
             addm_group = kwargs.get('addm_group', None)
 
+            packages = kwargs.get('packages', None)
+            package_detail = kwargs.get('package_detail', None)
+
             for addm_item in addm_items:
                 addm_group = addm_item['addm_group']
-                msg = f"<=SINGLE ADDM WORK=> {addm_item['addm_name']}:{addm_item['addm_v_int']};mode={test_mode};step_k={step_k}"
+                msg = f"<=SINGLE ADDM WORK=> {addm_item['addm_name']}:{addm_item['addm_v_int']}:{addm_group};mode={test_mode};step_k={step_k}"
                 log.debug(msg)
 
         log.debug("Making false work.")

@@ -30,7 +30,7 @@ commands_list = [
     # 'nssm.exe start CELERY_golf',
     # 'net stop CELERY_golf && net start CELERY_golf',
 
-    # 'nssm.exe restart CELERY_parsing',
+    'nssm.exe restart CELERY_parsing',
     # 'nssm.exe stop CELERY_parsing',
     # 'nssm.exe start CELERY_parsing',
     # 'net stop CELERY_parsing && net start CELERY_parsing',

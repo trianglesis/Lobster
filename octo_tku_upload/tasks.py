@@ -140,7 +140,6 @@ class UploadTaskPrepare:
         self.package_types = ''
         self.packages = TkuPackages.objects.all()
         self.addm_set = AddmDev.objects.all()
-        self.addm_test_set = dict()
 
         # Current status args:
         self.tku_downloaded = False
@@ -193,24 +192,24 @@ class UploadTaskPrepare:
 
     def wget_run(self):
         if self.tku_wget:
-            subject = f"UploadTaskPrepare | wget_run | {self.test_mode} | {self.addm_group}"
-            body = f"ADDM group: {self.addm_group}, test mode: {self.test_mode}, tku_type: {self.tku_type}, user: {self.user_name}"
+            subject = f"UploadTaskPrepare | wget_run | {self.test_mode} "
+            body = f"WGET Run! test mode: {self.test_mode}, tku_type: {self.tku_type}, user: {self.user_name}"
             task = Runner.fire_t(TSupport.t_short_mail,
                                  fake_run=self.fake_run, to_sleep=2, to_debug=True,
-                                 t_queue=f'{self.addm_group}@tentacle.dq2',
+                                 t_queue='w_parsing@tentacle.dq2',
                                  t_args=[f"UploadTaskPrepare.wget_run;task=t_short_mail;test_mode={self.test_mode};"
-                                         f"addm_group={self.addm_group};user={self.user_name}"],
+                                         f"user={self.user_name}"],
                                  t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
-                                 t_routing_key=f"{self.addm_group}.TUploadExec.t_upload_prep")
+                                 t_routing_key="UploadTaskPrepare.TSupport.t_short_mail")
             self.tasks_added.append(task)
 
-            task = Runner.fire_t(TUploadExec.t_tku_sync, fake_run=self.fake_run,
+            task = Runner.fire_t(TUploadExec.t_tku_sync,
+                                 fake_run=self.fake_run, to_sleep=2, to_debug=True,
                                  t_kwargs=dict(tku_type=self.tku_type), t_args=['tag=t_tku_sync;'])
             self.tasks_added.append(task)
             if TasksOperations().task_wait_success(task, 't_tku_sync_option'):
                 self.tku_downloaded = True
-            # Wait for task to finish?
-            # OR, assign this task to the worker of ADDM selected group and then when it finish - upload test will run next?
+            # Wait for task to finish!
         else:
             self.tku_downloaded = True
 
@@ -352,7 +351,7 @@ class UploadTaskPrepare:
                                          f"UploadTaskPrepare.addm_prepare;task=t_short_mail;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],
                                      t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
-                                     t_routing_key=f"{addm_group}.TUploadExec.t_short_mail")
+                                     t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail")
                 self.tasks_added.append(task)
                 # UploadTestExec().upload_preparations_threads(addm_items=addm_items, mode='fresh')
                 task = Runner.fire_t(TUploadExec.t_upload_prep,
@@ -384,7 +383,7 @@ class UploadTaskPrepare:
                                  t_args=[f"UploadTaskPrepare.package_unzip;task=t_short_mail;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],
                                  t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
-                                 t_routing_key=f"{addm_group}.TUploadExec.t_short_mail")
+                                 t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail")
             self.tasks_added.append(task)
             # UploadTestExec().upload_unzip_threads(addm_items=addm_items, packages=packages_from_step)
             task = Runner.fire_t(TUploadExec.t_upload_unzip,
@@ -414,7 +413,7 @@ class UploadTaskPrepare:
                                  t_args=[f"UploadTaskPrepare.tku_install;task=t_short_mail;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],
                                  t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
-                                 t_routing_key=f"{addm_group}.TUploadExec.t_short_mail")
+                                 t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail")
             self.tasks_added.append(task)
             # UploadTestExec().install_tku_threads(addm_items=addm_items)
             task = Runner.fire_t(TUploadExec.t_tku_install,
