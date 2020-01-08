@@ -72,14 +72,6 @@ class TPatternRoutine:
         TestRunnerLoc().run_subprocess(**kwargs)
 
     @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_night_tests',
-              soft_time_limit=HOURS_1, task_time_limit=HOURS_2)
-    @exception
-    def t_routine_night_tests(t_tag, **kwargs):
-        log.debug("t_tag: %s", t_tag)
-        return PatternRoutineCases.nightly_test(**kwargs)
-
-    @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_test_prep',
               soft_time_limit=MIN_90, task_time_limit=HOURS_2)
     @exception
@@ -201,145 +193,6 @@ class PatternTestExecCases:
             msg = "<=sync_addm=> Task fail: '{}'!".format(addm_sync_task.status)
             log.error(msg)
             raise Exception(msg)
-
-
-class PatternRoutineCases:
-
-    # noinspection SpellCheckingInspection
-    @staticmethod
-    def nightly_test(**kwargs):
-        """
-        This is usual nightly test run routine.
-        Should use same scenario as "run_executor" in main Octopus.
-        Later can be modified and optimized, but now just duplicate same logic but in backend.
-
-        Start dates:
-        - main "2017-09-25"
-        - ship "2017-10-12"
-
-        kwargs:
-            - branch            : tkn_main / tkn_ship / both
-            - send_mail         : True / False
-            - start_date        : custom select tests only from this date
-            - excluded_seq   : Exclude pattern folder, list (can be any: folder or library)
-            - included_seq : Sort only selected pattern folders, list (can be any: folder or library)
-            - addm_group_l      : string of addm groups use
-          debug:
-            - test_output_mode  : silent / verbose (verbose as default)
-            - slice_arg         : Integer to slice db select results - for debug
-
-        :return: bool
-        """
-        fake_run = kwargs.get('fake_run', False)
-        branch = kwargs.get('branch', None)
-        user_name = kwargs.get('user_name', 'cron')
-        excluded_seq = kwargs.get('excluded_seq', None)
-        test_output_mode = kwargs.get('test_output_mode', False)
-
-        start_time = datetime.datetime.now()
-        log.debug("<=nightly_test=> Setting start time: %s", start_time)
-        all_tests_w = 0
-
-        if isinstance(excluded_seq, str):
-            excluded_seq = excluded_seq.split(',')
-
-        """ 1. Select tests for run. This should be made after previously run of p4 sync and parse"""
-        sorted_tests_l = BalanceNightTests().select_patterns_to_test(branch=branch, excluded_seq=excluded_seq, fake_run=fake_run)
-
-        log.debug("<=nightly_test=> TESTS ALL: Overall tests to run: %s", len(sorted_tests_l))
-        """ 2. Chunk tests on even groups for selected amount of addms """
-        addm_group_l = BalanceNightTests().get_available_addm_groups(branch=branch, user_name=user_name, fake_run=fake_run)
-        addm_tests_balanced = BalanceNightTests().test_weight_balancer(addm_group=addm_group_l, test_items=sorted_tests_l)
-
-        """ 2.1 Start filling queues with selected tests for selected ADDM items (querysets) """
-        addm_set = ADDMOperations.select_addm_set(addm_group=addm_group_l)               # Select and validate addm and assign corresponding balanced collection of tests:
-
-        for addm_item in addm_set:
-            _addm_group = addm_item[0]['addm_group']
-            addm_coll = addm_tests_balanced.get(_addm_group)
-            addm_tests = addm_coll.get('tests', [])
-            if addm_tests:
-                addm_tests_weight = addm_coll.get('all_tests_weight')
-                tent_avg = addm_coll.get('tent_avg')
-                log.debug("ADDM: %s tests: %s ~t: %s avg: %s", _addm_group, len(addm_tests), addm_tests_weight, tent_avg)
-                # log.debug("Tests for %s -> %s", addm_group, addm_tests)
-
-                # Send mail about tests assigning for this worker:
-                mail_task_arg = 'tag=night_routine;lock=True;lvl=auto;type=send_mail'
-                mail_kwargs = dict(mode="run",
-                                   r_type='Night',
-                                   branch=branch,
-                                   start_time=start_time,
-                                   addm_group=_addm_group,
-                                   addm_group_l=addm_group_l,
-                                   addm_test_pairs=len(addm_tests_balanced),
-                                   test_items_len=len(addm_tests),
-                                   all_tests=len(sorted_tests_l),
-                                   addm_used=len(addm_set),
-                                   all_tests_weight=addm_tests_weight,
-                                   tent_avg=tent_avg)
-                """ MAIL send mail when routine tests selected: """
-                Runner.fire_t(TSupport.t_long_mail, fake_run=fake_run,
-                              t_queue=_addm_group+'@tentacle.dq2',
-                              t_args=[mail_task_arg],
-                              t_kwargs=mail_kwargs,
-                              t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
-
-                """ Sync every available ADDM with Rsync """
-                Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=fake_run,
-                              t_queue=_addm_group+'@tentacle.dq2',
-                              t_args=[mail_task_arg],
-                              t_kwargs=dict(addm_items=addm_item))
-
-                """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
-                for test_item in addm_tests:
-                    test_t_w = round(float(test_item['test_time_weight']))
-                    tsk_msg = 'tag=night_routine;lock=True;type=routine {}/{}/{} t:{} on: "{}" by: {}'
-                    r_key = '{}.TExecTest.nightly_routine_case.{}'.format(_addm_group, test_item['pattern_folder_name'])
-                    t_tag = tsk_msg.format(test_item['tkn_branch'], test_item['pattern_library'],
-                                           test_item['pattern_folder_name'], test_t_w, _addm_group, user_name)
-
-                    # LIVE:
-                    Runner.fire_t(TPatternExecTest().t_test_exec_threads, fake_run=fake_run,
-                                  t_queue=_addm_group + '@tentacle.dq2',
-                                  t_args=[t_tag],
-                                  t_kwargs=dict(addm_items=addm_item, test_item=test_item, test_output_mode=test_output_mode),
-                                  t_routing_key=r_key,
-                                  t_soft_time_limit=HOURS_2,
-                                  t_task_time_limit=HOURS_2+900)
-
-                else:
-                    """ 5.1. SLEEP before add task for mail send when finish tests and log save: """
-                    mail_kwargs.update(mode='fin')
-                    Runner.fire_t(TSupport.t_long_mail, fake_run=fake_run,
-                                  t_queue=_addm_group+'@tentacle.dq2',
-                                  t_args=[mail_task_arg],
-                                  t_kwargs=mail_kwargs,
-                                  t_routing_key = 'z_{}.night_routine_mail'.format(_addm_group))
-                # Show this in task output when finish.
-                all_tests_w += addm_tests_weight
-            else:
-                log.info("ADDM %s has no tasks to run now.", _addm_group)
-
-        msg = '''Night routine has been executed. Options used:
-                 ADDM input: {addm_arg} | 
-                 ADDM actual: {addm_act} | 
-                 Excluded: {excl} | 
-                 Test output {tst_outp} | 
-                 Branch {branch} | 
-                 Overall tests to run: {tst_len} | 
-                 Overall tests time weight: {tst_w_t} | 
-                 Start at: {start_time} |'''.format(
-            addm_arg=kwargs.get('addm_group', []),
-            addm_act=addm_group_l,
-            excl=excluded_seq,
-            tst_outp=test_output_mode,
-            branch=branch,
-            tst_len=len(sorted_tests_l),
-            tst_w_t=all_tests_w,
-            start_time=start_time,
-        )
-        return msg
 
 
 class TaskPrepare:
@@ -798,13 +651,16 @@ class TaskPrepare:
         t_tag = f'tag=t_test_exec_threads;type=user_routine;branch={test_item["tkn_branch"]};' \
                 f'addm_group={addm["addm_group"]};user_name={self.user_name};' \
                 f'refresh={self.refresh};t_ETA={test_item["test_time_weight"]};test_case_path={test_item["test_case_depot_path"]}'
+        test_t_w = round(float(test_item['test_time_weight']))
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=10, debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(addm_items=list(addm_set), test_item=test_item,
                                     test_function=self.test_function),
-                      t_routing_key=task_r_key, t_soft_time_limit=7200)
+                      t_routing_key=task_r_key,
+                      t_soft_time_limit=test_t_w+900,
+                      t_task_time_limit=test_t_w+1200)
 
     def task_tag_generate(self):
         """Just make a task tag for this routine"""
