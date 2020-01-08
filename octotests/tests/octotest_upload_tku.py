@@ -64,7 +64,10 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.test_mode = 'fresh'
 
         # self.addm_group = 'golf'
-        self.addm_set = self.addm_set.filter(addm_group__exact='golf', disables__isnull=True).values().order_by('addm_group')
+        # self.addm_set = self.addm_set.filter(addm_group__exact='golf', disables__isnull=True).values().order_by('addm_group')
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['alpha', 'golf'],
+            disables__isnull=True).values().order_by('addm_group')
         self.package_types = [package_type]
         self.run_case()
 

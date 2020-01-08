@@ -15,7 +15,7 @@ commands_list = [
     # 'nssm.exe start CELERY_routines',
     # 'net stop CELERY_routines && net start CELERY_routines',
 
-    # 'nssm.exe restart CELERY_alpha',
+    'nssm.exe restart CELERY_alpha',
     # 'nssm.exe stop CELERY_alpha',
     # 'nssm.exe start CELERY_alpha',
     # 'net stop CELERY_alpha && net start CELERY_alpha',
