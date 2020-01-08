@@ -480,7 +480,7 @@ class TKUOperationsREST(APIView):
         """
 
         # HERE: We no longer require to keep view/request based data
-        kwargs_ = dict(
+        kw_options = dict(
             data=self.request.data,
             user_name=self.request.user.username,
             user_email=self.request.user.email,
@@ -490,7 +490,7 @@ class TKUOperationsREST(APIView):
         t_routing_key = 'routines.TUploadExec.t_upload_test'
         task = TUploadExec.t_upload_test.apply_async(
             args=[t_tag],
-            kwargs=kwargs_,
+            kwargs=kw_options,
             queue=t_queue,
             routing_key=t_routing_key,
         )

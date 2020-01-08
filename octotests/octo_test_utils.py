@@ -277,16 +277,14 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
         self.user_name = None
         self.user_email = None
 
+        self.fake_run = None
         self.tku_wget = None
         self.test_mode = None
         self.tku_type = None
         self.addm_group = None
         self.package_detail = None
 
-        self.fake_run = None
-
         self.data = dict()
-
         self.tasks_added = []
 
     def setUp(self) -> None:

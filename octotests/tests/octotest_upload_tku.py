@@ -2,6 +2,7 @@
 Example for octo test
 """
 import unittest
+
 try:
     from octotests import octo_tests
 except ModuleNotFoundError:
@@ -55,14 +56,20 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
 
     def test004_release_ga_fresh(self):
         package_type = self.select_latest_ga()
-        self.data.update(
-            debug=True,
-            silent=True,
-            fake_run=True,
-            addm_group='golf',
-            test_mode='fresh',
-            package_types=[package_type]
-        )
+        self.debug = True,
+        self.silent = True,
+        self.fake_run = True,
+        self.addm_group = 'golf',
+        self.test_mode = 'fresh',
+        self.package_types = [package_type]
+        # self.data.update(
+        #     debug=True,
+        #     silent=True,
+        #     fake_run=True,
+        #     addm_group='golf',
+        #     test_mode='fresh',
+        #     package_types=[package_type]
+        # )
         self.run_case()
 
     # def test005_release_ga_fresh(self):
