@@ -30,16 +30,22 @@ def thread_exceptions(function):
     def wrapper(*args, **kwargs):
         if os.name == 'nt':
             log.debug("THIS IS WINDOWS MACHINE! Do not run threading.")
-            log.debug("Args passed: %s", args)
-            log.debug("Kwargs passed: %s", kwargs)
+            log.debug(f"Args passed: {args}")
+            log.debug(f"Kwargs passed: {kwargs}")
             user_email = kwargs.get('user_email', None)
             addm_items = kwargs.get('addm_items', None)
             test_mode = kwargs.get('test_mode', None)
             step_k = kwargs.get('step_k', None)
-            addm_group = kwargs.get('addm_group', None)
 
+            addm_group = kwargs.get('addm_group', None)
+            if addm_group:
+                log.info("ADDM Group used: %s", addm_group)
             packages = kwargs.get('packages', None)
+            if packages:
+                log.info("TKU Packages to install: %s", packages)
             package_detail = kwargs.get('package_detail', None)
+            if package_detail:
+                log.info("TKU Install package: %s", package_detail)
 
             for addm_item in addm_items:
                 addm_group = addm_item['addm_group']
@@ -231,10 +237,11 @@ class UploadTestExec:
         user_email = kwargs.get('user_email', None)
         addm_items = kwargs.get('addm_items', None)
         packages = kwargs.get('packages', None)
-        package_detail = kwargs.get('package_detail', None)
         test_mode = kwargs.get('test_mode')
         step_k = kwargs.get('step_k')
         addm_group = kwargs.get('addm_group', None)
+
+        package_detail = kwargs.get('package_detail', None)
         pack = packages.first()
 
         thread_list = []

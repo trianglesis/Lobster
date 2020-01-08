@@ -17,22 +17,6 @@ now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')
 place = os.path.dirname(os.path.abspath(__file__))
 
 
-class GroupWriteRotatingFileHandler(handlers.RotatingFileHandler):
-
-    def doRollover(self):
-        """
-        Override base class method to make the new log file group writable.
-        https://stackoverflow.com/questions/1407474/does-python-logging-handlers-rotatingfilehandler-allow-creation-of-a-group-writa
-        """
-        # Rotate the file first.
-        handlers.RotatingFileHandler.doRollover(self)
-
-        # Add group write to the current permissions.
-        currMode = os.stat(self.baseFilename).st_mode
-        # noinspection PyUnresolvedReferences
-        os.chmod(self.baseFilename, currMode | stat.S_IWGRP)
-
-
 def test_logger():
     """
     Create very detailed log for pattern testing.
@@ -63,16 +47,17 @@ def test_logger():
     log.setLevel(logging.DEBUG)
 
     if os.name == "nt":
-        log_name = "WEB_octopus.log"
+        log_name = "../WEB_octopus.log"
         cons_handler = logging.StreamHandler(stream=sys.stdout)
         cons_handler.setLevel(logging.DEBUG)
         cons_format = logging.Formatter(
-            '%(asctime)-24s'
-            '%(levelname)-8s'
-            '%(module)-20s'
-            '%(funcName)-22s'
-            'L:%(lineno)-6s'
-            '%(message)8s'
+            '{asctime}-24s'
+            '{levelname}-8s'
+            '{module}-20s'
+            '{funcName}-22s'
+            'L:{lineno}-6s'
+            '{message}8s',
+            style='{'
         )
         cons_handler.setFormatter(cons_format)
         log.addHandler(cons_handler)
@@ -80,16 +65,61 @@ def test_logger():
         log_name = "/var/log/octopus/WEB_octopus.log"
 
     # Extra detailed logging to file:
-    f_handler = logging.FileHandler(log_name, mode='a', encoding='utf-8',)
+    f_handler = logging.FileHandler(log_name, mode='a', encoding='utf-8')
 
     f_handler.setLevel(logging.DEBUG)
     # Extra detailed logging to console:
-    f_format = logging.Formatter('%(asctime)-24s'
-                                 '%(levelname)-8s'
-                                 '%(filename)-23s'
-                                 '%(funcName)-26s'
-                                 'L:%(lineno)-6s'
-                                 '%(message)8s')
+    f_format = logging.Formatter(
+        '{asctime}-24s'
+        '{levelname}-8s'
+        '{filename}-23s'
+        '{funcName}-26s'
+        'L:{lineno}-6s'
+        '{message}8s',
+        style='{'
+    )
+
+    f_handler.setFormatter(f_format)
+    log.addHandler(f_handler)
+
+    return log
+
+
+def test_logger_new():
+
+    log = logging.getLogger('octologger_new')
+    log.setLevel(logging.DEBUG)
+
+    if os.name == "nt":
+        log_name = "WEB_octopus_new.log"
+        cons_handler = logging.StreamHandler(stream=sys.stdout)
+        cons_handler.setLevel(logging.DEBUG)
+        cons_format = logging.Formatter(
+            '{asctime}-24s'
+            '{levelname}-8s'
+            '{module}-20s'
+            '{funcName}-22s'
+            'L:{lineno}-6s'
+            '{message}8s',
+            style='{'
+        )
+        cons_handler.setFormatter(cons_format)
+        log.addHandler(cons_handler)
+    else:
+        log_name = "/var/log/octopus/WEB_octopus_new.log"
+
+    # Extra detailed logging to file:
+    f_handler = logging.handlers.RotatingFileHandler(log_name, mode='a', encoding='utf-8', maxBytes=500, backupCount=5)
+
+    f_handler.setLevel(logging.DEBUG)
+    # Extra detailed logging to console:
+    f_format = logging.Formatter('{asctime}-24s'
+                                 '{levelname}-8s'
+                                 '{filename}-23s'
+                                 '{funcName}-26s'
+                                 'L:{lineno}-6s'
+                                 '{message}8s',
+                                 style='{')
 
     f_handler.setFormatter(f_format)
     log.addHandler(f_handler)
@@ -98,27 +128,27 @@ def test_logger():
 
 
 # noinspection PyUnresolvedReferences
-def dev_logger(custom_attr):
-    log_place = os.path.join(os.path.dirname(place), 'log/')
-    log_name = "{0}_DEV_{1}.log".format(log_place, custom_attr)
-
-    log = logging.getLogger('TestLog')
-    log.setLevel(logging.DEBUG)
-
-    # Extra detailed logging to file:
-    f_handler = logging.FileHandler(log_name, mode='a', encoding='utf-8')
-    f_handler.setLevel(logging.DEBUG)
-
-    f_format = logging.Formatter('%(asctime)-24s'
-                                 '%(thread)d'
-                                 '%(threadName)-8s'
-                                 '%(levelname)-8s '
-                                 '%(filename)-23s'
-                                 '%(funcName)-22s'
-                                 'L:%(lineno)-6s'
-                                 '%(message)8s')
-    f_handler.setFormatter(f_format)
-
-    log.addHandler(f_handler)
-
-    return log
+# def dev_logger(custom_attr):
+#     log_place = os.path.join(os.path.dirname(place), 'log/')
+#     log_name = "{0}_DEV_{1}.log".format(log_place, custom_attr)
+#
+#     log = logging.getLogger('TestLog')
+#     log.setLevel(logging.DEBUG)
+#
+#     # Extra detailed logging to file:
+#     f_handler = logging.handlers.RotatingFileHandler(log_name, mode='a', encoding='utf-8')
+#     f_handler.setLevel(logging.DEBUG)
+#
+#     f_format = logging.Formatter('%(asctime)-24s'
+#                                  '%(thread)d'
+#                                  '%(threadName)-8s'
+#                                  '%(levelname)-8s '
+#                                  '%(filename)-23s'
+#                                  '%(funcName)-22s'
+#                                  'L:%(lineno)-6s'
+#                                  '%(message)8s')
+#     f_handler.setFormatter(f_format)
+#
+#     log.addHandler(f_handler)
+#
+#     return log
