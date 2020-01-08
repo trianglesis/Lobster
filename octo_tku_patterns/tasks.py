@@ -84,8 +84,7 @@ class TPatternExecTest:
 
     @staticmethod
     @app.task(routing_key='addm_group.TExecTest.t_test_exec_threads.pattern_folder',
-              max_retries=1, autoretry_for=(AttributeError,),
-              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+              max_retries=1, autoretry_for=(AttributeError,))
     @exception
     def t_test_exec_threads(t_tag, **kwargs):
         log.debug("t_tag: %s", t_tag)

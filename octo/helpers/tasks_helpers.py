@@ -14,7 +14,7 @@ from collections import OrderedDict
 
 from django.template import loader
 from django.conf import settings
-from celery.exceptions import SoftTimeLimitExceeded
+from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from billiard.exceptions import WorkerLostError
 from octo.helpers.tasks_mail_send import Mails
 from run_core.models import Options
@@ -38,15 +38,24 @@ def exception(function):
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         # Messages for fails
-        MSG_T_SOFT = '<=Soft Time Limit=> Task soft time limit exceeded. {}.{}'
+        MSG_T = '<=Time Limit=> {} Task cancelled! Time limit exceeded. {}.{}'
+        MSG_T_SOFT = '<=Soft Time Limit=> {} Task soft time limit exceeded. {}.{}'
         MSG_FAIL = '<=TestExecTasks=> Task fail "{}.{}" ! Error output: {}'
 
         try:
             return function(*args, **kwargs)
         except SoftTimeLimitExceeded:
             log.error("Task SoftTimeLimitExceeded: %s", (function, args, kwargs))
-            TMail().t_lim(function, *args, **kwargs)
-            raise SoftTimeLimitExceeded(MSG_T_SOFT.format(function.__module__, function.__name__))
+            msg = MSG_T_SOFT.format(curr_hostname, function.__module__, function.__name__)
+            TMail().t_lim(msg, function, *args, **kwargs)
+            # Do not rise when soft time limit, just inform:
+            # raise SoftTimeLimitExceeded(msg)
+        except TimeLimitExceeded:
+            log.error("Task TimeLimitExceeded: %s", (function, args, kwargs))
+            msg = MSG_T.format(curr_hostname, function.__module__, function.__name__)
+            TMail().t_lim(msg, function, *args, **kwargs)
+            # Raise when task goes out of a latest time limit:
+            raise SoftTimeLimitExceeded(msg)
         except WorkerLostError as e:
             log.error("Task WorkerLostError: %s", (function, e, args, kwargs))
             TMail().t_fail(function, e, *args, **kwargs)
@@ -66,7 +75,6 @@ def exception(function):
     return wrapper
 
 
-# TODO: Add sets of default mail recipients from Options table
 class TMail:
 
     def __init__(self):
@@ -219,9 +227,8 @@ class TMail:
         else:
             return mail_html
 
-    def t_lim(self, function, *args, **kwargs):
-        txt = '{} : {} Task time exceeded!'.format(curr_hostname, function.__name__)
-        log.error("<=Task Time Limit=> %s", txt)
+    def t_lim(self, msg, function, *args, **kwargs):
+        log.error("<=Task Time Limit=> %s", msg)
         task_limit = loader.get_template('service/emails/statuses/task_details.html')
         # Try to get user email if present:
         user_email = kwargs.get('user_email', self.m_service)
@@ -231,9 +238,9 @@ class TMail:
                             task=function.__name__,
                             module=function.__module__)
 
-        mail_details = dict(SUBJECT = txt, TASK_DETAILS=task_details)
+        mail_details = dict(SUBJECT = msg, TASK_DETAILS=task_details)
         mail_html = task_limit.render(mail_details)
-        Mails.short(mail_html=mail_html, subject=txt, send_to=user_email, send_cc=self.m_service)
+        Mails.short(mail_html=mail_html, subject=msg, send_to=user_email, send_cc=self.m_service)
 
     def t_fail(self, function, err, *args, **kwargs):
         log.error("<=Task helpers=> %s", '({}) : ({}) Task failed!'.format(curr_hostname, function.__name__))
