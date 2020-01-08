@@ -214,7 +214,7 @@ class PatternTestUtils(unittest.TestCase):
     def sync_test_data_addm_set(self, _addm_group, addm_item):
         log.debug("sync_test_data_addm_set")
         Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=False,
-                      t_queue=_addm_group+'@tentacle.dq2',
+                      t_queue=_addm_group + '@tentacle.dq2',
                       t_args=[self.mail_task_arg],
                       t_kwargs=dict(addm_items=addm_item))
 
@@ -236,7 +236,7 @@ class PatternTestUtils(unittest.TestCase):
             tent_avg=tent_avg)
         """ MAIL send mail when routine tests selected: """
         Runner.fire_t(TSupport.t_long_mail, fake_run=self.fake_run,
-                      t_queue=_addm_group+'@tentacle.dq2',
+                      t_queue=_addm_group + '@tentacle.dq2',
                       t_args=[self.mail_task_arg],
                       t_kwargs=self.mail_kwargs,
                       t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
@@ -254,32 +254,33 @@ class PatternTestUtils(unittest.TestCase):
             Runner.fire_t(TPatternExecTest().t_test_exec_threads, fake_run=self.fake_run,
                           t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[t_tag],
-                          t_kwargs=dict(addm_items=addm_item, test_item=test_item, test_output_mode=self.test_output_mode),
+                          t_kwargs=dict(addm_items=addm_item, test_item=test_item,
+                                        test_output_mode=self.test_output_mode),
                           t_routing_key=r_key,
-                          t_soft_time_limit=test_t_w+900,
-                          t_task_time_limit=test_t_w+1200)
+                          t_soft_time_limit=test_t_w + 900,
+                          t_task_time_limit=test_t_w + 1200)
 
     def finish_mail(self, _addm_group):
         if not self.silent:
             log.debug("finish_mail add task")
             self.mail_kwargs.update(mode='fin')
             Runner.fire_t(TSupport.t_long_mail, fake_run=self.fake_run,
-                          t_queue=_addm_group+'@tentacle.dq2',
+                          t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[self.mail_task_arg],
                           t_kwargs=self.mail_kwargs,
-                          t_routing_key = 'z_{}.night_routine_mail'.format(_addm_group))
+                          t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
 
 
 class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
 
     def __init__(self, *args, **kwargs):
         super(UploadTaskUtils, self).__init__(*args, **kwargs)
-        self.user_name = None
-        self.user_email = None
+        self.user_name = 'OctoTests'
+        self.user_email = 'OctoTests'
 
-        self.fake_run = None
-        self.tku_wget = None
-        self.test_mode = None
+        self.fake_run = False
+        self.tku_wget = False
+        self.test_mode = 'custom'
         self.tku_type = None
         self.addm_group = None
         self.package_detail = None
@@ -293,12 +294,6 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
 
     def run_case(self):
         log.info("<=UploadTaskUtils=> Running case!")
-        # kwargs_ = dict(
-        #     data=self.data,
-        #     user_name=self.user_name,
-        #     user_email=self.user_email,
-        # )
-        # tasks = UploadTaskPrepare(**kwargs_).run_tku_upload()
         tasks = self.run_tku_upload()
         if tasks:
             self.check_tasks(tasks)
@@ -347,9 +342,8 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
         :return:
         """
         if user_name and user_email:
-            self.data.update(user_name=user_name, user_email=user_email)
-        else:
-            self.data.update(user_name='OctoTests', user_email='OctoTests')
+            self.user_name = user_name
+            self.user_email = user_email
 
     @staticmethod
     def select_latest_continuous(tkn_branch):
