@@ -25,7 +25,6 @@ from run_core.models import AddmDev
 from octotests.tests_discover_run import TestRunnerLoc
 
 log = logging.getLogger("octo.octologger")
-log_n = logging.getLogger("octologger_new")
 logger = get_task_logger(__name__)
 
 DAY_LIMIT = 172800
@@ -38,6 +37,8 @@ MIN_10 = 600
 MIN_1 = 60
 SEC_10 = 10
 SEC_1 = 1
+
+_LH_ = '<=UploadTaskPrepare=>'
 
 
 # noinspection PyUnusedLocal,PyUnusedLocal
@@ -136,7 +137,8 @@ class UploadTaskPrepare:
 
         # Get user and mail:
         self.start_time = datetime.datetime.now()
-        log.info("<=UploadTaskPrepare=> Prepare tests for user: %s - %s", self.user_name, self.user_email)
+
+        log.info(f"{_LH_} Prepare tests for user: {self.user_name} - {self.user_email}")
 
         self.package_types = ''
         self.packages = dict()
@@ -155,7 +157,7 @@ class UploadTaskPrepare:
         """
         if self.data.get('fake_run'):
             self.fake_run = True
-            log.debug("<=UploadTaskPrepare=> Fake run = %s", self.fake_run)
+            log.debug(f"{_LH_} Fake run = {self.fake_run}")
 
     def silent_run(self):
         """
@@ -164,11 +166,11 @@ class UploadTaskPrepare:
         """
         if self.data.get('silent'):
             self.silent = True
-        log.debug("<=UploadTaskPrepare=> Silent run = %s", self.silent)
+        log.debug(f"{_LH_} Silent run = {self.silent}")
 
     def run_tku_upload(self):
         self.task_tag()
-        log.warning("<=UploadTaskPrepare=> TASK PSEUDO RUNNING in TaskPrepare.run_tku_upload")
+        log.warning(f"{_LH_} TASK PSEUDO RUNNING in TaskPrepare.run_tku_upload")
         # 0. Init test mail?
         # self.mail_status(mail_opts=dict(mode='init', view_obj=self.view_obj))
 
@@ -221,9 +223,9 @@ class UploadTaskPrepare:
             # String comes from REST POST Request - split on list
             if isinstance(self.data.get('package_types'), str):
                 _packages = self.data.get('package_types')
-                log.debug("Splitting package_types: %s", _packages)
+                log.debug(f"Splitting package_types: {_packages}")
                 self.package_types = _packages.split(',')
-                log.debug("List package_types: %s", self.package_types)
+                log.debug(f"List package_types: {self.package_types}")
             # List comes from octo test:
             elif isinstance(self.data.get('package_types'), list):
                 self.package_types = self.data.get('package_types')
@@ -247,7 +249,7 @@ class UploadTaskPrepare:
         packages = dict()
         # Mode to install Released TKU and then GA over it:
         if self.test_mode == 'update':
-            log.info("<=UploadTaskPrepare=> Will install TKU in UPDATE mode.")
+            log.info(f"{_LH_} Will install TKU in UPDATE mode.")
             # 1st step - use previously released package:
             released_tkn = TkuPackages.objects.filter(
                 tku_type__exact='released_tkn').aggregate(Max('package_type'))
@@ -264,7 +266,7 @@ class UploadTaskPrepare:
             packages.update(step_2=package)
         # Mode to install any TKU as fresh or step, one by one.
         elif self.test_mode == 'step' or self.test_mode == 'fresh':
-            log.info("<=UploadTaskPrepare=> Install TKU in (%s) mode - (%s)", self.test_mode, self.package_types)
+            log.info(f"{_LH_}Install TKU in {self.test_mode} mode - {self.package_types}")
             step = 0
             for package_type in self.package_types:
                 step += 1
@@ -277,7 +279,7 @@ class UploadTaskPrepare:
                 packages.update({f'step_{step}': package})
         # Mode to install TKU simply.
         else:
-            log.info("<=UploadTaskPrepare=> Will install TKU in Custom mode.")
+            log.info(f"{_LH_} Will install TKU in Custom mode.")
             step = 0
             for package_type in self.package_types:
                 step += 1
@@ -289,7 +291,7 @@ class UploadTaskPrepare:
                     package = package_dis
                 packages.update({f'step_{step}': package})
 
-        log.info("<=UploadTaskPrepare=> Selected packages for test in mode: %s", self.test_mode)
+        log.info(f"{_LH_}Selected packages for test in mode: {self.test_mode}")
 
         self.packages = packages
         return packages
@@ -309,7 +311,7 @@ class UploadTaskPrepare:
 
     def tku_run_steps(self):
         for step_k, packages_v in self.packages.items():
-            log.info("<=UploadTaskPrepare=> Processing packages step by step: %s", step_k)
+            log.info(f"{_LH_}Processing packages step by step: {step_k}")
             # Task for upload test prep if needed (remove older TKU, prod content, etc)
             self.addm_prepare(step_k=step_k)
             # Task for unzip packages on selected each ADDM from ADDM Group
@@ -327,19 +329,22 @@ class UploadTaskPrepare:
         """
         t_kwargs = ''
         if self.test_mode == 'fresh' and step_k == 'step_1':
-            log_n.info(f"<=UploadTaskPrepare=> Fresh install: {self.test_mode}, 1st step {step_k} - require TKU wipe and prod content delete!")
+            log.info(f"{_LH_}Fresh install: {self.test_mode}, "
+                     f"1st step {step_k} - require TKU wipe and prod content delete!")
             t_kwargs = dict(addm_items='', step_k=step_k, test_mode='fresh', user_email=self.user_email)
 
         elif self.test_mode == 'update' and step_k == 'step_1':
-            log_n.info(f"<=UploadTaskPrepare=> Update install: {self.test_mode}, 1st step {step_k} - require TKU wipe and prod content delete!")
+            log.info(f"{_LH_}Update install: {self.test_mode}, "
+                     f"1st step {step_k} - require TKU wipe and prod content delete!")
             t_kwargs = dict(addm_items='', step_k=step_k, test_mode='update', user_email=self.user_email)
 
         elif self.test_mode == 'step' and step_k == 'step_1':
-            log_n.info(f"<=UploadTaskPrepare=> Step install: {self.test_mode}, 1st step {step_k} - require TKU wipe and prod content delete!")
+            log.info(f"{_LH_}Step install: {self.test_mode}, "
+                     f"1st step {step_k} - require TKU wipe and prod content delete!")
             t_kwargs = dict(addm_items='', step_k=step_k, test_mode='step', user_email=self.user_email)
 
         else:
-            log_n.debug("Other modes do not require preparations. Only fresh and update at 1st step require!")
+            log.debug("Other modes do not require preparations. Only fresh and update at 1st step require!")
 
         if t_kwargs:
             for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
@@ -432,5 +437,4 @@ class UploadTaskPrepare:
     def debug_unpack_qs(packages):
         for step_k, step_package in packages.items():
             for pack in step_package:
-                msg = f'{step_k} package: {pack.tku_type} -> {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} '
-                log.info(msg)
+                log.info(f'{step_k} package: {pack.tku_type} -> {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} ')

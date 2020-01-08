@@ -51,12 +51,12 @@ def test_logger():
         cons_handler = logging.StreamHandler(stream=sys.stdout)
         cons_handler.setLevel(logging.DEBUG)
         cons_format = logging.Formatter(
-            '{asctime}-24s'
-            '{levelname}-8s'
-            '{module}-20s'
-            '{funcName}-22s'
-            'L:{lineno}-6s'
-            '{message}8s',
+            '{asctime:<24}'
+            '{levelname:<8}'
+            '{module:<20}'
+            '{funcName:<22}'
+            'L:{lineno:<6}'
+            '{message:8s}',
             style='{'
         )
         cons_handler.setFormatter(cons_format)
@@ -70,12 +70,12 @@ def test_logger():
     f_handler.setLevel(logging.DEBUG)
     # Extra detailed logging to console:
     f_format = logging.Formatter(
-        '{asctime}-24s'
-        '{levelname}-8s'
-        '{filename}-23s'
-        '{funcName}-26s'
-        'L:{lineno}-6s'
-        '{message}8s',
+        '{asctime:<24}'
+        '{levelname:<8}'
+        '{filename:<20}'
+        '{funcName:<22}'
+        'L:{lineno:<6}'
+        '{message:8s}',
         style='{'
     )
 
