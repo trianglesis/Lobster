@@ -8,6 +8,9 @@ WIll use same logic from TPL IDE Automation.
 import logging
 import os
 import re
+import functools
+import itertools
+
 from datetime import datetime
 from queue import Queue
 from threading import Thread
@@ -19,6 +22,30 @@ from run_core.addm_operations import ADDMOperations
 from run_core.models import TestOutputs
 
 log = logging.getLogger("octo.octologger")
+
+
+def thread_exceptions(function):
+
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        if os.name == 'nt':
+            log.debug("THIS IS WINDOWS MACHINE! Do not run threading.")
+            log.debug("Args passed: %s", args)
+            log.debug("Kwargs passed: %s", kwargs)
+            user_email = kwargs.get('user_email', None)
+            addm_items = kwargs.get('addm_items', None)
+            test_mode = kwargs.get('test_mode', None)
+            step_k = kwargs.get('step_k', None)
+            addm_group = kwargs.get('addm_group', None)
+
+            for addm_item in addm_items:
+                addm_group = addm_item['addm_group']
+                msg = f"<=SINGLE ADDM WORK=> {addm_item['addm_name']}:{addm_item['addm_v_int']};mode={test_mode};step_k={step_k}"
+                log.debug(msg)
+
+        log.debug("Making false work.")
+
+    return wrapper
 
 
 class UploadTestExec:
@@ -60,6 +87,7 @@ class UploadTestExec:
         self.errors_re = re.compile(
             r"Pattern\smodule\s(?P<module>\S+)\s+Errors:\s+(?P<error>.+)")
 
+    @thread_exceptions
     def upload_preparations_threads(self, **kwargs):
         """
         Run sequence of commands on each ADDM to prepare it for TKU Install.
@@ -71,7 +99,7 @@ class UploadTestExec:
         addm_items = kwargs.get('addm_items', None)
         test_mode = kwargs.get('test_mode', None)
         step_k = kwargs.get('step_k', None)
-        addm_group = addm_items.first().get('addm_group')
+        addm_group = kwargs.get('addm_group', None)
 
         thread_list = []
         thread_outputs = []
@@ -80,8 +108,10 @@ class UploadTestExec:
         start_time = datetime.now()
 
         for addm_item in addm_items:
+            addm_group = addm_item['addm_group']
             msg = f"<=Upload Preparation Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']};mode={test_mode};step_k={step_k}"
             log.debug(msg)
+
             # Open SSH connection:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
             if ssh and ssh.get_transport().is_active():
@@ -118,6 +148,7 @@ class UploadTestExec:
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'upload_preparations_threads Took {time() - ts} {body}'
 
+    @thread_exceptions
     def upload_unzip_threads(self, **kwargs):
         """
         Unzip TKU packs from the queryset of packages for each ADDM version.
@@ -130,7 +161,7 @@ class UploadTestExec:
         packages = kwargs.get('packages', None)
         test_mode = kwargs.get('test_mode', None)
         step_k = kwargs.get('step_k', None)
-        addm_group = addm_items.first().get('addm_group')
+        addm_group = kwargs.get('addm_group', None)
         pack = packages.first()
 
         thread_list = []
@@ -140,11 +171,13 @@ class UploadTestExec:
         start_time = datetime.now()
 
         for addm_item in addm_items:
+            addm_group = addm_item['addm_group']
             # Get ADDM related package zip list from packages:
             package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
             tku_zip_list = [package.zip_file_path for package in package_]
             msg = f"<=Upload Unzip Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']} zip {len(tku_zip_list)} - {tku_zip_list};step_k={step_k}"
             log.debug(msg)
+
             # Open SSH connection:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
             if ssh and ssh.get_transport().is_active():
@@ -184,6 +217,7 @@ class UploadTestExec:
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'upload_unzip_threads Took {time() - ts} {body}'
 
+    @thread_exceptions
     def install_tku_threads(self, **kwargs):
         """
         Simple TKU Install process, runs for each ADDM om set, with tw_pattern_management utility.
@@ -197,7 +231,7 @@ class UploadTestExec:
         package_detail = kwargs.get('package_detail', None)
         test_mode = kwargs.get('test_mode')
         step_k = kwargs.get('step_k')
-        addm_group = addm_items.first().get('addm_group')
+        addm_group = kwargs.get('addm_group', None)
         pack = packages.first()
 
         thread_list = []
@@ -212,11 +246,13 @@ class UploadTestExec:
             mode_key = f'{pack.tku_type}.{test_mode}.{step_k}'
 
         for addm_item in addm_items:
+            addm_group = addm_item['addm_group']
             # Get ADDM related package zip list from packages:
             package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
             tku_zip_list = [package.zip_file_path for package in package_]
             msg = f"<=Upload TKU Install Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']} zip {len(tku_zip_list)} - {tku_zip_list} step_k={step_k}"
             log.debug(msg)
+
             # Open SSH connection:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
             if ssh and ssh.get_transport().is_active():

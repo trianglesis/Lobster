@@ -2,6 +2,8 @@
 Example for octo test
 """
 import unittest
+from itertools import groupby
+from operator import itemgetter
 
 try:
     from octotests import octo_tests
@@ -59,8 +61,10 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.debug = True
         self.silent = True
         self.fake_run = True
-        self.addm_group = 'golf'
         self.test_mode = 'fresh'
+
+        # self.addm_group = 'golf'
+        self.addm_set = self.addm_set.filter(addm_group__exact='golf', disables__isnull=True).values().order_by('addm_group')
         self.package_types = [package_type]
         self.run_case()
 
