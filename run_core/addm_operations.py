@@ -109,7 +109,7 @@ class ADDMStaticOperations:
             operations = operations.filter(command_key__in=command_key)
         else:
             # To catch a wrong situation, just select a version command:
-            operations = operations.filter(command_key__exact='show_addm_version')
+            operations = operations.filter(command_key__exact='show.addm.version')
         log.info("All selected operations count: %s by command_key %s", operations.count(), command_key)
         return operations
 

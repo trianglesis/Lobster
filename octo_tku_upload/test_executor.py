@@ -155,16 +155,17 @@ class UploadTestExec:
     def __init__(self):
         self.preparation_steps = dict(
             fresh=[
-                'show_addm_version'
-                'test_kill',
-                'tku_install_kill',
-                'tw_scan_control__clear',
-                'tw_pattern_management__remove_all',
-                'rpm_delete_tideway_content',
-                'rpm_delete_tideway_devices',
+                'show.addm.version'
+                'test.kill',
+                'tku.install.kill',
+                'tw_scan_control.clear',
+                'tw_pattern_management.remove_all',
+                'rpm.delete.tideway_content',
+                'rpm.delete.tideway_devices',
             ],
-            update=['show_addm_version', 'tw_scan_control__clear'],
-            step=['show_addm_version', 'tw_scan_control__clear'],
+            update=['show.addm.version', 'tw_scan_control.clear'],
+            step=['show.addm.version', 'tw_scan_control.clear'],
+            upload_unzip=['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']
         )
 
         self.out_clear_re = re.compile(r';#.*;\n')
@@ -194,47 +195,52 @@ class UploadTestExec:
         addm_group = kwargs.get('addm_group', None)
 
         thread_list = []
-        thread_outputs = []
-        ts = time()
         test_q = Queue()
+        ts = time()
         start_time = datetime.now()
+        thread_outputs = []
 
         # TODO: Use threaded_exec_cmd instead:
+        preps = self.preparation_steps[test_mode]
+        commands = ADDMStaticOperations.select_operation(preps)
+        for operation_cmd in commands:
+            out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
+            thread_outputs.append(out)
 
-        for addm_item in addm_items:
-            addm_group = addm_item['addm_group']
-            msg = f"<=Upload Preparation Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']};mode={test_mode};step_k={step_k}"
-            log.debug(msg)
-
-            # Open SSH connection:
-            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
-            if ssh and ssh.get_transport().is_active():
-                m = f"<=upload_preparations_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
-                log.info(m)
-                kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time, test_mode=test_mode, test_q=test_q)
-                th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
-                try:
-                    prep_th = Thread(target=self.upload_preparations, name=th_name, kwargs=kwargs)
-                    prep_th.start()
-                    thread_list.append(prep_th)
-                except Exception as e:
-                    msg = f"Thread test fail with error: {e}"
-                    log.error(msg)
-                    # raise Exception(msg)
-                    return msg
-            # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
-            else:
-                msg = f"<=upload_preparations_threads=> SSH Connection could not be established thread skipping for ADDM: " \
-                      f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
-                log.error(msg)
-                thread_outputs.append(msg)
-                # Send mail with this error? BUT not for the multiple tasks!!!
-        # RUN
-        for test_th in thread_list:
-            test_th.join()
-            th_out = test_q.get()
-            thread_outputs.append(th_out)
-            log.debug("<=upload_preparations_threads=> Thread finished, test_q.get: %s", th_out)
+        # for addm_item in addm_items:
+        #     addm_group = addm_item['addm_group']
+        #     msg = f"<=Upload Preparation Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']};mode={test_mode};step_k={step_k}"
+        #     log.debug(msg)
+        #
+        #     # Open SSH connection:
+        #     ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
+        #     if ssh and ssh.get_transport().is_active():
+        #         m = f"<=upload_preparations_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
+        #         log.info(m)
+        #         kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time, test_mode=test_mode, test_q=test_q)
+        #         th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
+        #         try:
+        #             prep_th = Thread(target=self.upload_preparations, name=th_name, kwargs=kwargs)
+        #             prep_th.start()
+        #             thread_list.append(prep_th)
+        #         except Exception as e:
+        #             msg = f"Thread test fail with error: {e}"
+        #             log.error(msg)
+        #             # raise Exception(msg)
+        #             return msg
+        #     # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
+        #     else:
+        #         msg = f"<=upload_preparations_threads=> SSH Connection could not be established thread skipping for ADDM: " \
+        #               f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
+        #         log.error(msg)
+        #         thread_outputs.append(msg)
+        #         # Send mail with this error? BUT not for the multiple tasks!!!
+        # # RUN
+        # for test_th in thread_list:
+        #     test_th.join()
+        #     th_out = test_q.get()
+        #     thread_outputs.append(th_out)
+        #     log.debug("<=upload_preparations_threads=> Thread finished, test_q.get: %s", th_out)
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_preparations_threads | {step_k} |  {addm_group} | Finished!"
@@ -265,6 +271,10 @@ class UploadTestExec:
         start_time = datetime.now()
 
         # TODO: Use threaded_exec_cmd instead:
+        commands = ADDMStaticOperations.select_operation('wipe.tideway.TEMP')
+        for operation_cmd in commands:
+            out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
+            thread_outputs.append(out)
 
         for addm_item in addm_items:
             addm_group = addm_item['addm_group']
@@ -310,8 +320,6 @@ class UploadTestExec:
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!"
-        log.debug(pack)
-
         body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, tku_type: {pack.tku_type}, " \
                f"package_type: {pack.package_type}, start_time: {start_time}, time spent: {time() - ts}"
         Mails.short(subject=subject, body=body, send_to=[user_email])
@@ -319,11 +327,9 @@ class UploadTestExec:
 
     @upload_exceptions
     def install_tku_threads(self, **kwargs):
-        """
-        Simple TKU Install process, runs for each ADDM om set, with tw_pattern_management utility.
-        Return Outputs which need to be saved into DB!
-        :param kwargs:
-        :return:
+        """ Simple TKU Install process, runs for each ADDM om set, with tw_pattern_management utility.
+            Return Outputs which need to be saved into DB!
+            NOTE: Better not to simplify this as threaded_exec_cmd, because we require more detailed run and output.
         """
         user_email = kwargs.get('user_email', None)
         addm_items = kwargs.get('addm_items', None)
@@ -340,8 +346,6 @@ class UploadTestExec:
         ts = time()
         test_q = Queue()
         start_time = datetime.now()
-
-        # TODO: Use threaded_exec_cmd instead:
 
         if package_detail:
             mode_key = f'{pack.tku_type}.{test_mode}.{step_k}.{package_detail}'
@@ -364,6 +368,7 @@ class UploadTestExec:
                 kwargs = dict(ssh=ssh, addm_item=addm_item, package_detail=package_detail, test_q=test_q)
                 th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
                 try:
+                    # TODO: This can be: solo_exec_cmd
                     install_th = Thread(target=self.install_activate, name=th_name, kwargs=kwargs)
                     install_th.start()
                     thread_list.append(install_th)

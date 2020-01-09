@@ -914,20 +914,20 @@ class AdminOperationsREST(APIView):
             return {'error': 'User has no admin rights!'}
 
         command_key = [
-            "show_addm_version",
-            "test_kill",
-            "tku_install_kill",
-            "tw_scan_control__clear",
-            "tw_pattern_management__remove_all",
-            "tw_model_wipe__force",
-            "wipe_addm_logs",
-            "wipe_addm_pool",
-            "wipe_addm_record",
-            "wipe_rsync_logs",
-            "wipe_tideway_data_installed_tpl_product_content",
-            "wipe_tideway_syslogs",
-            "wipe_tideway_TEMP",
-            "wipe_tpl_files"
+            "show.addm.version",
+            "test.kill",
+            "tku.install.kill",
+            "tw_scan_control.clear",
+            "tw_pattern_management.remove_all",
+            "tw_model_wipe.force",
+            "wipe.addm.logs",
+            "wipe.addm.pool",
+            "wipe.addm.record",
+            "wipe.rsync.logs",
+            "wipe.tideway.data.installed.tpl.product_content",
+            "wipe.tideway.syslogs",
+            "wipe.tideway.TEMP",
+            "wipe.tpl.files"
         ]
         commands_set = ADDMStaticOperations.select_operation(command_key)
         t_tag = f'tag=t_addm_cmd_routine.addm_cleanup;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
@@ -952,7 +952,7 @@ class AdminOperationsREST(APIView):
         """ Run ADDM registered command. Commands should be added to Octopus system. (see /admin/run_core/addmcommands/)
         Require: admin_users;
         Options: (command_key=(), addm_group=()
-        Example: operation_key=addm_cmd_run;addm_group=alpha;command_key=show_addm_version
+        Example: operation_key=addm_cmd_run;addm_group=alpha;command_key=show.addm.version
         :return cmd_k: task.id """
         if not UserCheck.is_admin(self.request.user):
             return {'error': 'User has no admin rights!'}
@@ -977,13 +977,13 @@ class AdminOperationsREST(APIView):
         return {'task_id': task.id}
 
     def addm_sync_shares(self):
-        """ Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync. Keys used: rsync_tku_data
+        """ Execute routine for Octopus NFS -> ADDM sync all files for tests. Using rsync. Keys used: rsync.tku.data
         Options: addm_group=()
         Example: operation_key=addm_sync_shares;addm_group=alpha
         :return task: task.id"""
         t_tag = f'tag=t_addm_cmd_routine.addm_sync_shares;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         command_key = [
-            "rsync_tku_data",
+            "rsync.tku.data",
         ]
         commands_set = ADDMStaticOperations.select_operation(command_key)
         t_kwargs = dict(
@@ -1003,7 +1003,7 @@ class AdminOperationsREST(APIView):
         return {'task_id': task.id}
 
     def addm_sync_utils(self):
-        """ Execute routine for Octopus NFS -> ADDM sync all files for test utils. Using rsync. keys used rsync_python_testutils, rsync_tideway_utils
+        """ Execute routine for Octopus NFS -> ADDM sync all files for test utils. Using rsync. keys used rsync.python.testutils, rsync.tideway.utils
         Require: admin_users;
         Options: addm_group=()
         Example: operation_key=addm_sync_utils;addm_group=alpha
@@ -1011,8 +1011,8 @@ class AdminOperationsREST(APIView):
         if not UserCheck.is_admin(self.request.user):
             return {'error': 'User has no admin rights!'}
         command_key = [
-            "rsync_python_testutils",
-            "rsync_tideway_utils",
+            "rsync.python.testutils",
+            "rsync.tideway.utils",
         ]
         commands_set = ADDMStaticOperations.select_operation(command_key)
         t_tag = f'tag=t_addm_cmd_routine.addm_sync_utils;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
