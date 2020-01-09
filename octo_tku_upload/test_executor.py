@@ -270,35 +270,21 @@ class UploadTestExec:
         test_q = Queue()
         start_time = datetime.now()
 
-        # TODO: Use threaded_exec_cmd instead:
-        commands = ADDMStaticOperations.select_operation(self.preparation_steps['upload_unzip'])
-        for operation_cmd in commands:
-            if operation_cmd.command_key == 'unzip.tku.TEMP':
-                operation_cmd.command_value.format()
-            out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
-            thread_outputs.append(out)
-
         for addm_item in addm_items:
-            addm_group = addm_item['addm_group']
             # Get ADDM related package zip list from packages:
             package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
             tku_zip_list = [package.zip_file_path for package in package_]
             msg = f"<=Upload Unzip Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']} zip {len(tku_zip_list)} - {tku_zip_list};step_k={step_k}"
             log.debug(msg)
-
             # Open SSH connection:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
             if ssh and ssh.get_transport().is_active():
                 m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
                 log.info(m)
-                kwargs = dict(ssh=ssh, addm_item=addm_item,
-                              operation_cmd='upload_unzip',
-                              tku_zip_list=tku_zip_list,
-                              test_q=test_q
-                              )
+                kwargs = dict(ssh=ssh, addm_item=addm_item, tku_zip_list=tku_zip_list, test_q=test_q)
                 th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
                 try:
-                    unzip_th = Thread(target=ADDMStaticOperations().solo_exec_cmd, name=th_name, kwargs=kwargs)
+                    unzip_th = Thread(target=ADDMOperations().upload_unzip, name=th_name, kwargs=kwargs)
                     unzip_th.start()
                     thread_list.append(unzip_th)
                 except Exception as e:
@@ -313,7 +299,6 @@ class UploadTestExec:
                 log.error(msg)
                 thread_outputs.append(msg)
                 # Send mail with this error? BUT not for the multiple tasks!!!
-        # RUN
         for test_th in thread_list:
             test_th.join()
             th_out = test_q.get()
@@ -322,6 +307,8 @@ class UploadTestExec:
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!"
+        log.debug(pack)
+
         body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, tku_type: {pack.tku_type}, " \
                f"package_type: {pack.package_type}, start_time: {start_time}, time spent: {time() - ts}"
         Mails.short(subject=subject, body=body, send_to=[user_email])
@@ -370,7 +357,6 @@ class UploadTestExec:
                 kwargs = dict(ssh=ssh, addm_item=addm_item, package_detail=package_detail, test_q=test_q)
                 th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
                 try:
-                    # TODO: This can be: solo_exec_cmd
                     install_th = Thread(target=self.install_activate, name=th_name, kwargs=kwargs)
                     install_th.start()
                     thread_list.append(install_th)
@@ -424,7 +410,7 @@ class UploadTestExec:
 
         preps = self.preparation_steps[mode]
         for operation_cmd in preps:
-            res = ADDMStaticOperations().solo_exec_cmd(ssh=ssh, addm_item=addm_item, operation_cmd=operation_cmd)
+            res = "ADDMStaticOperations().solo_exec_cmd(ssh=ssh, addm_item=addm_item, operation_cmd=operation_cmd)"
             cmd_outputs.append(f"{operation_cmd} {mode} {addm_item['addm_name']} output: {res}")
 
         test_q.put(cmd_outputs)

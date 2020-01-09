@@ -113,30 +113,6 @@ class ADDMStaticOperations:
         log.info("All selected operations count: %s by command_key %s", operations.count(), command_key)
         return operations
 
-    def solo_exec_cmd(self, **kwargs):
-        """ Run cmd for single ADDM. Used from other places where in threading. """
-        ssh = kwargs.get('ssh', None)
-        addm_item = kwargs.get('addm_item', None)
-        operation_cmd = kwargs.get('operation_cmd', None)
-        fake_run = kwargs.get('fake_run', False)
-
-        ts = time()
-        out_q = Queue()
-
-        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
-        cmd_k = operation_cmd.command_key
-        cmd_interactive = operation_cmd.interactive
-
-        if not ssh or not ssh.get_transport().is_active():
-            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
-            if cmd_interactive:
-                log.info("<=threaded_exec_cmd=> Interactive shell CMD mode.")
-                self.run_interactive_cmd(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
-            else:
-                log.info("<=threaded_exec_cmd=> Static CMD mode.")
-                self.run_static_cmd(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
-        return {cmd_k: out_q.get(), 'time': time() - ts}
-
     def threaded_exec_cmd(self, **kwargs):
         from threading import Thread
 
@@ -179,6 +155,31 @@ class ADDMStaticOperations:
             test_th.join()
             th_out.append(out_q.get())
         return {cmd_k: th_out, 'time': time() - ts}
+
+    def solo_exec_cmd(self, **kwargs):
+        """ Run cmd for single ADDM. Used from other places where in threading. """
+        ssh = kwargs.get('ssh', None)
+        out_q = kwargs.get('test_q', None)
+        addm_item = kwargs.get('addm_item', None)
+        operation_cmd = kwargs.get('operation_cmd', None)
+        fake_run = kwargs.get('fake_run', False)
+
+        ts = time()
+        out_q = Queue()
+
+        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
+        cmd_k = operation_cmd.command_key
+        cmd_interactive = operation_cmd.interactive
+
+        if not ssh or not ssh.get_transport().is_active():
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
+            if cmd_interactive:
+                log.info("<=threaded_exec_cmd=> Interactive shell CMD mode.")
+                self.run_interactive_cmd(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
+            else:
+                log.info("<=threaded_exec_cmd=> Static CMD mode.")
+                self.run_static_cmd(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
+        return {cmd_k: out_q.get(), 'time': time() - ts}
 
     @staticmethod
     def run_static_cmd(out_q, addm_item, operation_cmd, ssh):
