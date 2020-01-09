@@ -153,37 +153,18 @@ def upload_exceptions(function):
 class UploadTestExec:
 
     def __init__(self):
-        # self.addm_op = ADDMOperations()
-        self.addm_op = ADDMStaticOperations()
-        self.mode_cases = dict(
-            fresh=dict(
-                test_kill=self.addm_op.solo_exec_cmd,
-                tku_install_kill=self.addm_op.solo_exec_cmd,
-                # tideway_restart=self.addm_op.solo_exec_cmd,
-                # Ideally we don't want to delete previous installed prod cont, but it its version is higher than actual installable?
-                # wipe_data_installed_product_content=self.addm_op.solo_exec_cmd,
-                tw_pattern_management__remove_all=self.addm_op.solo_exec_cmd,
-                rpm_delete_tideway_content=self.addm_op.solo_exec_cmd,
-                rpm_delete_tideway_devices=self.addm_op.solo_exec_cmd,
-            ),
-            update=dict(
-                rpm_delete_tideway_content=False,
-                tw_pattern_management__remove_all=False,
-                rpm_delete_tideway_devices=False,
-            ),
-            step=dict(
-                rpm_delete_tideway_content=False,
-                tw_pattern_management__remove_all=False,
-                rpm_delete_tideway_devices=False,
-            ),
-        )
         self.preparation_steps = dict(
-            fresh=['test_kill',
-
-                   ],
-            update=[],
-            step=[],
-
+            fresh=[
+                'show_addm_version'
+                'test_kill',
+                'tku_install_kill',
+                'tw_scan_control__clear',
+                'tw_pattern_management__remove_all',
+                'rpm_delete_tideway_content',
+                'rpm_delete_tideway_devices',
+            ],
+            update=['show_addm_version', 'tw_scan_control__clear'],
+            step=['show_addm_version', 'tw_scan_control__clear'],
         )
 
         self.out_clear_re = re.compile(r';#.*;\n')
@@ -217,6 +198,8 @@ class UploadTestExec:
         ts = time()
         test_q = Queue()
         start_time = datetime.now()
+
+        # TODO: Use threaded_exec_cmd instead:
 
         for addm_item in addm_items:
             addm_group = addm_item['addm_group']
@@ -281,6 +264,8 @@ class UploadTestExec:
         test_q = Queue()
         start_time = datetime.now()
 
+        # TODO: Use threaded_exec_cmd instead:
+
         for addm_item in addm_items:
             addm_group = addm_item['addm_group']
             # Get ADDM related package zip list from packages:
@@ -294,10 +279,14 @@ class UploadTestExec:
             if ssh and ssh.get_transport().is_active():
                 m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
                 log.info(m)
-                kwargs = dict(ssh=ssh, addm_item=addm_item, tku_zip_list=tku_zip_list, test_q=test_q)
+                kwargs = dict(ssh=ssh, addm_item=addm_item,
+                              operation_cmd='upload_unzip',
+                              tku_zip_list=tku_zip_list,
+                              test_q=test_q
+                              )
                 th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
                 try:
-                    unzip_th = Thread(target=self.addm_op.upload_unzip, name=th_name, kwargs=kwargs)
+                    unzip_th = Thread(target=ADDMStaticOperations().solo_exec_cmd, name=th_name, kwargs=kwargs)
                     unzip_th.start()
                     thread_list.append(unzip_th)
                 except Exception as e:
@@ -351,6 +340,8 @@ class UploadTestExec:
         ts = time()
         test_q = Queue()
         start_time = datetime.now()
+
+        # TODO: Use threaded_exec_cmd instead:
 
         if package_detail:
             mode_key = f'{pack.tku_type}.{test_mode}.{step_k}.{package_detail}'
@@ -424,18 +415,11 @@ class UploadTestExec:
         if ssh and ssh.get_transport().is_active():
             log.info("<=upload_preparations=> PASSED: SSH Is active")
 
+        preps = self.preparation_steps[mode]
+        for operation_cmd in preps:
+            res = ADDMStaticOperations().solo_exec_cmd(ssh=ssh, addm_item=addm_item, operation_cmd=operation_cmd)
+            cmd_outputs.append(f"{operation_cmd} {mode} {addm_item['addm_name']} output: {res}")
 
-        ADDMStaticOperations().solo_exec_cmd(ssh=ssh, addm_item=addm_item, operation_cmd=operation_cmd)
-
-        preps = self.mode_cases[mode]
-        for func_key, func_obj in preps.items():
-            if func_obj:
-                log.debug("<=upload_preparations=> MAKE SOME PREPARATION... %s %s %s", mode, func_key, addm_item['addm_name'])
-                func_run = func_obj(ssh, addm_item, func_key)
-                log.info("<=upload_preparations=> TKU Upload preparations: %s %s", func_key, func_run)
-                cmd_outputs.append(f"{func_key} {mode} {addm_item['addm_name']} output: (TBA)")
-            else:
-                log.info("<=upload_preparations=> No preparations will run of current mode: %s %s=%s", mode, func_key, func_obj)
         test_q.put(cmd_outputs)
         return True
 
