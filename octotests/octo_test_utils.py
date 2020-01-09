@@ -303,7 +303,6 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
             self.check_tasks(tasks)
 
     def tearDown(self) -> None:
-        sleep(3)
         log.debug("<=UploadTaskUtils=> Test finished, data: %s", self.data)
 
     def check_tasks(self, tasks):

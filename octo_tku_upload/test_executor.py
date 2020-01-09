@@ -29,31 +29,35 @@ def thread_exceptions(function):
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         if os.name == 'nt':
-            log.debug("THIS IS WINDOWS MACHINE! Do not run threading.")
+            log.debug(f" {'='*20} THIS IS WINDOWS MACHINE! Do not run threading. {'='*20}")
             log.debug(f"Args passed: {args}")
             log.debug(f"Kwargs passed: {kwargs}")
+
             user_email = kwargs.get('user_email', None)
-            addm_items = kwargs.get('addm_items', None)
-            test_mode = kwargs.get('test_mode', None)
-            step_k = kwargs.get('step_k', None)
+            if user_email:
+                log.info("user_email used: %s", user_email)
 
             addm_group = kwargs.get('addm_group', None)
             if addm_group:
                 log.info("ADDM Group used: %s", addm_group)
+
             packages = kwargs.get('packages', None)
             if packages:
                 log.info("TKU Packages to install: %s", packages)
+
             package_detail = kwargs.get('package_detail', None)
             if package_detail:
                 log.info("TKU Install package: %s", package_detail)
 
+            addm_items = kwargs.get('addm_items', None)
+            test_mode = kwargs.get('test_mode', None)
+            step_k = kwargs.get('step_k', None)
             for addm_item in addm_items:
                 addm_group = addm_item['addm_group']
                 msg = f"<=SINGLE ADDM WORK=> {addm_item['addm_name']}:{addm_item['addm_v_int']}:{addm_group};mode={test_mode};step_k={step_k}"
                 log.debug(msg)
 
-        log.debug("Making false work.")
-
+        log.debug(f"Making false work as: {function.__name__}")
     return wrapper
 
 

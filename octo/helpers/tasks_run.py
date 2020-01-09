@@ -52,7 +52,7 @@ class Runner:
         # Task related options:
         t_args = kwargs.get('t_args', [this_t])
         t_kwargs = kwargs.get('t_kwargs', {})
-        t_queue = kwargs.get('t_queue', None)
+        t_queue = kwargs.get('t_queue', 'w_routines@tentacle.dq2')
         t_routing_key = kwargs.get('t_routing_key', this_t)
         t_soft_time_limit = kwargs.get('t_soft_time_limit', None)
         t_task_time_limit = kwargs.get('t_task_time_limit', None)

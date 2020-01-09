@@ -11,7 +11,7 @@
 			"file": "logs/w_routines_err.log",
 			"settings":
 			{
-				"buffer_size": 6249,
+				"buffer_size": 3049,
 				"line_ending": "Windows"
 			}
 		},
@@ -19,15 +19,7 @@
 			"file": "logs/w_routines_out.log",
 			"settings":
 			{
-				"buffer_size": 5122,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "logs/golf_err.log",
-			"settings":
-			{
-				"buffer_size": 40974,
+				"buffer_size": 315,
 				"line_ending": "Windows"
 			}
 		},
@@ -35,33 +27,23 @@
 			"file": "/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/WEB_octopus.log",
 			"settings":
 			{
-				"buffer_size": 8029272,
+				"buffer_size": 118820,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"contents": "test10_Unix_extended_discovery_priv (__main__.TestStandalone) ... FAIL\ntest11_Unix_versioning_update (__main__.TestStandalone) ... ok\ntest12_Unix_priv_run_update (__main__.TestStandalone) ... ok\ntest13_Windows_alt_legacy_versioning (__main__.TestStandalone)\nTest for a legacy version coming from a package ... <string>:8: DeprecationWarning: invalid escape sequence \\P\nok\ntest3_one_category_one_tag (__main__.TestStandalone) ... skipped 'Version is less than 11.3'\ntest14_Windows_legacy_active_versioning (__main__.TestStandalone)\nTest for a legacy version coming from an active command ... ok\ntest15_Unix_maxmsgl_maxdepth (__main__.TestStandalone) ... ok\ntest1_configipedia_check (__main__.TestStandalone) ... ok\ntest2_Windows_active_versioning (__main__.TestStandalone) ... ok\ntest3_Windows_mqclient_file_versioning (__main__.TestStandalone) ... ok\ntest4_Windows_package_versioning (__main__.TestStandalone) ... ok\ntest5_Unix_package_versioning (__main__.TestStandalone) ... ok\ntest6_Windows_v6_version (__main__.TestStandalone) ... ok\ntest7_Unix_extended_discovery (__main__.TestStandalone) ... FAIL\ntest8_Windows_legacy_versioning (__main__.TestStandalone) ... ok\ntest9_Windows_new_command (__main__.TestStandalone) ... FAIL\n\n======================================================================\nFAIL: test10_Unix_extended_discovery_priv (__main__.TestStandalone)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 902, in verify_model\n    self.assertEqual(len(nodes), len(expected), msg = \"Found %d nodes, expected %d\" % (len(nodes), len(expected)))\n  File \"/usr/tideway/lib/python3.7/unittest/case.py\", line 852, in assertEqual\n    assertion_func(first, second, msg=msg)\nAssertionError: 1 != 0 : Found 1 nodes, expected 0\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 914, in verify_model\n    raise AssertionError(msg)\nAssertionError: '1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: IBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/SYNC/addm/tkn_main/tku_patterns/CORE/WebsphereMQ/tests/test.py\", line 79, in test10_Unix_extended_discovery_priv\n    self.verify_model(self.SEARCH_QUERY, \"Unix_extended_discovery_priv\", sort_key='key')\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: PUNE/IBM WebSphere MQ Series Queue Manager/ssVFNiO9TEdkC6eht7L0ew== #ElementWithDetail:Detail:Detail:Detail.name ->\n\t\t\t\tIBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\n======================================================================\nFAIL: test7_Unix_extended_discovery (__main__.TestStandalone)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 902, in verify_model\n    self.assertEqual(len(nodes), len(expected), msg = \"Found %d nodes, expected %d\" % (len(nodes), len(expected)))\n  File \"/usr/tideway/lib/python3.7/unittest/case.py\", line 852, in assertEqual\n    assertion_func(first, second, msg=msg)\nAssertionError: 1 != 0 : Found 1 nodes, expected 0\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 914, in verify_model\n    raise AssertionError(msg)\nAssertionError: '1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: IBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/SYNC/addm/tkn_main/tku_patterns/CORE/WebsphereMQ/tests/test.py\", line 60, in test7_Unix_extended_discovery\n    self.verify_model(self.SEARCH_QUERY, \"Unix_extended_discovery\", sort_key='key')\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: PUNE/IBM WebSphere MQ Series Queue Manager/ssVFNiO9TEdkC6eht7L0ew== #ElementWithDetail:Detail:Detail:Detail.name ->\n\t\t\t\tIBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue KIEV_QUEUE'}\nExpected - Actual: set()\n\n\n======================================================================\nFAIL: test9_Windows_new_command (__main__.TestStandalone)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 902, in verify_model\n    self.assertEqual(len(nodes), len(expected), msg = \"Found %d nodes, expected %d\" % (len(nodes), len(expected)))\n  File \"/usr/tideway/lib/python3.7/unittest/case.py\", line 852, in assertEqual\n    assertion_func(first, second, msg=msg)\nAssertionError: 1 != 0 : Found 1 nodes, expected 0\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 914, in verify_model\n    raise AssertionError(msg)\nAssertionError: '1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue CLUS_REM'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 950, in verify_model\n    self.verify_model(nodes, data[key], fields[1] if len(fields) == 2 else None)\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: IBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue CLUS_REM'}\nExpected - Actual: set()\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/tideway/SYNC/addm/tkn_main/tku_patterns/CORE/WebsphereMQ/tests/test.py\", line 74, in test9_Windows_new_command\n    self.verify_model(self.SEARCH_QUERY, \"Windows_new_command\", sort_key='key')\n  File \"/usr/tideway/python/testutils/Uni_dml_test_utils.py\", line 953, in verify_model\n    raise AssertionError(msg)\nAssertionError: LONDON/IBM WebSphere MQ Series Queue Manager/42QF3O3oNA/jSIOWPTgjHA== #ElementWithDetail:Detail:Detail:Detail.name ->\n\t\t\t\tIBM WebSphere MQ Series Queue Manager Channel INVENTORY.KIEV #Container:Containment:Contained:Detail.name ->\n\t\t\t\t'1 != 0 : Found 1 nodes, expected 0'\nActual - Expected: {'IBM WebSphere MQ Series Queue Manager Queue CLUS_REM'}\nExpected - Actual: set()\n\n\n----------------------------------------------------------------------\nRan 15 tests in 307.182s\n\nFAILED (failures=3)",
+			"file": "logs/golf_err.log",
 			"settings":
 			{
-				"buffer_size": 9303,
-				"line_ending": "Windows",
-				"name": "test10_Unix_extended_discovery_priv (__main__.Test"
-			}
-		},
-		{
-			"contents": "172.25.146.193 localhost localhost.localdomain localhost4 localhost4.localdomain4 vl-aus-rem-qa6f vl-aus-rem-qa6f.bmc.com\n\n\n137.72.16.1",
-			"settings":
-			{
-				"buffer_size": 135,
-				"line_ending": "Windows",
-				"name": "172.25.146.193 localhost localhost.localdomain loc"
+				"buffer_size": 12240,
+				"line_ending": "Windows"
 			}
 		},
 		{
 			"file": "logs/golf_out.log",
 			"settings":
 			{
-				"buffer_size": 7981,
+				"buffer_size": 8017,
 				"line_ending": "Windows"
 			}
 		}
@@ -199,7 +181,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -208,7 +190,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6249,
+						"buffer_size": 3049,
 						"regions":
 						{
 						},
@@ -236,7 +218,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5122,
+						"buffer_size": 315,
 						"regions":
 						{
 						},
@@ -254,61 +236,33 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 42.0,
+						"translation.y": 28.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
 		},
 		{
-			"selected": 3,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 2,
-					"file": "logs/golf_err.log",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 40974,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
 					"file": "/D/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/WEB_octopus.log",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8029272,
+						"buffer_size": 118820,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								429,
+								429
 							]
 						],
 						"settings":
@@ -316,83 +270,55 @@
 							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 761839.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9303,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2296,
-								2373
-							]
-						],
-						"settings":
-						{
-							"auto_name": "test10_Unix_extended_discovery_priv (__main__.Test",
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 991.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 135,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								135,
-								124
-							]
-						],
-						"settings":
-						{
-							"auto_name": "172.25.146.193 localhost localhost.localdomain loc",
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 588.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
-					"file": "logs/golf_out.log",
+					"buffer": 3,
+					"file": "logs/golf_err.log",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7981,
+						"buffer_size": 12240,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								291,
-								291
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "logs/golf_out.log",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8017,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
 							]
 						],
 						"settings":
@@ -402,10 +328,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 42.0,
+						"translation.y": 28.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]

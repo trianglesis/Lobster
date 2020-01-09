@@ -41,6 +41,9 @@ class TkuPackagesNew(models.Model):
             ),
         )
 
+    def __str__(self):
+        return '{0} {1}'.format(self.tku_type, self.package_type)
+
 
 class UploadTestsNew(models.Model):
 

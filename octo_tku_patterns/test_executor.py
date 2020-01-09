@@ -46,6 +46,7 @@ def tst_exception(function):
                     option_key=f"parse_fail_{test_item['tkn_branch']}-{test_item['pattern_folder_name']}-{test_item['pattern_folder_name']}",
                     option_value=kwargs.get('stderr_output', 'No Output!'),
                     description=f"Test output parsing issue, saving RAW stderr. {test_item['test_py_path']}",)
+                # TODO: Send email to admin group. And possible user if mail was passed
                 save_error_log(kwargs_d)
             elif kwargs['db'] and kwargs['res']:
                 log.error("Failed to save test output into: %s, saving to TestOutputs", kwargs.get('db', 'NoTable'))
@@ -54,6 +55,7 @@ def tst_exception(function):
                     option_key=f"model_save_fail_{test_item['tkn_branch']}-{test_item['pattern_folder_name']}-{test_item['pattern_folder_name']}",
                     option_value=kwargs.get('stderr_output', 'No Output!'),
                     description=f"Test output parsing issue, saving RAW stderr. {test_item['test_py_path']}",)
+                # TODO: Send email to admin group. And possible user if mail was passed
                 save_error_log(kwargs_d)
             else:
                 log.error("Fail to run: %s Exception: %s", args, e)
@@ -61,6 +63,7 @@ def tst_exception(function):
                     option_key=f"TestExecutor_unexpected",
                     option_value=f"Exception: {e}, args: {args}, kwargs: {kwargs}",
                     description="This is unexpected exception from TestExecutor, could be related to test run, parse or save",)
+                # TODO: Send email to admin group. And possible user if mail was passed
                 save_error_log(kwargs_d)
     return wrapper
 
