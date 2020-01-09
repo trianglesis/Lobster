@@ -348,9 +348,8 @@ class UploadTaskPrepare:
                           t_queue=f'{addm_group}@tentacle.dq2')
                 task = Runner.fire_t(TUploadExec.t_upload_prep,
                                      t_queue=f'{addm_group}@tentacle.dq2',
-                                     t_args=[
-                                         f"UploadTaskPrepare.addm_prepare;task=t_upload_prep;test_mode={self.test_mode};"
-                                         f"addm_group={addm_group};user={self.user_name}"],
+                                     t_args=[f"UploadTaskPrepare.addm_prepare;task=t_upload_prep;test_mode={self.test_mode};"
+                                             f"addm_group={addm_group};user={self.user_name}"],
                                      t_kwargs=t_kwargs,
                                      t_routing_key=f"{addm_group}.TUploadExec.t_upload_prep")
                 self.tasks_added.append(task)
@@ -374,9 +373,8 @@ class UploadTaskPrepare:
                       t_queue=f'{addm_group}@tentacle.dq2')
             task = Runner.fire_t(TUploadExec.t_upload_unzip,
                                  t_queue=f"{addm_group}@tentacle.dq2",
-                                 t_args=[
-                                     f"UploadTaskPrepare;task=t_upload_unzip;test_mode={self.test_mode};"
-                                     f"addm_group={addm_group};user={self.user_name}"],
+                                 t_args=[f"UploadTaskPrepare;task=t_upload_unzip;test_mode={self.test_mode};"
+                                         f"addm_group={addm_group};user={self.user_name}"],
                                  t_kwargs=dict(addm_items=addm_items, addm_group=addm_group,
                                                test_mode=self.test_mode, step_k=step_k,
                                                packages=packages_from_step, user_email=self.user_email),
@@ -399,9 +397,8 @@ class UploadTaskPrepare:
                       t_queue=f'{addm_group}@tentacle.dq2')
             task = Runner.fire_t(TUploadExec.t_tku_install,
                                  t_queue=f"{addm_group}@tentacle.dq2",
-                                 t_args=[
-                                     f"UploadTaskPrepare;task=t_tku_install;test_mode={self.test_mode};"
-                                     f"addm_group={addm_group};user={self.user_name}"],
+                                 t_args=[f"UploadTaskPrepare;task=t_tku_install;test_mode={self.test_mode};"
+                                         f"addm_group={addm_group};user={self.user_name}"],
                                  t_kwargs=dict(addm_items=addm_items, addm_group=addm_group,
                                                test_mode=self.test_mode, step_k=step_k,
                                                packages=packages_from_step, package_detail=self.package_detail,

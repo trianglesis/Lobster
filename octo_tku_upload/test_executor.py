@@ -18,26 +18,104 @@ from time import time
 
 from octo.helpers.tasks_mail_send import Mails
 from octo_tku_upload.models import UploadTestsNew as UploadTests
-from run_core.addm_operations import ADDMOperations
+from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
 from run_core.models import TestOutputs
 
 log = logging.getLogger("octo.octologger")
 
 
-def thread_exceptions(function):
+def save_error_log(kwargs_d):
+    test_out = TestOutputs(**kwargs_d)
+    test_out.save()
+
+
+def upload_exceptions(function):
 
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
+        addm_group = kwargs.get('addm_group', 'addm_group-None')
+        user_email = kwargs.get('user_email', 'user_email-None')
+        test_mode = kwargs.get('test_mode', 'test_mode-None')
+        step_k = kwargs.get('step_k', 'step_k-None')
+
+        func_cases = {
+            'upload_preparations_threads':
+                {
+                 'subject': 'UploadTestExec: Exception in upload_preparations_threads',
+                 'body': 'Problem with addm preparation threads: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_key': 'UploadTestExec.upload_preparations_threads',
+                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'description': 'This function executes threads for each addm from addm set and run upload_preparations'
+                                'for each instance. Could probably die if ssh fails, or see the exception.',
+                 },
+            'upload_unzip_threads':
+                {
+                 'subject': 'UploadTestExec: Exception in upload_unzip_threads',
+                 'body': 'Problem with TKU unzipping threads: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_key': 'UploadTestExec.upload_unzip_threads',
+                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'description': 'This function executes threads for each addm from set and run addm_op.upload_unzip'
+                                'for each instance. Could fail, usually, when zip is not there. See exception for more.',
+                 },
+            'install_tku_threads':
+                {
+                 'subject': 'UploadTestExec: Exception in install_tku_threads',
+                 'body': 'Problem with TKU install threads: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_key': 'UploadTestExec.install_tku_threads',
+                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'description': 'This function executes threads for each addm from set and run install_activate for each'
+                                'instance. Could fail on wrong cmd or issues with tw_pattern_management. See exception.',
+                 },
+            'upload_preparations':
+                {
+                 'subject': 'UploadTestExec: Exception in upload_preparations',
+                 'body': 'Problem with upload preparation function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_key': 'UploadTestExec.upload_preparations',
+                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'description': 'This function runs on single ADDM, executing preparation commands from self.mode_cases.'
+                                'Use key+func where key corresponds to actual ADDM CMD from addmcommands and func is'
+                                'an instance of cmdrun. NOTE: Still use old!',
+                 },
+            'install_activate':
+                {
+                 'subject': 'UploadTestExec: Exception in install_activate',
+                 'body': 'Problem with install_activate function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_key': 'UploadTestExec.install_activate',
+                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'description': '',
+                 },
+            'parse_upload_result':
+                {
+                 'subject': 'UploadTestExec: Exception in parse_upload_result',
+                 'body': 'Problem with upload results parsing function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_key': 'UploadTestExec.parse_upload_result',
+                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'description': '',
+                 },
+            'model_save_insert':
+                {
+                 'subject': 'UploadTestExec: Exception in model_save_insert',
+                 'body': 'Problem with saving parsed result function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_key': 'UploadTestExec.model_save_insert',
+                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'description': '',
+                 },
+            'std_read':
+                {
+                 'subject': 'UploadTestExec: Exception in std_read',
+                 'body': 'Problem with std read function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_key': 'UploadTestExec.std_read',
+                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'description': '',
+                 },
+        }
+
         if os.name == 'nt':
             log.debug(f" {'='*20} THIS IS WINDOWS MACHINE! Do not run threading. {'='*20}")
             log.debug(f"Args passed: {args}")
             log.debug(f"Kwargs passed: {kwargs}")
-
-            user_email = kwargs.get('user_email', None)
             if user_email:
                 log.info("user_email used: %s", user_email)
-
-            addm_group = kwargs.get('addm_group', None)
             if addm_group:
                 log.info("ADDM Group used: %s", addm_group)
 
@@ -50,42 +128,62 @@ def thread_exceptions(function):
                 log.info("TKU Install package: %s", package_detail)
 
             addm_items = kwargs.get('addm_items', None)
-            test_mode = kwargs.get('test_mode', None)
-            step_k = kwargs.get('step_k', None)
             for addm_item in addm_items:
                 addm_group = addm_item['addm_group']
                 msg = f"<=SINGLE ADDM WORK=> {addm_item['addm_name']}:{addm_item['addm_v_int']}:{addm_group};mode={test_mode};step_k={step_k}"
                 log.debug(msg)
+            log.debug(f"Making false work as: {function.__name__}")
+        else:
+            try:
+                return function(*args, **kwargs)
+            except Exception as e:
+                subject = func_cases[function.__name__].get('subject')
+                body = func_cases[function.__name__].get('body').format(args=args, kwargs=kwargs, e=e)
+                Mails.short(subject=subject, body=body, send_to=[user_email])
+                kwargs_d = dict(
+                    option_key=func_cases[function.__name__]['option_key'],
+                    option_value=func_cases[function.__name__]['option_value'].format(args=args, kwargs=kwargs, e=e),
+                    description=func_cases[function.__name__]['description'],
+                )
+                save_error_log(kwargs_d)
 
-        log.debug(f"Making false work as: {function.__name__}")
     return wrapper
 
 
 class UploadTestExec:
 
     def __init__(self):
-        self.addm_op = ADDMOperations()
+        # self.addm_op = ADDMOperations()
+        self.addm_op = ADDMStaticOperations()
         self.mode_cases = dict(
             fresh=dict(
-                test_kill=self.addm_op.addm_exec_cmd,
-                tku_install_kill=self.addm_op.addm_exec_cmd,
-                # tideway_restart=self.addm_op.addm_exec_cmd,
+                test_kill=self.addm_op.solo_exec_cmd,
+                tku_install_kill=self.addm_op.solo_exec_cmd,
+                # tideway_restart=self.addm_op.solo_exec_cmd,
                 # Ideally we don't want to delete previous installed prod cont, but it its version is higher than actual installable?
-                # wipe_data_installed_product_content=self.addm_op.addm_exec_cmd,
-                tw_pattern_management=self.addm_op.addm_exec_cmd,
-                product_content=self.addm_op.addm_exec_cmd,
-                tideway_devices=self.addm_op.addm_exec_cmd,
+                # wipe_data_installed_product_content=self.addm_op.solo_exec_cmd,
+                tw_pattern_management__remove_all=self.addm_op.solo_exec_cmd,
+                rpm_delete_tideway_content=self.addm_op.solo_exec_cmd,
+                rpm_delete_tideway_devices=self.addm_op.solo_exec_cmd,
             ),
             update=dict(
-                product_content=False,
-                tw_pattern_management=False,
-                tideway_devices=False,
+                rpm_delete_tideway_content=False,
+                tw_pattern_management__remove_all=False,
+                rpm_delete_tideway_devices=False,
             ),
             step=dict(
-                product_content=False,
-                tw_pattern_management=False,
-                tideway_devices=False,
+                rpm_delete_tideway_content=False,
+                tw_pattern_management__remove_all=False,
+                rpm_delete_tideway_devices=False,
             ),
+        )
+        self.preparation_steps = dict(
+            fresh=['test_kill',
+
+                   ],
+            update=[],
+            step=[],
+
         )
 
         self.out_clear_re = re.compile(r';#.*;\n')
@@ -100,7 +198,7 @@ class UploadTestExec:
         self.errors_re = re.compile(
             r"Pattern\smodule\s(?P<module>\S+)\s+Errors:\s+(?P<error>.+)")
 
-    @thread_exceptions
+    @upload_exceptions
     def upload_preparations_threads(self, **kwargs):
         """
         Run sequence of commands on each ADDM to prepare it for TKU Install.
@@ -161,7 +259,7 @@ class UploadTestExec:
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'upload_preparations_threads Took {time() - ts} {body}'
 
-    @thread_exceptions
+    @upload_exceptions
     def upload_unzip_threads(self, **kwargs):
         """
         Unzip TKU packs from the queryset of packages for each ADDM version.
@@ -230,7 +328,7 @@ class UploadTestExec:
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'upload_unzip_threads Took {time() - ts} {body}'
 
-    @thread_exceptions
+    @upload_exceptions
     def install_tku_threads(self, **kwargs):
         """
         Simple TKU Install process, runs for each ADDM om set, with tw_pattern_management utility.
@@ -298,12 +396,8 @@ class UploadTestExec:
             msg = f'tku_type={packages[0].tku_type};package_type={packages[0].package_type};' \
                   f'test_mode={test_mode}:step_k={step_k};package_detail={package_detail}'
             log.debug("<=install_tku_threads=> Package installed: %s", msg)
-
-            addm_item = th_out.get('addm_item')
-            upload_outputs_d = th_out.get('output')
-            upload_results_d = self.parse_upload_result(upload_outputs_d)
-            self.model_save_insert(test_mode, mode_key, ts, addm_item, pack.tku_type, pack.package_type,
-                                   upload_results_d, upload_outputs_d)
+            kwargs.update(th_out=th_out, mode_key=mode_key, ts=ts)
+            self.model_save_insert(**kwargs)
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | install_tku_threads | {test_mode} | {step_k} | {addm_group} | Finished!"
@@ -313,6 +407,7 @@ class UploadTestExec:
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'install_tku_threads Took {time() - ts} {body}'
 
+    @upload_exceptions
     def upload_preparations(self, **kwargs):
         """
         Run preparations before or after TKU zip upload install.
@@ -329,14 +424,14 @@ class UploadTestExec:
         if ssh and ssh.get_transport().is_active():
             log.info("<=upload_preparations=> PASSED: SSH Is active")
 
+
+        ADDMStaticOperations().solo_exec_cmd(ssh=ssh, addm_item=addm_item, operation_cmd=operation_cmd)
+
         preps = self.mode_cases[mode]
         for func_key, func_obj in preps.items():
             if func_obj:
                 log.debug("<=upload_preparations=> MAKE SOME PREPARATION... %s %s %s", mode, func_key, addm_item['addm_name'])
-                if func_key == 'tw_restart_service':
-                    func_run = func_obj(ssh, addm_item, func_key, 'reasoning')
-                else:
-                    func_run = func_obj(ssh, addm_item, func_key)
+                func_run = func_obj(ssh, addm_item, func_key)
                 log.info("<=upload_preparations=> TKU Upload preparations: %s %s", func_key, func_run)
                 cmd_outputs.append(f"{func_key} {mode} {addm_item['addm_name']} output: (TBA)")
             else:
@@ -344,6 +439,7 @@ class UploadTestExec:
         test_q.put(cmd_outputs)
         return True
 
+    @upload_exceptions
     def install_activate(self, **kwargs):
         """
         Run ADDM remote CMD to install TKU:
@@ -390,6 +486,7 @@ class UploadTestExec:
             log.error(msg)
             raise Exception(msg)
 
+    @upload_exceptions
     def parse_upload_result(self, upload_outputs_d):
         """
         Replace all term symbols and leave output clean and ready to parse and add in DB
@@ -485,31 +582,24 @@ class UploadTestExec:
             log.error("Error during action - %s", e)
             raise Exception(e)
 
-    @staticmethod
-    def model_save_insert(mode, mode_key, ts, addm_item, tku_type, package_type, upload_results_d, upload_outputs_d):
-        """
-        Get all data into the right places
+    @upload_exceptions
+    def model_save_insert(self, **kwargs):
+        ts = kwargs.get('ts', None)
+        th_out = kwargs.get('th_out', None)
+        test_mode = kwargs.get('test_mode', None)
+        mode_key = kwargs.get('mode_key', None)
+        packages = kwargs.get('packages', None)
 
-        :param package_type:
-        :param tku_type:
-        :param mode:
-        :param mode_key:
-        :param upload_results_d: parsed upload test results
-        :param addm_item: set of addms
-        :param ts: time start obj
-        :param upload_outputs_d:
-        :return:
-        """
-        time_spent_test = time() - ts
+        package_type = packages[0].package_type
+        tku_type = packages[0].tku_type
 
-        # PPRINT
-        import json
-        from pprint import pformat
+        addm_item = th_out.get('addm_item')
+        upload_outputs_d = th_out.get('output')
+        upload_results_d = self.parse_upload_result(upload_outputs_d)
 
-        # TODO: Re-test this, rewrite and run on local ADDM to verify. Save usual outputs as reference?
         upload_test = dict(
             # Used mode and mode key:
-            test_mode=mode,  # What package to install;
+            test_mode=test_mode,  # What package to install;
             mode_key=mode_key,  # In which order or case to install package;
             # TKU zip details:
             tku_type=tku_type,  # ga_candidate, ..
@@ -537,29 +627,21 @@ class UploadTestExec:
             addm_ip=addm_item['addm_ip'],
             addm_version=addm_item['addm_full_version'],
             # Test lasts
-            time_spent_test=str(time_spent_test),
+            time_spent_test=str(time() - ts),
         )
 
-        item_sort = json.dumps(upload_test, indent=2, ensure_ascii=False, default=pformat)
-        log.debug("<=UploadTestExecutor=> SORTED composed_results_d: %s", item_sort)
-
-        try:
-            upload_tst = UploadTests(**upload_test)
-            upload_tst.save(force_insert=True)
-            if upload_tst.id:
-                # NOTE: Return short description of test, not the full output:
-                # NOTE: 2 We already have most of these args in task body!
-                return dict(saved_id=upload_tst.id)
-            else:
-                msg = "Test result not saved! Result: {}".format(upload_test)
-                log.error(msg)
-                return dict(saved_id=False, msg=msg)
-        except Exception as e:
-            msg = "<=TEST=> _model_save_insert: Error: {}\n-->\t db_model: {}\n-->\t details: {} ".format(
-                e, UploadTests, upload_test)
+        upload_tst = UploadTests(**upload_test)
+        upload_tst.save(force_insert=True)
+        if upload_tst.id:
+            # NOTE: Return short description of test, not the full output:
+            # NOTE: 2 We already have most of these args in task body!
+            return dict(saved_id=upload_tst.id)
+        else:
+            msg = f"Test result not saved! Result: {upload_test}"
             log.error(msg)
-            return dict(saved_id=False, error=e)
+            return dict(saved_id=False, msg=msg)
 
+    @upload_exceptions
     def std_read(self, **kwargs):
         """
         Input args as outputs from STDOUT and STDERR

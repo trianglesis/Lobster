@@ -20,7 +20,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
     def test001_product_content_update_tkn_main(self):
         self.debug = True
         self.silent = True
-        self.tku_wget = True
+        self.tku_wget = False
         self.fake_run = True
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_detail = 'TKU-Product-Content'
