@@ -129,7 +129,6 @@ class ADDMStaticOperations:
 
         if not ssh or not ssh.get_transport().is_active():
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
-
             if cmd_interactive:
                 log.info("<=threaded_exec_cmd=> Interactive shell CMD mode.")
                 self.run_interactive_cmd(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)

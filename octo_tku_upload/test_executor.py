@@ -165,7 +165,7 @@ class UploadTestExec:
             ],
             update=['show.addm.version', 'tw_scan_control.clear'],
             step=['show.addm.version', 'tw_scan_control.clear'],
-            upload_unzip=['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']
+            upload_unzip=['wipe.tideway.TEMP', 'mkdir.tideway.TEMP', 'unzip.tku.TEMP']
         )
 
         self.out_clear_re = re.compile(r';#.*;\n')
@@ -271,8 +271,10 @@ class UploadTestExec:
         start_time = datetime.now()
 
         # TODO: Use threaded_exec_cmd instead:
-        commands = ADDMStaticOperations.select_operation('wipe.tideway.TEMP')
+        commands = ADDMStaticOperations.select_operation(self.preparation_steps['upload_unzip'])
         for operation_cmd in commands:
+            if operation_cmd.command_key == 'unzip.tku.TEMP':
+                operation_cmd.command_value.format()
             out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
             thread_outputs.append(out)
 
