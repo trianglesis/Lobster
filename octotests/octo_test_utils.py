@@ -341,7 +341,7 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
     def select_addm(self):
         if self.addm_group:
             addm_set = AddmDev.objects.all()
-            self.addm_set = addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True)
+            self.addm_set = addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True).values()
         else:
             log.debug("Using addm set from test call.")
 
