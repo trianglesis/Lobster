@@ -287,7 +287,8 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
         self.package_detail = None
 
         self.packages = TkuPackages.objects.all()
-        self.addm_set = AddmDev.objects.all()
+        if self.addm_group:
+            self.addm_set = AddmDev.objects.all()
 
         self.data = dict()
         self.tasks_added = []
