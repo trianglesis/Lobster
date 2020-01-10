@@ -396,6 +396,7 @@ class UploadTaskPrepare:
                       t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail",
                       t_queue=f'{addm_group}@tentacle.dq2')
             task = Runner.fire_t(TUploadExec.t_tku_install,
+                                 fake_run=True, to_sleep=2, to_debug=True,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[f"UploadTaskPrepare;task=t_tku_install;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],

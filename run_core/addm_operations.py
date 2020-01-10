@@ -118,12 +118,21 @@ class ADDMStaticOperations:
 
         addm_set = kwargs.get('addm_set', None)
         operation_cmd = kwargs.get('operation_cmd', None)
+        interactive_mode = kwargs.get('interactive_mode', False)
         fake_run = kwargs.get('fake_run', False)
 
         assert isinstance(addm_set, QuerySet), 'Should be AddmDev QuerySet'
-        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
-        cmd_k = operation_cmd.command_key
-        cmd_interactive = operation_cmd.interactive
+        if isinstance(operation_cmd, ADDMCommands):
+            cmd_k = operation_cmd.command_key
+            cmd_interactive = operation_cmd.interactive
+        elif isinstance(operation_cmd, dict):
+            cmd_k = operation_cmd
+            cmd_interactive = interactive_mode
+        else:
+            cmd_interactive, cmd_k = None, None
+            log.error("ADDM CMD should be a dict or ADDMCommands object!")
+            return {'cmd_error': 'ADDM CMD should be a dict or ADDMCommands object!'}
+
         th_list = []
         th_out = []
         ts = time()
@@ -162,14 +171,21 @@ class ADDMStaticOperations:
         out_q = kwargs.get('test_q', None)
         addm_item = kwargs.get('addm_item', None)
         operation_cmd = kwargs.get('operation_cmd', None)
+        interactive_mode = kwargs.get('interactive_mode', False)
         fake_run = kwargs.get('fake_run', False)
 
         ts = time()
         out_q = Queue()
-
-        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
-        cmd_k = operation_cmd.command_key
-        cmd_interactive = operation_cmd.interactive
+        if isinstance(operation_cmd, ADDMCommands):
+            cmd_k = operation_cmd.command_key
+            cmd_interactive = operation_cmd.interactive
+        elif isinstance(operation_cmd, dict):
+            cmd_k = operation_cmd
+            cmd_interactive = interactive_mode
+        else:
+            cmd_interactive, cmd_k = None, None
+            log.error("ADDM CMD should be a dict or ADDMCommands object!")
+            return {'cmd_error': 'ADDM CMD should be a dict or ADDMCommands object!'}
 
         if not ssh or not ssh.get_transport().is_active():
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
@@ -184,15 +200,22 @@ class ADDMStaticOperations:
     @staticmethod
     def run_static_cmd(out_q, addm_item, operation_cmd, ssh):
         assert isinstance(addm_item, dict), 'Should be dict converted from QuerySet.values()'
-        assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
 
-        cmd_k = operation_cmd.command_key
-        cmd = operation_cmd.command_value
+        if isinstance(operation_cmd, ADDMCommands):
+            cmd_k = operation_cmd.command_key
+            cmd = operation_cmd.command_value
+        elif isinstance(operation_cmd, dict):
+            cmd_k = operation_cmd['command_key']
+            cmd = operation_cmd['command_value']
+        else:
+            cmd, cmd_k = None, None
+            log.error("ADDM CMD should be a dict or ADDMCommands object!")
+            return {'cmd_error': 'ADDM CMD should be a dict or ADDMCommands object!'}
 
         addm_instance = f"ADDM: {addm_item['addm_name']} - {addm_item['addm_host']}"
         ts = time()
 
-        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operation_cmd.command_key, addm_instance, operation_cmd.command_value)
+        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", cmd_k, addm_instance, cmd)
         if cmd:
             # noinspection PyBroadException
             try:

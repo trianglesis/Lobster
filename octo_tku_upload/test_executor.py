@@ -194,19 +194,18 @@ class UploadTestExec:
         step_k = kwargs.get('step_k', None)
         addm_group = kwargs.get('addm_group', None)
 
-        thread_list = []
-        test_q = Queue()
         ts = time()
         start_time = datetime.now()
         thread_outputs = []
 
-        # TODO: Use threaded_exec_cmd instead:
         preps = self.preparation_steps[test_mode]
         commands = ADDMStaticOperations.select_operation(preps)
         for operation_cmd in commands:
             out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
             thread_outputs.append(out)
 
+        # thread_list = []
+        # test_q = Queue()
         # for addm_item in addm_items:
         #     addm_group = addm_item['addm_group']
         #     msg = f"<=Upload Preparation Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']};mode={test_mode};step_k={step_k}"
@@ -269,6 +268,16 @@ class UploadTestExec:
         ts = time()
         test_q = Queue()
         start_time = datetime.now()
+
+        # Prepare zip commands with paths for each addm version:
+        unzip_tku_TEMP = ADDMStaticOperations.select_operation('unzip.tku.TEMP')[0]
+        addm_rel_zips = dict()
+        for addm_item in addm_items:
+            package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
+            tku_zip_cmd_l = [unzip_tku_TEMP.format(
+                path_to_zip=package.zip_file_path.replace('/home/user/TH_Octopus', '/usr/tideway')) for package in package_]
+            addm_rel_zips.update({addm_item['addm_v_int']: tku_zip_cmd_l})
+        log.info(f"Composed set of zips for each ADDM: {addm_rel_zips}")
 
         for addm_item in addm_items:
             # Get ADDM related package zip list from packages:
