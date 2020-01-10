@@ -350,7 +350,7 @@ class UploadTaskPrepare:
                           t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail",
                           t_queue=f'{addm_group}@tentacle.dq2')
                 task = Runner.fire_t(TUploadExec.t_upload_prep,
-                                     fake_run=True, to_sleep=2, to_debug=True,
+                                     # fake_run=True, to_sleep=2, to_debug=True,
                                      t_queue=f'{addm_group}@tentacle.dq2',
                                      t_args=[f"UploadTaskPrepare.addm_prepare;task=t_upload_prep;test_mode={self.test_mode};"
                                              f"addm_group={addm_group};user={self.user_name}"],
@@ -377,7 +377,7 @@ class UploadTaskPrepare:
                       t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail",
                       t_queue=f'{addm_group}@tentacle.dq2')
             task = Runner.fire_t(TUploadExec.t_upload_unzip,
-                                 fake_run=True, to_sleep=2, to_debug=True,
+                                 # fake_run=True, to_sleep=2, to_debug=True,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[f"UploadTaskPrepare;task=t_upload_unzip;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],
