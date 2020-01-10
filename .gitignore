@@ -141,4 +141,3 @@ z_DEV/run_core_copy/
 /octo_adm/templates/addm_workbench/includes/ADDM_MobaXterm.html
 
 !.idea/*
-!/octo_tku_upload/test_executor.py
