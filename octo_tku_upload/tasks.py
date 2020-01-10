@@ -276,8 +276,8 @@ class UploadTaskPrepare:
         Otherwise we don't select anything and fail the routine.
         """
         if self.addm_group:
-            # addm_set = AddmDev.objects.filter(addm_group__exact=self.addm_group, disables__isnull=True).values()
-            self.addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True)
+            addm_set = AddmDev.objects.all()
+            self.addm_set = addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True)
         else:
             log.debug("Using addm set from test call.")
         if self.addm_set:

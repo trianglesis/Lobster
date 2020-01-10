@@ -287,7 +287,7 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
         self.package_detail = None
 
         self.packages = TkuPackages.objects.all()
-        if self.addm_group:
+        if not self.addm_group:
             self.addm_set = AddmDev.objects.all()
 
         self.data = dict()
@@ -337,6 +337,13 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
         if user_name and user_email:
             self.user_name = user_name
             self.user_email = user_email
+
+    def select_addm(self):
+        if self.addm_group:
+            addm_set = AddmDev.objects.all()
+            self.addm_set = addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True)
+        else:
+            log.debug("Using addm set from test call.")
 
     @staticmethod
     def select_latest_continuous(tkn_branch):
