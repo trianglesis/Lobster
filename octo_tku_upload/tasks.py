@@ -334,8 +334,11 @@ class UploadTaskPrepare:
         elif self.test_mode == 'step' and step_k == 'step_1':
             t_kwargs = dict(test_mode='step')
             log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - TKU wipe and prod content delete!")
+        elif self.test_mode == 'tideway_content' or self.test_mode == 'tideway_devices':
+            t_kwargs = dict(test_mode=self.test_mode)
+            log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - Will delete '{self.test_mode}'!")
         else:
-            log.debug(f"{_LH_} TKU Mode: {self.test_mode}, {step_k}")
+            log.debug(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - no preparations.")
 
         if t_kwargs:
             for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
@@ -419,7 +422,7 @@ class UploadTaskPrepare:
                                  fake_run=self.fake_run, to_sleep=2, to_debug=True,
                                  t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
             self.tasks_added.append(task)
-        log.debug("Silent mode, mail don't sending")
+        log.debug(f"Silent mode, mail don't sending: {t_kwargs.get('subject', 'subject')}")
 
     @staticmethod
     def debug_unpack_qs(packages):

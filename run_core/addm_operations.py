@@ -114,6 +114,7 @@ class ADDMStaticOperations:
         return operations
 
     def threaded_exec_cmd(self, **kwargs):
+        """ Execute one operation command per addm in addm_set """
         from threading import Thread
 
         addm_set = kwargs.get('addm_set', None)
@@ -121,7 +122,12 @@ class ADDMStaticOperations:
         interactive_mode = kwargs.get('interactive_mode', False)
         fake_run = kwargs.get('fake_run', False)
 
-        assert isinstance(addm_set, QuerySet), 'Should be AddmDev QuerySet'
+        if isinstance(addm_set, QuerySet):
+            addm_set = addm_set.values()
+            log.debug(f'AddmDev QuerySet: {type(addm_set)}')
+        else:
+            log.info(f'AddmDev set: {type(addm_set)}')
+
         if isinstance(operation_cmd, ADDMCommands):
             cmd_k = operation_cmd.command_key
             cmd_interactive = operation_cmd.interactive
@@ -137,7 +143,7 @@ class ADDMStaticOperations:
         th_out = []
         ts = time()
         out_q = Queue()
-        addm_set = addm_set.values()
+
         for addm_item in addm_set:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
             if ssh:
@@ -165,38 +171,6 @@ class ADDMStaticOperations:
             th_out.append(out_q.get())
         return {cmd_k: th_out, 'time': time() - ts}
 
-    def solo_exec_cmd(self, **kwargs):
-        """ Run cmd for single ADDM. Used from other places where in threading. """
-        ssh = kwargs.get('ssh', None)
-        out_q = kwargs.get('test_q', None)
-        addm_item = kwargs.get('addm_item', None)
-        operation_cmd = kwargs.get('operation_cmd', None)
-        interactive_mode = kwargs.get('interactive_mode', False)
-        fake_run = kwargs.get('fake_run', False)
-
-        ts = time()
-        out_q = Queue()
-        if isinstance(operation_cmd, ADDMCommands):
-            cmd_k = operation_cmd.command_key
-            cmd_interactive = operation_cmd.interactive
-        elif isinstance(operation_cmd, dict):
-            cmd_k = operation_cmd
-            cmd_interactive = interactive_mode
-        else:
-            cmd_interactive, cmd_k = None, None
-            log.error("ADDM CMD should be a dict or ADDMCommands object!")
-            return {'cmd_error': 'ADDM CMD should be a dict or ADDMCommands object!'}
-
-        if not ssh or not ssh.get_transport().is_active():
-            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
-            if cmd_interactive:
-                log.info("<=threaded_exec_cmd=> Interactive shell CMD mode.")
-                self.run_interactive_cmd(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
-            else:
-                log.info("<=threaded_exec_cmd=> Static CMD mode.")
-                self.run_static_cmd(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
-        return {cmd_k: out_q.get(), 'time': time() - ts}
-
     @staticmethod
     def run_static_cmd(out_q, addm_item, operation_cmd, ssh):
         assert isinstance(addm_item, dict), 'Should be dict converted from QuerySet.values()'
@@ -207,6 +181,9 @@ class ADDMStaticOperations:
         elif isinstance(operation_cmd, dict):
             cmd_k = operation_cmd['command_key']
             cmd = operation_cmd['command_value']
+        elif isinstance(operation_cmd, list):
+            cmd_k = 'cmd_list'
+            cmd = operation_cmd
         else:
             cmd, cmd_k = None, None
             log.error("ADDM CMD should be a dict or ADDMCommands object!")
@@ -1135,35 +1112,36 @@ class ADDMOperations:
         test_q = kwargs.get('test_q')
         ssh = kwargs.get('ssh')
         addm_item = kwargs.get('addm_item')
-        tku_zip_list = kwargs.get('tku_zip_list')
+        packages = kwargs.get('packages')
 
-        # DELETE any TKU zips BEFORE unzip anything new:
-        # TODO: create dir of not exist
-        cmd_list = ['rm -f /usr/tideway/TEMP/*']
-        TKU_temp = '/usr/tideway/TEMP'
         outputs_l = []
+        tku_zip_cmd_l = []
+        # Prepare zip commands with paths for each addm version:
+        clean_tku_TEMP = ADDMStaticOperations.select_operation(['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']).order_by('-command_value')
+        unzipTkuTemp = ADDMStaticOperations.select_operation('unzip.tku.TEMP').first()
+        rmTidewayTempRelease = ADDMStaticOperations.select_operation('rm.tideway.TEMP.release').first()
 
-        for zip_item in tku_zip_list:
-            log.debug("<=ADDM Oper=> TKU ZIP item: (%s)", zip_item)
-            path_to_zip = zip_item.replace('/home/user/TH_Octopus', '/usr/tideway')
-            cmd_list.append(f'unzip -o {path_to_zip} -d {TKU_temp}')
+        # Compose commands for single ADDM:
+        package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
+        zip_path = [package.zip_file_path.replace('/home/user/TH_Octopus', '/usr/tideway') for package in package_]
+        clean_cmd_l = [cmd.command_value for cmd in clean_tku_TEMP]
+        tku_zip_cmd_l.extend(clean_cmd_l)
+        tku_zip_cmd_l.extend([unzipTkuTemp.command_value.format(path_to_zip=zip_) for zip_ in zip_path])
+        tku_zip_cmd_l.append(rmTidewayTempRelease.command_value)
 
-        cmd_list.append('rm -f /usr/tideway/TEMP/release.txt')
-
-        log.debug("<=ADDM Oper=> CMD LIST %s", cmd_list)
         # noinspection PyBroadException
-        for cmd in cmd_list:
+        for cmd in tku_zip_cmd_l:
             try:
-                log.debug("Try execute: '%s' | on %s - %s ", cmd, addm_item['addm_host'], addm_item['addm_name'])
+                log.debug(f"{addm_item['addm_name']} Try execute: '{cmd}' | on {addm_item['addm_host']}")
                 _, stdout, stderr = ssh.exec_command(cmd)
                 std_output, stderr_output = out_err_read(
                     out=stdout, err=stderr, cmd=cmd, mode='error',
                     name='upload_unzip on {}'.format(addm_item['addm_name']))
-                # log.debug("<=ADDM Oper=> upload_unzip: \n\tstd_output: %s \n\tstderr_output: %s", std_output, stderr_output)
                 if stderr_output:
                     log.error("<=ADDM Oper=> upload_unzip -> stderr_output: %s", stderr_output)
                 outputs_l.append(dict(cmd=cmd, stdout=std_output, stderr=stderr_output))
             except Exception as e:
+                log.debug(f"<=ADDM Oper=> CMD LIST {tku_zip_cmd_l}")
                 msg = f'<=ADDM Oper=> Error during upload_unzip for: {cmd} {e} {addm_item["addm_name"]} ON {addm_item["addm_host"]}'
                 log.error(msg)
                 raise Exception(msg)

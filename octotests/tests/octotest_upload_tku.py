@@ -22,6 +22,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.silent = True
         self.tku_wget = False
         self.fake_run = False
+        self.test_mode = 'tideway_content'
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_detail = 'TKU-Product-Content'
         self.package_types = [package_type]
@@ -36,6 +37,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.silent = True
         self.tku_wget = False
         self.fake_run = True
+        self.test_mode = 'tideway_content'
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
         self.package_detail = 'TKU-Product-Content'
         self.package_types = [package_type]

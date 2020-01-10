@@ -33,11 +33,7 @@ def upload_exceptions(function):
 
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
-        addm_group = kwargs.get('addm_group', 'addm_group-None')
         user_email = kwargs.get('user_email', 'user_email-None')
-        test_mode = kwargs.get('test_mode', 'test_mode-None')
-        step_k = kwargs.get('step_k', 'step_k-None')
-
         func_cases = {
             'upload_preparations_threads':
                 {
@@ -114,6 +110,11 @@ def upload_exceptions(function):
             log.debug(f" {'='*20} THIS IS WINDOWS MACHINE! Do not run threading. {'='*20}")
             log.debug(f"Args passed: {args}")
             log.debug(f"Kwargs passed: {kwargs}")
+
+            addm_group = kwargs.get('addm_group', 'addm_group-None')
+            test_mode = kwargs.get('test_mode', 'test_mode-None')
+            step_k = kwargs.get('step_k', 'step_k-None')
+
             if user_email:
                 log.info("user_email used: %s", user_email)
             if addm_group:
@@ -165,7 +166,21 @@ class UploadTestExec:
             ],
             update=['show.addm.version', 'tw_scan_control.clear'],
             step=['show.addm.version', 'tw_scan_control.clear'],
-            upload_unzip=['wipe.tideway.TEMP', 'mkdir.tideway.TEMP', 'unzip.tku.TEMP']
+            tideway_content=[
+                'show.addm.version',
+                'tku.install.kill',
+                'tw_scan_control.clear',
+                'tw_pattern_management.remove_all',
+                'rpm.delete.tideway_content',
+            ],
+            tideway_devices=[
+                'show.addm.version',
+                'tku.install.kill',
+                'tw_scan_control.clear',
+                'tw_pattern_management.remove_all',
+                'rpm.delete.tideway_devices',
+            ],
+            upload_unzip=['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']
         )
 
         self.out_clear_re = re.compile(r';#.*;\n')
@@ -203,47 +218,11 @@ class UploadTestExec:
         for operation_cmd in commands:
             out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
             thread_outputs.append(out)
+        log.info(f"ADDM Preparations output: {thread_outputs}")
 
-        # thread_list = []
-        # test_q = Queue()
-        # for addm_item in addm_items:
-        #     addm_group = addm_item['addm_group']
-        #     msg = f"<=Upload Preparation Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']};mode={test_mode};step_k={step_k}"
-        #     log.debug(msg)
-        #
-        #     # Open SSH connection:
-        #     ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
-        #     if ssh and ssh.get_transport().is_active():
-        #         m = f"<=upload_preparations_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
-        #         log.info(m)
-        #         kwargs = dict(ssh=ssh, addm_item=addm_item, start_time=start_time, test_mode=test_mode, test_q=test_q)
-        #         th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
-        #         try:
-        #             prep_th = Thread(target=self.upload_preparations, name=th_name, kwargs=kwargs)
-        #             prep_th.start()
-        #             thread_list.append(prep_th)
-        #         except Exception as e:
-        #             msg = f"Thread test fail with error: {e}"
-        #             log.error(msg)
-        #             # raise Exception(msg)
-        #             return msg
-        #     # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
-        #     else:
-        #         msg = f"<=upload_preparations_threads=> SSH Connection could not be established thread skipping for ADDM: " \
-        #               f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
-        #         log.error(msg)
-        #         thread_outputs.append(msg)
-        #         # Send mail with this error? BUT not for the multiple tasks!!!
-        # # RUN
-        # for test_th in thread_list:
-        #     test_th.join()
-        #     th_out = test_q.get()
-        #     thread_outputs.append(th_out)
-        #     log.debug("<=upload_preparations_threads=> Thread finished, test_q.get: %s", th_out)
-
-        # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_preparations_threads | {step_k} |  {addm_group} | Finished!"
-        body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, start_time: {start_time}, time spent: {time() - ts}"
+        body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
+               f"\n\tstart_time: {start_time}, \n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'upload_preparations_threads Took {time() - ts} {body}'
 
@@ -269,28 +248,13 @@ class UploadTestExec:
         test_q = Queue()
         start_time = datetime.now()
 
-        # Prepare zip commands with paths for each addm version:
-        unzip_tku_TEMP = ADDMStaticOperations.select_operation('unzip.tku.TEMP')[0]
-        addm_rel_zips = dict()
         for addm_item in addm_items:
-            package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
-            tku_zip_cmd_l = [unzip_tku_TEMP.format(
-                path_to_zip=package.zip_file_path.replace('/home/user/TH_Octopus', '/usr/tideway')) for package in package_]
-            addm_rel_zips.update({addm_item['addm_v_int']: tku_zip_cmd_l})
-        log.info(f"Composed set of zips for each ADDM: {addm_rel_zips}")
-
-        for addm_item in addm_items:
-            # Get ADDM related package zip list from packages:
-            package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
-            tku_zip_list = [package.zip_file_path for package in package_]
-            msg = f"<=Upload Unzip Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']} zip {len(tku_zip_list)} - {tku_zip_list};step_k={step_k}"
-            log.debug(msg)
             # Open SSH connection:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
             if ssh and ssh.get_transport().is_active():
                 m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
                 log.info(m)
-                kwargs = dict(ssh=ssh, addm_item=addm_item, tku_zip_list=tku_zip_list, test_q=test_q)
+                kwargs = dict(ssh=ssh, addm_item=addm_item, packages=packages, test_q=test_q)
                 th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
                 try:
                     unzip_th = Thread(target=ADDMOperations().upload_unzip, name=th_name, kwargs=kwargs)
@@ -299,27 +263,23 @@ class UploadTestExec:
                 except Exception as e:
                     msg = f"Thread test fail with error: {e}"
                     log.error(msg)
-                    # raise Exception(msg)
                     return msg
-            # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
             else:
                 msg = f"<=upload_unzip_threads=> SSH Connection could not be established thread skipping for ADDM: " \
                       f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
                 log.error(msg)
                 thread_outputs.append(msg)
-                # Send mail with this error? BUT not for the multiple tasks!!!
         for test_th in thread_list:
             test_th.join()
             th_out = test_q.get()
             thread_outputs.append(th_out)
-            log.debug("<=upload_unzip_threads=> Thread finished, test_q.get: %s", th_out)
+            # log.debug("<=upload_unzip_threads=> Thread finished, test_q.get: %s", th_out)
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!"
-        log.debug(pack)
-
-        body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, tku_type: {pack.tku_type}, " \
-               f"package_type: {pack.package_type}, start_time: {start_time}, time spent: {time() - ts}"
+        body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
+               f"\n\ttku_type: {pack.tku_type}, \n\tpackage_type: {pack.package_type}, \n\tstart_time: {start_time}, " \
+               f"\n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'upload_unzip_threads Took {time() - ts} {body}'
 
@@ -345,11 +305,6 @@ class UploadTestExec:
         test_q = Queue()
         start_time = datetime.now()
 
-        if package_detail:
-            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}.{package_detail}'
-        else:
-            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}'
-
         for addm_item in addm_items:
             addm_group = addm_item['addm_group']
             # Get ADDM related package zip list from packages:
@@ -373,12 +328,17 @@ class UploadTestExec:
                     msg = f"Thread test fail with error: {e}"
                     log.error(msg)
                     thread_outputs.append(msg)
-            # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
             else:
                 msg = f"<=install_tku_threads=> SSH Connection could not be established thread skipping for ADDM: " \
                       f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
                 log.error(msg)
                 thread_outputs.append(msg)
+
+        if package_detail:
+            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}.{package_detail}'
+        else:
+            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}'
+
         # RUN
         for test_th in thread_list:
             test_th.join()
