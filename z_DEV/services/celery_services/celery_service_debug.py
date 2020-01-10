@@ -22,12 +22,12 @@ CELERYD_NODES = [
     # "w_development@tentacle",
     "w_parsing@tentacle",
     "w_routines@tentacle",
-    # "alpha@tentacle",
-    # "beta@tentacle",
-    # "charlie@tentacle",
-    # "delta@tentacle",
-    # "echo@tentacle",
-    # "foxtrot@tentacle",
+    "alpha@tentacle",
+    "beta@tentacle",
+    "charlie@tentacle",
+    "delta@tentacle",
+    "echo@tentacle",
+    "foxtrot@tentacle",
     "golf@tentacle",
 ]
 
