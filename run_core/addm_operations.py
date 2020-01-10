@@ -110,7 +110,7 @@ class ADDMStaticOperations:
         else:
             # To catch a wrong situation, just select a version command:
             operations = operations.filter(command_key__exact='show.addm.version')
-        log.info("All selected operations count: %s by command_key %s", operations.count(), command_key)
+        # log.info("All selected operations count: %s by command_key %s", operations.count(), command_key)
         return operations
 
     def threaded_exec_cmd(self, **kwargs):
@@ -202,7 +202,7 @@ class ADDMStaticOperations:
                                         addm=addm_instance,
                                         cmd_item=cmd,
                                         timest=time() - ts)}
-                log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
+                # log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
                 out_q.put(output_d)
             except Exception as e:
                 log.error("<=ADDM Oper=> Error during operation for: %s %s", cmd, e)
@@ -1004,7 +1004,7 @@ class ADDMOperations:
                     # noinspection PyCallingNonCallable
                     interactive_run = cmd_shell(ssh, addm_item)
                     output_d = {cmd_k: interactive_run, 'timest': time() - ts}
-                    log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
+                    # log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
                     return output_d
                 except Exception as e:
                     log.error("<=ADDM Oper=> Error during operation for: %s %s", cmd, e)
@@ -1018,7 +1018,7 @@ class ADDMOperations:
                                             addm=addm_instance,
                                             cmd_item=cmd,
                                             timest=time() - ts)}
-                    log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
+                    # log.debug("addm_exec_cmd: %s ADDM: %s", output_d, addm_instance)
                     return output_d
                 except Exception as e:
                     log.error("<=ADDM Oper=> Error during operation for: %s %s", cmd, e)
@@ -1128,11 +1128,11 @@ class ADDMOperations:
         tku_zip_cmd_l.extend(clean_cmd_l)
         tku_zip_cmd_l.extend([unzipTkuTemp.command_value.format(path_to_zip=zip_) for zip_ in zip_path])
         tku_zip_cmd_l.append(rmTidewayTempRelease.command_value)
+        log.info(f"{addm_item['addm_name']} upload_unzip commads: {tku_zip_cmd_l}")
 
         # noinspection PyBroadException
         for cmd in tku_zip_cmd_l:
             try:
-                log.debug(f"upload_unzip: {addm_item['addm_name']} execute: '{cmd}' host: {addm_item['addm_host']}")
                 _, stdout, stderr = ssh.exec_command(cmd)
                 std_output, stderr_output = out_err_read(
                     out=stdout, err=stderr, cmd=cmd, mode='error',

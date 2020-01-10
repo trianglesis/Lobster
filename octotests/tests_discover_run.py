@@ -84,7 +84,8 @@ class TestRunnerLoc:
                 # log.debug('<=TEST=> stderr %s', stderr)
             except Exception as e:
                 log.error("<=run_subprocess=> Error during operation for: %s %s", cmd, e)
-        log.debug("<=run_subprocess=> run_results: %s", run_results)
+        # TODO: Save to logs?
+        # log.debug("<=run_subprocess=> run_results: %s", run_results)
         return run_results
 
 

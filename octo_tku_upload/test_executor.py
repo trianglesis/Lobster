@@ -337,7 +337,6 @@ class UploadTestExec:
             thread_outputs.append(th_out)  # {addm_item:addm_item, output:upload_outputs_d}
             msg = f'tku_type={packages[0].tku_type};package_type={packages[0].package_type};' \
                   f'test_mode={test_mode}:step_k={step_k};package_detail={package_detail}'
-            log.debug("<=install_tku_threads=> Package installed: %s", msg)
             self.model_save_insert(th_out=th_out, test_mode=test_mode, mode_key=mode_key, packages=packages, ts=ts)
 
         # Email confirmation when execution was finished:
