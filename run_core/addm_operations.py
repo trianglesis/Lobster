@@ -1132,7 +1132,7 @@ class ADDMOperations:
         # noinspection PyBroadException
         for cmd in tku_zip_cmd_l:
             try:
-                log.debug(f"{addm_item['addm_name']} Try execute: '{cmd}' | on {addm_item['addm_host']}")
+                log.debug(f"upload_unzip: {addm_item['addm_name']} execute: '{cmd}' host: {addm_item['addm_host']}")
                 _, stdout, stderr = ssh.exec_command(cmd)
                 std_output, stderr_output = out_err_read(
                     out=stdout, err=stderr, cmd=cmd, mode='error',
