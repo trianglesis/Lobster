@@ -219,6 +219,7 @@ class UploadTestExec:
         log.info(f"ADDM Preparations output: {thread_outputs}")
 
         subject = f"TKU_Upload_routines | upload_preparations_threads | {step_k} |  {addm_group} | Finished!"
+        log.info(subject)
         body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
                f"\n\tstart_time: {start_time}, \n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
         Mails.short(subject=subject, body=body, send_to=[user_email])
@@ -273,6 +274,7 @@ class UploadTestExec:
         log.info(f"ADDM Unzip TKUs output: {thread_outputs}")
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!"
+        log.info(subject)
         body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
                f"\n\ttku_type: {pack.tku_type}, \n\tpackage_type: {pack.package_type}, \n\tstart_time: {start_time}, " \
                f"\n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
@@ -342,6 +344,7 @@ class UploadTestExec:
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | install_tku_threads | {test_mode} | {step_k} | {addm_group} | Finished!"
+        log.info(subject)
         body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, tku_type: {pack.tku_type}, " \
                f"package_type: {pack.package_type}, package_detail: {package_detail}, " \
                f"start_time: {start_time}, time spent: {time() - ts} mode_key={mode_key} "
