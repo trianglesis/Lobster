@@ -24,7 +24,7 @@
                     <div class="flex-space-bw">
                         <a class="btn btn-sm btn-info"
                            id="wget_released_tkn"
-                           data-tku_type="{{ objects.max_cont_main.package_type }}">
+                           data-tku_type="{{ objects.max_released.tku_type }}">
                             'released_tkn'
                         </a>
                         <span class="txt-sm">Latest: {{ objects.max_released.package_type }} at: {{ objects.max_released.updated_at|timezone:"Europe/London"|naturaltime}}</span>
@@ -32,7 +32,7 @@
                     <div class="flex-space-bw">
                         <a class="btn btn-sm btn-info"
                            id="wget_ga_candidate"
-                           data-tku_type="{{ objects.max_cont_main.package_type }}">
+                           data-tku_type="{{ objects.max_ga.tku_type }}">
                             'ga_candidate'
                         </a>
                         <span class="txt-sm">Latest: {{ objects.max_ga.package_type }} at: {{ objects.max_ga.updated_at|timezone:"Europe/London"|naturaltime}}</span>
@@ -40,7 +40,7 @@
                     <div class="flex-space-bw">
                         <a class="btn btn-sm btn-info"
                            id="wget_tkn_main_continuous"
-                           data-tku_type="{{ objects.max_cont_main.package_type }}">
+                           data-tku_type="{{ objects.max_cont_main.tku_type }}">
                             'tkn_main_continuous'
                         </a>
                         <span class="txt-sm">Latest: {{ objects.max_cont_main.package_type }} at: {{ objects.max_cont_main.updated_at|timezone:"Europe/London"|naturaltime}}</span>
@@ -48,7 +48,7 @@
                     <div class="flex-space-bw">
                         <a class="btn btn-sm btn-info"
                            id="wget_tkn_ship_continuous"
-                           data-tku_type="{{ objects.max_cont_main.package_type }}">
+                           data-tku_type="{{ objects.max_cont_ship.tku_type }}">
                             'tkn_ship_continuous'
                         </a>
                         <span class="txt-sm">Latest: {{ objects.max_cont_ship.package_type }} at: {{ objects.max_cont_ship.updated_at|timezone:"Europe/London"|naturaltime}}</span>

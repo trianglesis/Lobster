@@ -818,6 +818,7 @@ class LocalDownloads:
         :return:
         """
         wget_cmd_d = dict()
+        # TODO: Add main_cont tku
 
         # Get usual paths to all TKNs AND:
         buildhub_paths_d, download_paths_d = self.tku_local_paths()
@@ -933,7 +934,7 @@ class LocalDownloads:
 
         # Do not return outputs, because we don't care of saving them to database instead of read logs!
         # return outputs_l
-        return f"Finished WGET, commands run: {command_list}, stderr: {outputs_l[1]}"
+        # return f"Finished WGET, commands run: {command_list}, stderr: {outputs_l[1]}"
 
     @staticmethod
     def parse_released_tkn_html(release_sprints, released_tkn):

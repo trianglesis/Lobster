@@ -350,6 +350,7 @@ class UploadTaskPrepare:
                           t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail",
                           t_queue=f'{addm_group}@tentacle.dq2')
                 task = Runner.fire_t(TUploadExec.t_upload_prep,
+                                     fake_run=True, to_sleep=2, to_debug=True,
                                      t_queue=f'{addm_group}@tentacle.dq2',
                                      t_args=[f"UploadTaskPrepare.addm_prepare;task=t_upload_prep;test_mode={self.test_mode};"
                                              f"addm_group={addm_group};user={self.user_name}"],
@@ -369,12 +370,14 @@ class UploadTaskPrepare:
         for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path')
             subject = f"UploadTaskPrepare | t_upload_unzip | {self.test_mode} | {addm_group} | {step_k}"
-            body = f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, packages: {list(packs)}"
+            body = f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, " \
+                   f"packages: {list(packs)}"
             self.mail(t_args=[f"UploadTaskPrepare.package_unzip"],
                       t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
                       t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail",
                       t_queue=f'{addm_group}@tentacle.dq2')
             task = Runner.fire_t(TUploadExec.t_upload_unzip,
+                                 fake_run=True, to_sleep=2, to_debug=True,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[f"UploadTaskPrepare;task=t_upload_unzip;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],
@@ -385,10 +388,7 @@ class UploadTaskPrepare:
             self.tasks_added.append(task)
 
     def tku_install(self, step_k, packages_from_step):
-        """
-        Install previously unzipped TKU from /usr/tideway/TEMP/*.zip
-        :return:
-        """
+        """ Install previously unzipped TKU from /usr/tideway/TEMP/*.zip """
         for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path')
             subject = f"UploadTaskPrepare | t_tku_install | {self.test_mode} | {addm_group} | {step_k}"
@@ -399,7 +399,7 @@ class UploadTaskPrepare:
                       t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail",
                       t_queue=f'{addm_group}@tentacle.dq2')
             task = Runner.fire_t(TUploadExec.t_tku_install,
-                                 fake_run=True, to_sleep=2, to_debug=True,
+                                 # fake_run=True, to_sleep=2, to_debug=True,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[f"UploadTaskPrepare;task=t_tku_install;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],

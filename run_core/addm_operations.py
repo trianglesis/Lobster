@@ -1146,7 +1146,6 @@ class ADDMOperations:
                 log.error(msg)
                 raise Exception(msg)
         test_q.put(outputs_l)
-        return True
 
 
 class ADDMConfigurations:

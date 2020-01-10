@@ -38,36 +38,36 @@ def upload_exceptions(function):
             'upload_preparations_threads':
                 {
                  'subject': 'UploadTestExec: Exception in upload_preparations_threads',
-                 'body': 'Problem with addm preparation threads: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'body': 'Problem with addm preparation threads: args:{args}, kwargs:{kwargs}, \n\tException:{e}',
                  'option_key': 'UploadTestExec.upload_preparations_threads',
-                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'description': 'This function executes threads for each addm from addm set and run upload_preparations'
                                 'for each instance. Could probably die if ssh fails, or see the exception.',
                  },
             'upload_unzip_threads':
                 {
                  'subject': 'UploadTestExec: Exception in upload_unzip_threads',
-                 'body': 'Problem with TKU unzipping threads: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'body': 'Problem with TKU unzipping threads: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'option_key': 'UploadTestExec.upload_unzip_threads',
-                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'description': 'This function executes threads for each addm from set and run addm_op.upload_unzip'
                                 'for each instance. Could fail, usually, when zip is not there. See exception for more.',
                  },
             'install_tku_threads':
                 {
                  'subject': 'UploadTestExec: Exception in install_tku_threads',
-                 'body': 'Problem with TKU install threads: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'body': 'Problem with TKU install threads: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'option_key': 'UploadTestExec.install_tku_threads',
-                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'description': 'This function executes threads for each addm from set and run install_activate for each'
                                 'instance. Could fail on wrong cmd or issues with tw_pattern_management. See exception.',
                  },
             'upload_preparations':
                 {
                  'subject': 'UploadTestExec: Exception in upload_preparations',
-                 'body': 'Problem with upload preparation function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'body': 'Problem with upload preparation function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'option_key': 'UploadTestExec.upload_preparations',
-                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'description': 'This function runs on single ADDM, executing preparation commands from self.mode_cases.'
                                 'Use key+func where key corresponds to actual ADDM CMD from addmcommands and func is'
                                 'an instance of cmdrun. NOTE: Still use old!',
@@ -75,33 +75,33 @@ def upload_exceptions(function):
             'install_activate':
                 {
                  'subject': 'UploadTestExec: Exception in install_activate',
-                 'body': 'Problem with install_activate function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'body': 'Problem with install_activate function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'option_key': 'UploadTestExec.install_activate',
-                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'description': '',
                  },
             'parse_upload_result':
                 {
                  'subject': 'UploadTestExec: Exception in parse_upload_result',
-                 'body': 'Problem with upload results parsing function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'body': 'Problem with upload results parsing function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'option_key': 'UploadTestExec.parse_upload_result',
-                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'description': '',
                  },
             'model_save_insert':
                 {
                  'subject': 'UploadTestExec: Exception in model_save_insert',
-                 'body': 'Problem with saving parsed result function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'body': 'Problem with saving parsed result function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'option_key': 'UploadTestExec.model_save_insert',
-                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
                  'description': '',
                  },
             'std_read':
                 {
                  'subject': 'UploadTestExec: Exception in std_read',
-                 'body': 'Problem with std read function: args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'body': 'Problem with std read function: args:{args}, kwargs:{kwargs}, \n\tException:{e}',
                  'option_key': 'UploadTestExec.std_read',
-                 'option_value': 'args:{args}, kwargs:{kwargs}, Exception:{e}',
+                 'option_value': 'args:{args}, kwargs:{kwargs}, \n\tException:{e}',
                  'description': '',
                  },
         }
@@ -249,7 +249,6 @@ class UploadTestExec:
         start_time = datetime.now()
 
         for addm_item in addm_items:
-            # Open SSH connection:
             ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
             if ssh and ssh.get_transport().is_active():
                 m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
@@ -273,8 +272,6 @@ class UploadTestExec:
             test_th.join()
             th_out = test_q.get()
             thread_outputs.append(th_out)
-            # log.debug("<=upload_unzip_threads=> Thread finished, test_q.get: %s", th_out)
-
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!"
         body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
@@ -305,12 +302,14 @@ class UploadTestExec:
         test_q = Queue()
         start_time = datetime.now()
 
+        if package_detail:
+            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}.{package_detail}'
+        else:
+            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}'
+
         for addm_item in addm_items:
             addm_group = addm_item['addm_group']
-            # Get ADDM related package zip list from packages:
-            package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
-            tku_zip_list = [package.zip_file_path for package in package_]
-            msg = f"<=Upload TKU Install Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']} zip {len(tku_zip_list)} - {tku_zip_list} step_k={step_k}"
+            msg = f"<=Upload TKU Install Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']} mode_key={mode_key}"
             log.debug(msg)
 
             # Open SSH connection:
@@ -334,23 +333,14 @@ class UploadTestExec:
                 log.error(msg)
                 thread_outputs.append(msg)
 
-        if package_detail:
-            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}.{package_detail}'
-        else:
-            mode_key = f'{pack.tku_type}.{test_mode}.{step_k}'
-
-        # RUN
         for test_th in thread_list:
             test_th.join()
             th_out = test_q.get()
             thread_outputs.append(th_out)  # {addm_item:addm_item, output:upload_outputs_d}
-            # Processing outputs for each thread:
-            # Get thread output and insert results in upload test table:
             msg = f'tku_type={packages[0].tku_type};package_type={packages[0].package_type};' \
                   f'test_mode={test_mode}:step_k={step_k};package_detail={package_detail}'
             log.debug("<=install_tku_threads=> Package installed: %s", msg)
-            kwargs.update(th_out=th_out, mode_key=mode_key, ts=ts)
-            self.model_save_insert(**kwargs)
+            self.model_save_insert(th_out=th_out, test_mode=test_mode, mode_key=mode_key, packages=packages, ts=ts)
 
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | install_tku_threads | {test_mode} | {step_k} | {addm_group} | Finished!"
@@ -453,7 +443,6 @@ class UploadTestExec:
         upload_errors = []
         product_content = []
 
-        # TODO: Simplify - parse only when cleared symbols in raw output.
         # TODO: Can parse 'important' output for words 'error', 'warning', etc.
 
         # str_stdout = upload_outputs_d['std_output']  # formatted output
@@ -530,16 +519,17 @@ class UploadTestExec:
 
     @upload_exceptions
     def model_save_insert(self, **kwargs):
-        ts = kwargs.get('ts', None)
-        th_out = kwargs.get('th_out', None)
-        test_mode = kwargs.get('test_mode', None)
-        mode_key = kwargs.get('mode_key', None)
-        packages = kwargs.get('packages', None)
+        ts = kwargs.get('ts')
+        th_out = kwargs.get('th_out')
+        test_mode = kwargs.get('test_mode')
+        mode_key = kwargs.get('mode_key')
+        packages = kwargs.get('packages')
 
         package_type = packages[0].package_type
         tku_type = packages[0].tku_type
 
         addm_item = th_out.get('addm_item')
+
         upload_outputs_d = th_out.get('output')
         upload_results_d = self.parse_upload_result(upload_outputs_d)
 
@@ -564,8 +554,6 @@ class UploadTestExec:
             upload_errors=upload_results_d['upload_errors'],
             # TKU zips and packages installed: list and statuses, like 'skipped'
             tku_statuses=upload_results_d['tku_statuses'],
-            # List of md5sum indexes of TKU zips were used for test
-            # tested_zips=zip_tested_md5sum,
             # Addm item details:
             addm_name=addm_item['addm_name'],
             addm_v_int=addm_item['addm_v_int'],
