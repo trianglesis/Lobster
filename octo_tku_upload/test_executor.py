@@ -270,6 +270,7 @@ class UploadTestExec:
             test_th.join()
             th_out = test_q.get()
             thread_outputs.append(th_out)
+        log.info(f"ADDM Unzip TKUs output: {thread_outputs}")
         # Email confirmation when execution was finished:
         subject = f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!"
         body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
