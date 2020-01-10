@@ -21,14 +21,14 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.debug = True
         self.silent = True
         self.tku_wget = False
-        self.fake_run = True
+        self.fake_run = False
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_detail = 'TKU-Product-Content'
         self.package_types = [package_type]
-        # self.addm_group = 'golf'
-        self.addm_set = self.addm_set.filter(
-            addm_group__in=['alpha', 'golf'],
-            disables__isnull=True).values().order_by('addm_group')
+        self.addm_group = 'golf'
+        # self.addm_set = self.addm_set.filter(
+        #     addm_group__in=['alpha', 'golf'],
+        #     disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
     def test002_product_content_update_tkn_ship(self):
