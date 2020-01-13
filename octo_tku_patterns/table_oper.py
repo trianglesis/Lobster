@@ -28,66 +28,6 @@ class PatternsDjangoModelRaw:
         self.octo_test_cases = 'octo_test_cases'
         self.database = 'octopus_dev_copy'
 
-    @staticmethod
-    def select_latest_long_tests(branch):
-        """
-
-        GROUP BY {tb}.pattern_folder_name
-        GROUP BY {tb}.addm_host
-
-        ORDER BY {tb}.time_spent_test DESC
-        ORDER BY {tb}.time_spent_test
-
-        LIMIT 20;
-        :param branch:
-        :return:
-        """
-
-        query = '''
-        SELECT 
-            {tb}.id,
-            {tb}.pattern_library,
-            {tb}.pattern_folder_name,
-            {tb}.time_spent_test,
-            {tb}.tst_status,
-            {tb}.tst_class,
-            {tb}.addm_name,
-            {tb}.addm_group,
-            {tb}.addm_host,
-            {tb}.tkn_branch,
-            {tb}.test_date_time
-        FROM octopus_dev_copy.{tb}
-        WHERE {tb}.tkn_branch = '{branch}'
-        GROUP BY {tb}.addm_host, {tb}.test_py_path
-        '''.format(tb='octo_test_last', branch=branch)
-
-        tests_top = TestLast.objects.raw(query)
-        tests_top_list = []
-        for test_item in tests_top:
-            # log.debug("test_item %s", test_item.test_py_path)
-            try:
-                test_item_d = dict(
-                    pattern_library=test_item.pattern_library,
-                    pattern_folder_name=test_item.pattern_folder_name,
-                    ordering_by_ts=round(float(test_item.time_spent_test), 1),
-                    time_spent_test=test_item.time_spent_test,
-                    tst_status=test_item.tst_status,
-                    tst_class=test_item.tst_class,
-                    addm_name=test_item.addm_name,
-                    addm_group=test_item.addm_group,
-                    addm_host=test_item.addm_host,
-                    tkn_branch=test_item.tkn_branch,
-                    test_date_time=test_item.test_date_time,
-                )
-                tests_top_list.append(test_item_d)
-            except AttributeError as e:
-                # Ignore items where attr is not set:
-                log.error("This test item has no attribute %s", e)
-
-        tests_top_sort = sorted(tests_top_list, key = itemgetter('ordering_by_ts'), reverse = True)
-
-        return tests_top_sort
-
     def sel_history_by_latest_all(self, query_args):
         """
         Select last N days test records for pattern:

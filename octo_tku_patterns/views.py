@@ -53,9 +53,7 @@ class Reports:
         branch = request.GET.get('branch', 'tkn_main')
         count = request.GET.get('count', 20)
 
-        # TODO: Change to django format:
-        tests_top_sort = TestLast.objects.all().aggregate(Max('time_spent_test'))
-        # tests_top_sort = PatternsDjangoModelRaw().select_latest_long_tests(branch)
+        tests_top_sort = TestLast.objects.filter(time_spent_test__isnull=False).order_by('-time_spent_test')
         log.debug(f"tests_top_sort: {tests_top_sort}")
 
         try:
@@ -66,7 +64,7 @@ class Reports:
             slice_top = []
             subject = 'Error, cannot convert arg "count" to int: {}'.format(e)
 
-        patterns_contxt = dict(LONG_TESTS=slice_top, BRANCH=branch, COUNT=count, SUBJECT=subject)
+        patterns_contxt = dict(LONG_TESTS=slice_top, MAX_LONG=tests_top_sort, BRANCH=branch, COUNT=count, SUBJECT=subject)
         return HttpResponse(patterns_summary.render(patterns_contxt, request))
 
 

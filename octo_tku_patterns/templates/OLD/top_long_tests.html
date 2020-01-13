@@ -15,19 +15,6 @@ Top 20 long tests {{ BRANCH }}
         {% select_branch_icon BRANCH 36 %}
         <!-- Change branch buttons: -->
         <div class="btn-group btn-group-sm" role="group">
-        {% if BRANCH == "tkn_main" %}
-            <button id="branch_tkn_main" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn dropdown-toggle btn-secondary" href="{% url 'patterns_top_long' %}?branch=tkn_main;count=20"><img style="height:1em;width:1em;" src="{% static "octicons/svg/git-branch.svg" %}" alt="branch_main" />Main</button>
-            <div class="dropdown-menu" aria-labelledby="change_branch_tkn_main">
-                <a class="dropdown-item" href="{% url 'patterns_top_long' %}?branch=tkn_ship;count=20"><img style="height:1em;width:1em;" src="{% static "octicons/svg/git-merge.svg" %}" alt="merge_ship" />Ship</a>
-            </div>
-        {% elif BRANCH == "tkn_ship" %}
-            <button id="branch_tkn_ship" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn dropdown-toggle btn-secondary" href="{% url 'patterns_top_long' %}?branch=tkn_ship;count=20"><img style="height:1em;width:1em;" src="{% static "octicons/svg/git-merge.svg" %}" alt="merge_ship" />Ship</button>
-            <div class="dropdown-menu" aria-labelledby="change_branch_tkn_ship">
-                <a class="dropdown-item"  href="{% url 'patterns_top_long' %}?branch=tkn_main;count=20"><img style="height:1em;width:1em;" src="{% static "octicons/svg/git-branch.svg" %}" alt="branch_main" />Main</a>
-            </div>
-        {% else %}
-            No Branch arg in context!
-        {% endif %}
         </div>
         Top {{ COUNT }} most long running tests for branch {{ BRANCH }} Based only on last tests
         <div class="btn-group btn-group-sm" role="group" aria-label="Level" style="float: right">
@@ -49,6 +36,7 @@ Top 20 long tests {{ BRANCH }}
             <!-- Patterns table Head: -->
             <tr>
                 <th scope="col" class="{{ text_align }} font-weight-bold">#</th>
+                <th scope="col" class="{{ text_align }} font-weight-bold">Branch</th>
                 <th scope="col" class="{{ text_align }} font-weight-bold">Category</th>
                 <th scope="col" class="{{ text_align }} font-weight-bold">Pattern dir</th>
                 <th scope="col" class="{{ text_align }} font-weight-bold">TS raw</th>
@@ -57,28 +45,24 @@ Top 20 long tests {{ BRANCH }}
                 <th scope="col" class="{{ text_align }} font-weight-bold">addm_name</th>
                 <th scope="col" class="{{ text_align }} font-weight-bold">addm_group</th>
                 <th scope="col" class="{{ text_align }} font-weight-bold">addm_host</th>
-                <th scope="col" class="{{ text_align }} font-weight-bold">Logs|History</th>
             </tr>
             </thead>
         </tr>
         <tbody>
         <!-- Patterns table rows in cycle: -->
-        {% for patt_row in LONG_TESTS %}
-            <tr title="by user: '{{ patt_row.change_user }}' is key: {{ patt_row.is_key_pattern }} ADDM name: '{{ patt_row.addm_name }}', group: '{{ patt_row.addm_group }}', host: '{{ patt_row.addm_host }}'">
+        {% regroup MAX_LONG by time_spent_test as long_patt_tests %}
+        {% for long_group in long_patt_tests|slice:COUNT %}
+            <tr>
                 <td class="{{ text_align }}">{{ forloop.counter }}</td>
-                <td class="{{ text_align }}">{{ patt_row.pattern_library }}</td>
-                <td class="{{ text_align }}">{{ patt_row.pattern_folder_name }}</td>
-                <td class="{{ text_align }}">{{ patt_row.ordering_by_ts }}</td>
-                <td class="{{ text_align }}">{{ patt_row.time_spent_test | f_sec }}</td>
-                <td class="{{ text_align }}">{{ patt_row.test_date_time|naturaltime }}</td>
-                <td class="{{ text_align }}">{{ patt_row.addm_name }}</td>
-                <td class="{{ text_align }}">{{ patt_row.addm_group }}</td>
-                <td class="{{ text_align }}">{{ patt_row.addm_host }}</td>
-                <td class="{{ text_align }}">
-                    <div class="btn-group" role="group" aria-label="Level" style="text-align: center;">
-                        <a class="btn btn-sm btn-info" title="Test detailed log" style="font-size: 0.7em;" href="{% url 'pattern_logs' %}?branch={{ BRANCH }}{% if patt_row.addm_name %}&addm_name={{ patt_row.addm_name }}{% endif %}{% row_pattern_items patt_row.pattern_library patt_row.pattern_folder_name %}{% log_levels %}">Logs</a>
-                    </div>
-                </td>
+                <td class="{{ text_align }}">{{ long_group.list.0.tkn_branch }}</td>
+                <td class="{{ text_align }}">{{ long_group.list.0.pattern_library }}</td>
+                <td class="{{ text_align }}">{{ long_group.list.0.pattern_folder_name }}</td>
+                <td class="{{ text_align }}">{{ long_group.list.0.time_spent_test }}</td>
+                <td class="{{ text_align }}">{{ long_group.list.0.time_spent_test | f_sec }}</td>
+                <td class="{{ text_align }}">{{ long_group.list.0.test_date_time|naturaltime }}</td>
+                <td class="{{ text_align }}">{{ long_group.list.0.addm_name }}</td>
+                <td class="{{ text_align }}">{{ long_group.list.0.addm_group }}</td>
+                <td class="{{ text_align }}">{{ long_group.list.0.addm_host }}</td>
             </tr>
         {% endfor %}
         </tbody>

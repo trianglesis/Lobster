@@ -17,6 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from octo_adm.user_operations import UserCheck
 
+from octo_tku_patterns.models import TestLast
 from octo_tku_patterns.model_views import AddmDigest
 from octo_tku_upload.views import TKUUpdateWorkbenchView
 from octo_tku_patterns.views import TestLastDigestListView, TestCasesListView
@@ -48,9 +49,14 @@ class MainPage(TemplateView):
         upload_tests = TKUUpdateWorkbenchView.get_queryset(self)
         # log.debug("upload_tests: %s", upload_tests)
 
+        tests_top_main = TestLast.objects.filter(time_spent_test__isnull=False, tkn_branch__exact='tkn_main').order_by('-time_spent_test')
+        tests_top_ship = TestLast.objects.filter(time_spent_test__isnull=False, tkn_branch__exact='tkn_ship').order_by('-time_spent_test')
+
         selections = dict(
             upload_tests = upload_tests,
             addm_digest = addm_digest,
+            tests_top_main = tests_top_main,
+            tests_top_ship = tests_top_ship,
         )
         return selections
 

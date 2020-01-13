@@ -134,7 +134,8 @@ class TestCases(models.Model):
     test_dir_path_template = models.CharField(max_length=255)  # AKA test_working_dir
 
     # Fill it basing on previous tests run time:
-    test_time_weight = models.CharField(max_length=35, blank=True, null=True)  # How long test run
+    # TODO: https://docs.djangoproject.com/en/3.0/ref/models/fields/#durationfield later next round.
+    test_time_weight = models.DecimalField(max_digits=19, decimal_places=10, blank=True, null=True)
 
     # System dates and times:
     created_time = models.DateTimeField(
