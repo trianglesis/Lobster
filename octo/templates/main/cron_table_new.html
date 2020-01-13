@@ -2,6 +2,7 @@
 {% load template_simplify %}
 <table id="cron" class="table table-shrink table-condensed table-bordered table-hover table-sm">
 <thead>
+    <th class="table-info text-center" scope="col"></th>
     <th class="table-info text-center" scope="col">Name/task</th>
     <th class="table-info text-center" scope="col">Args/Kwargs</th>
     <th class="table-info text-center" scope="col">Planned</th>
@@ -13,6 +14,7 @@
     {% cron_today DjangoCeleryBeatPeriodictask as run_today %}
         {% if run_today %}
             <tr>
+                <td {% popover 'hover' 'top' None DjangoCeleryBeatPeriodictask.description|safe %}><i class="far fa-eye"></i></td>
                 <td style="font-size:8pt" title="Description: {{ DjangoCeleryBeatPeriodictask.description }}">{{ DjangoCeleryBeatPeriodictask.name }}<br>
                     <a href="{% url 'admin:index' %}django_celery_beat/periodictask/{{DjangoCeleryBeatPeriodictask.id}}/change/">{{ DjangoCeleryBeatPeriodictask.task }}</a>
                 </td>

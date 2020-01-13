@@ -1,11 +1,9 @@
 /* Style for TKU tables with patterns and test cases */
-/*font-family: 'Open Sans', sans-serif;*/
 /*font-family: 'Jaldi', sans-serif;*/
-/*font-family: 'Catamaran', sans-serif;*/
 /*font-family: 'BenchNine', sans-serif;*/
 /*font-family: 'Assistant', sans-serif;*/
 /*font-family: 'Maven Pro', sans-serif;*/
-/*font-family: 'Nunito', sans-serif;*/
+
 
 /* Main test cases page and filter */
 .test-cases-content {
@@ -43,13 +41,12 @@
 
 .cases-table {
     font-size: 1em;
-    /*font-family: 'Catamaran', sans-serif;*/
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
     /*font-family: 'BenchNine', sans-serif;*/
     /*font-family: 'Assistant', sans-serif;*/
     font-family: 'Maven Pro', sans-serif;
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 .case-table {

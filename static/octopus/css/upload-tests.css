@@ -1,10 +1,8 @@
-/*font-family: 'Open Sans', sans-serif;*/
 /*font-family: 'Jaldi', sans-serif;*/
-/*font-family: 'Catamaran', sans-serif;*/
 /*font-family: 'BenchNine', sans-serif;*/
 /*font-family: 'Assistant', sans-serif;*/
 /*font-family: 'Maven Pro', sans-serif;*/
-/*font-family: 'Nunito', sans-serif;*/
+
 
 /* GENERAL */
 .table-shrink td {
@@ -65,13 +63,13 @@
 /*Text styles*/
 .txt-nice {
     font-size: 1em !important;
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
-    /*font-family: 'Catamaran', sans-serif;*/
+
     /*font-family: 'BenchNine', sans-serif;*/
     /*font-family: 'Assistant', sans-serif;*/
     font-family: 'Maven Pro', sans-serif !important;
-    /*font-family: 'Nunito', sans-serif;*/
+
 
 }
 
@@ -81,13 +79,13 @@
 
 .txt-sm {
     font-size: .875em;
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
-    /*font-family: 'Catamaran', sans-serif;*/
+
     font-family: 'BenchNine', sans-serif;
     /*font-family: 'Assistant', sans-serif;*/
     /*font-family: 'Maven Pro', sans-serif;*/
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 .txt-shrink {
@@ -96,13 +94,13 @@
 
 .txt-micro {
     font-size: .875em;
-    /*font-family: 'Open Sans', sans-serif;*/
+
     font-family: 'Jaldi', sans-serif;
-    /*font-family: 'Catamaran', sans-serif;*/
+
     /*font-family: 'BenchNine', sans-serif;*/
     /*font-family: 'Assistant', sans-serif;*/
     /*font-family: 'Maven Pro', sans-serif;*/
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 .txt-sm-it {
@@ -262,47 +260,47 @@
 /* TKU PACKAGES */
 .tku-packages-table {
     font-size: .975em;
-    /*font-family: 'Open Sans', sans-serif;*/
+
     font-family: 'Jaldi', sans-serif;
-    /*font-family: 'Catamaran', sans-serif;*/
+
     /*font-family: 'BenchNine', sans-serif;*/
     /*font-family: 'Assistant', sans-serif;*/
     /*font-family: 'Maven Pro', sans-serif;*/
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 /* TEST TABLES */
 .upload-test-day-table {
     font-size: .975em;
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
-    /*font-family: 'Catamaran', sans-serif;*/
+
     /*font-family: 'BenchNine', sans-serif;*/
     /*font-family: 'Assistant', sans-serif;*/
     font-family: 'Maven Pro', sans-serif;
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 .upload-test-today-table {
     font-size: .975em;
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
-    /*font-family: 'Catamaran', sans-serif;*/
+
     /*font-family: 'BenchNine', sans-serif;*/
     /*font-family: 'Assistant', sans-serif;*/
     font-family: 'Maven Pro', sans-serif;
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 .upload-test-index-table {
     font-size: .8em;
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
-    /*font-family: 'Catamaran', sans-serif;*/
+
     /*font-family: 'BenchNine', sans-serif;*/
     /*font-family: 'Assistant', sans-serif;*/
     font-family: 'Maven Pro', sans-serif;
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 

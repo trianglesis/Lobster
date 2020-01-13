@@ -16,12 +16,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/main.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/main-site.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'octicons/octicons.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'fontawesome/css/all.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'events/christmass/christmass.css' %}"/>
+{#    <link rel="stylesheet" type="text/css" href="{% static 'octicons/octicons.css' %}"/>#}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/build.css" rel="stylesheet">
+{#    <link rel="stylesheet" type="text/css" href="{% static 'fontawesome/css/all.css' %}"/>#}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet">
     <script src="{% static 'octopus/js/ajax_setup.js' %}"></script>
-    <link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Assistant:600|BenchNine:700|Catamaran:500|Jaldi|Maven+Pro:500|Nunito:300|Open+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Assistant:600|BenchNine:700|Inconsolata|Jaldi|Maven+Pro:500&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <title id="page_title">
         {% block page_title %}Main page{% endblock %}
@@ -167,7 +167,8 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-<script defer src="{% static 'fontawesome/js/all.js' %}"></script>
+{#<script defer src="{% static 'fontawesome/js/all.js' %}"></script>#}
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/fontawesome.js"></script>
 <script src="{% static 'octopus/js/tooltip-active.js' %}"></script>
 <script type="text/javascript">
 </script>

@@ -9,12 +9,11 @@ body {
 .octopus-navbar {
     font-size: .875em;
     /*font-family: 'Maven Pro', sans-serif;*/
-    /*font-family: 'Catamaran', sans-serif;*/
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
     /*font-family: 'BenchNine', sans-serif;*/
     font-family: 'Assistant', sans-serif;
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 .octopus-time {
@@ -22,12 +21,11 @@ body {
     padding-right: 10px;
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    /*font-family: 'Catamaran', sans-serif;*/
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
     /*font-family: 'BenchNine', sans-serif;*/
     /*font-family: 'Assistant', sans-serif;*/
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 .octopus-search {
@@ -35,12 +33,11 @@ body {
     padding-right: 10px;
     font-size: .875em;
     /*font-family: 'Maven Pro', sans-serif;*/
-    /*font-family: 'Catamaran', sans-serif;*/
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
     font-family: 'BenchNine', sans-serif;
     /*font-family: 'Assistant', sans-serif;*/
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 .octopus-login {
@@ -48,12 +45,11 @@ body {
     left: auto;
     font-size: .875em;
     /*font-family: 'Maven Pro', sans-serif;*/
-    /*font-family: 'Catamaran', sans-serif;*/
-    /*font-family: 'Open Sans', sans-serif;*/
+
     /*font-family: 'Jaldi', sans-serif;*/
     font-family: 'BenchNine', sans-serif;
     /*font-family: 'Assistant', sans-serif;*/
-    /*font-family: 'Nunito', sans-serif;*/
+
 }
 
 .badge {
