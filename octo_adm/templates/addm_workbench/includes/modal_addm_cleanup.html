@@ -18,7 +18,13 @@
                     <div class="form-group">
                         <div class="list-group list-group-flush">
                             <li class="list-group-item">
-                                <div class="card-text">ADDM Full cleanup</div>
+                                <div class="card-text">
+                                    <p>ADDM Full cleanup.
+                                        Uses REST <a href="{% url 'admin_operations' %}?operation_key=addm_cleanup">addm_cleanup</a> method.
+                                        Run selected ADDM cleanup therapy.
+                                        Require: admin_users;  addm_group=()
+                                        Example: operation_key=addm_cleanup;addm_group=alpha  :return: mode: task.id</p>
+                                </div>
                                 <form>
                                     <div class="form-check form-check-inline">
                                         {% for addm_group in all_addm_groups %}

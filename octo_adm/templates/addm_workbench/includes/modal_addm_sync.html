@@ -16,7 +16,14 @@
                 <div class="form-group">
                     <div class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <div class="card-text">Run RSYNC Test Shares</div>
+                            <div class="card-text">
+                                <p>Run RSYNC Test Shares. Uses REST
+                                    <a href="{% url 'admin_operations' %}?operation_key=addm_sync_shares">addm_sync_shares</a> or
+                                    <a href="{% url 'admin_operations' %}?operation_key=addm_sync_utils">addm_sync_utils</a> methods.
+                                    Execute routine for Octopus NFS -> ADDM sync all files for test utils.
+                                    Using rsync. keys used rsync.python.testutils, rsync.tideway.utils  Require: admin_users;  Options: addm_group=()
+                                </p>
+                            </div>
                             <form>
                                 <div class="form-check form-check-inline">
                                     {% for addm_group in all_addm_groups %}

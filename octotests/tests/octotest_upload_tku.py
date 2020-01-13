@@ -102,10 +102,31 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.run_case()
 
-    # def test007_release_ga_fresh(self):
-    #     package_type = self.select_latest_ga()
-    #     self.request.update(addm_group='golf', test_mode='fresh', package_types=[package_type])
-    #     self.run_case()
+    def test007_tkn_main_continuous_fresh(self):
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'fresh'
+        package_type = self.select_latest_continuous(tkn_branch='tkn_main')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['golf'],
+            addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
+    def test008_tkn_ship_continuous_fresh(self):
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'fresh'
+        package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['golf'],
+            addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
 
 
 if __name__ == "__main__":

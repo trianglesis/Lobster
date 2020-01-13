@@ -14,7 +14,11 @@
             <div class="modal-body">
                 <div id="modal-details"></div>
                 <span id="addm_details_str"></span>
-                <div class="card-text">Run CMD_NAME</div>
+                <div class="card-text">
+                    <p>ADDM Full cleanup. Uses REST <a href="{% url 'admin_operations' %}?operation_key=addm_cmd_run">addm_cmd_run</a> method.
+                        Run ADDM registered command. Commands should be added to Octopus system. (see <a href="{% url 'admin:index' %}run_core/addmcommands/">/admin/run_core/addmcommands/</a>)
+                        Require: admin_users; Options: (command_key=(), addm_group=()</p>
+                </div>
                 <div class="btn-group addm-cmd-run">
                     <form>
                         <div class="form-group">

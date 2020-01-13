@@ -92,5 +92,5 @@ def dynamical_selector_compose(context, exclude_key=None, update_context=False):
 
 @register.simple_tag
 def select_addm_commands():
-    commands = ADDMCommands.objects.all()
+    commands = ADDMCommands.objects.filter(private__isnull=True)
     return commands
