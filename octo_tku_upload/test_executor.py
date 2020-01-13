@@ -410,6 +410,8 @@ class UploadTestExec:
 
         if package_detail:
             cmd += f"{package_detail}*"
+        else:
+            cmd += "*"
 
         # noinspection PyBroadException
         try:

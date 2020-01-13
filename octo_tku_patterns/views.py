@@ -9,8 +9,7 @@ import logging
 from celery.result import AsyncResult
 from django import forms
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
-from django.db.models import Q
+from django.db.models import Q, Count, Max
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
@@ -33,9 +32,6 @@ from octo_tku_patterns.table_oper import PatternsDjangoTableOper, PatternsDjango
 from octo_tku_patterns.tasks import TPatternRoutine
 
 
-
-# from octo_tku_patterns.task_prep import TaskPrepare
-
 log = logging.getLogger("octo.octologger")
 
 
@@ -53,13 +49,14 @@ class Reports:
         :return:
         """
         patterns_summary = loader.get_template('OLD/top_long_tests.html')
-        user_name, user_str = UserCheck().user_string_f(request)
-        # log.debug("<=VIEW SELECTOR=> patterns_top_long(): %s", user_str)
+
         branch = request.GET.get('branch', 'tkn_main')
         count = request.GET.get('count', 20)
 
         # TODO: Change to django format:
-        tests_top_sort = PatternsDjangoModelRaw().select_latest_long_tests(branch)
+        tests_top_sort = TestLast.objects.all().aggregate(Max('time_spent_test'))
+        # tests_top_sort = PatternsDjangoModelRaw().select_latest_long_tests(branch)
+        log.debug(f"tests_top_sort: {tests_top_sort}")
 
         try:
             top = int(count)
