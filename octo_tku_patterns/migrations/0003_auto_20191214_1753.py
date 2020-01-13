@@ -153,46 +153,46 @@ class Migration(migrations.Migration):
                 'managed': False,
             },
         ),
-        # migrations.RemoveField(
-        #     model_name='testhistory',
-        #     name='is_key_pattern',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='testhistory',
-        #     name='pattern_file_name',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='testhistory',
-        #     name='pattern_file_path',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='testhistory',
-        #     name='pattern_file_path_depot',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='testhistory',
-        #     name='pattern_folder_path_depot',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='testlast',
-        #     name='is_key_pattern',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='testlast',
-        #     name='pattern_file_name',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='testlast',
-        #     name='pattern_file_path',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='testlast',
-        #     name='pattern_file_path_depot',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='testlast',
-        #     name='pattern_folder_path_depot',
-        # ),
+        migrations.RemoveField(
+            model_name='testhistory',
+            name='is_key_pattern',
+        ),
+        migrations.RemoveField(
+            model_name='testhistory',
+            name='pattern_file_name',
+        ),
+        migrations.RemoveField(
+            model_name='testhistory',
+            name='pattern_file_path',
+        ),
+        migrations.RemoveField(
+            model_name='testhistory',
+            name='pattern_file_path_depot',
+        ),
+        migrations.RemoveField(
+            model_name='testhistory',
+            name='pattern_folder_path_depot',
+        ),
+        migrations.RemoveField(
+            model_name='testlast',
+            name='is_key_pattern',
+        ),
+        migrations.RemoveField(
+            model_name='testlast',
+            name='pattern_file_name',
+        ),
+        migrations.RemoveField(
+            model_name='testlast',
+            name='pattern_file_path',
+        ),
+        migrations.RemoveField(
+            model_name='testlast',
+            name='pattern_file_path_depot',
+        ),
+        migrations.RemoveField(
+            model_name='testlast',
+            name='pattern_folder_path_depot',
+        ),
         migrations.AlterField(
             model_name='testcasesdetails',
             name='title',
