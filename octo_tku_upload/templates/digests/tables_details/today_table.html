@@ -37,7 +37,7 @@
         </thead>
         <tbody class="table-shrink">
         {% for test in object_list %}
-            <tr>
+            <tr {% popover 'hover' 'top' None test.mode_key %}>
                 <td id="num">{{ forloop.counter }}</td>
                 <td id="addm_name">{{ test.addm_name }}</td>
                 <td id="addm_v_int">{{ test.addm_v_int }}</td>

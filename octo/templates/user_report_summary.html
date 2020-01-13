@@ -122,7 +122,7 @@
                                 {% endif %}
                             </td>
                             <td class="small-font align-middle break-all">{{ case.test_case_depot_path }}</td>
-                            <td class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight }}{% else %}0{% endif %}</td>
+                            <td class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight | f_sec }}{% else %}0{% endif %}</td>
                             <td class="small-font center_txt">
                                 {{ case.change_time|timezone:"Europe/London"|naturaltime }}
                                 {% comment %}{{ pattern.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}{% endcomment %}

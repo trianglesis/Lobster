@@ -41,7 +41,7 @@ $(document).ready(function () {
 
                         } else if (tdNode_time_spent_test < 300) {
                             // console.log(`Not Pass too short time of install : ${tdNode_time_spent_test} ${debug_str}`);
-                            if (tdNode_mode_key.includes('TKU-Product-Content')) {
+                            if (tdNode_mode_key.includes('TKU-Product-Content') || tdNode_mode_key.includes('tideway-devices')) {
                                 currentRow.className = 'tst-None';
                             } else {
                                 currentRow.className = 'tst-notpass';

@@ -68,7 +68,7 @@
                                 <td id="change_review" class="row-txt-center-sm">{{ case.change_review }}</td>
                                 <td id="change_ticket" class="row-txt-center-sm">{{ case.change_ticket }}</td>
                                 <td id="test_case_depot_path" class="small-font align-middle break-all">{{ case.test_case_depot_path }}</td>
-                                <td id="test_time_weight" class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight }}{% else %}0{% endif %}</td>
+                                <td id="test_time_weight" class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight | f_sec }}{% else %}0{% endif %}</td>
                                 <td id="change_time" class="small-font center_txt">{{ case.change_time|timezone:"Europe/London"|naturaltime }}<br>{{ case.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
 {#                                <td><a class="btn btn-sm btn-outline-info"#}
 {#                                       href="{% url 'test_case' pk=case.id %}" {% popover 'hover' 'left' None 'View case full info' %}>view</a>#}
@@ -82,7 +82,7 @@
                                 </td>
                                 <td id="case_id" style="display:none">{{ case.id }}</td>
                                 <td id="test_py_path" style="display:none">{{ case.test_py_path }}</td>
-                                <td id="test_time_weight" style="display:none">{{ case.test_time_weight }}</td>
+                                <td id="test_time_weight" style="display:none">{{ case.test_time_weight | f_sec }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
