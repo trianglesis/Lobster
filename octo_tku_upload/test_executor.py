@@ -16,6 +16,7 @@ from queue import Queue
 from threading import Thread
 from time import time
 
+from run_core.models import Options
 from octo.helpers.tasks_mail_send import Mails
 from octo_tku_upload.models import UploadTestsNew as UploadTests
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
@@ -33,7 +34,11 @@ def upload_exceptions(function):
 
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
-        user_email = kwargs.get('user_email', 'user_email-None')
+
+        m_service = Options.objects.get(option_key__exact='mail_recipients.service')
+        m_service = m_service.option_value.replace(' ', '').split(',')
+        user_email = kwargs.get('user_email', m_service)
+
         func_cases = {
             'upload_preparations_threads':
                 {

@@ -67,7 +67,6 @@ class UserMainPage(TemplateView):
     context_object_name = 'objects'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=MainPage=> Main page")
         context = super(UserMainPage, self).get_context_data(**kwargs)
         context.update(
             objects=self.get_queryset(),
@@ -75,19 +74,18 @@ class UserMainPage(TemplateView):
         return context
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=MainPage=> Main page queries")
-
-        # get User patterns\cases digest shortly
-        user_cases_tests_digest = TestLastDigestListView.get_queryset(self)
-
-        # get User cases
-        user_cases = TestCasesListView.get_queryset(self)
-
-        selections = dict(
-            user_tests = user_cases_tests_digest,
-            user_cases = user_cases,
-        )
-        return selections
+        change_user = self.request.GET.get('change_user', None)
+        if change_user:
+            # get User patterns\cases digest shortly
+            user_cases_tests_digest = TestLastDigestListView.get_queryset(self)
+            # get User cases
+            user_cases = TestCasesListView.get_queryset(self)
+            selections = dict(
+                user_tests = user_cases_tests_digest,
+                user_cases = user_cases,
+            )
+            return selections
+        return []
 
 
 def unauthorized_banner(request):

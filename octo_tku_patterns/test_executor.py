@@ -8,6 +8,10 @@ import os
 import re
 from time import time, sleep
 import functools
+
+from run_core.models import Options
+from octo.helpers.tasks_mail_send import Mails
+
 from run_core.addm_operations import ADDMOperations
 from run_core.models import TestOutputs
 from octo_tku_patterns.models import TestLast, TestHistory
@@ -30,6 +34,11 @@ def tst_exception(function):
     """
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
+
+        m_service = Options.objects.get(option_key__exact='mail_recipients.service')
+        m_service = m_service.option_value.replace(' ', '').split(',')
+        user_email = kwargs.get('user_email', m_service)
+
         # Normally, we always have a test_item and addm_item:
         if not kwargs.get('test_item', None):
             # log.debug("tst_exception: args %s ", args)
@@ -38,6 +47,7 @@ def tst_exception(function):
             return function(*args, **kwargs)
         try:
             return function(*args, **kwargs)
+        # TODO: Later make as octo_tku_upload.test_executor.upload_exceptions
         except Exception as e:
             if kwargs['stderr_output'] and kwargs['test_item']:
                 log.error("Failed to parse test output, saving to TestOutputs")
@@ -46,8 +56,10 @@ def tst_exception(function):
                     option_key=f"parse_fail_{test_item['tkn_branch']}-{test_item['pattern_folder_name']}-{test_item['pattern_folder_name']}",
                     option_value=kwargs.get('stderr_output', 'No Output!'),
                     description=f"Test output parsing issue, saving RAW stderr. {test_item['test_py_path']}",)
-                # TODO: Send email to admin group. And possible user if mail was passed
                 save_error_log(kwargs_d)
+                subject = kwargs_d['description']
+                body = kwargs_d
+                Mails.short(subject=subject, body=body, send_to=[user_email])
             elif kwargs['db'] and kwargs['res']:
                 log.error("Failed to save test output into: %s, saving to TestOutputs", kwargs.get('db', 'NoTable'))
                 test_item = kwargs.get('test_item', None)
@@ -55,16 +67,20 @@ def tst_exception(function):
                     option_key=f"model_save_fail_{test_item['tkn_branch']}-{test_item['pattern_folder_name']}-{test_item['pattern_folder_name']}",
                     option_value=kwargs.get('stderr_output', 'No Output!'),
                     description=f"Test output parsing issue, saving RAW stderr. {test_item['test_py_path']}",)
-                # TODO: Send email to admin group. And possible user if mail was passed
                 save_error_log(kwargs_d)
+                subject = kwargs_d['description']
+                body = kwargs_d
+                Mails.short(subject=subject, body=body, send_to=[user_email])
             else:
                 log.error("Fail to run: %s Exception: %s", args, e)
                 kwargs_d = dict(
                     option_key=f"TestExecutor_unexpected",
                     option_value=f"Exception: {e}, args: {args}, kwargs: {kwargs}",
                     description="This is unexpected exception from TestExecutor, could be related to test run, parse or save",)
-                # TODO: Send email to admin group. And possible user if mail was passed
                 save_error_log(kwargs_d)
+                subject = kwargs_d['description']
+                body = kwargs_d
+                Mails.short(subject=subject, body=body, send_to=[user_email])
     return wrapper
 
 
@@ -83,6 +99,11 @@ class TestExecutor:
         """
         # Usual tree paths for TKN:
         # For Otopus
+        # TODO: Should be initialised with all needed data before run any threads
+        m_service = Options.objects.get(option_key__exact='mail_recipients.service')
+        self.m_service = m_service.option_value.replace(' ', '').split(',')
+        self.user_email = ''
+
         if os.name == "nt":
             self.p4_workspace = "d:{}perforce".format(os.sep)
         else:
@@ -104,6 +125,7 @@ class TestExecutor:
         from queue import Queue
         from threading import Thread
 
+        user_email = kwargs.get('user_email', self.m_service)
         test_function = kwargs.get('test_function', False)
         addm_items = kwargs.get('addm_items')
         test_item = kwargs.get('test_item')
@@ -123,7 +145,7 @@ class TestExecutor:
                 # If opened connection is Up and alive:
                 if ssh:
                     args_d = dict(ssh=ssh, test_item=test_item, addm_item=addm_item,
-                                  test_function=test_function, test_output_mode=test_output_mode, test_q=test_q)
+                                  test_function=test_function, test_output_mode=test_output_mode, user_email=user_email, test_q=test_q)
                     th_name = f"Test thread: addm {addm_item['addm_ip']} test {test_item['test_py_path']}"
                     try:
                         test_thread = Thread(target=self.test_exec, name=th_name, kwargs=args_d)
@@ -165,7 +187,7 @@ class TestExecutor:
         Before run it will load tkn_main_bashrc/tkn_ship_bashrc to activate paths to python, tideway, core etc.
 
         """
-
+        self.user_email = args_d.get('user_email', None)
         ts = time()
         ssh = args_d.get('ssh')
         test_item = args_d.get('test_item')
@@ -186,7 +208,7 @@ class TestExecutor:
             bin_python = '/usr/tideway/bin/python3'
 
         if test_py_t:
-            log.debug("<=TEST=> START t:%s %s", test_time_weight, test_info)
+            log.debug(f"<=TEST=> START {test_info} t:{test_time_weight}")
             # Change local Octopus path to remote ADDM path:
             test_py_sync = test_py_t.format(self.addm_vm_test_workspace)
             test_wd_sync = test_item.get('test_dir_path_template').format(self.addm_vm_test_workspace)
@@ -199,13 +221,13 @@ class TestExecutor:
                 cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; {bin_python} -u {test_py_sync}" \
                       f" --universal_dml=1 --verbose"
 
-            log.debug("CMD-> '%s'", cmd)
+            log.debug(f"'{cmd}'")
             # Test execution:
             _, stdout, stderr = ssh.exec_command(cmd)
             std_out_err_d = self.std_read(out=stdout, err=stderr, mode=test_output_mode, mgs="<=TEST=>")
 
             time_spent_test = time() - ts
-            log.debug("<=TEST=> FINISH %s", test_info)
+            log.debug(f"<=TEST=> FINISH {test_info} t:{time_spent_test}")
             update_save = self.parse_test_result(stderr_output=std_out_err_d['stderr_output'],
                                                  test_item=test_item,
                                                  addm_item=addm_item,
