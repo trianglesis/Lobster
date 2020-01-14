@@ -78,16 +78,16 @@
                 <a class="nav-link dropdown-toggle" href="{% url 'home' %}" id="navbarDropdown" role="button"
                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% select_icon 'repo' 24 'right' 0.2 %}Test Cases</a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <h5 class="dropdown-header">TKN Cases:</h5>
+                    <h3 class="dropdown-header">TKN Cases:</h3>
                     <a class="dropdown-item" href="{% url 'cases_workbench' %}">{% select_icon 'project' 20 'right' 0.6 %}Workbench</a>
                     <a class="dropdown-item" href="{% url 'test_cases' %}">{% select_icon 'file-code' 20 'right' 0.6 %} Index</a>
                     <a class="dropdown-item" href="{% url 'test_cases_groups' %}">{% select_icon 'briefcase' 20 'right' 0.6 %}Groups</a>
                     <div class="dropdown-divider"></div>
-                    <h5 class="dropdown-header">TKU packages in system:</h5>
+                    <h3 class="dropdown-header">TKU packages:</h3>
                     <a class="dropdown-item" href="{% url 'tku_workbench' %}">{% select_icon 'repo' 24 'right' 0.2 %}Workbench</a>
-                    <a class="dropdown-item" href="{% url 'tku_packages_index' %}">{% select_icon 'repo' 24 'right' 0.2 %}TKU Zips</a>
-                    <a class="dropdown-item" href="{% url 'tku_packages' %}">{% select_icon 'repo' 24 'right' 0.2 %}TKN Lib</a>
                     <a class="dropdown-item" href="{% url 'upload_test_today' %}">{% select_icon 'repo' 24 'right' 0.2 %}Upload today</a>
+{#                    <a class="dropdown-item" href="{% url 'tku_packages_index' %}">{% select_icon 'repo' 24 'right' 0.2 %}TKU Zips</a>#}
+{#                    <a class="dropdown-item" href="{% url 'tku_packages' %}">{% select_icon 'repo' 24 'right' 0.2 %}TKN Lib</a>#}
                 </div>
             </li>
             {# ADMIN WORKBENCHES #}

@@ -32,6 +32,10 @@
                 <nav class="nav nav-pills">
                     <div class="btn-group btn-group-sm" role="group">
                         <a class="btn btn-sm btn-light active" href="{% url 'tku_workbench' %}"><i class="fas fa-play"></i> TKU Upload Workbench</a>
+                        <a class="btn btn-sm btn-light" href="{% url 'tku_packages_index' %}">{% select_icon 'repo' 20 'right' 0.2 %}TKU Zips</a>
+                        <a class="btn btn-sm btn-light" href="{% url 'tku_packages' %}">{% select_icon 'repo' 20 'right' 0.2 %}TKN Lib (classical)</a>
+                        <a class="btn btn-sm btn-light" href="{% url 'admin:index' %}octo_tku_upload/tkupackagesnew/">{% select_icon 'repo' 20 'right' 0.2 %}TKU Zip Admin</a>
+                        <a class="btn btn-sm btn-light" href="{% url 'admin:index' %}octo_tku_upload/uploadtestsnew/">{% select_icon 'repo' 20 'right' 0.2 %}TKN Logs Admin</a>
                     </div>
                 </nav>
             </div>
