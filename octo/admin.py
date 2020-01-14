@@ -133,7 +133,6 @@ class AddmDevProxyAdmin(admin.ModelAdmin):
     )
 
 
-# admin.site.register(Options)
 @admin.register(ADDMCommands)
 class ADDMCommandsAdmin(admin.ModelAdmin):
     fields = (
@@ -148,7 +147,7 @@ class ADDMCommandsAdmin(admin.ModelAdmin):
     list_filter = ('command_key', 'created_at', 'private', 'interactive')
     ordering = ('command_key',)
 
-# admin.site.register(Options)
+
 @admin.register(Options)
 class OptionsAdmin(admin.ModelAdmin):
     fields = (
@@ -161,6 +160,22 @@ class OptionsAdmin(admin.ModelAdmin):
     list_display = ('option_key', 'option_value', 'created_at', 'private',)
     list_filter = ('option_key', 'created_at', 'private')
     ordering = ('option_key',)
+
+
+@admin.register(MailsTexts)
+class MailsTextsAdmin(admin.ModelAdmin):
+    fields = (
+        ('mail_key', 'subject',),
+        'body',
+        'description',
+        'created_at',
+        'private',
+    )
+    readonly_fields = ('created_at',)
+    list_display = ('mail_key', 'subject', 'created_at', 'private',)
+    list_filter = ['created_at']
+    ordering = ('mail_key',)
+
 
 @admin.register(TestOutputs)
 class TestOutputsAdmin(admin.ModelAdmin):
@@ -309,7 +324,6 @@ class TestCasesDetailsAdmin(admin.ModelAdmin):
 
 
 # Octopus Tests
-# admin.site.register(TestLast)
 @admin.register(TestLast)
 class TestLastAdmin(admin.ModelAdmin):
     readonly_fields = ('test_date_time',)
@@ -364,7 +378,6 @@ class TestLastAdmin(admin.ModelAdmin):
     list_per_page = 100
 
 
-# admin.site.register(TestHistory)
 @admin.register(TestHistory)
 class TestHistoryAdmin(admin.ModelAdmin):
     paginator = TimeLimitedPaginator
@@ -422,8 +435,6 @@ class TestHistoryAdmin(admin.ModelAdmin):
 
 
 # UPLOAD:
-# admin.site.register(TkuPackages)
-# admin.site.register(TkuPackagesNew)
 @admin.register(TkuPackagesNew)
 class TkuPackagesNewAdmin(admin.ModelAdmin):
 
@@ -461,8 +472,6 @@ class TkuPackagesNewAdmin(admin.ModelAdmin):
     list_per_page = 100
 
 
-# admin.site.register(UploadTests)
-# admin.site.register(UploadTestsNew)
 @admin.register(UploadTestsNew)
 class UploadTestsNewAdmin(admin.ModelAdmin):
 
@@ -528,7 +537,6 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
     list_per_page = 100
 
 
-# admin.site.register(CeleryTaskmeta)
 @admin.register(CeleryTaskmeta)
 class CeleryTaskmetaAdmin(admin.ModelAdmin):
     fields = (
@@ -541,23 +549,3 @@ class CeleryTaskmetaAdmin(admin.ModelAdmin):
 
 
 admin.site.register(CeleryTasksetmeta)
-
-# Celery BEAT
-# It has a normal view
-# admin.site.register(DjangoCeleryBeatPeriodictask)
-# admin.site.register(DjangoCeleryBeatCrontabschedule)
-# admin.site.register(DjangoCeleryBeatIntervalschedule)
-# admin.site.register(DjangoCeleryBeatPeriodictasks)
-# admin.site.register(DjangoCeleryBeatSolarschedule)
-
-# Django
-# admin.site.register(AuthGroup)
-# admin.site.register(AuthGroupPermissions)
-# admin.site.register(AuthPermission)
-# admin.site.register(AuthUser)
-# admin.site.register(AuthUserGroups)
-# admin.site.register(AuthUserUserPermissions)
-# admin.site.register(DjangoAdminLog)
-# admin.site.register(DjangoContentType)
-# admin.site.register(DjangoMigrations)
-# admin.site.register(DjangoSession)

@@ -35,6 +35,20 @@ class Options(models.Model):
         db_table = 'octo_options'
 
 
+class MailsTexts(models.Model):
+    mail_key = models.CharField(_('mail key unique'), max_length=120, unique=True)
+    subject = models.CharField(_('mail subject'), max_length=255, unique=True)
+    body = models.TextField(_('mail body'), blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now=True)
+    private = models.NullBooleanField(_('private value'), null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'octo_mail_texts'
+
+
 class ADDMCommands(models.Model):
     command_key = models.CharField(_('command key unique'), max_length=120, unique=True)
     command_value = models.TextField(_('command value'), blank=True, null=True)
@@ -95,17 +109,6 @@ class AddmDevProxy(AddmDev):
 
     class Meta:
         proxy = True
-
-
-# class VMDev(models.Model):
-#     instanceUuid = models.CharField(max_length=255, unique=True)    # 5023dc5a-1dde-30b1-4370-848956e7bc35
-#     vm_name = models.CharField(max_length=255)                      # vl-aus-tkudev-42 TKU upload
-#     vim_vm_id = models.CharField(max_length=255)                    # 'vim.VirtualMachine:703'
-#
-#     class Meta:
-#         managed = True
-#         db_table = 'octo_vm_dev'
-#         unique_together = (('instanceUuid',),)
 
 
 class RoutineExecutionLog(models.Model):

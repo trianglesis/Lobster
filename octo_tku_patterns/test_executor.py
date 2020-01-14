@@ -114,6 +114,7 @@ class TestExecutor:
         self.addm_vm_test_workspace = "/usr/tideway/SYNC"
         self.addm_vm_nfs_workspace = "/usr/tideway/TKU"
 
+    @tst_exception
     def test_run_threads(self, **kwargs):
         """
         Run each test in pair of connected ADDM instance separately from each other.
