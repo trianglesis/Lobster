@@ -50,17 +50,6 @@ class ADDMCommands(models.Model):
         db_table = 'octo_addm_commands'
 
 
-class UserNamesCorrespond(models.Model):
-    django_username = models.CharField(unique=True, max_length=150)
-    adprod_username = models.CharField(unique=True, max_length=150)
-    created_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        managed = True
-        # noinspection SpellCheckingInspection
-        db_table = 'octo_adprod_usernames'
-
-
 class UserAdprod(models.Model):
     user = models.OneToOneField(User, related_name="user_profile", on_delete=models.CASCADE)
     adprod_username = models.CharField(max_length=100)

@@ -174,16 +174,6 @@ class TestOutputsAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     ordering = ('created_at',)
 
-# admin.site.register(UserNamesCorrespond)
-@admin.register(UserNamesCorrespond)
-class UserNamesCorrespondAdmin(admin.ModelAdmin):
-    fields = (
-        ('django_username', 'adprod_username',),
-    )
-    list_display = ('django_username', 'adprod_username', 'created_at')
-    list_filter = ('django_username', 'adprod_username')
-    ordering = ('adprod_username',)
-
 
 # DEV DEBUG:
 admin.site.register(RoutineExecutionLog)
