@@ -144,9 +144,10 @@ function addmCMDRunGenerate(event) {
     appendToastToStack(toastReady);  //  Appending composed toast to toast stack on page:
     RESTAdminOperationsPOST(runAddmCMD.dataset, toastReady);
 
+    console.log("Toast ID to show: " + toastBase.id);
     delete runAddmCMD.dataset;
 
-    $('#' + toastReady.id).toast('show');
+    $('#' + toastBase.id).toast('show');
     $('.show').modal('hide');
 }
 

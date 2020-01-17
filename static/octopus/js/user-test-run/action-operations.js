@@ -614,20 +614,21 @@ function getToastDraft(btnDataSet) {
     // Assign new toast copy a value ID based on item ID (case id or case unique attrs)
     console.log(btnDataSet);
 
+
     if (btnDataSet.operation_key && btnDataSet.command_key && btnDataSet.addm_group) {
-        toastBase.id = `${btnDataSet.operation_key}-${btnDataSet.command_key}-${btnDataSet.addm_group}`;
+        toastBase.id = `${btnDataSet.operation_key.replace(/\./g, '__dot__')}-${btnDataSet.command_key.replace(/\./g, '__dot__')}-${btnDataSet.addm_group}`;
 
     } else if (btnDataSet.addm_host && btnDataSet.command_key) {
-        toastBase.id = `${btnDataSet.addm_host}-${btnDataSet.command_key}`;
+        toastBase.id = `${btnDataSet.addm_host}-${btnDataSet.command_key.replace(/\./g, '__dot__')}`;
 
     } else if (btnDataSet.addm_host && btnDataSet.operation_key) {
-        toastBase.id = `${btnDataSet.addm_host}-${btnDataSet.operation_key}`;
+        toastBase.id = `${btnDataSet.addm_host}-${btnDataSet.operation_key.replace(/\./g, '__dot__')}`;
 
     } else if (btnDataSet.addm_group && btnDataSet.command_key) {
-        toastBase.id = `${btnDataSet.addm_group}-${btnDataSet.command_key}`;
+        toastBase.id = `${btnDataSet.addm_group}-${btnDataSet.command_key.replace(/\./g, '__dot__')}`;
 
     } else {
-        toastBase.id = `${btnDataSet.operation_key}`;
+        toastBase.id = `${btnDataSet.operation_key.replace(/\./g, '__dot__')}`;
     }
     return toastBase
 }
