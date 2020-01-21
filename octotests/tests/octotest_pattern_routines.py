@@ -49,7 +49,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def test_003_night_routine_main(self):
         self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', last_days=90)
+        self.select_test_cases(tkn_branch='tkn_main', last_days=180)
         self.excluded_group()
         self.queryset = self.queryset.exclude(change__in=[
                     '791013',

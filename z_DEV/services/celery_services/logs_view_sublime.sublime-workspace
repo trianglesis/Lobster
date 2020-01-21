@@ -11,7 +11,7 @@
 			"file": "windows/logs/routines_out.log",
 			"settings":
 			{
-				"buffer_size": 3659,
+				"buffer_size": 225,
 				"line_ending": "Windows"
 			}
 		},
@@ -19,7 +19,7 @@
 			"file": "windows/logs/routines_err.log",
 			"settings":
 			{
-				"buffer_size": 8156336,
+				"buffer_size": 5046317,
 				"line_ending": "Windows"
 			}
 		},
@@ -35,7 +35,7 @@
 			"file": "windows/logs/parsing_err.log",
 			"settings":
 			{
-				"buffer_size": 24484746,
+				"buffer_size": 11102,
 				"line_ending": "Windows"
 			}
 		},
@@ -71,7 +71,7 @@
 			"file": "windows/logs/alpha_err.log",
 			"settings":
 			{
-				"buffer_size": 20199,
+				"buffer_size": 7032,
 				"line_ending": "Windows"
 			}
 		},
@@ -87,7 +87,7 @@
 			"file": "windows/logs/charlie_err.log",
 			"settings":
 			{
-				"buffer_size": 8969061,
+				"buffer_size": 7111,
 				"line_ending": "Windows"
 			}
 		},
@@ -103,7 +103,7 @@
 			"file": "windows/logs/golf_err.log",
 			"settings":
 			{
-				"buffer_size": 6595147,
+				"buffer_size": 5051226,
 				"line_ending": "Windows"
 			}
 		},
@@ -119,7 +119,7 @@
 			"file": "windows/logs/flower_err.log",
 			"settings":
 			{
-				"buffer_size": 30983,
+				"buffer_size": 8377,
 				"line_ending": "Windows"
 			}
 		},
@@ -127,7 +127,7 @@
 			"file": "windows/logs/golf_out.log",
 			"settings":
 			{
-				"buffer_size": 99706,
+				"buffer_size": 7073,
 				"line_ending": "Windows"
 			}
 		}
@@ -188,6 +188,7 @@
 	],
 	"file_history":
 	[
+		"/E/old_Data/old_C/Alex/Google Drive/ADD_TO_DISK/Evidences_diff/Загреба/m",
 		"/D/extr/AlfaKeyMon auatPzBVabak@elude.in(0B634DDCB67DBACA)_pub.asc",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/logs/w_routines_err.log",
 		"/D/Projects/PycharmProjects/lobster/z_DEV/services/celery_services/windows/proj_H/alpha.bat",
@@ -312,7 +313,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3659,
+						"buffer_size": 225,
 						"regions":
 						{
 						},
@@ -342,7 +343,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8156336,
+						"buffer_size": 5046317,
 						"regions":
 						{
 						},
@@ -398,7 +399,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 24484746,
+						"buffer_size": 11102,
 						"regions":
 						{
 						},
@@ -488,8 +489,8 @@
 						"selection":
 						[
 							[
-								0,
-								1702
+								640,
+								640
 							]
 						],
 						"settings":
@@ -516,7 +517,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 20199,
+						"buffer_size": 7032,
 						"regions":
 						{
 						},
@@ -572,7 +573,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8969061,
+						"buffer_size": 7111,
 						"regions":
 						{
 						},
@@ -628,7 +629,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6595147,
+						"buffer_size": 5051226,
 						"regions":
 						{
 						},
@@ -684,7 +685,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 30983,
+						"buffer_size": 8377,
 						"regions":
 						{
 						},
@@ -712,7 +713,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 99706,
+						"buffer_size": 7073,
 						"regions":
 						{
 						},
