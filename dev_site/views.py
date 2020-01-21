@@ -254,7 +254,7 @@ class DevAdminViews:
             )
         )
 
-        mail_html = TMail().upload_t(
+        mail_html = """TMail().upload_t(
             send=False,
             stage='running', start_time=datetime.now(),
             mode='fresh',
@@ -264,7 +264,7 @@ class DevAdminViews:
             addm_group='DEV delta',
             addm_name='DEV bobblehat',
             addm_host='DEV vl-aus-rem-qa6i',
-        )
+        )"""
         return HttpResponse(mail_html)
 
         # widgets = dict(USER_NAME = user_name, SUBJECT = subject)

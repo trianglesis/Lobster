@@ -12,14 +12,14 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def setUp(self):
         octo_tests.PatternTestUtils.setUp(self)
+        self.debug_on(True)
         # self.fake_run_on(True)
         # self.silent_on(True)
-        self.debug_on(True)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
 
     def test_001_night_routine_main(self):
         self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', last_days=365)
+        self.select_test_cases(tkn_branch='tkn_main', last_days=730)
         self.excluded_group()
         self.queryset = self.queryset.exclude(change__in=[
                     '791013',
@@ -27,37 +27,29 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                     '784672',
                     '784741',
                     '790845',
-                    '716460',  # TKN SHIP STARTED HERE
-                    '716461',
-                    '790846',
-                    '787058',
-                    '787059'])
+        ])
         self.addm_group_l = ['alpha', 'beta', 'echo']
         self.wipe_logs_on(True)
         self.run_case()
 
     def test_002_night_routine_ship(self):
         self.branch = 'tkn_ship'
-        self.select_test_cases(tkn_branch='tkn_ship', last_days=365)
+        self.select_test_cases(tkn_branch='tkn_ship', last_days=730)
         self.excluded_group()
         self.queryset = self.queryset.exclude(change__in=[
-                    '791013',
-                    '784570',
-                    '784672',
-                    '784741',
-                    '790845',
                     '716460',  # TKN SHIP STARTED HERE
                     '716461',
                     '790846',
                     '787058',
-                    '787059'])
+                    '787059',
+        ])
         self.addm_group_l = ['charlie', 'delta', 'foxtrot']
         self.wipe_logs_on(True)
         self.run_case()
 
     def test_003_night_routine_main(self):
         self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', last_days=60)
+        self.select_test_cases(tkn_branch='tkn_main', last_days=90)
         self.excluded_group()
         self.queryset = self.queryset.exclude(change__in=[
                     '791013',
@@ -65,11 +57,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                     '784672',
                     '784741',
                     '790845',
-                    '716460',  # TKN SHIP STARTED HERE
-                    '716461',
-                    '790846',
-                    '787058',
-                    '787059'])
+        ])
         self.wipe_logs_on(True)
         self.addm_group_l = ['golf']
         # print(self.addm_set)  # TODO: Way to exclude ADDM from actual addm set if needed
@@ -83,6 +71,23 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.exclude(change_time__range=['2019-10-30', '2019-11-07'])
         self.queryset = self.queryset.exclude(change_time__range=['2019-11-25', '2019-11-27'])
         self.wipe_logs_on(True)
+        self.run_case()
+
+    def test_999_local_debug(self):
+        self.silent_on(True)
+        self.wipe_logs_on(False)
+        self.branch = 'tkn_main'
+        self.select_test_cases(tkn_branch='tkn_main', last_days=90)
+        self.excluded_group()
+        self.queryset = self.queryset.exclude(change__in=[
+                    '791013',
+                    '784570',
+                    '784672',
+                    '784741',
+                    '790845',
+        ])
+        # self.addm_group_l = ['alpha', 'beta', 'echo']
+        self.addm_group_l = ['golf']
         self.run_case()
 
 

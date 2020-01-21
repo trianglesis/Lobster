@@ -22,6 +22,9 @@ class TestOutputs(models.Model):
         managed = True
         db_table = 'dev_octo_test_outputs'
 
+    def __str__(self):
+        return f'{self.id} - {self.option_key}'
+
 
 class Options(models.Model):
     option_key = models.CharField(_('option key unique'), max_length=120, unique=True)
@@ -34,11 +37,14 @@ class Options(models.Model):
         managed = True
         db_table = 'octo_options'
 
+    def __str__(self):
+        return f'{self.id} - {self.option_key}'
+
 
 class MailsTexts(models.Model):
-    mail_key = models.CharField(_('mail key unique'), max_length=120, unique=True)
-    subject = models.CharField(_('mail subject'), max_length=255, unique=True)
-    body = models.TextField(_('mail body'), blank=True, null=True)
+    mail_key = models.CharField(_('key unique'), max_length=120, unique=True)
+    subject = models.CharField(_('subject'), max_length=255, unique=True)
+    body = models.TextField(_('body'), blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now=True)
@@ -47,6 +53,9 @@ class MailsTexts(models.Model):
     class Meta:
         managed = True
         db_table = 'octo_mail_texts'
+
+    def __str__(self):
+        return f'{self.id} - {self.mail_key}'
 
 
 class ADDMCommands(models.Model):
@@ -62,6 +71,9 @@ class ADDMCommands(models.Model):
     class Meta:
         managed = True
         db_table = 'octo_addm_commands'
+
+    def __str__(self):
+        return f'{self.id} - {self.command_key}'
 
 
 class UserAdprod(models.Model):
@@ -103,6 +115,9 @@ class AddmDev(models.Model):
         managed = True
         db_table = 'octo_addm_dev'
         unique_together = (('addm_host', 'addm_name', 'addm_v_int', 'addm_group'),)
+
+    def __str__(self):
+        return f'{self.id} - {self.addm_group}:{self.addm_name} - {self.addm_host}'
 
 
 class AddmDevProxy(AddmDev):

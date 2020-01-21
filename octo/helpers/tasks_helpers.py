@@ -17,7 +17,7 @@ from django.conf import settings
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from billiard.exceptions import WorkerLostError
 from octo.helpers.tasks_mail_send import Mails
-from run_core.models import Options
+from run_core.models import Options, MailsTexts, TestOutputs
 
 import json
 from pprint import pformat, pprint
@@ -32,35 +32,30 @@ curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
 
 def exception(function):
     """
-    A decorator that wraps the passed in function and logs
-    exceptions should one occur
+    A decorator that wraps the passed in function and logs exceptions should one occur
     """
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
-        # Messages for fails
-        MSG_T = '<=Time Limit=> {} Task cancelled! Time limit exceeded. {}.{}'
-        MSG_T_SOFT = '<=Soft Time Limit=> {} Task soft time limit exceeded. {}.{}'
-        MSG_FAIL = '<=TestExecTasks=> Task fail "{}.{}" ! Error output: {}'
 
         try:
             return function(*args, **kwargs)
-        except SoftTimeLimitExceeded:
-            log.error("Task SoftTimeLimitExceeded: %s", (function, args, kwargs))
-            msg = MSG_T_SOFT.format(curr_hostname, function.__module__, function.__name__)
-            TMail().t_lim(msg, function, *args, **kwargs)
+        except SoftTimeLimitExceeded as e:
+            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
             # Do not rise when soft time limit, just inform:
             # raise SoftTimeLimitExceeded(msg)
-        except TimeLimitExceeded:
-            log.error("Task TimeLimitExceeded: %s", (function, args, kwargs))
-            msg = MSG_T.format(curr_hostname, function.__module__, function.__name__)
-            TMail().t_lim(msg, function, *args, **kwargs)
+
+        except TimeLimitExceeded as e:
+            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
             # Raise when task goes out of a latest time limit:
-            raise SoftTimeLimitExceeded(msg)
+            raise TimeLimitExceeded(e)
+
         except WorkerLostError as e:
-            log.error("Task WorkerLostError: %s", (function, e, args, kwargs))
-            TMail().t_fail(function, e, *args, **kwargs)
-            raise Exception(MSG_FAIL.format(function.__module__, function.__name__, e))
+            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
+            raise Exception(e)
+
         except Exception as e:
+            MSG_FAIL = '<=TestExecTasks=> Task fail "{}.{}" ! Error output: {}'
+            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
             error_d = dict(
                 function=function,
                 error=e,
@@ -90,6 +85,26 @@ class TMail:
 
         m_user_test = Options.objects.get(option_key__exact='mail_recipients.user_test_cc')
         self.m_user_test = m_user_test.option_value.replace(' ', '').split(',')
+
+    def mail_log(self, function, e, _args, _kwargs):
+        user_email = _kwargs.get('user_email', self.m_service).split(',')
+        # When something bad happened - use selected text object to fill mail subject and body:
+        mails_txt = MailsTexts.objects.get(mail_key__contains=f'{function.__module__}.{function.__name__}')
+        subject = mails_txt.subject
+        log.debug(f"Selected mail subject: {subject}")
+        body = f'Body: {mails_txt.body} \n\tException: {e} \n\tExplain: {mails_txt.description}' \
+               f'\n\t args: {_args} \n\t kwargs: {_kwargs}' \
+               f'\n\t key: {mails_txt.mail_key}'
+
+        Mails.short(subject=subject, body=body, send_to=[user_email])
+        kwargs_d = dict(
+            option_key=f'{function.__module__}.{function.__name__}',
+            option_value=e,
+            description=f'{mails_txt.subject} \n\t args: {_args} \n\t kwargs: {_kwargs}',
+        )
+        log.error(kwargs_d)
+        test_out = TestOutputs(**kwargs_d)
+        test_out.save()
 
     def long_r(self, **mail_kwargs):
         """
@@ -141,106 +156,6 @@ class TMail:
                         mail_html=mail_html)
         else:
             return mail_html
-
-    def upload_t(self, send=True, **mail_kwargs):
-        stage = mail_kwargs.get('stage')
-        start_time = mail_kwargs.get('start_time')
-        mode = mail_kwargs.get('mode', None)
-        tku_type = mail_kwargs.get('tku_type', None)
-        addm_group = mail_kwargs.get('addm_group', None)
-
-        upload_test_addm = loader.get_template('service/emails/upload_test.html')
-        msg_str = "mode: {mode} tku: {tku_type} group: {addm_group}".format(
-            mode=mode, tku_type=tku_type, addm_group=addm_group)
-
-        mail_details = dict(SUBJECT='Upload test were lost in nowhere!',
-                            START_TIME='This is the time when upload test were started.',
-                            TIME_SPENT='Should be a time when test were finished',
-                            CURR_HOSTNAME=curr_hostname,
-                            MAIL_DETAILS=dict(USER_EMAIL=mail_kwargs.get('user_email'),
-                                              STAGE=stage,
-                                              MODE=mode,
-                                              TKU_TYPE=tku_type,
-                                              START_TIME=start_time))
-
-        if stage == 'added':
-            mail_details.update(SUBJECT    = "1. Upload test initiated - {msg}".format(msg = msg_str),
-                                TKU_WGET   = mail_kwargs.get('tku_wget'),
-                                ADDM_GROUP = mail_kwargs.get('addm_group'),
-                                USER_NAME  = mail_kwargs.get('user_name'),
-                                t_tag   = mail_kwargs.get('t_tag', 'no tag'),
-                                START_TIME = start_time)
-        elif stage == 'started':
-            mail_details.update(SUBJECT    = "2.1 Upload test started - {msg}".format(msg = msg_str),
-                                TKU_WGET   = mail_kwargs.get('tku_wget'),
-                                START_TIME = start_time)
-        elif stage == 'tku_install':
-            mail_details.update(SUBJECT    = "2.2 Upload test TKU install - {msg}".format(msg = msg_str),
-                                TKU_WGET   = mail_kwargs.get('tku_wget'),
-                                t_tag   = mail_kwargs.get('t_tag', 'no tag'),
-                                START_TIME = start_time)
-        elif stage == 'running':
-            # TODO: Add link to test results and link to ADDM UI TKU Page from mail body
-            addm_item = mail_kwargs.get('addm_item')
-            addm_name = addm_item.get('addm_name')
-            finish_time_format = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            time_stamp = datetime.datetime.now() - start_time
-            detail_kwargs = mail_kwargs.get('kwargs')
-            outputs = mail_kwargs.get('outputs')
-
-            mail_details.update(
-                SUBJECT="3.1 Upload test running, got output - {addm_name} - {msg}".format(addm_name=addm_name,
-                                                                                           msg=msg_str),
-                RUN_OUT=mail_kwargs.get('outputs', 'outputs empty'),
-                ADDM_NAME=addm_item.get('addm_name', 'no addm_name'),
-                ADDM_HOST=addm_item.get('addm_host', 'no addm_host'),
-                ADDM_GROUP=addm_item.get('addm_group', 'no addm_group'),
-                START_TIME=start_time,
-                FINISH_TIME=finish_time_format,
-                TIME_SPENT=time_stamp,
-                # TODO: Save the outputs example:
-                DETAIL_KWARGS=detail_kwargs,
-                # TODO: Save the outputs example:
-                MORE_OUTPUTS=outputs,
-                )
-        elif stage == 'finished':
-            # TODO: Add link to test results and link to ADDM UI TKU Page from mail body
-            finish_time_format = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            time_stamp = datetime.datetime.now() - start_time
-            mail_details.update(SUBJECT    = "3.2 Upload test finished - {msg}".format(msg = msg_str),
-                                FIN_OUT    = mail_kwargs.get('outputs'),
-                                ADDM_GROUP = addm_group,
-                                START_TIME = start_time,
-                                FINISH_TIME = finish_time_format,
-                                TIME_SPENT = time_stamp)
-        else:
-            mail_details.update(SUBJECT="0. Upload test has unusual status - {msg}".format(msg=msg_str), START_TIME=start_time)
-
-        mail_html = upload_test_addm.render(mail_details)
-        # log.debug("<=MailTRoutines=> mail_args: %s", mail_args)
-        if send:
-            sleep(5)
-            Mails.short(subject=mail_details.get('SUBJECT'),
-                        send_to=mail_kwargs.get('user_email', self.m_upload),
-                        send_cc=mail_kwargs.get('send_cc', self.m_upload),
-                        mail_html=mail_html)
-        else:
-            return mail_html
-
-    def t_lim(self, msg, function, *args, **kwargs):
-        log.error("<=Task Time Limit=> %s", msg)
-        task_limit = loader.get_template('service/emails/statuses/task_details.html')
-        # Try to get user email if present:
-        user_email = kwargs.get('user_email', self.m_service)
-
-        task_details = dict(task_args=args,
-                            task_kwargs=kwargs,
-                            task=function.__name__,
-                            module=function.__module__)
-
-        mail_details = dict(SUBJECT = msg, TASK_DETAILS=task_details)
-        mail_html = task_limit.render(mail_details)
-        Mails.short(mail_html=mail_html, subject=msg, send_to=user_email, send_cc=self.m_service)
 
     def t_fail(self, function, err, *args, **kwargs):
         log.error("<=Task helpers=> %s", '({}) : ({}) Task failed!'.format(curr_hostname, function.__name__))
