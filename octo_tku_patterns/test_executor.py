@@ -24,9 +24,9 @@ import logging
 log = logging.getLogger("octo.octologger")
 
 
-def save_error_log(kwargs_d):
-    test_out = TestOutputs(**kwargs_d)
-    test_out.save()
+# def save_error_log(kwargs_d):
+#     test_out = TestOutputs(**kwargs_d)
+#     test_out.save()
 
 
 def tst_exception(function):

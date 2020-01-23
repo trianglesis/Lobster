@@ -174,7 +174,7 @@ class MailsTextsAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
     list_display = ('mail_key', 'subject', 'created_at', 'private',)
     list_filter = ['created_at']
-    ordering = ('mail_key',)
+    ordering = ('created_at',)
 
 
 @admin.register(TestOutputs)
