@@ -2,10 +2,11 @@
 Task executor
 """
 import os
+
+
 from octo.helpers.tasks_helpers import exception
 from octo.tasks import TSupport
-
-from octo.helpers.tasks_oper import TasksOperations, WorkerOperations
+from octo.helpers.tasks_oper import TasksOperations
 
 # Python logger
 import logging
@@ -59,7 +60,7 @@ class Runner:
 
         # Show debug messages:
         if to_debug:
-            log.debug("<=Runner Fire Task=> REAL DEBUG: About to fire a task %s", task.name)
+            log.debug(f"<=Runner Fire Task=> REAL DEBUG: About to fire a task {task.name}")
 
         task_options = dict()
         if t_args:
@@ -83,14 +84,14 @@ class Runner:
             return task.apply_async(**task_options)
         else:
             to_sleep = kwargs.get('to_sleep', 10)
-            log.info("<=Runner Fire Task=> FAKE: About to fire a task Name %s", task.name)
+            log.info(f"<=Runner Fire Task=> FAKE: About to fire a task Name {task.name}")
             msg = f"<=Runner Fire Task=> FAKE: Task passed arguments: \n\t\t t_queue={t_queue} \n\t\t t_args={t_args} \n\t\t t_kwargs={t_kwargs} \n\t\t t_routing_key={t_routing_key}"
             log.info(msg)
             if not os.name == 'nt':
                 return TSupport.fake_task.apply_async(
                     args=['fire_t', to_sleep], kwargs=dict(t_args=t_args, t_kwargs=t_kwargs), queue=t_queue, routing_key=t_routing_key)
             else:
-                log.warning('fake_task on WIn')
+                log.warning('<=Runner Fire Task=> Windows OS run!!!')
                 return TSupport.fake_task.apply_async(
                     args=['fire_t', to_sleep], kwargs=dict(t_args=t_args, t_kwargs=t_kwargs), queue=t_queue, routing_key=t_routing_key)
 

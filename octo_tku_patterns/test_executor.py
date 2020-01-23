@@ -11,6 +11,8 @@ import functools
 
 from run_core.models import Options
 from octo.helpers.tasks_mail_send import Mails
+from octo.helpers.tasks_helpers import TMail
+
 
 from run_core.addm_operations import ADDMOperations
 from run_core.models import TestOutputs
@@ -28,59 +30,12 @@ def save_error_log(kwargs_d):
 
 
 def tst_exception(function):
-    """
-    A decorator that wraps the passed in function and logs
-    exceptions should one occur
-    """
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
-
-        m_service = Options.objects.get(option_key__exact='mail_recipients.service')
-        m_service = m_service.option_value.replace(' ', '').split(',')
-        user_email = kwargs.get('user_email', m_service)
-
-        # Normally, we always have a test_item and addm_item:
-        if not kwargs.get('test_item', None):
-            # log.debug("tst_exception: args %s ", args)
-            # log.debug("tst_exception: kwargs %s", kwargs)
-            log.warning("<=tst_exception=> DEBUG: There is no test_item in kwargs, this is debug run, or issue!")
-            return function(*args, **kwargs)
         try:
             return function(*args, **kwargs)
-        # TODO: Later make as octo_tku_upload.test_executor.upload_exceptions
         except Exception as e:
-            if kwargs['stderr_output'] and kwargs['test_item']:
-                log.error("Failed to parse test output, saving to TestOutputs")
-                test_item = kwargs.get('test_item', None)
-                kwargs_d = dict(
-                    option_key=f"parse_fail_{test_item['tkn_branch']}-{test_item['pattern_folder_name']}-{test_item['pattern_folder_name']}",
-                    option_value=kwargs.get('stderr_output', 'No Output!'),
-                    description=f"Test output parsing issue, saving RAW stderr. {test_item['test_py_path']}",)
-                save_error_log(kwargs_d)
-                subject = kwargs_d['description']
-                body = kwargs_d
-                Mails.short(subject=subject, body=body, send_to=[user_email])
-            elif kwargs['db'] and kwargs['res']:
-                log.error("Failed to save test output into: %s, saving to TestOutputs", kwargs.get('db', 'NoTable'))
-                test_item = kwargs.get('test_item', None)
-                kwargs_d = dict(
-                    option_key=f"model_save_fail_{test_item['tkn_branch']}-{test_item['pattern_folder_name']}-{test_item['pattern_folder_name']}",
-                    option_value=kwargs.get('stderr_output', 'No Output!'),
-                    description=f"Test output parsing issue, saving RAW stderr. {test_item['test_py_path']}",)
-                save_error_log(kwargs_d)
-                subject = kwargs_d['description']
-                body = kwargs_d
-                Mails.short(subject=subject, body=body, send_to=[user_email])
-            else:
-                log.error("Fail to run: %s Exception: %s", args, e)
-                kwargs_d = dict(
-                    option_key=f"TestExecutor_unexpected",
-                    option_value=f"Exception: {e}, args: {args}, kwargs: {kwargs}",
-                    description="This is unexpected exception from TestExecutor, could be related to test run, parse or save",)
-                save_error_log(kwargs_d)
-                subject = kwargs_d['description']
-                body = kwargs_d
-                Mails.short(subject=subject, body=body, send_to=[user_email])
+            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
     return wrapper
 
 
@@ -100,9 +55,6 @@ class TestExecutor:
         # Usual tree paths for TKN:
         # For Otopus
         # TODO: Should be initialised with all needed data before run any threads
-        m_service = Options.objects.get(option_key__exact='mail_recipients.service')
-        self.m_service = m_service.option_value.replace(' ', '').split(',')
-        self.user_email = ''
 
         if os.name == "nt":
             self.p4_workspace = "d:{}perforce".format(os.sep)
@@ -126,7 +78,6 @@ class TestExecutor:
         from queue import Queue
         from threading import Thread
 
-        user_email = kwargs.get('user_email', self.m_service)
         test_function = kwargs.get('test_function', False)
         addm_items = kwargs.get('addm_items')
         test_item = kwargs.get('test_item')
@@ -146,7 +97,7 @@ class TestExecutor:
                 # If opened connection is Up and alive:
                 if ssh:
                     args_d = dict(ssh=ssh, test_item=test_item, addm_item=addm_item,
-                                  test_function=test_function, test_output_mode=test_output_mode, user_email=user_email, test_q=test_q)
+                                  test_function=test_function, test_output_mode=test_output_mode, test_q=test_q)
                     th_name = f"Test thread: addm {addm_item['addm_ip']} test {test_item['test_py_path']}"
                     try:
                         test_thread = Thread(target=self.test_exec, name=th_name, kwargs=args_d)
@@ -188,7 +139,6 @@ class TestExecutor:
         Before run it will load tkn_main_bashrc/tkn_ship_bashrc to activate paths to python, tideway, core etc.
 
         """
-        self.user_email = args_d.get('user_email', None)
         ts = time()
         ssh = args_d.get('ssh')
         test_item = args_d.get('test_item')

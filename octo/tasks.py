@@ -10,18 +10,18 @@ Note:
     - Do not import case routines which import tasks from here.
 """
 from __future__ import absolute_import, unicode_literals
-import importlib
 import logging
 from time import sleep
-
 from django.conf import settings
+
+from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
+from billiard.exceptions import WorkerLostError
 
 from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_oper import WorkerOperations, TasksOperations
 from octo.octo_celery import app
 
-# from octotests.tests_discover_run import DiscoverTestsRunner
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
@@ -91,19 +91,13 @@ class TSupport:
     @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2+900)
     @exception
     def fake_task(t_tag, sleep_t, **kwargs):
-        """
-        Just keep worker busy when user change it.
-
-        :param t_tag:
-        :param sleep_t:
-        :return:
-        """
         debug_me = kwargs.get('debug_me', None)
         debug_str = "tag={};sleep_t={};kwargs={}".format(t_tag, sleep_t, kwargs)
         if debug_me:
             log.info("This task\\worker has been occupied: %s sleep_t %s", t_tag, sleep_t)
             log.info("Task can also return all args\\kwargs items for debug purposes.")
         sleep(sleep_t)
+        # raise TimeLimitExceeded('Exc message!!!')
         return debug_str
 
 

@@ -18,6 +18,8 @@ from time import time
 
 from run_core.models import Options
 from octo.helpers.tasks_mail_send import Mails
+from octo.helpers.tasks_helpers import TMail
+
 from octo_tku_upload.models import UploadTestsNew as UploadTests
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
 from run_core.models import TestOutputs
@@ -25,134 +27,143 @@ from run_core.models import TestOutputs
 log = logging.getLogger("octo.octologger")
 
 
-def save_error_log(kwargs_d):
-    test_out = TestOutputs(**kwargs_d)
-    test_out.save()
+# def upload_exceptions(function):
+#
+#     @functools.wraps(function)
+#     def wrapper(*args, **kwargs):
+#
+#         m_service = Options.objects.get(option_key__exact='mail_recipients.service')
+#         m_service = m_service.option_value.replace(' ', '').split(',')
+#         user_email = kwargs.get('user_email', m_service)
+#
+#         func_cases = {
+#             'upload_preparations_threads':
+#                 {
+#                  'subject': 'UploadTestExec: Exception in upload_preparations_threads',
+#                  'body': 'Problem with addm preparation threads: args:{args}, kwargs:{kwargs}, \n\tException:{e}',
+#                  'option_key': 'UploadTestExec.upload_preparations_threads',
+#                  'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'description': 'This function executes threads for each addm from addm set and run upload_preparations'
+#                                 'for each instance. Could probably die if ssh fails, or see the exception.',
+#                  },
+#             'upload_unzip_threads':
+#                 {
+#                  'subject': 'UploadTestExec: Exception in upload_unzip_threads',
+#                  'body': 'Problem with TKU unzipping threads: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'option_key': 'UploadTestExec.upload_unzip_threads',
+#                  'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'description': 'This function executes threads for each addm from set and run addm_op.upload_unzip'
+#                                 'for each instance. Could fail, usually, when zip is not there. See exception for more.',
+#                  },
+#             'install_tku_threads':
+#                 {
+#                  'subject': 'UploadTestExec: Exception in install_tku_threads',
+#                  'body': 'Problem with TKU install threads: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'option_key': 'UploadTestExec.install_tku_threads',
+#                  'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'description': 'This function executes threads for each addm from set and run install_activate for each'
+#                                 'instance. Could fail on wrong cmd or issues with tw_pattern_management. See exception.',
+#                  },
+#             'upload_preparations':
+#                 {
+#                  'subject': 'UploadTestExec: Exception in upload_preparations',
+#                  'body': 'Problem with upload preparation function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'option_key': 'UploadTestExec.upload_preparations',
+#                  'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'description': 'This function runs on single ADDM, executing preparation commands from self.mode_cases.'
+#                                 'Use key+func where key corresponds to actual ADDM CMD from addmcommands and func is'
+#                                 'an instance of cmdrun. NOTE: Still use old!',
+#                  },
+#             'install_activate':
+#                 {
+#                  'subject': 'UploadTestExec: Exception in install_activate',
+#                  'body': 'Problem with install_activate function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'option_key': 'UploadTestExec.install_activate',
+#                  'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'description': '',
+#                  },
+#             'parse_upload_result':
+#                 {
+#                  'subject': 'UploadTestExec: Exception in parse_upload_result',
+#                  'body': 'Problem with upload results parsing function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'option_key': 'UploadTestExec.parse_upload_result',
+#                  'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'description': '',
+#                  },
+#             'model_save_insert':
+#                 {
+#                  'subject': 'UploadTestExec: Exception in model_save_insert',
+#                  'body': 'Problem with saving parsed result function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'option_key': 'UploadTestExec.model_save_insert',
+#                  'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
+#                  'description': '',
+#                  },
+#             'std_read':
+#                 {
+#                  'subject': 'UploadTestExec: Exception in std_read',
+#                  'body': 'Problem with std read function: args:{args}, kwargs:{kwargs}, \n\tException:{e}',
+#                  'option_key': 'UploadTestExec.std_read',
+#                  'option_value': 'args:{args}, kwargs:{kwargs}, \n\tException:{e}',
+#                  'description': '',
+#                  },
+#         }
+#
+#         if os.name == 'nt':
+#             log.debug(f" {'='*20} THIS IS WINDOWS MACHINE! Do not run threading. {'='*20}")
+#             log.debug(f"Args passed: {args}")
+#             log.debug(f"Kwargs passed: {kwargs}")
+#
+#             addm_group = kwargs.get('addm_group', 'addm_group-None')
+#             test_mode = kwargs.get('test_mode', 'test_mode-None')
+#             step_k = kwargs.get('step_k', 'step_k-None')
+#
+#             if user_email:
+#                 log.info("user_email used: %s", user_email)
+#             if addm_group:
+#                 log.info("ADDM Group used: %s", addm_group)
+#
+#             packages = kwargs.get('packages', None)
+#             if packages:
+#                 log.info("TKU Packages to install: %s", packages)
+#
+#             package_detail = kwargs.get('package_detail', None)
+#             if package_detail:
+#                 log.info("TKU Install package: %s", package_detail)
+#
+#             addm_items = kwargs.get('addm_items', None)
+#             for addm_item in addm_items:
+#                 addm_group = addm_item['addm_group']
+#                 msg = f"<=SINGLE ADDM WORK=> {addm_item['addm_name']}:{addm_item['addm_v_int']}:{addm_group};mode={test_mode};step_k={step_k}"
+#                 log.debug(msg)
+#             log.debug(f"Making false work as: {function.__name__}")
+#         else:
+#             try:
+#                 return function(*args, **kwargs)
+#             except Exception as e:
+#                 subject = func_cases[function.__name__].get('subject')
+#                 body = func_cases[function.__name__].get('body').format(args=args, kwargs=kwargs, e=e)
+#                 Mails.short(subject=subject, body=body, send_to=[user_email])
+#                 kwargs_d = dict(
+#                     option_key=func_cases[function.__name__]['option_key'],
+#                     option_value=func_cases[function.__name__]['option_value'].format(args=args, kwargs=kwargs, e=e),
+#                     description=func_cases[function.__name__]['description'],
+#                 )
+#                 save_error_log(kwargs_d)
+#
+#     return wrapper
+
+# def save_error_log(kwargs_d):
+#     test_out = TestOutputs(**kwargs_d)
+#     test_out.save()
 
 
 def upload_exceptions(function):
-
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
-
-        m_service = Options.objects.get(option_key__exact='mail_recipients.service')
-        m_service = m_service.option_value.replace(' ', '').split(',')
-        user_email = kwargs.get('user_email', m_service)
-
-        func_cases = {
-            'upload_preparations_threads':
-                {
-                 'subject': 'UploadTestExec: Exception in upload_preparations_threads',
-                 'body': 'Problem with addm preparation threads: args:{args}, kwargs:{kwargs}, \n\tException:{e}',
-                 'option_key': 'UploadTestExec.upload_preparations_threads',
-                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'description': 'This function executes threads for each addm from addm set and run upload_preparations'
-                                'for each instance. Could probably die if ssh fails, or see the exception.',
-                 },
-            'upload_unzip_threads':
-                {
-                 'subject': 'UploadTestExec: Exception in upload_unzip_threads',
-                 'body': 'Problem with TKU unzipping threads: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'option_key': 'UploadTestExec.upload_unzip_threads',
-                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'description': 'This function executes threads for each addm from set and run addm_op.upload_unzip'
-                                'for each instance. Could fail, usually, when zip is not there. See exception for more.',
-                 },
-            'install_tku_threads':
-                {
-                 'subject': 'UploadTestExec: Exception in install_tku_threads',
-                 'body': 'Problem with TKU install threads: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'option_key': 'UploadTestExec.install_tku_threads',
-                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'description': 'This function executes threads for each addm from set and run install_activate for each'
-                                'instance. Could fail on wrong cmd or issues with tw_pattern_management. See exception.',
-                 },
-            'upload_preparations':
-                {
-                 'subject': 'UploadTestExec: Exception in upload_preparations',
-                 'body': 'Problem with upload preparation function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'option_key': 'UploadTestExec.upload_preparations',
-                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'description': 'This function runs on single ADDM, executing preparation commands from self.mode_cases.'
-                                'Use key+func where key corresponds to actual ADDM CMD from addmcommands and func is'
-                                'an instance of cmdrun. NOTE: Still use old!',
-                 },
-            'install_activate':
-                {
-                 'subject': 'UploadTestExec: Exception in install_activate',
-                 'body': 'Problem with install_activate function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'option_key': 'UploadTestExec.install_activate',
-                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'description': '',
-                 },
-            'parse_upload_result':
-                {
-                 'subject': 'UploadTestExec: Exception in parse_upload_result',
-                 'body': 'Problem with upload results parsing function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'option_key': 'UploadTestExec.parse_upload_result',
-                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'description': '',
-                 },
-            'model_save_insert':
-                {
-                 'subject': 'UploadTestExec: Exception in model_save_insert',
-                 'body': 'Problem with saving parsed result function: args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'option_key': 'UploadTestExec.model_save_insert',
-                 'option_value': 'args:{args}, \n\tkwargs:{kwargs}, \n\tException:{e}',
-                 'description': '',
-                 },
-            'std_read':
-                {
-                 'subject': 'UploadTestExec: Exception in std_read',
-                 'body': 'Problem with std read function: args:{args}, kwargs:{kwargs}, \n\tException:{e}',
-                 'option_key': 'UploadTestExec.std_read',
-                 'option_value': 'args:{args}, kwargs:{kwargs}, \n\tException:{e}',
-                 'description': '',
-                 },
-        }
-
-        if os.name == 'nt':
-            log.debug(f" {'='*20} THIS IS WINDOWS MACHINE! Do not run threading. {'='*20}")
-            log.debug(f"Args passed: {args}")
-            log.debug(f"Kwargs passed: {kwargs}")
-
-            addm_group = kwargs.get('addm_group', 'addm_group-None')
-            test_mode = kwargs.get('test_mode', 'test_mode-None')
-            step_k = kwargs.get('step_k', 'step_k-None')
-
-            if user_email:
-                log.info("user_email used: %s", user_email)
-            if addm_group:
-                log.info("ADDM Group used: %s", addm_group)
-
-            packages = kwargs.get('packages', None)
-            if packages:
-                log.info("TKU Packages to install: %s", packages)
-
-            package_detail = kwargs.get('package_detail', None)
-            if package_detail:
-                log.info("TKU Install package: %s", package_detail)
-
-            addm_items = kwargs.get('addm_items', None)
-            for addm_item in addm_items:
-                addm_group = addm_item['addm_group']
-                msg = f"<=SINGLE ADDM WORK=> {addm_item['addm_name']}:{addm_item['addm_v_int']}:{addm_group};mode={test_mode};step_k={step_k}"
-                log.debug(msg)
-            log.debug(f"Making false work as: {function.__name__}")
-        else:
-            try:
-                return function(*args, **kwargs)
-            except Exception as e:
-                subject = func_cases[function.__name__].get('subject')
-                body = func_cases[function.__name__].get('body').format(args=args, kwargs=kwargs, e=e)
-                Mails.short(subject=subject, body=body, send_to=[user_email])
-                kwargs_d = dict(
-                    option_key=func_cases[function.__name__]['option_key'],
-                    option_value=func_cases[function.__name__]['option_value'].format(args=args, kwargs=kwargs, e=e),
-                    description=func_cases[function.__name__]['description'],
-                )
-                save_error_log(kwargs_d)
-
+        try:
+            return function(*args, **kwargs)
+        except Exception as e:
+            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
     return wrapper
 
 

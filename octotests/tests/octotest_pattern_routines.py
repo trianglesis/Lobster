@@ -75,17 +75,19 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def test_999_local_debug(self):
         self.silent_on(True)
-        self.wipe_logs_on(False)
+        self.fake_run_on(True)
+        # self.wipe_logs_on(False)
         self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', last_days=90)
-        self.excluded_group()
-        self.queryset = self.queryset.exclude(change__in=[
-                    '791013',
-                    '784570',
-                    '784672',
-                    '784741',
-                    '790845',
-        ])
+        # self.select_test_cases(tkn_branch='tkn_main', last_days=10)
+        # self.excluded_group()
+        # self.queryset = self.queryset.exclude(change__in=[
+        #             '791013',
+        #             '784570',
+        #             '784672',
+        #             '784741',
+        #             '790845',
+        # ])
+        self.queryset = self.queryset.filter(test_py_path__exact='/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/CORE/MicroStrategy/tests/test.py')
         # self.addm_group_l = ['alpha', 'beta', 'echo']
         self.addm_group_l = ['golf']
         self.run_case()

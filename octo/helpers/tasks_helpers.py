@@ -40,22 +40,25 @@ def exception(function):
         try:
             return function(*args, **kwargs)
         except SoftTimeLimitExceeded as e:
-            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
+            exc_more = f'{e} Task has reached soft time limit. Task will be cancelled in 500 seconds.'
+            TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             # Do not rise when soft time limit, just inform:
             # raise SoftTimeLimitExceeded(msg)
 
         except TimeLimitExceeded as e:
-            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
+            exc_more = f'{e} Task time limit reached! This task was cancelled to release the worker.'
+            TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             # Raise when task goes out of a latest time limit:
             raise TimeLimitExceeded(e)
 
         except WorkerLostError as e:
-            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
+            exc_more = f'{e} Task cannot be executed. Celery worker lost or became unreachable.'
+            TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             raise Exception(e)
 
         except Exception as e:
-            MSG_FAIL = '<=TestExecTasks=> Task fail "{}.{}" ! Error output: {}'
-            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
+            exc_more = f'{e} Task catches unusual exception. Please check logs or run debug.'
+            TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             error_d = dict(
                 function=function,
                 error=e,
@@ -65,8 +68,9 @@ def exception(function):
             item_sort = json.dumps(error_d, indent=2, ensure_ascii=False, default=pformat)
             log.error("Task Exception: %s", item_sort)
             if not os.name == 'nt':
-                TMail().t_fail(function, e, *args, **kwargs)
-            raise Exception(MSG_FAIL.format(function.__module__, function.__name__, e))
+                TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
+            raise Exception(e)
+
     return wrapper
 
 
@@ -87,14 +91,17 @@ class TMail:
         self.m_user_test = m_user_test.option_value.replace(' ', '').split(',')
 
     def mail_log(self, function, e, _args, _kwargs):
-        user_email = _kwargs.get('user_email', self.m_service).split(',')
+        user_email = _kwargs.get('user_email', self.m_service)
+        if isinstance(user_email, str):
+            user_email = user_email.split(',')
+
         # When something bad happened - use selected text object to fill mail subject and body:
         mails_txt = MailsTexts.objects.get(mail_key__contains=f'{function.__module__}.{function.__name__}')
-        subject = mails_txt.subject
+        subject = f'Exception: {mails_txt.subject} | {curr_hostname}'
         log.debug(f"Selected mail subject: {subject}")
-        body = f'Body: {mails_txt.body} \n\tException: {e} \n\tExplain: {mails_txt.description}' \
-               f'\n\t args: {_args} \n\t kwargs: {_kwargs}' \
-               f'\n\t key: {mails_txt.mail_key}'
+        body = f' - Body: {mails_txt.body} \n - Exception: {e} \n - Explain: {mails_txt.description}' \
+               f'\n\n\t - args: {_args} \n\t - kwargs: {_kwargs}' \
+               f'\n\t - key: {mails_txt.mail_key}'
 
         Mails.short(subject=subject, body=body, send_to=[user_email])
         kwargs_d = dict(
