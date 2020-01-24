@@ -22,10 +22,10 @@
 {#                    <b>kwargs:</b> {{ DjangoCeleryBeatPeriodictask.kwargs }}</td>#}
                 {% if DjangoCeleryBeatPeriodictask.crontab %}
                     <td style="font-size:9pt" class="text-left"  title="Hour/Minute/Weekday/Date/Month"><i class="far fa-calendar-alt"></i>
-                        {{ DjangoCeleryBeatPeriodictask.crontab.hour }}h/
-                        {{ DjangoCeleryBeatPeriodictask.crontab.minute }}m/
-                        {{ DjangoCeleryBeatPeriodictask.crontab.day_of_week }}d/
-                        {{ DjangoCeleryBeatPeriodictask.crontab.day_of_month }}m/
+                        {{ DjangoCeleryBeatPeriodictask.crontab.hour }}h
+                        {{ DjangoCeleryBeatPeriodictask.crontab.minute }}m
+                        {{ DjangoCeleryBeatPeriodictask.crontab.day_of_week }}d
+                        {{ DjangoCeleryBeatPeriodictask.crontab.day_of_month }}m
                         {{ DjangoCeleryBeatPeriodictask.crontab.month_of_year }}y
                         {% if DjangoCeleryBeatPeriodictask.expires  %}Expires: {{ DjangoCeleryBeatPeriodictask.expires  }}{% endif %}
                     </td>
