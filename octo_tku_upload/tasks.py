@@ -66,7 +66,8 @@ class TUploadExec:
         return UploadTaskPrepare(**kwargs).run_tku_upload()
 
     @staticmethod
-    @app.task(queue='w_parsing@tentacle.dq2', soft_time_limit=MIN_20, task_time_limit=MIN_40)
+    @app.task(queue='w_parsing@tentacle.dq2',
+              soft_time_limit=MIN_20, task_time_limit=MIN_40)
     @exception
     def t_tku_sync(t_tag, **kwargs):
         return LocalDownloads().wget_tku_build_hub_option(**kwargs)

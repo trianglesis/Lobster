@@ -49,6 +49,7 @@ MIN_90 = 5400
 MIN_40 = 2400
 MIN_20 = 1200
 MIN_10 = 600
+MIN_5 = 300
 MIN_1 = 60
 SEC_10 = 10
 SEC_1 = 1
@@ -73,7 +74,7 @@ class TPatternRoutine:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_test_prep',
-              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
     def t_test_prep(t_tag, **kwargs):
         log.warning("<=TPatternRoutine=> RUN TaskPrepare.run_tku_patterns %s", t_tag)
@@ -96,7 +97,7 @@ class TPatternParse:
     # New:
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_p4_sync_NEW',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+              soft_time_limit=MIN_5, task_time_limit=MIN_10)
     @exception
     def t_p4_sync(t_tag):
         log.debug("t_tag: %s", t_tag)
