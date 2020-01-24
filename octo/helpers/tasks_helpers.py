@@ -63,7 +63,7 @@ def exception(function):
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             sam = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            exc_more = f'{e} Task catches unusual exception. Please check logs or run debug. \n\t - Traceback: {sam}'
+            exc_more = f'{e} Task catches the unusual exception. Please check logs or run debug. \n\t - Traceback: {sam}'
             TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             error_d = dict(
                 function=function,
@@ -97,7 +97,11 @@ class TMail:
         self.m_user_test = m_user_test.option_value.replace(' ', '').split(',')
 
     def mail_log(self, function, e, _args, _kwargs):
-        user_email = _kwargs.get('user_email', self.m_service)
+        user_email = _kwargs.get('user_email', None)
+        if not user_email:
+            request = _kwargs.get('request', None)
+            if request:
+                user_email = request.get('user_email', self.m_service)
 
         # When something bad happened - use selected text object to fill mail subject and body:
         log.error(f'<=TASK Exception=> Selecting mail txt for: "{function.__module__}.{function.__name__}"')

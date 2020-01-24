@@ -888,7 +888,9 @@ class AdminOperationsREST(APIView):
         :return {'task': p4_sync_task.id}"""
         # Only sync and parse depot, no ADDM Sync here!
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
-        p4_sync_task = Runner.fire_t(TPatternParse.t_p4_sync, fake_run=self.fake_run, t_args=[t_tag])
+        p4_sync_task = Runner.fire_t(TPatternParse.t_p4_sync, fake_run=self.fake_run, t_args=[t_tag],
+                                     t_queue='w_parsing@tentacle.dq2',
+                                     t_routing_key='parsing.perforce.AdminOperationsREST.p4_sync')
         return {'task_id': p4_sync_task.id}
 
     def p4_sync_force(self):
@@ -900,7 +902,8 @@ class AdminOperationsREST(APIView):
             return {'error': 'User has no admin rights!'}
 
         t_tag = f'tag=t_p4_sync_force;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
-        t_p4_sync_force = Runner.fire_t(TPatternParse.t_p4_sync_force, fake_run=self.fake_run, t_args=[t_tag])
+        t_p4_sync_force = Runner.fire_t(TPatternParse.t_p4_sync_force, fake_run=self.fake_run, t_args=[t_tag],
+                                        t_queue='w_parsing@tentacle.dq2', t_routing_key='parsing.perforce.AdminOperationsREST.p4_sync_force')
         return {'task_id': t_p4_sync_force.id}
 
     def addm_cleanup(self):

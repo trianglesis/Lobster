@@ -52,6 +52,7 @@ class TasksOperations:
         "While" for wait if task is finished with SUCCESS
         :return: True
         """
+        # TODO: Rethink this, not a best idea to wait task, when celery can answer PENDING on any unknown state!
         if not task_name:
             msg = "task_wait_success '{}' status: '{}'".format(task_itself, task_itself.status)
         else:

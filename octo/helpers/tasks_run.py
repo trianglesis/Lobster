@@ -53,7 +53,7 @@ class Runner:
         # Task related options:
         t_args = kwargs.get('t_args', [this_t])
         t_kwargs = kwargs.get('t_kwargs', {})
-        t_queue = kwargs.get('t_queue', 'w_routines@tentacle.dq2')
+        t_queue = kwargs.get('t_queue', None)
         t_routing_key = kwargs.get('t_routing_key', this_t)
         t_soft_time_limit = kwargs.get('t_soft_time_limit', None)
         t_task_time_limit = kwargs.get('t_task_time_limit', None)
@@ -78,6 +78,8 @@ class Runner:
 
         # TODO: Later add on live examples
         # all_tasks = Runner.check_task_added()
+        if os.name == 'nt':
+            fake_run = True
 
         # Do not really send a task if fake=True
         if not fake_run:
@@ -87,36 +89,10 @@ class Runner:
             log.info(f"<=Runner Fire Task=> FAKE: About to fire a task Name {task.name}")
             msg = f"<=Runner Fire Task=> FAKE: Task passed arguments: \n\t\t t_queue={t_queue} \n\t\t t_args={t_args} \n\t\t t_kwargs={t_kwargs} \n\t\t t_routing_key={t_routing_key}"
             log.info(msg)
+            task_options.update(args=['fire_t', to_sleep])
+            task_options.update(kwargs=dict(t_args=t_args, t_kwargs=t_kwargs))
             if not os.name == 'nt':
-                return TSupport.fake_task.apply_async(
-                    args=['fire_t', to_sleep], kwargs=dict(t_args=t_args, t_kwargs=t_kwargs), queue=t_queue, routing_key=t_routing_key)
+                return TSupport.fake_task.apply_async(**task_options)
             else:
                 log.warning('<=Runner Fire Task=> Windows OS run!!!')
-                return TSupport.fake_task.apply_async(
-                    args=['fire_t', to_sleep], kwargs=dict(t_args=t_args, t_kwargs=t_kwargs), queue=t_queue, routing_key=t_routing_key)
-
-    @staticmethod
-    @exception
-    def fire_case(case, **kwargs):
-        """
-        Execute routine case passed as argument.
-        Use for fake, debug or usual executions.
-        :param case:
-        :param kwargs:
-        :return:
-        """
-        # Debug and test options:
-        fake_run = kwargs.get('fake_run', False)
-        to_debug = kwargs.get('to_debug', False)
-        # Real case kwargs:
-        c_kwargs = kwargs.get('c_kwargs', {})
-
-        # Show debug messages:
-        if to_debug:
-            log.debug("<=Runner=> REAL DEBUG: About to fire a case %s", case.__name__)
-
-        if not fake_run:
-            return case(**c_kwargs)
-        else:
-            log.debug("<=PatternRoutineCases=> FAKE: About to fire a function (CASE) %s", case.__name__)
-            return True
+                return TSupport.fake_task.apply_async(**task_options)

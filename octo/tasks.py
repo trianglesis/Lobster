@@ -88,7 +88,8 @@ class TSupport:
         """
         sleep(sleep_t)
 
-    @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2+900)
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport.fake_task',
+              soft_time_limit=HOURS_2, task_time_limit=HOURS_2+900)
     @exception
     def fake_task(t_tag, sleep_t, **kwargs):
         debug_me = kwargs.get('debug_me', None)
