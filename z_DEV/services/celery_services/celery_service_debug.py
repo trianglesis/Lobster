@@ -6,6 +6,10 @@ import argparse
 import subprocess
 
 """
+Use this to start/stop/restart celery, it's much more flexible.
+TODO: Add restart for single worker only? Or maybe this is not the best approach?
+TODO: Add some sort of log rotate?
+
 /var/www/octopus/venv/bin/python3 /var/www/octopus/z_DEV/services/celery_services/celery_service_debug.py --mode=restart
 
 nssm.exe edit CELERY_routines && nssm.exe edit CELERY_alpha && nssm.exe edit CELERY_charlie && nssm.exe edit CELERY_golf && nssm.exe edit CELERY_parsing && nssm.exe edit CELERY_Flower
