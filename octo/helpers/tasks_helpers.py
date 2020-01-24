@@ -8,6 +8,7 @@ Decorator and helpers for tasks, like:
 import os
 import datetime
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 import functools
 from time import sleep
 from collections import OrderedDict
@@ -96,12 +97,19 @@ class TMail:
             user_email = user_email.split(',')
 
         # When something bad happened - use selected text object to fill mail subject and body:
-        mails_txt = MailsTexts.objects.get(mail_key__contains=f'{function.__module__}.{function.__name__}')
+        log.error(f'<=TASK Exception=> Selecting mail txt for: "{function.__module__}.{function.__name__}"')
+
+        try:
+            mails_txt = MailsTexts.objects.get(mail_key__contains=f'{function.__module__}.{function.__name__}')
+        except ObjectDoesNotExist:
+            mails_txt = MailsTexts.objects.get(mail_key__contains='general_exception')
+
         subject = f'Exception: {mails_txt.subject} | {curr_hostname}'
         log.debug(f"Selected mail subject: {subject}")
         body = f' - Body: {mails_txt.body} \n - Exception: {e} \n - Explain: {mails_txt.description}' \
                f'\n\n\t - args: {_args} \n\t - kwargs: {_kwargs}' \
-               f'\n\t - key: {mails_txt.mail_key}'
+               f'\n\t - key: {mails_txt.mail_key}' \
+               f'\n\t - occurred in: {function.__module__}.{function.__name__}'
 
         Mails.short(subject=subject, body=body, send_to=[user_email])
         kwargs_d = dict(
