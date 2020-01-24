@@ -386,7 +386,10 @@ class TaskPrepare:
         try:
             if self.test_function:
                 log.debug("<=TaskPrepare=> Wipe logs for only test unit: %s", self.test_function)
-                test_arg = self.test_function.split(' ')
+                if '+' in self.test_function:
+                    test_arg = self.test_function.split('+')
+                else:
+                    test_arg = self.test_function.split(' ')
                 test_item_deleted = TestLast.objects.filter(
                     test_py_path__exact=test_py_path,
                     tst_class__exact=test_arg[0],

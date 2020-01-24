@@ -18,6 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from octo.config_cred import p4_cred, cred
 from octo.api.serializers import CeleryTaskmetaSerializer
 from octo.api.serializers import StandardResultsSetPagination
 from octo.helpers.tasks_oper import TasksOperations, WorkerOperations
@@ -749,6 +750,7 @@ class AdminOperationsREST(APIView):
         self.addm_host = None
         self.addm_group = ''
         self.fake_run = False
+        self.depot_path = p4_cred['dep_path']
         self.goto_ = 'http://'+curr_hostname+'/octo_admin/admin_operations/?operation_key='
 
     def task_operations(self):
@@ -786,6 +788,7 @@ class AdminOperationsREST(APIView):
             self.addm_branch = self.request.POST.get('addm_branch', None)
             self.addm_id = self.request.POST.get('addm_id', None)
             self.addm_host = self.request.POST.get('addm_host', None)
+            self.depot_path = self.request.POST.get('depot_path', p4_cred['dep_path'])
         elif self.request.GET:
             self.operation_key = self.request.GET.get('operation_key', None)
             self.fake_run = self.request.GET.get('fake_run', False)
@@ -794,6 +797,7 @@ class AdminOperationsREST(APIView):
             self.addm_branch = self.request.GET.get('addm_branch', None)
             self.addm_id = self.request.GET.get('addm_id', None)
             self.addm_host = self.request.GET.get('addm_host', None)
+            self.depot_path = self.request.GET.get('depot_path', p4_cred['dep_path'])
 
         self.is_authenticated = self.request.user.is_authenticated
         self.user_name = self.request.user.get_username()
@@ -902,7 +906,7 @@ class AdminOperationsREST(APIView):
             return {'error': 'User has no admin rights!'}
 
         t_tag = f'tag=t_p4_sync_force;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
-        t_p4_sync_force = Runner.fire_t(TPatternParse.t_p4_sync_force, fake_run=self.fake_run, t_args=[t_tag],
+        t_p4_sync_force = Runner.fire_t(TPatternParse.t_p4_sync_force, fake_run=self.fake_run, t_args=[t_tag, self.depot_path],
                                         t_queue='w_parsing@tentacle.dq2', t_routing_key='parsing.perforce.AdminOperationsREST.p4_sync_force')
         return {'task_id': t_p4_sync_force.id}
 
