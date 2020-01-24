@@ -6,7 +6,10 @@ Decorator and helpers for tasks, like:
 
 """
 import os
+import sys
 import datetime
+import traceback
+
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 import functools
@@ -58,11 +61,13 @@ def exception(function):
             raise Exception(e)
 
         except Exception as e:
-            exc_more = f'{e} Task catches unusual exception. Please check logs or run debug.'
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            sam = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exc_more = f'{e} Task catches unusual exception. Please check logs or run debug. \n\t - Traceback: {sam}'
             TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             error_d = dict(
                 function=function,
-                error=e,
+                error=sam,
                 args=args,
                 kwargs=kwargs,
             )
@@ -93,8 +98,6 @@ class TMail:
 
     def mail_log(self, function, e, _args, _kwargs):
         user_email = _kwargs.get('user_email', self.m_service)
-        if isinstance(user_email, str):
-            user_email = user_email.split(',')
 
         # When something bad happened - use selected text object to fill mail subject and body:
         log.error(f'<=TASK Exception=> Selecting mail txt for: "{function.__module__}.{function.__name__}"')
@@ -111,7 +114,7 @@ class TMail:
                f'\n\t - key: {mails_txt.mail_key}' \
                f'\n\t - occurred in: {function.__module__}.{function.__name__}'
 
-        Mails.short(subject=subject, body=body, send_to=[user_email])
+        Mails.short(subject=subject, body=body, send_to=[user_email], send_cc=[self.m_service])
         kwargs_d = dict(
             option_key=f'{function.__module__}.{function.__name__}',
             option_value=e,

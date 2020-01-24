@@ -331,10 +331,10 @@ class TaskPrepare:
         # Only sync and parse depot, no ADDM Sync here!
         # TODO: Add task for sync to the same routine worker so it only can start next tests after sync was finished?
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
-        p4_sync_task = Runner.fire_t(TPatternParse.t_p4_sync, fake_run=self.fake_run, t_args=[t_tag])
+        t_p4_sync = Runner.fire_t(TPatternParse.t_p4_sync, fake_run=self.fake_run, t_args=[t_tag])
         if not self.fake_run:
-            log.debug("<=TaskPrepare=> Start waiting for p4_sync_task...")
-            if TasksOperations().task_wait_success(p4_sync_task, 'p4_sync_task'):
+            log.debug("<=TaskPrepare=> Start waiting for t_p4_sync...")
+            if TasksOperations().task_wait_success(t_p4_sync, 't_p4_sync'):
                 log.debug("<=TaskPrepare=> Wait for p4_sync_task is finished, lock released!")
                 self.p4_synced = True
                 # return self.p4_synced
