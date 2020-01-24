@@ -203,9 +203,16 @@ function detectADDMSelectorFromContext(button, caseData) {
     if (button.data('addm_name') && button.data('addm_name') !== 'None') {
         addm_name_url = `;addm_name=${button.data('addm_name')}`;
     } else {
+        //TODO: Check if this is an Array of related cases, if so - use addm_name from else
         if (caseData && caseData.addm_name) {
             // Yes, there is no addm_name in context, but we activate JS-able tab in next page
+            console.log(`Yes, there is no addm_name in context, but we activate JS-able tab in next page: ${caseData}`);
             addm_name_url = `#${caseData.addm_name}`;
+        } else {
+            console.log(`Case data has no addm_name in it, try something else: ${caseData}`);
+            let addm_name_cell =  button[0].parentNode.parentNode.cells['addm_name'].textContent;
+            console.log(`Addm name from cell where button was pushed: ${addm_name_cell}`);
+            addm_name_url = `#${addm_name_cell}`;
         }
     }
     return addm_name_url
