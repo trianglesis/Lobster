@@ -652,7 +652,10 @@ class TaskPrepare:
         t_tag = f'tag=t_test_exec_threads;type=user_routine;branch={test_item["tkn_branch"]};' \
                 f'addm_group={addm["addm_group"]};user_name={self.user_name};' \
                 f'refresh={self.refresh};t_ETA={test_item["test_time_weight"]};test_case_path={test_item["test_case_depot_path"]}'
-        test_t_w = round(float(test_item['test_time_weight']))
+        if test_item['test_time_weight']:
+            test_t_w = round(float(test_item['test_time_weight']))  # TODO: If NoneType - use 0
+        else:
+            test_t_w = 300
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=10, debug_me=True,

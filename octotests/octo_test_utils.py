@@ -245,7 +245,11 @@ class PatternTestUtils(unittest.TestCase):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
         log.debug("run_cases_router")
         for test_item in addm_tests:
-            test_t_w = round(float(test_item['test_time_weight']))
+            if test_item['test_time_weight']:
+                test_t_w = round(float(test_item['test_time_weight']))  # TODO: If NoneType - use 0
+            else:
+                test_t_w = 300
+
             tsk_msg = 'tag=night_routine;lock=True;type=routine {}/{}/{} t:{} on: "{}" by: {}'
             r_key = '{}.TExecTest.nightly_routine_case.{}'.format(_addm_group, test_item['pattern_folder_name'])
             t_tag = tsk_msg.format(test_item['tkn_branch'], test_item['pattern_library'],
