@@ -350,7 +350,7 @@ class TestExecutor:
         else:
             test_res = dict(tst_status='ERROR', fail_message=stderr_output, time_spent_test=time_spent_test)
             log.error("<=PARSE_TEST_RESULT=> test_res %s", test_res)
-            last_save.update(saved=self.model_save_insert(TestLast, test_res, test_item, addm_item))
+            last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
         return {'last': last_save, 'history': hist_save}
 
     @staticmethod
