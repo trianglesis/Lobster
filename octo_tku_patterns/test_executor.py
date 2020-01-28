@@ -9,34 +9,15 @@ import re
 from time import time, sleep
 import functools
 
-from run_core.models import Options
-from octo.helpers.tasks_mail_send import Mails
-from octo.helpers.tasks_helpers import TMail
-
+from octo.helpers.tasks_helpers import exception
 
 from run_core.addm_operations import ADDMOperations
-from run_core.models import TestOutputs
 from octo_tku_patterns.models import TestLast, TestHistory
 
 # Python logger
 import logging
 
 log = logging.getLogger("octo.octologger")
-
-
-# def save_error_log(kwargs_d):
-#     test_out = TestOutputs(**kwargs_d)
-#     test_out.save()
-
-
-def tst_exception(function):
-    @functools.wraps(function)
-    def wrapper(*args, **kwargs):
-        try:
-            return function(*args, **kwargs)
-        except Exception as e:
-            TMail().mail_log(function, e, _args=args, _kwargs=kwargs)
-    return wrapper
 
 
 class TestExecutor:
@@ -68,7 +49,7 @@ class TestExecutor:
         self.addm_vm_test_workspace = "/usr/tideway/SYNC"
         self.addm_vm_nfs_workspace = "/usr/tideway/TKU"
 
-    @tst_exception
+    @exception
     def test_run_threads(self, **kwargs):
         """
         Run each test in pair of connected ADDM instance separately from each other.
@@ -133,7 +114,7 @@ class TestExecutor:
         # return 'All tests took {}'.format(time() - ts)
         return 'All tests Took {} Out {}'.format(time() - ts, test_outputs)
 
-    @tst_exception
+    @exception
     def test_exec(self, **args_d):
         """
         This function execute tests for patterns.
@@ -249,7 +230,7 @@ class TestExecutor:
 
         return dict(std_output=std_output, stderr_output=stderr_output)
 
-    @tst_exception
+    @exception
     def parse_test_result(self, **test_out) -> dict:
         # noinspection SpellCheckingInspection,PyPep8
         """
@@ -354,7 +335,7 @@ class TestExecutor:
         return {'last': last_save, 'history': hist_save}
 
     @staticmethod
-    @tst_exception
+    @exception
     def model_save_insert(**kwargs):
         """
         Here compose dict of test results and addm+test item values to save them
