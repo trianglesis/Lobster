@@ -665,7 +665,7 @@ class TaskPrepare:
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=10, debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
-                      t_kwargs=dict(user_email=self.user_email, addm_items=list(addm_set), test_item=test_item,
+                      t_kwargs=dict(user_email=self.user_email, user_name=self.user_name, addm_items=list(addm_set), test_item=test_item,
                                     test_function=self.test_function),
                       t_routing_key=task_r_key,
                       t_soft_time_limit=test_t_w+900,

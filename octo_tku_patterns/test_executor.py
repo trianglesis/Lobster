@@ -55,6 +55,8 @@ class TestExecutor:
         # Usual tree paths for TKN:
         # For Otopus
         # TODO: Should be initialised with all needed data before run any threads
+        # TODO: We may want to save who run this test?
+        self.user_email = ''
 
         if os.name == "nt":
             self.p4_workspace = "d:{}perforce".format(os.sep)
@@ -78,6 +80,7 @@ class TestExecutor:
         from queue import Queue
         from threading import Thread
 
+        self.user_email = kwargs.get('user_email', None)
         test_function = kwargs.get('test_function', False)
         addm_items = kwargs.get('addm_items')
         test_item = kwargs.get('test_item')
@@ -96,7 +99,7 @@ class TestExecutor:
                 ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from test_run_threads in TestExecutor")
                 # If opened connection is Up and alive:
                 if ssh:
-                    args_d = dict(ssh=ssh, test_item=test_item, addm_item=addm_item,
+                    args_d = dict(ssh=ssh, test_item=test_item, addm_item=addm_item, user_email=self.user_email,
                                   test_function=test_function, test_output_mode=test_output_mode, test_q=test_q)
                     th_name = f"Test thread: addm {addm_item['addm_ip']} test {test_item['test_py_path']}"
                     try:
@@ -141,6 +144,7 @@ class TestExecutor:
         """
         ts = time()
         ssh = args_d.get('ssh')
+        user_email = args_d.get('user_email')
         test_item = args_d.get('test_item')
         addm_item = args_d.get('addm_item')
         test_output_mode = args_d.get('test_output_mode', False)
@@ -180,6 +184,7 @@ class TestExecutor:
             time_spent_test = time() - ts
             log.debug(f"<=TEST=> FINISH {test_info} t:{time_spent_test}")
             update_save = self.parse_test_result(stderr_output=std_out_err_d['stderr_output'],
+                                                 user_email=user_email,
                                                  test_item=test_item,
                                                  addm_item=addm_item,
                                                  time_spent_test=str(time_spent_test))
@@ -306,6 +311,8 @@ class TestExecutor:
             :param test_out:
             :return:
         """
+        user_email = test_out.get('user_email')
+
         last_save = dict(table="last", saved=False)
         hist_save = dict(table="history", saved=False)
 
@@ -338,8 +345,8 @@ class TestExecutor:
                 for detail in test_fil_details:
                     test_res.update(fail_message=detail.group('fail_message').replace("-" * 70, "").replace("=" * 70, ""))
 
-                last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item))
-                hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item))
+                last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
+                hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
         else:
             test_res = dict(tst_status='ERROR', fail_message=stderr_output, time_spent_test=time_spent_test)
             log.error("<=PARSE_TEST_RESULT=> test_res %s", test_res)
