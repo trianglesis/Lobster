@@ -211,8 +211,9 @@ function detectADDMSelectorFromContext(button, caseData) {
         } else {
             console.log(`Case data has no addm_name in it, try something else: ${caseData}`);
             // Do not try to get addm_name when we are not in any test results page:
-            if (button[0].parentNode.parentNode.cells) {
-                let addm_name_cell =  button[0].parentNode.parentNode.cells['addm_name'].textContent;
+            let btn_to_cells =  button[0].parentNode.parentNode.cells;
+            if (btn_to_cells && btn_to_cells['addm_name']) {
+                let addm_name_cell =  btn_to_cells['addm_name'].textContent;
                 console.log(`Addm name from cell where button was pushed: ${addm_name_cell}`);
                 addm_name_url = `#${addm_name_cell}`;
             }
