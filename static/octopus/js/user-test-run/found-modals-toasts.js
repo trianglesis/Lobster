@@ -25,6 +25,7 @@ $(document).ready(function () {
             'id', 'case_id', 'change_ticket', 'change_review', 'change_user', 'change', 'test_py_path'];
         fillModalBodyNew(modal, relCases, caseAttrs);
         // Paste hyperlinks on buttons with log views:
+        // Search result page not always have a addm_name attribute!
         let addm_name_url = detectADDMSelectorFromContext(button, relCases);  // Add addm name anchor to next page
         let tst_status_url = detectTestStatusSelectorFromContext(button, relCases);  // Add tst_status context to href
 
