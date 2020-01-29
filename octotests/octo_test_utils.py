@@ -282,6 +282,7 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
         self.user_name = 'OctoTests'
         self.user_email = 'OctoTests'
 
+        self.silent = False
         self.fake_run = False
         self.tku_wget = False
         self.test_mode = 'custom'

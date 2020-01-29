@@ -74,10 +74,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.run_case()
 
     def test005_release_ga_upgrade(self):
-        self.debug = True
-        self.silent = True
-        self.tku_wget = False
-        self.fake_run = True
+        self.tku_wget = True
         self.test_mode = 'update'
         # Update mode will select packages for upgrade test by itself
         # previous = self.select_latest_released()
@@ -89,15 +86,12 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
 
     def test006_release_ga_fresh(self):
         package_type = self.select_latest_ga()
-        self.debug = True
-        self.silent = True
-        self.tku_wget = False
-        self.fake_run = True
+        self.tku_wget = True
         self.test_mode = 'fresh'
         # self.addm_group = 'golf'
         # self.addm_set = self.addm_set.filter(addm_group__exact='golf', disables__isnull=True).values().order_by('addm_group')
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['alpha', 'golf'],
+            addm_group__in=['golf'],
             disables__isnull=True).values().order_by('addm_group')
         self.package_types = [package_type]
         self.run_case()
