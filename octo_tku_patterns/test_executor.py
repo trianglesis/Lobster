@@ -152,10 +152,10 @@ class TestExecutor:
 
             if test_function:
                 cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; {bin_python} -u {test_py_sync}" \
-                      f" --universal_dml=1 --verbose {test_function.replace('+', '.')}"
+                      f" --verbose {test_function.replace('+', '.')}"
             else:
                 cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; {bin_python} -u {test_py_sync}" \
-                      f" --universal_dml=1 --verbose"
+                      f" --verbose"
 
             log.debug(f"'{cmd}'")
             # Test execution:
