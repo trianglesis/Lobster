@@ -162,6 +162,12 @@ class PatternTestUtils(unittest.TestCase):
         excluded_ids = excluded_group.test_cases.values('id')
         self.queryset = self.queryset.exclude(id__in=excluded_ids)
 
+    def key_group(self):
+        key_group = TestCasesDetails.objects.get(title__exact='key')
+        included = key_group.test_cases.values('id')
+        key_cases = TestCases.objects.filter(id__in=included)
+        self.queryset = self.queryset | key_cases
+
     def get_branched_addm_groups(self):
         self.addm_group_l = BalanceNightTests().get_available_addm_groups(
             branch=self.branch, user_name=self.user_name, fake_run=self.fake_run, addm_groups=self.addm_group_l)
