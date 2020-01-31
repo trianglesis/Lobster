@@ -1118,6 +1118,7 @@ class ADDMOperations:
         tku_zip_cmd_l = []
         # Prepare zip commands with paths for each addm version:
         clean_tku_TEMP = ADDMStaticOperations.select_operation(['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']).order_by('-command_value')
+        # TODO: Make this path dymanical, to switch between Lobster\Octopus NFS
         unzipTkuTemp = ADDMStaticOperations.select_operation('unzip.tku.TEMP').first()
         rmTidewayTempRelease = ADDMStaticOperations.select_operation('rm.tideway.TEMP.release').first()
 

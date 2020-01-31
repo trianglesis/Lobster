@@ -52,7 +52,7 @@
                                class="btn btn-sm btn-outline-info {% popover 'hover' 'top' "Latest test method log" 'Show logs for single unit test method.' %}"><i class="fas fa-history"></i> Unit history</a>
                         </div>
                         <!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons" id="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:<br></div>
+                        <div class="case-unit-modal-buttons" id="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:<br><span id="test-method"></span></div>
                         <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
@@ -84,7 +84,7 @@
                             <a class="btn btn-sm btn-outline-info disabled">History of unit (dead end)</a>
                         </div>
                         <!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
+                        <div class="case-unit-modal-buttons" id="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:<br><span id="test-method"></span></div>
                         <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
@@ -117,7 +117,7 @@
                             <a class="btn btn-sm btn-outline-info disabled">History Browse (dead end)</a>
                         </div>
                         <!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i><span> Test method:</span></div>
+                        <div class="case-unit-modal-buttons" id="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:<br><span id="test-method"></span></div>
                         <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"
@@ -235,7 +235,7 @@
                             Better not to show test method run here, because search results could show outdated test methods.
                         {% endcomment %}
                         {% comment %}<!-- Case unit test actions:  -->
-                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> Test method:</div>
+                        <div class="case-unit-modal-buttons"><i class="fas fa-vial"></i> </i> Test method:<br><span id="test-method"></span></div>
                         <div class="btn-group btn-group-sm w-100 test_details" style="padding: 5px 5% 5px 5%">
                             <a href="#"
                                id="unit-wipe-run"

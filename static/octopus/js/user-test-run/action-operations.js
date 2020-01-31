@@ -428,11 +428,10 @@ function assignTestCaseUnitTestButtons(caseDataJSON) {
             SeeLogsHistory.style.display = 'block';
         }
 
-        let caseUnitModalButtons = document.getElementById("case-unit-modal-buttons");
-        let testMethSpan = document.createElement("span");
         console.log(unit_wipe_run.dataset);
-        testMethSpan.innerText = ` ${caseData['tst_class']}.${caseData['tst_name']}`;
-        caseUnitModalButtons.appendChild(testMethSpan);
+        let testMethodSpan = document.getElementById("test-method");
+        // testMethodSpan.innerText = ''; // Clear previous?
+        testMethodSpan.innerText = ` ${caseData['tst_class']}.${caseData['tst_name']}`;
 
         unit_wipe_run.style.display = 'block';
         unit_p4_run.style.display = 'block';

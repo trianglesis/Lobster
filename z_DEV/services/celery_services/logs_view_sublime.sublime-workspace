@@ -35,7 +35,7 @@
 			"file": "windows/logs/parsing_err.log",
 			"settings":
 			{
-				"buffer_size": 11102,
+				"buffer_size": 2786,
 				"line_ending": "Windows"
 			}
 		},
@@ -71,7 +71,7 @@
 			"file": "windows/logs/alpha_err.log",
 			"settings":
 			{
-				"buffer_size": 7032,
+				"buffer_size": 2786,
 				"line_ending": "Windows"
 			}
 		},
@@ -87,7 +87,7 @@
 			"file": "windows/logs/charlie_err.log",
 			"settings":
 			{
-				"buffer_size": 7111,
+				"buffer_size": 2783,
 				"line_ending": "Windows"
 			}
 		},
@@ -119,7 +119,7 @@
 			"file": "windows/logs/flower_err.log",
 			"settings":
 			{
-				"buffer_size": 8377,
+				"buffer_size": 5021,
 				"line_ending": "Windows"
 			}
 		},
@@ -399,7 +399,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 11102,
+						"buffer_size": 2786,
 						"regions":
 						{
 						},
@@ -517,7 +517,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7032,
+						"buffer_size": 2786,
 						"regions":
 						{
 						},
@@ -573,7 +573,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7111,
+						"buffer_size": 2783,
 						"regions":
 						{
 						},
@@ -685,7 +685,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8377,
+						"buffer_size": 5021,
 						"regions":
 						{
 						},
