@@ -926,12 +926,12 @@ class AdminOperationsREST(APIView):
             "tku.install.kill",
             "tw_scan_control.clear",
             "tw_pattern_management.remove_all",
+            "wipe.tideway.data.installed.tpl",
             "tw_model_wipe.force",
             "wipe.addm.logs",
             "wipe.addm.pool",
             "wipe.addm.record",
             "wipe.rsync.logs",
-            "wipe.tideway.data.installed.tpl.product_content",
             "wipe.tideway.syslogs",
             "wipe.tideway.TEMP",
             "wipe.tpl.files"
