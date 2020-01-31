@@ -86,6 +86,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         print(self.queryset.explain())
         print(self.queryset.query)
         self.addm_group_l = ['alpha', 'beta', 'echo']
+        self.wipe_logs_on(True)
         self.run_case()
 
     def test_005_night_routine_wide_tkn_ship(self):
@@ -106,6 +107,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         print(self.queryset.explain())
         print(self.queryset.query)
         self.addm_group_l = ['charlie', 'delta', 'foxtrot']
+        self.wipe_logs_on(True)
         self.run_case()
 
     def test009_between_dates_main(self):
