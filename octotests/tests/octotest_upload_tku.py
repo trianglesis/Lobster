@@ -18,6 +18,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
 
     def test001_product_content_update_tkn_main(self):
+        """ Install tideway_content, except ADDM where continuous build installs """
         self.silent = True
         self.tku_wget = False
         self.fake_run = False
@@ -32,6 +33,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.run_case()
 
     def test002_product_content_update_tkn_ship(self):
+        """ Install tideway_content, except ADDM where continuous build installs """
         self.silent = True
         self.tku_wget = False
         self.fake_run = False
