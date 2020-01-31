@@ -32,7 +32,6 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                     '784741',
                     '790845',
         ])
-        self.key_group()
         self.excluded_group()
         self.addm_group_l = ['alpha', 'beta', 'echo']
         self.wipe_logs_on(True)
@@ -48,7 +47,6 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                     '787058',
                     '787059',
         ])
-        self.key_group()
         self.excluded_group()
         self.addm_group_l = ['charlie', 'delta', 'foxtrot']
         self.wipe_logs_on(True)
@@ -71,11 +69,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
     def test_004_night_routine_wide_tkn_main(self):
-        date_from = now - datetime.timedelta(days=int(730))
-        self.silent_on(True)
-        self.fake_run_on(True)
-        # self.wipe_logs_on(False)
         self.branch = 'tkn_main'
+        date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.queryset = self.queryset.exclude(change__in=[
                     '791013',
@@ -94,11 +89,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
     def test_005_night_routine_wide_tkn_ship(self):
-        date_from = now - datetime.timedelta(days=int(730))
-        self.silent_on(True)
-        self.fake_run_on(True)
-        # self.wipe_logs_on(False)
         self.branch = 'tkn_ship'
+        date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.queryset = self.queryset.exclude(change__in=[
                     '716460',  # TKN SHIP STARTED HERE
