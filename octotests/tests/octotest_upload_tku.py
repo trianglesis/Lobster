@@ -11,6 +11,23 @@ except ModuleNotFoundError:
     import octotests.octo_tests
 
 
+"""
+Install order:
+tideway-content          tkn_main            tkn_ship
+                         - alpha,beta,golf   - charlie,delta
+tideway-devices          tkn_main            tkn_ship
+                         - beta              - charlie
+continuous               tkn_main            tkn_ship
+                         - echo              - foxtrot
+                         
+release GA fresh         - foxtrot
+release GA Upgrade       - charlie
+
+
+
+"""
+
+
 class OctoTestCaseUpload(octo_tests.OctoTestCase):
 
     def setUp(self):
@@ -27,7 +44,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['beta', 'echo', 'golf'],
+            addm_group__in=['alpha', 'beta', 'golf'],
             addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
@@ -121,7 +138,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['delta'],
+            addm_group__in=['foxtrot'],
             addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
