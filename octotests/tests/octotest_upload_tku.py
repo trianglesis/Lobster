@@ -83,17 +83,19 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         # current_ga = self.select_latest_ga()
         # Update mode will select packages for upgrade test by itself
         # package_types=[previous, current_ga],
-        self.addm_group = 'foxtrot'
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['foxtrot'],
+            addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
+            disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
     def test006_release_ga_fresh(self):
         package_type = self.select_latest_ga()
         self.tku_wget = True
         self.test_mode = 'fresh'
-        # self.addm_group = 'golf'
-        # self.addm_set = self.addm_set.filter(addm_group__exact='golf', disables__isnull=True).values().order_by('addm_group')
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['alpha'],
+            addm_group__in=['charlie'],
+            addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.package_types = [package_type]
         self.run_case()
@@ -106,7 +108,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['beta'],
+            addm_group__in=['echo'],
             addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
