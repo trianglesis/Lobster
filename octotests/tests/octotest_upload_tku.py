@@ -13,7 +13,7 @@ except ModuleNotFoundError:
 
 """
 Install order:
-tideway-content          tkn_main                       tkn_ship
+tideway-content          tkn_main                       tkn_ship (1-24 days)
                          - alpha, beta, echo, golf      - charlie, delta, foxtrot
     -- after tests, after TKU Continuous or GA (ignore TKU prod.cont overlapping)
 
@@ -21,12 +21,12 @@ tideway-devices          tkn_main            tkn_ship
                          - beta              - charlie
     -- any window (not require when TKU Continuous enabled)
 
-continuous               tkn_main            tkn_ship
+continuous               tkn_main            tkn_ship (1-24 days)
                          - alpha              - charlie
     -- right after tests (7-8AM)
 
-release GA fresh         - foxtrot         during release rush (24-29 day)
-release GA Upgrade       - charlie         during release rush (24-29 day)
+release GA fresh         - foxtrot         during release rush (24-30 day)
+release GA Upgrade       - charlie         during release rush (24-30 day)
 
 
 
