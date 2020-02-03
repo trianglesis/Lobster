@@ -11,6 +11,28 @@ except ModuleNotFoundError:
     import octotests.octo_tests
 
 
+"""
+Install order:
+tideway-content          tkn_main                       tkn_ship (1-24 days)
+                         - alpha, beta, echo, golf      - charlie, delta, foxtrot
+    -- after tests, after TKU Continuous or GA (ignore TKU prod.cont overlapping)
+
+tideway-devices          tkn_main            tkn_ship
+                         - beta              - charlie
+    -- any window (not require when TKU Continuous enabled)
+
+continuous               tkn_main            tkn_ship (1-24 days)
+                         - alpha              - charlie
+    -- right after tests (7-8AM)
+
+release GA fresh         - foxtrot         during release rush (24-30 day)
+release GA Upgrade       - charlie         during release rush (24-30 day)
+
+
+
+"""
+
+
 class OctoTestCaseUpload(octo_tests.OctoTestCase):
 
     def setUp(self):
@@ -18,6 +40,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
 
     def test001_product_content_update_tkn_main(self):
+        """ Install tideway_content, except ADDM where continuous build installs """
         self.silent = True
         self.tku_wget = False
         self.fake_run = False
@@ -32,6 +55,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.run_case()
 
     def test002_product_content_update_tkn_ship(self):
+        """ Install tideway_content, except ADDM where continuous build installs """
         self.silent = True
         self.tku_wget = False
         self.fake_run = False
@@ -54,7 +78,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['alpha', 'beta', 'echo', 'golf'],
+            addm_group__in=['beta'],
             addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
@@ -68,7 +92,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['charlie', 'delta', 'foxtrot'],
+            addm_group__in=['charlie'],
             addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
@@ -81,17 +105,19 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         # current_ga = self.select_latest_ga()
         # Update mode will select packages for upgrade test by itself
         # package_types=[previous, current_ga],
-        self.addm_group = 'golf'
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['foxtrot'],
+            addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
+            disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
     def test006_release_ga_fresh(self):
         package_type = self.select_latest_ga()
         self.tku_wget = True
         self.test_mode = 'fresh'
-        # self.addm_group = 'golf'
-        # self.addm_set = self.addm_set.filter(addm_group__exact='golf', disables__isnull=True).values().order_by('addm_group')
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['golf'],
+            addm_group__in=['charlie'],
+            addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.package_types = [package_type]
         self.run_case()
@@ -104,7 +130,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['golf'],
+            addm_group__in=['alpha'],
             addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
@@ -117,7 +143,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['golf'],
+            addm_group__in=['charlie'],
             addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()

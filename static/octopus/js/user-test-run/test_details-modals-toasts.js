@@ -60,6 +60,7 @@ function fillModalBodyAfterREST(caseItem) {
         'tst_class': relCasesTestLogs[0]['tst_class'],
         'tst_name': relCasesTestLogs[0]['tst_name'],
     };
+    console.table(`Using set: ${buttonCaseDataSet}`);
 
     // Fill modal body with case details after REST:
     let caseAttrs = ['id', 'tkn_branch', 'pattern_library', 'pattern_folder_name', 'test_py_path',
