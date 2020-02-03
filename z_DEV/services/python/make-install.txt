@@ -29,6 +29,8 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/libpython3.8.so.1.0
 
 ln -s /usr/local/bin/python3.8 /usr/bin/python3
 ln -s /usr/local/bin/pip3.8 /usr/bin/pip3
+ln -s /usr/local/bin/pip3.8 /usr/local/bin/pip3
+pip install --upgrade pip
 ===========
 [root@test ~]# python3.7 -V
 Python 3.7.3
