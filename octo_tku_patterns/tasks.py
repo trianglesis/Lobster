@@ -34,9 +34,9 @@ from octo.helpers.tasks_helpers import TMail
 from octo.helpers.tasks_run import Runner
 
 from octo.tasks import TSupport
+from octo_adm.tasks import TaskADDMService
 
 from run_core.addm_operations import ADDMStaticOperations
-from octo_adm.tasks import TaskADDMService
 
 from octotests.tests_discover_run import TestRunnerLoc
 
@@ -507,6 +507,9 @@ class TaskPrepare:
                 # 6. Sync current ADDM set with actual data from Octopus, after p4 sync finished it's work:
                 self.addm_rsync(addm_set)
 
+                # 6.1 Something like prep step? Maybe delete/wipe/kill other tests or ensure ADDM on OK state and so on.
+                self.prep_step(addm_set)
+
                 for test_item in branch_cases:
                     # 7.1 Fire task for test starting
                     self.mail_status(mail_opts=dict(mode='start', test_item=test_item, addm_set=addm_set))
@@ -580,6 +583,11 @@ class TaskPrepare:
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
                               t_routing_key=f'{addm["addm_group"]}.addm_sync_for_test')
+
+    def prep_step(self, addm_set):
+        log.info("<=TaskPrepare=> Preparing step before test run!")
+        addm = addm_set.first()
+        # TODO: Here we can kill test.py, wipe old data, run cmd and so on.
 
     def mail_status(self, mail_opts):
         mode = mail_opts.get('mode')
