@@ -746,7 +746,7 @@ class ADDMOperations:
         return ssh
 
     # noinspection PyCompatibility
-    def make_addm_sync_threads(self, **kwargs):
+    def _make_addm_sync_threads(self, **kwargs):
         """
         Run each test in pair of connected ADDM instance separately from each other.
         Each this instance is an instance of SSH console of active ADDM + added
@@ -763,7 +763,7 @@ class ADDMOperations:
         sync_q = Queue()
         for addm_item in addm_items:
             # Open SSH connection:
-            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from make_addm_sync_threads in ADDMOperations")
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from _make_addm_sync_threads in ADDMOperations")
             # If opened connection is Up and alive:
             if ssh:
                 kwargs_d = dict(ssh=ssh, addm_item=addm_item, sync_q=sync_q)
@@ -778,7 +778,7 @@ class ADDMOperations:
                     raise Exception(msg)
             # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
             else:
-                msg = '<=make_addm_sync_threads=> SSH Connection could not be established, ' \
+                msg = '<=_make_addm_sync_threads=> SSH Connection could not be established, ' \
                       'thread skipping for ADDM: {} - {} in {}'.format(addm_item['addm_ip'], addm_item['addm_host'],
                                                                        addm_item['addm_group'])
                 log.error(msg)
@@ -831,8 +831,16 @@ class ADDMOperations:
         addm_group = addm.get('addm_group')
         ts = time()
 
-        tku_sync = self.rsync_tku_data(ssh=ssh, addm_item=addm)
-        utils_sync = self.rsync_testutils(ssh=ssh, addm_item=addm)
+        # OLD:
+        # tku_sync = self.rsync_tku_data(ssh=ssh, addm_item=addm)
+        # utils_sync = self.rsync_testutils(ssh=ssh, addm_item=addm)
+        # NEW:
+        rsync_tku_data = ADDMStaticOperations.select_operation("rsync.tku.data")
+        rsync_tku_data = ADDMStaticOperations.select_operation("rsync.tku.data")
+        rsync_tideway_utils = ADDMStaticOperations.select_operation("rsync.tideway.utils")
+
+        tku_sync = ADDMStaticOperations().run_operation_cmd(**kwargs)
+        utils_sync = ADDMStaticOperations().run_operation_cmd(**kwargs)
         log.info("<=ADDMOperations=> make_addm_sync_single %s - %s %s", addm_name, addm_host, addm_group)
 
         all_syncs_dict = dict(

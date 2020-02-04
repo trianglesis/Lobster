@@ -35,7 +35,8 @@ from octo.helpers.tasks_run import Runner
 
 from octo.tasks import TSupport
 
-from octo_tku_patterns.night_test_balancer import BalanceNightTests
+from run_core.addm_operations import ADDMStaticOperations
+from octo_adm.tasks import TaskADDMService
 
 from octotests.tests_discover_run import TestRunnerLoc
 
@@ -120,12 +121,12 @@ class TPatternParse:
         return PerforceOperations().sync_force(depot_path)
 
     @staticmethod
-    @app.task(routing_key='parsing.TExecTest.make_addm_sync_threads.addm_group',
+    @app.task(routing_key='parsing.TExecTest._make_addm_sync_threads.addm_group',
               soft_time_limit=MIN_20, task_time_limit=HOURS_2)
     @exception
     def t_addm_rsync_threads(t_tag, **kwargs):
         log.debug("t_tag: %s", t_tag)
-        return ADDMOperations().make_addm_sync_threads(**kwargs)
+        return ADDMOperations()._make_addm_sync_threads(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_pattern_weight_index',
@@ -149,50 +150,6 @@ class PatternTestExecCases:
         patterns_weight = LocalDB.history_weight(last_days=last_days)
         # Insert sorted in TKU Patterns table:
         LocalDB.insert_patt_weight(patterns_weight)
-
-    # noinspection PyPep8Naming
-    @staticmethod
-    def chunkIt(seq, num):
-        avg = len(seq) / float(num)
-        out = collections.deque()
-        last = 0.0
-
-        while last < len(seq):
-            out.append(seq[int(last):int(last + avg)])
-            # log.debug("<=TestPrepCases=> chunk - seq[%s:int(%s)]", int(last), int(last + avg))
-            last += avg
-        return out
-
-    @staticmethod
-    @exception
-    def sync_addm(**kwargs):
-        addm_set = kwargs.get('addm_set', None)
-        addm_group = kwargs.get('addm_group', None)
-        fake_run = kwargs.get('fake_run')
-
-        if not addm_set:
-            if not addm_group:
-                msg = "Cannot select addm items without addm_group argument!"
-                log.error(msg)
-                raise Exception(msg)
-            addm_set = ADDMOperations.select_addm_set(addm_group=addm_group)
-
-        t_tag = "{};addm_group={}".format('t_addm_rsync_threads', addm_set[0]['addm_group'])
-        addm_sync_task = Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=fake_run,
-                                       t_args=[t_tag],
-                                       t_kwargs=dict(addm_items=addm_set),
-                                       t_queue=addm_set[0]['addm_group'] + '@tentacle.dq2',
-                                       t_routing_key='TExecTest.t_addm_rsync_threads.{0}'.format(
-                                           addm_set[0]['addm_group'])
-                                       )
-
-        if addm_sync_task and TasksOperations().task_wait_success(addm_sync_task, 't_addm_rsync_threads'):
-            log.info("<=sync_addm=> Task finished %s ADDM tests now actual.", addm_sync_task.status)
-            return True
-        else:
-            msg = "<=sync_addm=> Task fail: '{}'!".format(addm_sync_task.status)
-            log.error(msg)
-            raise Exception(msg)
 
 
 class TaskPrepare:
@@ -280,7 +237,6 @@ class TaskPrepare:
         :return:
         """
         self.task_tag_generate()
-        log.warning("TASK PSEUDO RUNNING in TaskPrepare.run_tku_patterns")
 
         # 0. Init test mail?
         self.mail_status(mail_opts=dict(mode='init'))
@@ -609,13 +565,21 @@ class TaskPrepare:
         addm = addm_set.first()
         if self.p4_synced and self.request.get('refresh'):
             log.debug("<=TaskPrepare=> Adding task to sync addm group: '%s'", addm['addm_group'])
-            t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
-                    f'fake={self.fake_run};start_time={self.start_time}'
-
-            Runner.fire_t(TPatternParse().t_addm_rsync_threads, fake_run=self.fake_run,
-                          t_args=[t_tag], t_kwargs=dict(addm_items=list(addm_set)),
-                          t_queue=addm['addm_group'] + '@tentacle.dq2',
-                          t_routing_key='TExecTest.t_addm_rsync_threads.{0}'.format(addm['addm_group']))
+            commands_set = ADDMStaticOperations.select_operation([
+                'rsync.python.testutils',
+                'rsync.tideway.utils',
+                'rsync.tku.data',
+            ])
+            for operation_cmd in commands_set:
+                t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
+                        f'fake={self.fake_run};start_time={self.start_time};command_k={operation_cmd.command_key};'
+                addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
+                t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
+                Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
+                              t_queue=f'{addm["addm_group"]}@tentacle.dq2',
+                              t_args=[t_tag],
+                              t_kwargs=t_kwargs,
+                              t_routing_key=f'{addm["addm_group"]}.addm_sync_for_test')
 
     def mail_status(self, mail_opts):
         mode = mail_opts.get('mode')

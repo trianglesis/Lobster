@@ -21,7 +21,6 @@ if __name__ == "__main__":
     from octo_tku_patterns.table_oper import PatternsDjangoModelRaw, PatternsDjangoTableOper
     from octo_tku_patterns.night_test_balancer import BalanceNightTests
 
-    from octo_tku_patterns.tasks import PatternTestExecCases
     from run_core.addm_operations import ADDMOperations
 
     log = logging.getLogger("octo.octologger")
