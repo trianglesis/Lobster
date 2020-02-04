@@ -23,6 +23,9 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
 
     def test_001_night_routine_main(self):
+        """Simple select for cases with change date for last 3 years, for selected branch,
+            excluding mass-changes.
+        """
         self.branch = 'tkn_main'
         self.select_test_cases(tkn_branch='tkn_main', last_days=730)
         self.queryset = self.queryset.exclude(change__in=[
@@ -38,6 +41,9 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
     def test_002_night_routine_ship(self):
+        """Simple select for cases with change date for last 3 years, for selected branch,
+            excluding mass-changes.
+        """
         self.branch = 'tkn_ship'
         self.select_test_cases(tkn_branch='tkn_ship', last_days=730)
         self.queryset = self.queryset.exclude(change__in=[
@@ -69,6 +75,12 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
     def test_004_night_routine_wide_tkn_main(self):
+        """
+        Run during working week (mon, tue, wed, thu), each evening at about 17:30 UK time.
+        Select all for last 2 years, excluding mass depot changes,
+            add key patterns, exclude using cases group "excluded" and sort only tkn_main.
+        Use only locked ADDMs for current branch!
+        """
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
@@ -82,14 +94,20 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.key_group()
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact='tkn_main')
-        print(self.queryset.count())
-        print(self.queryset.explain())
-        print(self.queryset.query)
+        # print(self.queryset.count())
+        # print(self.queryset.explain())
+        # print(self.queryset.query)
         self.addm_group_l = ['alpha', 'beta', 'echo']
         self.wipe_logs_on(True)
         self.run_case()
 
     def test_005_night_routine_wide_tkn_ship(self):
+        """
+        Run during working week (mon, tue, wed, thu), each evening at about 17:30 UK time.
+        Select all for last 2 years, excluding mass depot changes,
+            add key patterns, exclude using cases group "excluded" and sort only tkn_ship.
+        Use only locked ADDMs for current branch!
+        """
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
@@ -103,14 +121,15 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.key_group()
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact='tkn_ship')
-        print(self.queryset.count())
-        print(self.queryset.explain())
-        print(self.queryset.query)
+        # print(self.queryset.count())
+        # print(self.queryset.explain())
+        # print(self.queryset.query)
         self.addm_group_l = ['charlie', 'delta', 'foxtrot']
         self.wipe_logs_on(True)
         self.run_case()
 
     def test009_between_dates_main(self):
+        """For dev: choose any cases where change date is in the between of dates provided."""
         self.branch = 'tkn_main'
         self.select_test_cases(tkn_branch='tkn_main', date_from='2019-10-31', date_to='2019-11-20')
         self.excluded_group()
