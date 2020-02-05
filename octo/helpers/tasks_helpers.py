@@ -44,12 +44,15 @@ def exception(function):
         try:
             return function(*args, **kwargs)
         except SoftTimeLimitExceeded as e:
+            log.warning("Firing SoftTimeLimitExceeded exception. Test should run for additional 500 seconds before die")
             exc_more = f'{e} Task has reached soft time limit. Task will be cancelled in 500 seconds.'
             TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             # Do not rise when soft time limit, just inform:
             # raise SoftTimeLimitExceeded(msg)
+            pass
 
         except TimeLimitExceeded as e:
+            log.warning("Firing TimeLimitExceeded exception. Task will now die!")
             exc_more = f'{e} Task time limit reached! This task was cancelled to release the worker.'
             TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             # Raise when task goes out of a latest time limit:
