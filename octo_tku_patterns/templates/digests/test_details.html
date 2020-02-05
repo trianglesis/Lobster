@@ -286,7 +286,9 @@
     {% comment %}
         Parse test results and cut all extra traceback messages, leave only comparison msg
     {% endcomment %}
-    <script src="{% static 'octopus/js/test_details/parsing-test-details-test-output.js' %}"></script>
+    {% if not request.GET.debug %}
+        <script src="{% static 'octopus/js/test_details/parsing-test-details-test-output.js' %}"></script>
+    {% endif %}
     {% comment %}
         Make ADDM tabs dynamical
     {% endcomment %}
