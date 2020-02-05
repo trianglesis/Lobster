@@ -49,7 +49,7 @@ def exception(function):
             TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             # Do not rise when soft time limit, just inform:
             # raise SoftTimeLimitExceeded(msg)
-            pass
+            return wrapper
 
         except TimeLimitExceeded as e:
             log.warning("Firing TimeLimitExceeded exception. Task will now die!")
