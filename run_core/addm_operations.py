@@ -315,7 +315,7 @@ class ADDMStaticOperations:
         tasks_ids = dict()
         addm_set = self.addm_set_selections(**kwargs)
         addm_group_l = self.addm_groups_distinct_validate(addm_set, fake_run)
-        log.info("<=ADDMStaticOperations=> Validated list of ADDM groups: %s", addm_group_l)
+        # log.info("<=ADDMStaticOperations=> Validated list of ADDM groups: %s", addm_group_l)
 
         if not commands_set:
             commands_set = self.select_operation(command_key)
@@ -376,7 +376,7 @@ class ADDMStaticOperations:
             log.debug("<=ADDMStaticOperations=> ADDM selected by addm_branch: %s", addm_branch)
             all_addms = all_addms.filter(branch_lock__in=addm_branch)
             # log.info("<=ADDMStaticOperations=> ADDM branch sel query: %s", all_addms.query)
-        log.info("<=ADDMStaticOperations=> ADDM selected count: %s", all_addms.count())
+        # log.info("<=ADDMStaticOperations=> ADDM selected count: %s", all_addms.count())
         # log.debug("<=ADDMStaticOperations=> ADDM selected: %s", all_addms)
         # log.debug("<=ADDMStaticOperations=> ADDM selected query: %s", all_addms.query)
         # is this is not too danger to return all enabled addms?

@@ -169,12 +169,16 @@ class PatternTestUtils(unittest.TestCase):
         self.queryset = self.queryset | key_cases
 
     def get_branched_addm_groups(self):
-        self.addm_group_l = BalanceNightTests().get_available_addm_groups(
-            branch=self.branch, user_name=self.user_name, fake_run=self.fake_run, addm_groups=self.addm_group_l)
+        """Get available workers for night test run, using octo_options table."""
+        # TODO: Get only from listed in test, do not test and occupy all available groups!
+        if not self.addm_group_l:
+            self.addm_group_l = BalanceNightTests().get_available_addm_groups(
+                branch=self.branch, user_name=self.user_name, fake_run=self.fake_run, addm_groups=self.addm_group_l)
 
     def select_addm_set(self):
-        self.addm_set = ADDMOperations.select_addm_set(
-            addm_group=self.addm_group_l)
+        if not self.addm_set:
+            self.addm_set = ADDMOperations.select_addm_set(
+                addm_group=self.addm_group_l)
 
     def balance_tests_on_workers(self):
         self.addm_tests_balanced = BalanceNightTests().test_weight_balancer(

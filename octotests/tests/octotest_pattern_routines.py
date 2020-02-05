@@ -175,6 +175,11 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         print(self.queryset.explain())
         print(self.queryset.query)
         self.addm_group_l = ['alpha']
+        # OR:
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['alpha'],
+            addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
+            disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
 
