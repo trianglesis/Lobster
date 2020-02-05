@@ -36,7 +36,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                     '790845',
         ])
         self.excluded_group()
-        self.addm_group_l = ['alpha', 'beta', 'echo']
+        self.addm_group_l = ['hotel', 'india', 'juliett']
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -97,7 +97,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # print(self.queryset.count())
         # print(self.queryset.explain())
         # print(self.queryset.query)
-        self.addm_group_l = ['alpha', 'beta', 'echo']
+        self.addm_group_l = ['hotel', 'india', 'juliett']
         self.wipe_logs_on(True)
         self.run_case()
 
