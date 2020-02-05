@@ -121,6 +121,11 @@ if not os.name == "nt":
             'echo@tentacle',
             'foxtrot@tentacle',
             'golf@tentacle',
+            'hotel@tentacle',
+            'india@tentacle',
+            'juliett@tentacle',
+            'kilo@tentacle',
+            'lima@tentacle',
             'w_development@tentacle',
         ])
 else:
@@ -135,5 +140,10 @@ else:
             'echo@tentacle',
             'foxtrot@tentacle',
             'golf@tentacle',
+            'hotel@tentacle',
+            'india@tentacle',
+            'juliett@tentacle',
+            'kilo@tentacle',
+            'lima@tentacle',
             'w_development@tentacle',
         ])

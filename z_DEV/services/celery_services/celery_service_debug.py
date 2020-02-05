@@ -33,6 +33,11 @@ CELERYD_NODES = [
     "echo@tentacle",
     "foxtrot@tentacle",
     "golf@tentacle",
+    'hotel@tentacle',
+    'india@tentacle',
+    'juliett@tentacle',
+    'kilo@tentacle',
+    'lima@tentacle',
 ]
 
 commands_list_start = "python {CELERY_BIN} multi start {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} " \
