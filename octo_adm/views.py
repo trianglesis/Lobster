@@ -48,8 +48,9 @@ class AddmWorkbench(ListView):
     __url_path = '/octo_admin/addm/'
     template_name = 'addm_workbench/addm_workbench.html'
     context_object_name = 'objects'
-    model = AddmDev
-    # queryset = AddmDev.objects.all().order_by('addm_group')
+    # model = AddmDev
+    # Sort in named order
+    queryset = AddmDev.objects.all().order_by('addm_name')
 
 
 class CeleryWorkbench(TemplateView):

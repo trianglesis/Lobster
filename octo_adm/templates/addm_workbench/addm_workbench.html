@@ -154,7 +154,6 @@
         </div>
         <div>
             {% regroup objects|dictsort:'branch_lock' by branch_lock as branch_lock_addms %}
-            {% regroup objects|dictsort:'vm_cluster' by vm_cluster as addm_vm_cluster %}
         </div>
         <div class="addm-vms-tabs">
             <nav>
@@ -174,16 +173,6 @@
                        href="#addm_tkn_ship"
                        aria-controls="nav-addm_tkn_ship"
                        data-toggle="tab" role="tab" aria-selected="false">Lock 'tkn_ship'</a>
-                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
-                       id="nav-aus-addm-tab"
-                       href="#aus-addm"
-                       aria-controls="nav-aus-addm"
-                       data-toggle="tab" role="tab" aria-selected="false">AUS</a>
-                    <a class="flex-sm-fill btn-outline-dark text-sm-center nav-link"
-                       id="nav-pune-addm-tab"
-                       href="#pune-addm"
-                       aria-controls="nav-pune-addm"
-                       data-toggle="tab" role="tab" aria-selected="false">PUNE</a>
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">
@@ -199,15 +188,6 @@
                     {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.1.list|dictsort:'addm_group' %}
                     <small>* Table of ADDMS locked on branch 'tkn_ship' </small>
                 </div>
-                <div class="tab-pane fade" id="aus-addm" role="tabpanel" aria-labelledby="aus-addm-tab">
-                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=addm_vm_cluster.1.list|dictsort:'addm_group' %}
-                    <small>* Located at AUS TKU CLuster ADDMS</small>
-                </div>
-                <div class="tab-pane fade" id="pune-addm" role="tabpanel" aria-labelledby="pune-addm-tab">
-                    {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=addm_vm_cluster.0.list|dictsort:'addm_group' %}
-                    <small>* Located at PUNE ADDMS</small>
-                </div>
-                {# {% include 'addm_workbench/includes/addm_vm_table.html' with addm_set=branch_lock_addms.0.list %} tkn_branch group #}
             </div>
         </div>
     </div>

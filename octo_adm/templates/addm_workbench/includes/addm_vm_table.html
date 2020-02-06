@@ -5,29 +5,29 @@
             <td></td>
             <td>Group</td>
             <td>Branch</td>
-            <td>Name</td>
+            <td>Role</td>
             <td>V.</td>
+            <td>Name</td>
+            <td>full v.</td>
             <td>Host</td>
             <td>IP</td>
-            <td>full v.</td>
-            <td>Location</td>
             <td>Buttons</td>
         </tr>
     </thead>
     <tbody>
         {% for addm in addm_set %}
             <tr class="addm-group-color-{{ addm.addm_group }}">
-                <td id="num">{{ forloop.counter }}</td>
+                <td id="num"><a href="{% url 'admin:index' %}run_core/addmdev/{{ addm.id }}/change/">{{ forloop.counter }}</a></td>
                 {# user view #}
                 <td id="disables">{% if addm.disables %}off{% endif %}</td>
                 <td id="addm_group">{{ addm.addm_group }}</td>
                 <td id="branch_lock"><span class="{{ addm.branch_lock }}">{{ addm.branch_lock }}</span></td>
-                <td id="addm_name">{{ addm.addm_name }}</td>
+                <td id="addm_role">{{ addm.role }}</td>
                 <td id="addm_v_int">{{ addm.addm_v_int }}</td>
+                <td id="addm_name">{{ addm.addm_name }}</td>
+                <td id="addm_full_version">{{ addm.addm_full_version }}</td>
                 <td id="addm_host">{{ addm.addm_host }}</td>
                 <td id="addm_ip">{{ addm.addm_ip }}</td>
-                <td id="addm_full_version">{{ addm.addm_full_version }}</td>
-                <td id="vm_cluster">{{ addm.vm_cluster }}</td>
                 <td id="buttons">
                     <a type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal"
                        data-target="#addmServiceButtonsModal"
@@ -41,6 +41,7 @@
                     >ADDM UI</a>
                 </td>
                 {# Service: #}
+                <td id="vm_cluster" style="display: none">{{ addm.vm_cluster }}</td>
                 <td id="id" style="display: none">{{ addm.id }}</td>
                 <td id="vm_id" style="display: none">{{ addm.vm_id }}</td>
                 <td id="description" style="display: none">{{ addm.description }}</td>
