@@ -96,8 +96,6 @@ class AddmDev(models.Model):
     addm_name = models.CharField(max_length=255)
     tideway_user = models.CharField(max_length=255)
     tideway_pdw = models.CharField(max_length=255)
-    root_user = models.CharField(max_length=255)
-    root_pwd = models.CharField(max_length=255)
     addm_ip = models.CharField(max_length=255)
     addm_v_code = models.CharField(max_length=255)
     addm_v_int = models.CharField(max_length=255)

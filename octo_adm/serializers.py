@@ -13,8 +13,6 @@ User = get_user_model()
 class AddmDevSerializer(serializers.ModelSerializer):
     tideway_user = serializers.SerializerMethodField()
     tideway_pdw = serializers.SerializerMethodField()
-    root_user = serializers.SerializerMethodField()
-    root_pwd = serializers.SerializerMethodField()
 
     class Meta:
         model = AddmDev
@@ -24,8 +22,6 @@ class AddmDevSerializer(serializers.ModelSerializer):
             #
             'tideway_user',
             'tideway_pdw',
-            'root_user',
-            'root_pwd',
             #
             'addm_ip',
             'addm_v_code',
@@ -61,16 +57,3 @@ class AddmDevSerializer(serializers.ModelSerializer):
             if admin_users:
                 return obj.tideway_pdw
 
-    def get_root_user(self, obj):
-        request = self.context.get('request')
-        if request and request.user:
-            admin_users = request.user.groups.filter(name='admin_users').exists()
-            if admin_users:
-                return obj.root_user
-
-    def get_root_pwd(self, obj):
-        request = self.context.get('request')
-        if request and request.user:
-            admin_users = request.user.groups.filter(name='admin_users').exists()
-            if admin_users:
-                return obj.root_pwd

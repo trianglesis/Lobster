@@ -794,18 +794,15 @@ class ADDMOperations:
         """
         Construct threading for each addm and tests.
         Freeze addm with tests for threading.
-        {'root_pwd': 'tidewayroot',
-         'addm_v_int': '11.2',
+        {'addm_v_int': '11.2',
          'is_synced': 1,
          'check_bashrc': 1,
          'fstab_check': 0,
          'nfs_helper_moved': 0,
          'new_fstab': 0,
          'check_fs_tree': 0,
-         'tideway_user': 'tideway',
          'addm_branch': 'r11_2_0_x',
          'nfs_helper': 0,
-         'root_user': 'root',
          'pass_ok': 1,
          'addm_is_dev': 1,
          'BAK_fstab': 0,
@@ -813,7 +810,6 @@ class ADDMOperations:
          'addm_name': 'custard_cream',
          'check_mounts': 1,
          'mount_success': 0,
-         'tideway_pdw': 'S0m3w@y',
          'addm_owner': 'Alex D',
          'addm_ip': '172.25.144.118',
          'check_fstab': 1,

@@ -73,7 +73,6 @@ class AddmDevAdmin(admin.ModelAdmin):
             'fields': (
                 ('addm_v_code', 'addm_v_int', 'addm_branch'),
                 ('tideway_user', 'tideway_pdw'),
-                ('root_user', 'root_pwd'),
                 'addm_owner',
                 'vm_cluster',
                 'vm_id',
@@ -125,7 +124,6 @@ class AddmDevProxyAdmin(admin.ModelAdmin):
             'fields': (
                 ('addm_v_code', 'addm_v_int', 'addm_branch'),
                 ('tideway_user', 'tideway_pdw'),
-                ('root_user', 'root_pwd'),
                 'addm_owner',
                 'description',
             )
