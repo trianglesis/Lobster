@@ -92,22 +92,23 @@ class UserAdprod(models.Model):
 
 
 class AddmDev(models.Model):
-    addm_host = models.CharField(max_length=255)
-    addm_name = models.CharField(max_length=255)
-    tideway_user = models.CharField(max_length=255)
-    tideway_pdw = models.CharField(max_length=255)
-    addm_ip = models.CharField(max_length=255)
-    addm_v_code = models.CharField(max_length=255)
-    addm_v_int = models.CharField(max_length=255)
-    addm_full_version = models.CharField(max_length=255, blank=True, null=True)
-    addm_branch = models.CharField(max_length=255)
-    addm_owner = models.CharField(max_length=255)
-    addm_group = models.CharField(max_length=255)
+    addm_host = models.CharField(max_length=20)
+    addm_name = models.CharField(max_length=20)
+    tideway_user = models.CharField(max_length=20)
+    tideway_pdw = models.CharField(max_length=20)
+    addm_ip = models.CharField(max_length=20)
+    addm_v_code = models.CharField(max_length=20)
+    addm_v_int = models.CharField(max_length=20)
+    addm_full_version = models.CharField(max_length=20, blank=True, null=True)
+    addm_branch = models.CharField(max_length=20)
+    addm_owner = models.CharField(max_length=20)
+    addm_group = models.CharField(max_length=20)
     disables = models.NullBooleanField(null=True)
-    branch_lock = models.CharField(max_length=255)
+    branch_lock = models.CharField(max_length=20)
     description = models.TextField(blank=True, null=True)
-    vm_cluster = models.CharField(max_length=255, blank=True, null=True)
-    vm_id = models.CharField(max_length=255, blank=True, null=True)
+    role = models.TextField(max_length=50, blank=True, null=True)
+    vm_cluster = models.CharField(max_length=20, blank=True, null=True)
+    vm_id = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         managed = True
