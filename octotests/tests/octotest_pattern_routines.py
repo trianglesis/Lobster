@@ -174,10 +174,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         print(self.queryset.count())
         print(self.queryset.explain())
         print(self.queryset.query)
-        self.addm_group_l = ['hotel']
+        self.addm_group_l = ['golf']
         # OR:
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['hotel'],
+            addm_group__in=['golf'],
             addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
