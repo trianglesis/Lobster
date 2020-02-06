@@ -73,7 +73,9 @@ class PatternTestUtils(unittest.TestCase):
         self.user_and_mail()
 
     def run_case(self):
+        # Select addm:
         self.select_addm_set()
+        # Sort test over selected ADDM groups:
         self.balance_tests_on_workers()
         # FINISH STEP:
         self.put_test_cases()
@@ -168,9 +170,11 @@ class PatternTestUtils(unittest.TestCase):
         self.queryset = self.queryset | key_cases
 
     def select_addm_set(self):
-        """Select ADDM machines by self.addm_group_l = ['hotel', 'india', 'juliett'] like.
-            Otherwise we can select any amount by Django query set options.
-            """
+        """
+        Select ADDM machines by self.addm_group_l = ['hotel', 'india', 'juliett'] like.
+        Otherwise we can select any amount by Django query set options.
+        :return: list of sets or queryset
+        """
         self.addm_set = ADDMOperations.select_addm_set(addm_group=self.addm_group_l)
 
     def balance_tests_on_workers(self):
@@ -194,7 +198,7 @@ class PatternTestUtils(unittest.TestCase):
                 # Any addm preparations here:
                 self.before_tests()
                 # Sync test data on those addms from group:
-                self.sync_test_data_addm_set(_addm_group)
+                self.sync_test_data_addm_set(addm_item)
                 # Start to fill queues with test tasks:
                 self.run_cases_router(addm_tests, _addm_group, addm_item)
                 # Add finish mail to the queue when it filled with test tasks:
@@ -230,8 +234,9 @@ class PatternTestUtils(unittest.TestCase):
         log.debug("<=PatternTestUtils=> ADDM group run some preparations after all tests run?")
         # Make task and it will be added in the end of the queue on each addm group.
 
-    def sync_test_data_addm_set(self, _addm_group):
-        log.debug(f"<=TaskPrepare=> Adding task to sync addm group: {_addm_group}")
+    def sync_test_data_addm_set(self, addm_item):
+        _addm_group = addm_item[0]['addm_group']
+        log.debug(f"<=TaskPrepare=> Adding task to sync addm group: {_addm_group} at set: {addm_item}")
         commands_set = ADDMStaticOperations.select_operation([
             'rsync.python.testutils',
             'rsync.tideway.utils',
@@ -240,8 +245,7 @@ class PatternTestUtils(unittest.TestCase):
         for operation_cmd in commands_set:
             t_tag = f'tag=t_addm_rsync_threads;addm_group={_addm_group};user_name={self.user_name};' \
                     f'fake={self.fake_run};command_k={operation_cmd.command_key};'
-            addm_grouped_set = self.addm_set.filter(addm_group__exact=_addm_group)
-            t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
+            t_kwargs = dict(addm_set=addm_item, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
                           t_queue=f'{_addm_group}@tentacle.dq2',
                           t_args=[t_tag],
