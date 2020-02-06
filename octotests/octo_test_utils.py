@@ -73,7 +73,6 @@ class PatternTestUtils(unittest.TestCase):
         self.user_and_mail()
 
     def run_case(self):
-        self.get_branched_addm_groups()
         self.select_addm_set()
         self.balance_tests_on_workers()
         # FINISH STEP:
@@ -168,19 +167,16 @@ class PatternTestUtils(unittest.TestCase):
         key_cases = TestCases.objects.filter(id__in=included)
         self.queryset = self.queryset | key_cases
 
-    def get_branched_addm_groups(self):
-        """Get available workers for night test run, using octo_options table."""
-        # TODO: Get only from listed in test, do not test and occupy all available groups!
-        if not self.addm_group_l:
-            self.addm_group_l = BalanceNightTests().get_available_addm_groups(
-                branch=self.branch, user_name=self.user_name, fake_run=self.fake_run, addm_groups=self.addm_group_l)
-
     def select_addm_set(self):
+        """Select ADDM machines by self.addm_group_l = ['hotel', 'india', 'juliett'] like.
+            Otherwise we can select any amount by Django query set options. """
         if not self.addm_set:
             self.addm_set = ADDMOperations.select_addm_set(
                 addm_group=self.addm_group_l)
 
     def balance_tests_on_workers(self):
+        """Balance tests between selected ADDM groups each group/queue will be filled
+            with tests by overall (weight / groups)"""
         self.addm_tests_balanced = BalanceNightTests().test_weight_balancer(
             addm_group=self.addm_group_l, test_items=self.queryset.order_by('-test_time_weight'))
 
