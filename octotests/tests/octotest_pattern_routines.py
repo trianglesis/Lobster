@@ -54,7 +54,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                     '787059',
         ])
         self.excluded_group()
-        self.addm_group_l = ['charlie', 'delta', 'foxtrot']
+        self.addm_group_l = ['echo', 'foxtrot', 'golf']
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -70,7 +70,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         ])
         self.excluded_group()
         self.wipe_logs_on(True)
-        self.addm_group_l = ['golf']
+        self.addm_group_l = ['hotel']
         # print(self.addm_set)  # TODO: Way to exclude ADDM from actual addm set if needed
         self.run_case()
 
@@ -124,7 +124,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # print(self.queryset.count())
         # print(self.queryset.explain())
         # print(self.queryset.query)
-        self.addm_group_l = ['charlie', 'delta', 'foxtrot']
+        self.addm_group_l = ['echo', 'foxtrot', 'golf']
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -174,10 +174,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         print(self.queryset.count())
         print(self.queryset.explain())
         print(self.queryset.query)
-        self.addm_group_l = ['alpha']
+        self.addm_group_l = ['hotel']
         # OR:
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['alpha'],
+            addm_group__in=['hotel'],
             addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
