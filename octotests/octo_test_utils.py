@@ -194,7 +194,7 @@ class PatternTestUtils(unittest.TestCase):
                 # Any addm preparations here:
                 self.before_tests()
                 # Sync test data on those addms from group:
-                self.sync_test_data_addm_set(_addm_group, addm_item)
+                self.sync_test_data_addm_set(_addm_group)
                 # Start to fill queues with test tasks:
                 self.run_cases_router(addm_tests, _addm_group, addm_item)
                 # Add finish mail to the queue when it filled with test tasks:
@@ -230,7 +230,7 @@ class PatternTestUtils(unittest.TestCase):
         log.debug("<=PatternTestUtils=> ADDM group run some preparations after all tests run?")
         # Make task and it will be added in the end of the queue on each addm group.
 
-    def sync_test_data_addm_set(self, _addm_group, addm_item):
+    def sync_test_data_addm_set(self, _addm_group):
         log.debug(f"<=TaskPrepare=> Adding task to sync addm group: {_addm_group}")
         commands_set = ADDMStaticOperations.select_operation([
             'rsync.python.testutils',
@@ -247,11 +247,6 @@ class PatternTestUtils(unittest.TestCase):
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
                           t_routing_key=f'{_addm_group}.addm_sync_for_test')
-        # log.debug("sync_test_data_addm_set")
-        # Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=False,
-        #               t_queue=_addm_group + '@tentacle.dq2',
-        #               t_args=[self.mail_task_arg],
-        #               t_kwargs=dict(addm_items=addm_item))
 
     def start_mail(self, _addm_group, addm_tests, addm_tests_weight, tent_avg):
         log.debug("start_mail add task")
