@@ -39,7 +39,7 @@ class AddmDevAdmin(admin.ModelAdmin):
     # https://djangoguide.readthedocs.io/en/latest/django/admin.html#editable-fields
     # list_editable = ('disables', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'addm_full_version')
 
-    list_display = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'role'
+    list_display = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'role',
                     'addm_v_code', 'disables', 'tideway_user', 'tideway_pdw', 'addm_branch', 'addm_full_version',
                     'vm_cluster', 'vm_id')
     list_filter = ('addm_name', 'addm_group', 'branch_lock', 'addm_full_version', 'vm_cluster', 'role')
@@ -85,15 +85,10 @@ class AddmDevAdmin(admin.ModelAdmin):
 @admin.register(AddmDevProxy)
 class AddmDevProxyAdmin(admin.ModelAdmin):
     """ https://djangobook.com/mdj2-django-admin/ """
-
     # https://djangoguide.readthedocs.io/en/latest/django/admin.html#editable-fields
-    list_editable = ('disables', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version',
-                     'vm_cluster', 'vm_id')
-
-    list_display = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'role',
-                    'addm_v_code', 'disables', 'tideway_user', 'tideway_pdw', 'addm_branch', 'addm_full_version',
-                    'vm_cluster', 'vm_id')
-    list_filter = ('addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version', 'vm_cluster')
+    list_editable = ('addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_v_code', 'addm_branch', 'addm_full_version')
+    list_display = ('id', 'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_v_code', 'addm_branch', 'addm_full_version')
+    list_filter = ('addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version', 'disables',)
     ordering = ('addm_group',)
     search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'addm_v_code')
 

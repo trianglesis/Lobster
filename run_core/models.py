@@ -106,7 +106,7 @@ class AddmDev(models.Model):
     disables = models.NullBooleanField(null=True)
     branch_lock = models.CharField(max_length=20)
     description = models.TextField(blank=True, null=True)
-    role = models.TextField(max_length=50, blank=True, null=True)
+    role = models.CharField(max_length=50, blank=True, null=True)
     vm_cluster = models.CharField(max_length=20, blank=True, null=True)
     vm_id = models.CharField(max_length=50, blank=True, null=True)
 
