@@ -168,7 +168,8 @@ class PatternTestUtils(unittest.TestCase):
 
     def select_addm_set(self):
         """Select ADDM machines by self.addm_group_l = ['hotel', 'india', 'juliett'] like.
-            Otherwise we can select any amount by Django query set options. """
+            Otherwise we can select any amount by Django query set options.
+            """
         if not self.addm_set:
             self.addm_set = ADDMOperations.select_addm_set(
                 addm_group=self.addm_group_l)
@@ -191,7 +192,7 @@ class PatternTestUtils(unittest.TestCase):
                 # Start email sending:
                 self.start_mail(_addm_group, addm_tests, addm_tests_weight, tent_avg)
                 # Any addm preparations here:
-                self.before_tests(addm_item)
+                self.before_tests()
                 # Sync test data on those addms from group:
                 self.sync_test_data_addm_set(_addm_group, addm_item)
                 # Start to fill queues with test tasks:
