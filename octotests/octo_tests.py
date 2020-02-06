@@ -22,6 +22,12 @@ class OctoPatternsTestCase(PatternTestUtils):
         # Parse local FS
         # Cancel any outgoing tasks and lock workers to be ready?
 
+    def before_tests(self):
+        pass
+
+    def after_tests(self):
+        pass
+
 
 class OctoTestCase(UploadTaskUtils):
 

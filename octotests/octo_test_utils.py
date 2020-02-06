@@ -56,13 +56,12 @@ class PatternTestUtils(unittest.TestCase):
         self.fake_run = False
         self.silent = False
 
-        self.date_from = None
-        self.date_to = None
         self.branch = None
         self.queryset = TestCases.objects.all()
 
         self.addm_group_l = []
         self.addm_set = AddmDev.objects.filter(disables__isnull=True).values()
+
         self.mail_task_arg = ''
         self.mail_kwargs = dict()
         self.test_output_mode = False
@@ -177,6 +176,7 @@ class PatternTestUtils(unittest.TestCase):
     def balance_tests_on_workers(self):
         """Balance tests between selected ADDM groups each group/queue will be filled
             with tests by overall (weight / groups)"""
+        # TODO: Make list of addm_groups based on addm_set.
         self.addm_tests_balanced = BalanceNightTests().test_weight_balancer(
             addm_group=self.addm_group_l, test_items=self.queryset.order_by('-test_time_weight'))
 
@@ -191,13 +191,15 @@ class PatternTestUtils(unittest.TestCase):
                 # Start email sending:
                 self.start_mail(_addm_group, addm_tests, addm_tests_weight, tent_avg)
                 # Any addm preparations here:
-                self.prepare_addm_set(addm_item)
+                self.before_tests(addm_item)
                 # Sync test data on those addms from group:
                 self.sync_test_data_addm_set(_addm_group, addm_item)
                 # Start to fill queues with test tasks:
                 self.run_cases_router(addm_tests, _addm_group, addm_item)
                 # Add finish mail to the queue when it filled with test tasks:
                 self.finish_mail(_addm_group)
+                # End tasks when tests are finished:
+                self.after_tests()
                 self.all_tests_w += addm_tests_weight
 
         msg = '''Night routine has been executed. Options used:
@@ -214,8 +216,18 @@ class PatternTestUtils(unittest.TestCase):
         )
         return msg
 
-    def prepare_addm_set(self, addm_item):
+    def before_tests(self):
         log.debug("<=PatternTestUtils=> ADDM group run some preparations before test run?")
+        # Add a task, and it will be executed early before test queue.
+
+    def after_tests(self):
+        """
+        Run after all tests are finished. May be used to generate mail notifications about test results.
+        :param addm_item:
+        :return:
+        """
+        log.debug("<=PatternTestUtils=> ADDM group run some preparations after all tests run?")
+        # Make task and it will be added in the end of the queue on each addm group.
 
     def sync_test_data_addm_set(self, _addm_group, addm_item):
         log.debug("sync_test_data_addm_set")

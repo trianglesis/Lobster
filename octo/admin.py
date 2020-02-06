@@ -39,17 +39,17 @@ class AddmDevAdmin(admin.ModelAdmin):
     # https://djangoguide.readthedocs.io/en/latest/django/admin.html#editable-fields
     # list_editable = ('disables', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'addm_full_version')
 
-    list_display = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock',
+    list_display = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'role'
                     'addm_v_code', 'disables', 'tideway_user', 'tideway_pdw', 'addm_branch', 'addm_full_version',
                     'vm_cluster', 'vm_id')
-    list_filter = ('addm_name', 'addm_group', 'branch_lock', 'addm_full_version', 'vm_cluster')
+    list_filter = ('addm_name', 'addm_group', 'branch_lock', 'addm_full_version', 'vm_cluster', 'role')
     ordering = ('addm_group',)
     search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'addm_v_code')
 
     fieldsets = (
         ('ADDM Group', {
             'description': "ADDM Group - used for select and threading!",
-            'fields': ('addm_group', 'branch_lock')}),
+            'fields': ('addm_group', 'branch_lock', 'role')}),
         ('ADDM Host', {
             'description': "ADDM Useful information. Do not change if not sure!",
             'fields': (
@@ -87,20 +87,20 @@ class AddmDevProxyAdmin(admin.ModelAdmin):
     """ https://djangobook.com/mdj2-django-admin/ """
 
     # https://djangoguide.readthedocs.io/en/latest/django/admin.html#editable-fields
-    list_editable = ('disables', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'addm_full_version',
+    list_editable = ('disables', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version',
                      'vm_cluster', 'vm_id')
 
-    list_display = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock',
+    list_display = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'role',
                     'addm_v_code', 'disables', 'tideway_user', 'tideway_pdw', 'addm_branch', 'addm_full_version',
                     'vm_cluster', 'vm_id')
-    list_filter = ('addm_name', 'addm_group', 'branch_lock', 'addm_full_version', 'vm_cluster')
+    list_filter = ('addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version', 'vm_cluster')
     ordering = ('addm_group',)
     search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'addm_v_code')
 
     fieldsets = (
         ('ADDM Group', {
             'description': "ADDM Group - used for select and threading!",
-            'fields': ('addm_group', 'branch_lock')}),
+            'fields': ('addm_group', 'branch_lock', 'role')}),
         ('ADDM Host', {
             'description': "ADDM Useful information. Do not change if not sure!",
             'fields': (
