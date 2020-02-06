@@ -120,32 +120,53 @@
 
 /* tst_status colors */
 .tst-notpass {
-    /*background-color: #FEDCDD !important;*/
-    background-color: #E5C4CB !important;
+    /* 30% Saturation */
+    background-color: rgb(237, 222, 222) !important;
 }
-
 .tst-fail {
-    /*background-color: #FEDCDD !important;*/
-    background-color: #E5C4CB !important;
+    /* 30% Saturation */
+    background-color: rgb(237, 222, 222) !important;
 }
-
 .tst-error {
-    /*background-color: #FFF9DD !important;*/
-    background-color: #F9F1D5 !important;
+    /* 30% Saturation */
+    background-color: rgb(237, 237, 222) !important;
 }
-
 .tst-skip {
-    /*background-color: #CCC7E1 !important;*/
-    background-color: #9998AE !important;
+    /* 30% Saturation */
+    background-color: rgb(222, 222, 237) !important;
 }
-
 .tst-pass {
-    /*background-color: #CFEDCD !important;*/
-    background-color: #C6DABA !important;
+    /* 30% Saturation */
+    background-color: rgb(222, 237, 222) !important;
 }
-
 .tst-None {
-    background-color: #bfcbd4 !important;
+    /* 30% Saturation */
+    background-color: rgb(226, 222, 237) !important;
+}
+/* Hovers */
+.tst-notpass:hover {
+    /* 100% Saturation */
+    background-color: rgb(255, 204, 204) !important;
+}
+.tst-fail:hover {
+    /* 100% Saturation */
+    background-color: rgb(255, 204, 204) !important;
+}
+.tst-error:hover {
+    /* 100% Saturation */
+    background-color: rgb(255, 255, 204) !important;
+}
+.tst-skip:hover {
+    /* 100% Saturation */
+    background-color: rgb(204, 204, 255) !important;
+}
+.tst-pass:hover {
+    /* 100% Saturation */
+    background-color: rgb(204, 255, 204) !important;
+}
+.tst-None:hover {
+    /* 100% Saturation */
+    background-color: rgb(217, 204, 255) !important;
 }
 
 /* TKU UPLOAD Workbench */

@@ -129,7 +129,7 @@ def tst_status_selector(queryset, sel_opts):
     return queryset
 
 
-# Seach for test cases or test cases logs:
+# Search for test cases or test cases logs:
 class SearchCasesAndLogs(ListView):
     __url_path = '/octo_tku_patterns/search/'
     template_name = 'digests/dev/search_cases_and_logs.html'
