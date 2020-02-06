@@ -121,14 +121,6 @@ class TPatternParse:
         return PerforceOperations().sync_force(depot_path)
 
     @staticmethod
-    @app.task(routing_key='parsing.TExecTest._make_addm_sync_threads.addm_group',
-              soft_time_limit=MIN_20, task_time_limit=HOURS_2)
-    @exception
-    def t_addm_rsync_threads(t_tag, **kwargs):
-        log.debug("t_tag: %s", t_tag)
-        return ADDMOperations()._make_addm_sync_threads(**kwargs)
-
-    @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_pattern_weight_index',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception

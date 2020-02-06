@@ -12,6 +12,7 @@ from django.utils import timezone
 from octo.config_cred import mails
 from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
+from octo_adm.tasks import TaskADDMService
 from octo_tku_patterns.models import TestCases, TestCasesDetails
 from octo_tku_patterns.models import TestLast
 from run_core.models import AddmDev
@@ -20,7 +21,7 @@ from octo_tku_patterns.table_oper import PatternsDjangoTableOper
 from octo_tku_patterns.tasks import TPatternParse, TPatternExecTest
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.tasks import UploadTaskPrepare
-from run_core.addm_operations import ADDMOperations
+from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
 
 log = logging.getLogger("octo.octologger")
 
@@ -182,6 +183,7 @@ class PatternTestUtils(unittest.TestCase):
     def put_test_cases(self):
         for addm_item in self.addm_set:
             _addm_group = addm_item[0]['addm_group']
+            log.debug(f"<=put_test_cases=> Using addm group: {_addm_group} item: {addm_item}")
             addm_coll = self.addm_tests_balanced.get(_addm_group)
             addm_tests = addm_coll.get('tests', [])
             if addm_tests:
@@ -229,11 +231,27 @@ class PatternTestUtils(unittest.TestCase):
         # Make task and it will be added in the end of the queue on each addm group.
 
     def sync_test_data_addm_set(self, _addm_group, addm_item):
-        log.debug("sync_test_data_addm_set")
-        Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=False,
-                      t_queue=_addm_group + '@tentacle.dq2',
-                      t_args=[self.mail_task_arg],
-                      t_kwargs=dict(addm_items=addm_item))
+        log.debug(f"<=TaskPrepare=> Adding task to sync addm group: {_addm_group}")
+        commands_set = ADDMStaticOperations.select_operation([
+            'rsync.python.testutils',
+            'rsync.tideway.utils',
+            'rsync.tku.data',
+        ])
+        for operation_cmd in commands_set:
+            t_tag = f'tag=t_addm_rsync_threads;addm_group={_addm_group};user_name={self.user_name};' \
+                    f'fake={self.fake_run};command_k={operation_cmd.command_key};'
+            addm_grouped_set = self.addm_set.filter(addm_group__exact=_addm_group)
+            t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
+            Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
+                          t_queue=f'{_addm_group}@tentacle.dq2',
+                          t_args=[t_tag],
+                          t_kwargs=t_kwargs,
+                          t_routing_key=f'{_addm_group}.addm_sync_for_test')
+        # log.debug("sync_test_data_addm_set")
+        # Runner.fire_t(TPatternParse.t_addm_rsync_threads, fake_run=False,
+        #               t_queue=_addm_group + '@tentacle.dq2',
+        #               t_args=[self.mail_task_arg],
+        #               t_kwargs=dict(addm_items=addm_item))
 
     def start_mail(self, _addm_group, addm_tests, addm_tests_weight, tent_avg):
         log.debug("start_mail add task")
