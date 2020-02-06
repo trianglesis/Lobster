@@ -187,7 +187,7 @@ class PatternTestUtils(unittest.TestCase):
     def put_test_cases(self):
         for addm_item in self.addm_set:
             _addm_group = addm_item[0]['addm_group']
-            log.debug(f"<=put_test_cases=> Using addm group: {_addm_group} item: {addm_item}")
+            log.debug(f"<=put_test_cases=> Using addm group: {_addm_group}")
             addm_coll = self.addm_tests_balanced.get(_addm_group)
             addm_tests = addm_coll.get('tests', [])
             if addm_tests:
