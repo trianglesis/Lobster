@@ -29,10 +29,10 @@
                             <td>|{{ forloop.counter }}</td>
                             {# user view #}
                             <td>|{{ addm.addm_group }}</td>
-                            <td>|{{ addm.addm_host }}.bmc.com</td>
+                            <td>|{{ addm.addm_name }}</td>
+                            <td>|{{ addm.addm_host }}</td>
                             <td>|{{ addm.addm_ip }}</td>
                             <td>|{{ addm.addm_full_version }}</td>
-                            <td>|{{ addm.addm_name }}</td>
                             <td>|{{ addm.vm_cluster }}</td>
                             <td>|{{ addm.branch_lock }}</td>
                             <td>|{% if addm.disables %}disabled{% endif %}</td>

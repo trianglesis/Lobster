@@ -39,9 +39,19 @@ class AddmDevAdmin(admin.ModelAdmin):
     # https://djangoguide.readthedocs.io/en/latest/django/admin.html#editable-fields
     # list_editable = ('disables', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'addm_full_version')
 
-    list_display = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'branch_lock', 'role',
-                    'addm_v_code', 'disables', 'tideway_user', 'tideway_pdw', 'addm_branch', 'addm_full_version',
-                    'vm_cluster', 'vm_id')
+    list_display = ('id',
+                    'addm_name', 'addm_host', 'addm_ip',
+                    'addm_group',
+                    'branch_lock',
+                    'addm_v_int',
+                    'addm_full_version',
+                    'addm_v_code',
+                    'addm_branch',
+                    'role',
+                    'disables',
+                    'tideway_user',
+                    'tideway_pdw',
+                    )
     list_filter = ('addm_name', 'addm_group', 'branch_lock', 'addm_full_version', 'vm_cluster', 'role')
     ordering = ('addm_group',)
     search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'addm_v_code')

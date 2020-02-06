@@ -5,6 +5,7 @@ from threading import Thread
 import argparse
 import subprocess
 
+
 """
 Use this to start/stop/restart celery, it's much more flexible.
 TODO: Add restart for single worker only? Or maybe this is not the best approach?
