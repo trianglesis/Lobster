@@ -274,7 +274,6 @@ class UploadTestExec:
 
         cmd_ = "/usr/tideway/bin/tw_pattern_management -p system  --install-activate {} " \
                "--show-progress --loglevel=debug /usr/tideway/TEMP/"
-        # TODO: 11.1 no longer supported
         if float(addm_item['addm_v_int']) > 11.1:
             cmd = cmd_.format('--allow-restart')
         else:
@@ -283,7 +282,10 @@ class UploadTestExec:
         if package_detail:
             cmd += f"{package_detail}*"
         else:
-            cmd += "*"
+            if float(addm_item['addm_v_int']) > 11.1:
+                cmd += "*.zip"
+            else:
+                cmd += "*"
 
         # noinspection PyBroadException
         try:

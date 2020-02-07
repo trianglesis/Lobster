@@ -641,15 +641,10 @@ class ADDMOperations:
         addm_item = kwargs.get('addm_item')
         packages = kwargs.get('packages')
 
-        # TODO: Use addmcommands
-        # TODO: Add other packages /usr/tideway/UPLOAD/HUB/tkn_main_continuous/11.3/edp/ for example
-        # TODO: Add /usr/tideway/UPLOAD/HUB/GA_CANDIDATE/TKN_release_2020-02-2-362/publish/tkn/11.3/edp/
-
         outputs_l = []
         tku_zip_cmd_l = []
         # Prepare zip commands with paths for each addm version:
         clean_tku_TEMP = ADDMStaticOperations.select_operation(['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']).order_by('-command_value')
-        # TODO: Make this path dymanical, to switch between Lobster\Octopus NFS
         unzipTkuTemp = ADDMStaticOperations.select_operation('unzip.tku.TEMP').first()
         rmTidewayTempRelease = ADDMStaticOperations.select_operation('rm.tideway.TEMP.release').first()
 
@@ -660,7 +655,7 @@ class ADDMOperations:
         tku_zip_cmd_l.extend(clean_cmd_l)
         tku_zip_cmd_l.extend([unzipTkuTemp.command_value.format(path_to_zip=zip_) for zip_ in zip_path])
         tku_zip_cmd_l.append(rmTidewayTempRelease.command_value)
-        log.info(f"{addm_item['addm_name']} upload_unzip commads: {tku_zip_cmd_l}")
+        log.info(f"{addm_item['addm_name']} upload_unzip commands: {tku_zip_cmd_l}")
 
         # noinspection PyBroadException
         for cmd in tku_zip_cmd_l:
