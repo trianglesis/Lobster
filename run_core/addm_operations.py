@@ -455,6 +455,7 @@ class ADDMOperations:
 
     def __init__(self):
         self.host_keys = os.path.join(place, 'addms')
+        self.private_key = os.path.join(self.host_keys, 'private_key')
 
     @staticmethod
     def select_addm_set(addm_group=None, addm_set=None):
@@ -514,22 +515,16 @@ class ADDMOperations:
         tideway_user = addm_item.get('tideway_user')
         tideway_pdw = addm_item.get('tideway_pdw')
 
-        addm_str = 'ADDM: "{}" {} - {} = ({})'.format(
-            addm_item['addm_group'],
-            addm_item['addm_name'],
-            addm_item['addm_host'],
-            addm_item['addm_ip'],
-        )
-
+        addm_str = f'ADDM: "{addm_item["addm_group"]}" {addm_item["addm_name"]} - {addm_item["addm_host"]}'
         ssh = self.addm_ssh_connect(addm_ip, tideway_user, tideway_pdw, where)
         # If opened connection is Up and alive:
         if ssh and ssh.get_transport().is_active():
             # NOTE: Do not handle error here: later decide what to do in thread initialize or so.
-            msg = '<=ADDMOperations SSH=> SUCCESS: {} From: {} '.format(addm_str, where)
+            msg = '<=SSH=> SUCCESS: {} {} '.format(addm_str, where)
             log.debug(msg)
         # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
         else:
-            msg = '<=ADDMOperations SSH=> ERROR: {} From: {} '.format(addm_str, where)
+            msg = '<=SSH=> ERROR: {} {} '.format(addm_str, where)
             log.error(msg)
             # NOTE: Do not handle error here: later decide what to do in thread initialize or so.
             ssh = None
@@ -549,6 +544,7 @@ class ADDMOperations:
         :rtype type: SSHClient
         """
         addm_instance = "ADDM: {} {} {}".format(addm_ip, tideway_user, tideway_pdw)
+        private_key = paramiko.RSAKey.from_private_key_file(self.private_key)
         ssh = paramiko.SSHClient()  # type: SSHClient
 
         if not where:
@@ -556,7 +552,6 @@ class ADDMOperations:
         log.info("<= Paramiko => %s", where)
 
         if addm_ip and tideway_user and tideway_pdw:
-
             # noinspection PyUnresolvedReferences
             ssh.get_host_keys().save(self.host_keys + os.sep + "keys_" + str(addm_ip) + ".key")
             # noinspection PyUnresolvedReferences
@@ -566,7 +561,7 @@ class ADDMOperations:
 
             # noinspection PyBroadException
             try:
-                ssh.connect(hostname=addm_ip, username=tideway_user, password=tideway_pdw,
+                ssh.connect(hostname=addm_ip, username=tideway_user, pkey=private_key,
                             timeout=60,  # Let connection live forever?
                             banner_timeout=60,
                             allow_agent=False, look_for_keys=False, compress=True)
