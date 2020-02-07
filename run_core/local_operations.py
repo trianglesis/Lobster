@@ -13,13 +13,13 @@ import logging
 import os
 import os.path
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from time import time
 
 import pytz
 from django.db.models.query import QuerySet
 
-from octo_tku_patterns.models import TestCases
+from octo_tku_patterns.models import TestCases, TestHistory
 from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from run_core.models import AddmDev
@@ -1530,7 +1530,7 @@ class LocalDB:
     """
 
     @staticmethod
-    def history_weight(last_days=30):
+    def history_weight(last_days, addm_name):
         """
         Get historical test records for n days,
         group by test.py path and date, summarize all weights for each
@@ -1538,9 +1538,17 @@ class LocalDB:
         :return:
         """
         patterns_weight = collections.OrderedDict()
+        now = datetime.now(tz=timezone.utc)
+        tomorrow = now + timedelta(days=1)
+        date_from = now - timedelta(days=int(last_days))
+        date_from = date_from.strftime('%Y-%m-%d')
+        date_to = tomorrow.strftime('%Y-%m-%d')
 
-        # TODO: Change to django format:
-        all_history_weight = PatternsDjangoModelRaw().sel_history_by_latest_all(query_args=dict(last_days=last_days))
+        all_history_weight = PatternsDjangoModelRaw().sel_history_by_latest_all(date_to, date_from, addm_name)
+        # all_history_weight = TestHistory.objects.filter(
+        #     test_date_time__in=[date_from, tomorrow],
+        #     addm_group__exact=addm_name,
+        # )
 
         # Make dict with test.py path as key and sum of test time / days(selected items)
         # If nothing was selected - update pattern row with default value of 10 min or do nothing if value is already exists

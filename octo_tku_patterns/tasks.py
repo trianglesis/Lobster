@@ -124,22 +124,22 @@ class TPatternParse:
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_pattern_weight_index',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
-    def t_pattern_weight_index(t_tag, last_days):
+    def t_pattern_weight_index(t_tag, last_days=30, addm_name='custard_cream'):
         log.debug("t_tag: %s", t_tag)
-        PatternTestExecCases.patterns_weight_compute(last_days)
+        PatternTestExecCases.patterns_weight_compute(last_days, addm_name)
 
 
 class PatternTestExecCases:
 
     @staticmethod
-    def patterns_weight_compute(last_days):
+    def patterns_weight_compute(last_days, addm_name):
         """
         Use history tests records to compute average test run time for each.
         :return:
         """
         from run_core.local_operations import LocalDB
         # Select and group history records:
-        patterns_weight = LocalDB.history_weight(last_days=last_days)
+        patterns_weight = LocalDB.history_weight(last_days=last_days, addm_name=addm_name)
         # Insert sorted in TKU Patterns table:
         LocalDB.insert_patt_weight(patterns_weight)
 

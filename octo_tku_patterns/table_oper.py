@@ -2,64 +2,43 @@
 Store here local functions to parse, obtain, compose operations for database details.
 
 """
-from django.utils import timezone
-# New
-from operator import itemgetter
-from typing import Dict, List, Any
 import datetime
-
-from django.db.models import Q, Max, Min
-from django.db.models.query import RawQuerySet
-
+import logging
+from django.db.models import Q
+from django.utils import timezone
 from octo_tku_patterns.models import TestLast, TestHistory, TestCases
 
-
-# Python logger
-import logging
 log = logging.getLogger("octo.octologger")
 
 
 class PatternsDjangoModelRaw:
 
-    def __init__(self):
-        self.last_tests_tb = 'octo_test_last'
-        self.history_tests_tb = 'octo_test_history'
-        self.tku_patterns_table = 'octo_tku_patterns'
-        self.octo_test_cases = 'octo_test_cases'
-        self.database = 'octopus_dev_copy'
-
-    def sel_history_by_latest_all(self, query_args):
+    @staticmethod
+    def sel_history_by_latest_all(date_to, date_from, addm_name):
         """
         Select last N days test records for pattern:
 
+        :param addm_name:
+        :param date_from:
+        :param date_to:
         :param query_args:
         :return:
         """
-        from django.utils import timezone
-        now = datetime.datetime.now(tz=timezone.utc)
-        tomorrow = now + datetime.timedelta(days=1)
-
-        date_from = now - datetime.timedelta(days=int(query_args['last_days']))
-
-        # log.debug("Selecting days %s between: %s %s", query_args['last_days'], date_from.strftime('%Y-%m-%d'), tomorrow.strftime('%Y-%m-%d'))
-
-        query = """SELECT {tb}.id,
-                          {tb}.time_spent_test,
-                          {tb}.test_py_path,
-                          {tb}.test_date_time
-                   FROM {db}.{tb}
-                   WHERE {tb}.test_date_time BETWEEN '{date_from}' AND '{tomorrow}'
-                   AND {tb}.addm_name = 'double_decker'
-                   GROUP BY day({tb}.test_date_time), {tb}.test_py_path
-                   ORDER BY {tb}.test_py_path;
-                   """.format(db=self.database,
-                              tb=self.history_tests_tb,
-                              date_from=date_from.strftime('%Y-%m-%d'),
-                              tomorrow=tomorrow.strftime('%Y-%m-%d'))
-        # log.debug("Using query: \n%s", query)
-
+        query = """SELECT octo_test_history.id,
+                          octo_test_history.time_spent_test,
+                          octo_test_history.test_py_path,
+                          octo_test_history.test_date_time
+                   FROM octopus_dev_copy.octo_test_history
+                   WHERE octo_test_history.test_date_time BETWEEN '{date_from}' AND '{date_to}'
+                   AND octo_test_history.addm_name = '{addm_name}'
+                   GROUP BY day(octo_test_history.test_date_time), octo_test_history.test_py_path
+                   ORDER BY octo_test_history.test_py_path;
+                   """.format(date_from=date_from,
+                              date_to=date_to,
+                              addm_name=addm_name,
+                              )
+        log.debug("Using query: \n%s", query)
         history_recs = TestHistory.objects.raw(query)
-
         return history_recs
 
 
