@@ -20,7 +20,7 @@ def worker_queues_short():
     workers_list = TasksOperations().workers_enabled
     workers_list = workers_list.get('option_value', '').split(',')
     workers_list = [worker+'@tentacle' for worker in workers_list]
-    log.debug("workers_list: %s", workers_list)
+    # log.debug("workers_list: %s", workers_list)
     # noinspection PyBroadException
     try:
         inspected = TasksOperations().check_active_reserved_short(workers_list=workers_list)

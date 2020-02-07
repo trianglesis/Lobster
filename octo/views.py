@@ -34,7 +34,7 @@ class MainPage(TemplateView):
     context_object_name = 'objects'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=MainPage=> Main page")
+        # UserCheck().logator(self.request, 'info', "<=MainPage=> Main page")
         context = super(MainPage, self).get_context_data(**kwargs)
         context.update(
             objects=self.get_queryset(),
@@ -42,16 +42,12 @@ class MainPage(TemplateView):
         return context
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=MainPage=> Main page queries")
-
+        # UserCheck().logator(self.request, 'info', "<=MainPage=> Main page queries")
         addm_digest = AddmDigest.objects.all()
-
         upload_tests = TKUUpdateWorkbenchView.get_queryset(self)
         # log.debug("upload_tests: %s", upload_tests)
-
         tests_top_main = TestLast.objects.filter(time_spent_test__isnull=False, tkn_branch__exact='tkn_main').order_by('-time_spent_test')
         tests_top_ship = TestLast.objects.filter(time_spent_test__isnull=False, tkn_branch__exact='tkn_ship').order_by('-time_spent_test')
-
         selections = dict(
             upload_tests = upload_tests,
             addm_digest = addm_digest,
