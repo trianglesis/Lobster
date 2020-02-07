@@ -286,6 +286,7 @@ class UploadTestExec:
             if float(addm_item['addm_v_int']) > 11.1:
                 cmd += "*"
             else:
+                log.warning("For bobblehat ADDM we run TKU install only for zip files!")
                 cmd += "*.zip"
 
         # noinspection PyBroadException

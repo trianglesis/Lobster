@@ -189,6 +189,19 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
+    def test999_tkn_main_continuous_fresh(self):
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'fresh'
+        package_type = self.select_latest_continuous(tkn_branch='tkn_main')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['beta'],
+            addm_name__in=['bobblehat'],
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
 
 if __name__ == "__main__":
     unittest.main()

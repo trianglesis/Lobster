@@ -455,7 +455,7 @@ class ADDMOperations:
 
     def __init__(self):
         self.host_keys = os.path.join(place, 'addms')
-        self.private_key = os.path.join(self.host_keys, 'private_key')
+        self.private_key = os.path.join(self.host_keys, 'private_key/Octo_ssh-2_rsa.ppk')
 
     @staticmethod
     def select_addm_set(addm_group=None, addm_set=None):
@@ -544,8 +544,9 @@ class ADDMOperations:
         :rtype type: SSHClient
         """
         addm_instance = "ADDM: {} {} {}".format(addm_ip, tideway_user, tideway_pdw)
-        private_key = paramiko.RSAKey.from_private_key_file(self.private_key)
+        # private_key = paramiko.RSAKey.from_private_key_file(self.private_key)
         ssh = paramiko.SSHClient()  # type: SSHClient
+        log.debug(f"piv k file: {self.private_key}")
 
         if not where:
             where = 'PARAMIKO SSH Executed from itself!'
@@ -561,7 +562,7 @@ class ADDMOperations:
 
             # noinspection PyBroadException
             try:
-                ssh.connect(hostname=addm_ip, username=tideway_user, pkey=private_key,
+                ssh.connect(hostname=addm_ip, username=tideway_user, password=tideway_pdw,
                             timeout=60,  # Let connection live forever?
                             banner_timeout=60,
                             allow_agent=False, look_for_keys=False, compress=True)
