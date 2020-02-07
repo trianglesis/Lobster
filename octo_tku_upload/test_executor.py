@@ -274,6 +274,7 @@ class UploadTestExec:
 
         cmd_ = "/usr/tideway/bin/tw_pattern_management -p system  --install-activate {} " \
                "--show-progress --loglevel=debug /usr/tideway/TEMP/"
+
         if float(addm_item['addm_v_int']) > 11.1:
             cmd = cmd_.format('--allow-restart')
         else:

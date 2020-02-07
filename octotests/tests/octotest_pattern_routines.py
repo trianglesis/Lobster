@@ -21,110 +21,86 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # self.fake_run_on(True)
         # self.silent_on(True)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
+        self.tkn_main_changes_exclude = ['791013', '784570', '784672', '784741', '790845']
+        self.tkn_ship_changes_exclude = ['716460', '716461', '790846', '787058', '787059']
 
     def test_001_night_routine_main(self):
-        """Simple select for cases with change date for last 3 years, for selected branch,
-            excluding mass-changes.
         """
-        self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', last_days=730)
-        self.queryset = self.queryset.exclude(change__in=[
-                    '791013',
-                    '784570',
-                    '784672',
-                    '784741',
-                    '790845',
-        ])
-        self.excluded_group()
-        self.addm_group_l = ['hotel', 'india', 'juliett']
-        self.wipe_logs_on(True)
-        self.run_case()
-
-    def test_002_night_routine_ship(self):
-        """Simple select for cases with change date for last 3 years, for selected branch,
-            excluding mass-changes.
-        """
-        self.branch = 'tkn_ship'
-        self.select_test_cases(tkn_branch='tkn_ship', last_days=730)
-        self.queryset = self.queryset.exclude(change__in=[
-                    '716460',  # TKN SHIP STARTED HERE
-                    '716461',
-                    '790846',
-                    '787058',
-                    '787059',
-        ])
-        self.excluded_group()
-        self.addm_group_l = ['echo', 'foxtrot', 'golf']
-        self.wipe_logs_on(True)
-        self.run_case()
-
-    def test_003_night_routine_main(self):
-        self.branch = 'tkn_main'
-        self.select_test_cases(tkn_branch='tkn_main', last_days=180)
-        self.queryset = self.queryset.exclude(change__in=[
-                    '791013',
-                    '784570',
-                    '784672',
-                    '784741',
-                    '790845',
-        ])
-        self.excluded_group()
-        self.wipe_logs_on(True)
-        self.addm_group_l = ['hotel']
-        # print(self.addm_set)  # TODO: Way to exclude ADDM from actual addm set if needed
-        self.run_case()
-
-    def test_004_night_routine_wide_tkn_main(self):
-        """
-        Run during working week (mon, tue, wed, thu), each evening at about 17:30 UK time.
-        Select all for last 2 years, excluding mass depot changes,
-            add key patterns, exclude using cases group "excluded" and sort only tkn_main.
-        Use only locked ADDMs for current branch!
+        Simple select for cases with change date for last 3 years, for selected branch, excluding mass-changes.
+        :return:
         """
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
-        self.queryset = self.queryset.exclude(change__in=[
-                    '791013',
-                    '784570',
-                    '784672',
-                    '784741',
-                    '790845',
-        ])
+        self.queryset = self.queryset.exclude(change__in=self.tkn_main_changes_exclude)
+        self.excluded_group()
+        self.addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        self.wipe_logs_on(True)
+        self.run_case()
+
+    def test_002_night_routine_ship(self):
+        """
+        Simple select for cases with change date for last 3 years, for selected branch, excluding mass-changes.
+        :return:
+        """
+        self.branch = 'tkn_ship'
+        date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
+        self.queryset = self.queryset.exclude(change__in=self.tkn_ship_changes_exclude)
+        self.excluded_group()
+        self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
+        self.wipe_logs_on(True)
+        self.run_case()
+
+    def test_003_night_routine_main(self):
+        """
+        Run only latest 2 month for TKN_MAIN on single group
+        :return:
+        """
+        self.branch = 'tkn_main'
+        date_from = now - datetime.timedelta(days=int(60))
+        self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
+        self.queryset = self.queryset.exclude(change__in=self.tkn_main_changes_exclude)
+        self.excluded_group()
+        self.wipe_logs_on(True)
+        self.addm_group_l = ['hotel']
+        self.run_case()
+
+    def test_004_night_routine_wide_tkn_main(self):
+        """
+        Run during the working week (Mon, Tue, Wed, Thu), each evening at about 17:30 UK time.
+        Select all for the last 2 years, excluding mass depot changes, add key patterns,
+            exclude using cases group "excluded" and sort the only tkn_ship.
+        Use only locked ADDMs for the current branch!
+        :return:
+        """
+        self.branch = 'tkn_main'
+        date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
+        self.queryset = self.queryset.exclude(change__in=self.tkn_main_changes_exclude)
         self.key_group()
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact='tkn_main')
-        # print(self.queryset.count())
-        # print(self.queryset.explain())
-        # print(self.queryset.query)
-        self.addm_group_l = ['hotel', 'india', 'juliett']
+        self.addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
         self.wipe_logs_on(True)
         self.run_case()
 
     def test_005_night_routine_wide_tkn_ship(self):
         """
-        Run during working week (mon, tue, wed, thu), each evening at about 17:30 UK time.
-        Select all for last 2 years, excluding mass depot changes,
-            add key patterns, exclude using cases group "excluded" and sort only tkn_ship.
-        Use only locked ADDMs for current branch!
+        Run during the working week (Mon, Tue, Wed, Thu), each evening at about 17:30 UK time.
+        Select all for the last 2 years, excluding mass depot changes, add key patterns,
+            exclude using cases group "excluded" and sort the only tkn_ship.
+        Use only locked ADDMs for the current branch!
+        :return:
         """
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
-        self.queryset = self.queryset.exclude(change__in=[
-                    '716460',  # TKN SHIP STARTED HERE
-                    '716461',
-                    '790846',
-                    '787058',
-                    '787059',
-        ])
+        self.queryset = self.queryset.exclude(change__in=self.tkn_ship_changes_exclude)
         self.key_group()
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact='tkn_ship')
-        # print(self.queryset.count())
-        # print(self.queryset.explain())
-        # print(self.queryset.query)
-        self.addm_group_l = ['echo', 'foxtrot', 'golf']
+        self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -136,6 +112,30 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # HERE: queryset will be set, so we can make django model manager exclude some?
         self.queryset = self.queryset.exclude(change_time__range=['2019-10-30', '2019-11-07'])
         self.queryset = self.queryset.exclude(change_time__range=['2019-11-25', '2019-11-27'])
+        self.wipe_logs_on(True)
+        self.run_case()
+
+    def test_010_night_routine_all_tkn_main_weekend(self):
+        """
+        Run the whole repository tests for the selected branch. Execute this only on weekends or from Friday.
+        :return:
+        """
+        self.branch = 'tkn_main'
+        self.excluded_group()
+        self.queryset = self.queryset.filter(tkn_branch__exact='tkn_main')
+        self.addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        self.wipe_logs_on(True)
+        self.run_case()
+
+    def test_011_night_routine_all_tkn_ship_weekend(self):
+        """
+        Run the whole repository tests for the selected branch. Execute this only on weekends or from Friday.
+        :return:
+        """
+        self.branch = 'tkn_ship'
+        self.excluded_group()
+        self.queryset = self.queryset.filter(tkn_branch__exact='tkn_ship')
+        self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
         self.wipe_logs_on(True)
         self.run_case()
 
