@@ -38,7 +38,7 @@ class TestCasesSerializerViewSet(viewsets.ModelViewSet):
 
 
 class TestCasesDetailsSerializerViewSet(viewsets.ModelViewSet):
-    queryset = TestCasesDetails.objects.all().order_by('test_date_time')
+    queryset = TestCasesDetails.objects.all().order_by('changed_date')
     serializer_class = TestCasesDetailsSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     pagination_class = StandardResultsSetPagination

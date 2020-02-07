@@ -84,7 +84,6 @@ class TestLastSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestLast
         fields = (
-            'id',
             'tkn_branch',
             'pattern_library',
             'pattern_folder_name',
@@ -109,20 +108,14 @@ class TestHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TestHistory
         fields = (
-            'id',
             'tkn_branch',
             'pattern_library',
-            'pattern_file_name',
             'pattern_folder_name',
-            'pattern_file_path',
             'test_py_path',
-            'pattern_folder_path_depot',
-            'pattern_file_path_depot',
-            'is_key_pattern',
-            'tst_message',
             'tst_name',
             'tst_module',
             'tst_class',
+            'tst_message',
             'tst_status',
             'fail_message',
             'addm_name',
