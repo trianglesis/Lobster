@@ -77,7 +77,7 @@ class TestExecutor:
         if isinstance(test_item, dict):
             for addm_item in addm_items:
                 # Open SSH connection:
-                ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from test_run_threads in TestExecutor")
+                ssh = ADDMOperations().ssh_c(addm_item=addm_item)
                 # If opened connection is Up and alive:
                 if ssh:
                     args_d = dict(ssh=ssh, test_item=test_item, addm_item=addm_item, user_email=self.user_email,

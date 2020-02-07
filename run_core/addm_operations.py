@@ -145,7 +145,7 @@ class ADDMStaticOperations:
         out_q = Queue()
 
         for addm_item in addm_set:
-            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from threading_exec")
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item)
             if ssh:
                 th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item["addm_group"]} - {addm_item["addm_host"]} {addm_item["addm_ip"]}'
                 args_d = dict(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
@@ -455,7 +455,7 @@ class ADDMOperations:
 
     def __init__(self):
         self.host_keys = os.path.join(place, 'addms')
-        self.private_key = os.path.join(self.host_keys, 'private_key/Octo_ssh-2_rsa.ppk')
+        self.private_key = os.path.join(self.host_keys, 'private_key', 'Octo_ssh_key')
 
     @staticmethod
     def select_addm_set(addm_group=None, addm_set=None):
@@ -508,61 +508,46 @@ class ADDMOperations:
         :param kwargs:
         :return:
         """
-        where = kwargs.get('where', None)
         addm_item = kwargs.get('addm_item')
-
         addm_ip = addm_item.get('addm_ip')
         tideway_user = addm_item.get('tideway_user')
         tideway_pdw = addm_item.get('tideway_pdw')
 
         addm_str = f'ADDM: "{addm_item["addm_group"]}" {addm_item["addm_name"]} - {addm_item["addm_host"]}'
-        ssh = self.addm_ssh_connect(addm_ip, tideway_user, tideway_pdw, where)
+        ssh = self.addm_ssh_connect(addm_ip, tideway_user, tideway_pdw)
         # If opened connection is Up and alive:
         if ssh and ssh.get_transport().is_active():
             # NOTE: Do not handle error here: later decide what to do in thread initialize or so.
-            msg = '<=SSH=> SUCCESS: {} {} '.format(addm_str, where)
+            msg = '<=SSH=> SUCCESS: {}'.format(addm_str)
             log.debug(msg)
         # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
         else:
-            msg = '<=SSH=> ERROR: {} {} '.format(addm_str, where)
+            msg = '<=SSH=> ERROR: {}'.format(addm_str)
             log.error(msg)
             # NOTE: Do not handle error here: later decide what to do in thread initialize or so.
             ssh = None
         return ssh
 
-    def addm_ssh_connect(self, addm_ip, tideway_user, tideway_pdw, where=None):
+    def addm_ssh_connect(self, addm_ip, tideway_user, tideway_pdw):
         """
         Check if can SSH to selected ADDM.
-
-        No existing session:
-        - https://stackoverflow.com/questions/6832248/paramiko-no-existing-session-exception
-
-        :param where:
         :param tideway_pdw: str
         :param tideway_user: str
         :param addm_ip: str
         :rtype type: SSHClient
         """
-        addm_instance = "ADDM: {} {} {}".format(addm_ip, tideway_user, tideway_pdw)
-        # private_key = paramiko.RSAKey.from_private_key_file(self.private_key)
+        addm_instance = f"ADDM: {addm_ip} {tideway_user}"
         ssh = paramiko.SSHClient()  # type: SSHClient
-        log.debug(f"piv k file: {self.private_key}")
-
-        if not where:
-            where = 'PARAMIKO SSH Executed from itself!'
-        log.info("<= Paramiko => %s", where)
-
         if addm_ip and tideway_user and tideway_pdw:
-            # noinspection PyUnresolvedReferences
+            private_key = paramiko.RSAKey.from_private_key_file(self.private_key)
             ssh.get_host_keys().save(self.host_keys + os.sep + "keys_" + str(addm_ip) + ".key")
-            # noinspection PyUnresolvedReferences
             ssh.save_host_keys(self.host_keys + os.sep + "keys_" + str(addm_ip) + ".key")
             # ssh.load_system_host_keys(self.host_keys + os.sep + "keys_" + str(addm_ip) + ".key")
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
             # noinspection PyBroadException
             try:
-                ssh.connect(hostname=addm_ip, username=tideway_user, password=tideway_pdw,
+                ssh.connect(hostname=addm_ip, username=tideway_user, pkey=private_key,
                             timeout=60,  # Let connection live forever?
                             banner_timeout=60,
                             allow_agent=False, look_for_keys=False, compress=True)
@@ -570,31 +555,30 @@ class ADDMOperations:
                 transport.set_keepalive(20)
 
             except paramiko.ssh_exception.AuthenticationException as e:
-                m = "Authentication failed \n{}\nError: -->{}<--".format(addm_instance, e)
+                m = f"Authentication failed \n{addm_instance}\nError: -->{e}<--"
                 log.error(m)
                 return None
                 # raise Exception(m)
             except TimeoutError as e:
-                m = "TimeoutError: Connection failed. Host or IP of ADDM is not set or incorrect! " \
-                    "\n{}\nError: --> s{} <--".format(addm_instance, e)
+                m = f"TimeoutError: Connection failed. Host or IP of ADDM is not set or incorrect! " \
+                    "\n{addm_instance}\nError: --> s{e} <--"
                 log.error(m)
                 return None
                 # raise Exception(m)
             except paramiko.ssh_exception.BadHostKeyException as e:
-                m = "BadHostKeyException: which I do not know: \n{}\nError: --> s{} <--".format(addm_instance, e)
+                m = f"BadHostKeyException: which I do not know: \n{addm_instance}\nError: --> s{e} <--"
                 log.error(m)
                 return None
                 # raise Exception(m)
             except paramiko.ssh_exception.SSHException as e:
-                m = "SSHException: \n{}\nError: --> {} <--".format(addm_instance, e)
+                m = f"SSHException: \n{addm_instance}\nError: --> {e} <--"
                 log.error(m)
                 return None
                 # raise Exception(m)
             # Paramiko SSHException which I do not know: No existing session
             except Exception as e:
                 if 'No existing session' in e:
-                    m = "1. Catching  'No existing session' Trying to reconnect again. {}\nError: -->{}<--".format(
-                        addm_instance, e)
+                    m = f"1. Catching  'No existing session' Trying to reconnect again. {addm_instance}\nError: -->{e}<--"
                     log.error(m)
                     # Try reconnect:
                     try:
@@ -606,9 +590,8 @@ class ADDMOperations:
                         transport.set_keepalive(20)
                     except Exception as e:
                         # TODO: This may be a reason for another deadlock?
-                        m = "2. No luck with this error. " \
-                            "Try not raise to allow thread reconnect it later. " \
-                            "Exception: \n{}\nError: --> {} <--".format(addm_instance, e)
+                        m = f"2. No luck with this error. Try not raise to allow thread reconnect it later. " \
+                            f"Exception: \n{addm_instance}\nError: --> {e} <--"
                         log.error(m)
                         raise Exception(m)
         return ssh

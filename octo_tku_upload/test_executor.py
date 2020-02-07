@@ -119,7 +119,7 @@ class UploadTestExec:
         start_time = datetime.now()
 
         for addm_item in addm_items:
-            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item)
             if ssh and ssh.get_transport().is_active():
                 m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
                 log.info(m)
@@ -185,7 +185,7 @@ class UploadTestExec:
             log.debug(msg)
 
             # Open SSH connection:
-            ssh = ADDMOperations().ssh_c(addm_item=addm_item, where="Executed from upload_run_threads in UploadTestExec")
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item)
             if ssh and ssh.get_transport().is_active():
                 m = f"<=install_tku_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
                 log.info(m)

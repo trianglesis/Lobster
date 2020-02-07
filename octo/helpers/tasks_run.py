@@ -78,8 +78,8 @@ class Runner:
 
         # TODO: Later add on live examples
         # all_tasks = Runner.check_task_added()
-        if os.name == 'nt':
-            fake_run = True
+        # if os.name == 'nt':
+        #     fake_run = True
 
         # Do not really send a task if fake=True
         if not fake_run:
