@@ -17,11 +17,9 @@ class PatternsDjangoModelRaw:
     def sel_history_by_latest_all(date_to, date_from, addm_name):
         """
         Select last N days test records for pattern:
-
         :param addm_name:
         :param date_from:
         :param date_to:
-        :param query_args:
         :return:
         """
         query = """SELECT octo_test_history.id,
