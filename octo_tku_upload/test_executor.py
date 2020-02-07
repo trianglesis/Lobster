@@ -289,6 +289,8 @@ class UploadTestExec:
                 log.warning("For bobblehat ADDM we run TKU install only for zip files!")
                 cmd += "*.zip"
 
+        log.info(f"{addm_item['addm_name']} - {addm_item['addm_host']} install TKU: '{cmd}'")
+
         # noinspection PyBroadException
         try:
             log.debug("Try CMD: (%s) | on %s - %s ", cmd, addm_item['addm_host'], addm_item['addm_name'])
