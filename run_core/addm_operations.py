@@ -641,6 +641,10 @@ class ADDMOperations:
         addm_item = kwargs.get('addm_item')
         packages = kwargs.get('packages')
 
+        # TODO: Use addmcommands
+        # TODO: Add other packages /usr/tideway/UPLOAD/HUB/tkn_main_continuous/11.3/edp/ for example
+        # TODO: Add /usr/tideway/UPLOAD/HUB/GA_CANDIDATE/TKN_release_2020-02-2-362/publish/tkn/11.3/edp/
+
         outputs_l = []
         tku_zip_cmd_l = []
         # Prepare zip commands with paths for each addm version:

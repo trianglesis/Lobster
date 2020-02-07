@@ -282,7 +282,8 @@ class UploadTestExec:
         if package_detail:
             cmd += f"{package_detail}*"
         else:
-            cmd += "*"
+            # TODO: Do not install devices on current stage. Later re-write this with addmcommands and more flexible!
+            cmd += "*.zip"
 
         # noinspection PyBroadException
         try:

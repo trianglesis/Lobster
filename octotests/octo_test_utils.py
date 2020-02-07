@@ -316,7 +316,7 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
         self.silent = False
         self.fake_run = False
         self.tku_wget = False
-        self.test_mode = 'custom'
+        self.test_mode = ''
         self.tku_type = None
         self.addm_group = None
         self.package_types = None
