@@ -859,7 +859,7 @@ class AdminOperationsREST(APIView):
         self.p4_conn = PerforceOperations().p4_initialize(debug=True)
         msg = LocalPatternsP4Parse().parse_and_changes_routine(
             sync_force=False, full=True, p4_conn=self.p4_conn)
-        return msg
+        return {'task_id': 'add_here', 'msg': 'Run local parsing routine.'}
 
     def cases_weight(self):
         """ Calculate ETA for test cases based on previous execution logs for last 30 days.

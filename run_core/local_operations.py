@@ -37,11 +37,14 @@ class LocalPatternsParse:
     in tests and gathering perforce information - changes, mod. dates etc.
     """
 
+    @staticmethod
+    def is_test(pattern, text):
+        return pattern.search(text) is not None
+
     """
     New parsing methods with walk fs
     """
-    @staticmethod
-    def walk_fs_tests(local_depot_path):
+    def walk_fs_tests(self, local_depot_path):
         """
         Use os.filewalk to build all paths to test.py and attributes such as:
             Pattern library if any, Pattern folder, or name of folder where tests/test.py was found.
@@ -69,6 +72,7 @@ class LocalPatternsParse:
         :return: show amount of tests data were parsed
         """
 
+        pattern = re.compile(r'^test[\w]*\.py')
         if os.name == "nt":
             p4_workspace = "d:{os_sep}perforce{os_sep}".format(os_sep=os.sep)
         else:
@@ -81,7 +85,13 @@ class LocalPatternsParse:
         for root, dirs, files in os.walk(local_depot_path, topdown=False):
             iters += 1
             for name in files:  # Iter over all files in path:
-                if name == 'test.py':  # Check only test.py files
+                if 'tkn_main' in root:
+                    tkn_branch = 'tkn_main'
+                elif 'tkn_ship' in root:
+                    tkn_branch = 'tkn_ship'
+                else:
+                    tkn_branch = 'not_set'
+                if self.is_test(pattern, name):  # Check only test.py files
                     test_py_path = os.path.join(root, name)  # Compose full path to test.py path
                     test_dict = dict(
                         test_py_path=test_py_path,
@@ -89,15 +99,7 @@ class LocalPatternsParse:
                         test_dir_path=root,
                         test_dir_path_template=root.replace(octo_workspace, "{}"),
                     )
-
                     if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
-                        if 'tkn_main' in root:
-                            tkn_branch = 'tkn_main'
-                        elif 'tkn_ship' in root:
-                            tkn_branch = 'tkn_ship'
-                        else:
-                            tkn_branch = 'not_set'
-
                         test_dict.update(
                             test_type='tku_patterns',
                             tkn_branch=tkn_branch,
