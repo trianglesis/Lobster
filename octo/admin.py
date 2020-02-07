@@ -45,8 +45,6 @@ class AddmDevAdmin(admin.ModelAdmin):
                     'branch_lock',
                     'addm_v_int',
                     'addm_full_version',
-                    'addm_v_code',
-                    'addm_branch',
                     'role',
                     'disables',
                     'tideway_user',
@@ -54,7 +52,7 @@ class AddmDevAdmin(admin.ModelAdmin):
                     )
     list_filter = ('addm_name', 'addm_group', 'branch_lock', 'addm_full_version', 'vm_cluster', 'role')
     ordering = ('addm_group',)
-    search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'addm_v_code')
+    search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group')
 
     fieldsets = (
         ('ADDM Group', {
@@ -81,9 +79,8 @@ class AddmDevAdmin(admin.ModelAdmin):
         ('Optional Information', {
             'classes': ('collapse', 'open'),
             'fields': (
-                ('addm_v_code', 'addm_v_int', 'addm_branch'),
+                ('addm_v_int'),
                 ('tideway_user', 'tideway_pdw'),
-                'addm_owner',
                 'vm_cluster',
                 'vm_id',
                 'description',
@@ -96,11 +93,11 @@ class AddmDevAdmin(admin.ModelAdmin):
 class AddmDevProxyAdmin(admin.ModelAdmin):
     """ https://djangobook.com/mdj2-django-admin/ """
     # https://djangoguide.readthedocs.io/en/latest/django/admin.html#editable-fields
-    list_editable = ('addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_v_code', 'addm_branch', 'addm_full_version')
-    list_display = ('id', 'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_v_code', 'addm_branch', 'addm_full_version')
+    list_editable = ('addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
+    list_display = ('id', 'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
     list_filter = ('addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version', 'disables',)
     ordering = ('addm_group',)
-    search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group', 'addm_v_code')
+    search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group')
 
     fieldsets = (
         ('ADDM Group', {
@@ -127,9 +124,8 @@ class AddmDevProxyAdmin(admin.ModelAdmin):
         ('Optional Information', {
             'classes': ('collapse', 'open'),
             'fields': (
-                ('addm_v_code', 'addm_v_int', 'addm_branch'),
+                ('addm_v_int'),
                 ('tideway_user', 'tideway_pdw'),
-                'addm_owner',
                 'description',
             )
         }),

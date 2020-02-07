@@ -352,7 +352,6 @@ class ADDMStaticOperations:
         addm_id = kwargs.get('addm_id', [])
         addm_group = kwargs.get('addm_group', [])
         addm_host = kwargs.get('addm_host', [])
-        addm_branch = kwargs.get('addm_branch', [])
         # Initially query for all enabled:
         all_addms = AddmDev.objects.filter(disables__isnull=True)
         if addm_id:
@@ -370,12 +369,7 @@ class ADDMStaticOperations:
                 addm_host = addm_host.split(',')
             log.debug("<=ADDMStaticOperations=> ADDM selected by addm_host: %s", addm_host)
             all_addms = all_addms.filter(addm_host__in=addm_host)
-        if addm_branch:
-            if isinstance(addm_branch, str):
-                addm_branch = addm_branch.split(',')
-            log.debug("<=ADDMStaticOperations=> ADDM selected by addm_branch: %s", addm_branch)
-            all_addms = all_addms.filter(branch_lock__in=addm_branch)
-            # log.info("<=ADDMStaticOperations=> ADDM branch sel query: %s", all_addms.query)
+        # log.info("<=ADDMStaticOperations=> ADDM branch sel query: %s", all_addms.query)
         # log.info("<=ADDMStaticOperations=> ADDM selected count: %s", all_addms.count())
         # log.debug("<=ADDMStaticOperations=> ADDM selected: %s", all_addms)
         # log.debug("<=ADDMStaticOperations=> ADDM selected query: %s", all_addms.query)

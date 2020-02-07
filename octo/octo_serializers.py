@@ -132,11 +132,8 @@ class AddmDevSerializer(serializers.HyperlinkedModelSerializer):
             'tideway_user',
             'tideway_pdw',
             'addm_ip',
-            'addm_v_code',
             'addm_v_int',
             'addm_full_version',
-            'addm_branch',
-            'addm_owner',
             'addm_group',
             'disables',
         )

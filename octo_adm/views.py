@@ -742,7 +742,6 @@ class AdminOperationsREST(APIView):
         # options:
         self.command_key = ''
         self.subject = ''
-        self.addm_branch = None
         self.addm_id = None
         self.addm_host = None
         self.addm_group = ''
@@ -782,7 +781,6 @@ class AdminOperationsREST(APIView):
             self.fake_run = self.request.POST.get('fake_run', False)
             self.command_key = self.request.POST.get('command_key', None)
             self.addm_group = self.request.POST.get('addm_group', None)
-            self.addm_branch = self.request.POST.get('addm_branch', None)
             self.addm_id = self.request.POST.get('addm_id', None)
             self.addm_host = self.request.POST.get('addm_host', None)
             self.depot_path = self.request.POST.get('depot_path', p4_cred['dep_path'])
@@ -791,7 +789,6 @@ class AdminOperationsREST(APIView):
             self.fake_run = self.request.GET.get('fake_run', False)
             self.command_key = self.request.GET.get('command_key', None)
             self.addm_group = self.request.GET.get('addm_group', None)
-            self.addm_branch = self.request.GET.get('addm_branch', None)
             self.addm_id = self.request.GET.get('addm_id', None)
             self.addm_host = self.request.GET.get('addm_host', None)
             self.depot_path = self.request.GET.get('depot_path', p4_cred['dep_path'])
@@ -944,7 +941,6 @@ class AdminOperationsREST(APIView):
             addm_group=self.addm_group,
             addm_host=self.addm_host,
             addm_id=self.addm_id,
-            addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
 
@@ -973,7 +969,6 @@ class AdminOperationsREST(APIView):
             addm_group=self.addm_group,
             addm_host=self.addm_host,
             addm_id=self.addm_id,
-            addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
         task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=self.fake_run, t_args=[t_tag],
@@ -999,7 +994,6 @@ class AdminOperationsREST(APIView):
             addm_group=self.addm_group,
             addm_host=self.addm_host,
             addm_id=self.addm_id,
-            addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
         task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=self.fake_run, t_args=[t_tag],
@@ -1029,7 +1023,6 @@ class AdminOperationsREST(APIView):
             addm_group=self.addm_group,
             addm_host=self.addm_host,
             addm_id=self.addm_id,
-            addm_branch=self.addm_branch,
             fake_run=self.fake_run
         )
         task = Runner.fire_t(TaskADDMService.t_addm_cmd_routine, fake_run=self.fake_run, t_args=[t_tag],
