@@ -284,9 +284,9 @@ class UploadTestExec:
             cmd += f"{package_detail}*"
         else:
             if float(addm_item['addm_v_int']) > 11.1:
-                cmd += "*.zip"
-            else:
                 cmd += "*"
+            else:
+                cmd += "*.zip"
 
         # noinspection PyBroadException
         try:
