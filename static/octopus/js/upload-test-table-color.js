@@ -39,7 +39,7 @@ $(document).ready(function () {
                             // console.log(`Not Pass have ERRORS: ${tdNode_all_errors} ${debug_str}`);
                             currentRow.className = 'tst-notpass';
 
-                        } else if (tdNode_time_spent_test < 300) {
+                        } else if (tdNode_time_spent_test < 100) {
                             // console.log(`Not Pass too short time of install : ${tdNode_time_spent_test} ${debug_str}`);
                             if (tdNode_mode_key.includes('TKU-Product-Content') || tdNode_mode_key.includes('tideway-devices')) {
                                 currentRow.className = 'tst-None';
@@ -54,7 +54,7 @@ $(document).ready(function () {
 
                         } else if (tdNode_upload_test_status === 'passed'
                             && tdNode_all_errors === 0
-                            && tdNode_time_spent_test > 300
+                            && tdNode_time_spent_test > 100
                             && tdNode_upload_errors.length === 2
                         ) {
                             // console.log(`Passed status 'passed' error list is empty, upload time is > 5min, no upload errors : ${tdNode_upload_test_status} ${debug_str}`);
