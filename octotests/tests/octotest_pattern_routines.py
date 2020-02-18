@@ -93,6 +93,9 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.key_group()
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact='tkn_main')
+        print(f"test_004_night_routine_wide_tkn_main: QUERYSET: {self.queryset.count()}")
+        print(f"test_004_night_routine_wide_tkn_main: QUERYSET: {self.queryset.explain()}")
+        print(f"test_004_night_routine_wide_tkn_main: QUERYSET: {self.queryset.query}")
         self.addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
         self.wipe_logs_on(True)
         self.run_case()
@@ -112,6 +115,9 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.key_group()
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact='tkn_ship')
+        print(f"test_005_night_routine_wide_tkn_ship: QUERYSET: {self.queryset.count()}")
+        print(f"test_005_night_routine_wide_tkn_ship: QUERYSET: {self.queryset.explain()}")
+        print(f"test_005_night_routine_wide_tkn_ship: QUERYSET: {self.queryset.query}")
         self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
         self.wipe_logs_on(True)
         self.run_case()
