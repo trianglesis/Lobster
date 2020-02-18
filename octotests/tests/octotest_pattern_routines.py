@@ -47,6 +47,18 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.queryset = self.queryset.exclude(change__in=self.tkn_ship_changes_exclude)
+        self.queryset = self.queryset.exclude(change__in=[
+                    '716460',  # TKN SHIP STARTED HERE
+                    '716461',
+                    '790846',
+                    '787058',
+                    '787059',
+                    '716460',  # TKN SHIP STARTED HERE
+                    '716461',
+                    '790846',
+                    '787058',
+                    '787059',
+        ])
         self.excluded_group()
         self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
         self.wipe_logs_on(True)
