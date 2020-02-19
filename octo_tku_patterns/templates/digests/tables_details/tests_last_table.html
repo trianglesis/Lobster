@@ -2,13 +2,15 @@
 {% load tz %}
 {% load humanize %}
 {% load template_simplify %}
+{% load user_groups %}
+{% is_user_log_in as anon_bool %} <!-- Is anon -->
 {% block content %}
     {% spaceless %}
     <!-- ADDM logs table content: -->
     <table id="tests-last-table" class="table table-bordered table-hover table-sm">
         <thead>
         <!-- ADDM table Head: -->
-        {% if "tests_last" in request.path %}
+        {% if "tests_last" in request.path and not anon_bool %}
         <th></th>
         {% endif %}
         <th>Branch</th>
@@ -31,7 +33,7 @@
         {% for test in tests_digest|dictsortreversed:'test_date_time' %}
             {% if test.addm_name == var_addm_name or not var_addm_name %}
                 <tr>
-                    {% if "tests_last" in request.path %}
+                    {% if "tests_last" in request.path and not anon_bool %}
                     <td id="test_id_checkbox">
                         <label for="testId-{{ test.id }}"></label>
                         <input class="test-last-rerun-select"
@@ -66,11 +68,13 @@
                     </td>
                     <td id="test_date_time" class="txt-center-prewrap {% popover 'hover' 'top' None test.test_date_time|timezone:"Europe/London" %}">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
                     <td id="action" class="actions_button">
+                        {% if not anon_bool %}
                         <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                 data-target="#actionsModal"
                                 data-tst_status="{{ selector.tst_status }}"
                                 data-addm_name="{{ selector.addm_name }}"
                                 data-case_id="{{ test.case_id }}">Actions</button></td>
+                        {% endif %}
                     <td id="tooltip"><a class="btn btn-sm" {% tooltip_tku_test 'hover' 'right' test %}><i class="far fa-eye"></i></a></td>
                     <td id="change" style="display:none">{{ test.change }}</td>
                     <td id="change_review" style="display:none">{{ test.change_review }}</td>
@@ -89,7 +93,7 @@
         {% endfor %}
         </tbody>
     <tfoot>
-        {% if "tests_last" in request.path %}
+        {% if "tests_last" in request.path and not anon_bool %}
         <th></th>
         {% endif %}
         <th>Branch</th>

@@ -11,6 +11,8 @@
 {% load tz %}
 {% load humanize %}
 {% load template_simplify %}
+{% load user_groups %}
+{% is_user_log_in as anon_bool %} <!-- Is anon -->
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/groups.css' %}"/>
@@ -75,10 +77,12 @@
 {#                                </td>#}
                                 <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
                                 <td class="actions_button">
+                                    {% if not anon_bool %}
                                     <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                             data-target="#actionsModal"
                                             data-case_id="{{ case.id }}">Actions
                                     </button>
+                                    {% endif %}
                                 </td>
                                 <td id="case_id" style="display:none">{{ case.id }}</td>
                                 <td id="test_py_path" style="display:none">{{ case.test_py_path }}</td>
@@ -89,11 +93,13 @@
                     </table>
                 {% endif %}
                 <div style="display: flex;justify-content: space-between;padding-top: 20px">
+                    {% if not anon_bool %}
                     <a class="btn btn-warning" href="{% url 'test_cases_group_update' pk=group.id %}">Edit</a>
                     <button type="button" class="btn btn-outline-warning mul-cases-button" data-toggle="modal"
                             data-run_group_all="1"
                             data-target="#actionsModal">Run all</button>
                     <a class="btn btn-danger disabled" href="#">Delete</a>
+                    {% endif %}
                 </div>
             </div>
             <div class="card-footer text-muted">

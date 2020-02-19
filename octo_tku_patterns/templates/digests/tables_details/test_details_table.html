@@ -2,6 +2,8 @@
 {% load tz %}
 {% load humanize %}
 {% load template_simplify %}
+{% load user_groups %}
+{% is_user_log_in as anon_bool %} <!-- Is anon -->
 {% block content %}
     {% spaceless %}
         <!-- ADDM logs table content: -->
@@ -40,12 +42,14 @@
                             <td id="test_date_time" class="txt-center-prewrap {% popover 'hover' 'top' None test.test_date_time|timezone:"Europe/London" %}">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}<br>t:{{ test.time_spent_test|f_sec }}<br>{{ test.addm_host }}<br>{{ test.addm_group }}</td>
                             <td id="addm_name" class="txt-center-prewrap {% popover 'hover' 'top' None 'Browse related ADDM to see scan details.' %}"><a href="http://{{ test.addm_host }}.bmc.com/ui/DiscoveryHome">{{ test.addm_name }}</a></td>
                             <td class="actions_button">
+                                {% if not anon_bool %}
                                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                         data-target="#actionsModal"
                                         data-test_py_path="{{ test.test_py_path }}"
                                         data-tst_status="{{ context.selector.tst_status }}"
                                         data-addm_name="{{ context.selector.addm_name }}">Actions
                                 </button>
+                                {% endif %}
                             </td>
                             <td id="test_id" style="display:none">{{ test.id }}</td>
                             <td id="tkn_branch" style="display:none">{{ test.tkn_branch }}</td>
