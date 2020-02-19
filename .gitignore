@@ -139,5 +139,10 @@ z_DEV/run_core_copy/
 /z_DEV/services/httpd/
 /octo_adm/templates/includes/ADDM_MobaXterm.html
 /octo_adm/templates/addm_workbench/includes/ADDM_MobaXterm.html
-
-!.idea/*
+/z_DEV/p4py_bld/
+octo_tku_patterns/migrations/__pycache__/
+octo_tku_upload/migrations/__pycache__/
+octotests/tests/__pycache__/
+req.txt
+z_DEV/__pycache__/
+z_DEV/p4py_bld/*

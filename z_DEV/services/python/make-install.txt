@@ -10,6 +10,7 @@ cd Python-3.8.0
 
 ===========
 ## ./configure --enable-optimizations --enable-shared
+## python3: error while loading shared libraries: libpython3.8.so.1.0: cannot open shared object file: No such file or directory
 ## https://stackoverflow.com/a/56088070/4915733
 ## ./configure --prefix=/usr/local --enable-optimizations --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
 make altinstall
@@ -49,7 +50,7 @@ pip3 install mod_wsgi
 # https://virtualenv.pypa.io/en/latest/reference/#virtualenv-command
 pip3 install virtualenv
 
-virtualenv --python=/usr/local/bin/python3.7 core
+virtualenv --python=/usr/local/bin/python3 core
 OR (from added symlink)
 
 cd /var/www/octopus
@@ -64,7 +65,34 @@ deactivate
 rm -rf venv
 virtualenv -p /usr/bin/python3 venv/
 source env/bin/activate
-pip install -r "/var/www/triangle/req373.txt" --ignore-installedlist
+pip install -r "/var/www/triangle/req373.txt" --ignore-installed
 ========= WSGI INSTALL ================================
 pip install mod_wsgi
 or in requirements
+
+========= WSL problems ================================
+- mysql python lib:
+https://stackoverflow.com/questions/7475223/mysql-config-not-found-when-installing-mysqldb-python-interface
+yum install mysql-devel gcc gcc-devel python-devel
+
+- p4python lib:
+yum install gcc-c++
+wget ftp://ftp.perforce.com/perforce/r19.1/bin.tools/p4python.tgz
+wget ftp://ftp.perforce.com/perforce/r19.1/bin.linux26x86_64/p4api.tgz
+tar zxvf p4python.tgz
+tar zxvf p4api.tgz
+cd p4python-2019.1.1858212/
+ls
+mkdir /home/p4bld
+python3 setup.py build --apidir /home/p4bld/
+python3 setup.py install --apidir /home/p4bld/
+python3 setup.py build --apidir ../p4api-2018.2.1918133/
+python3 setup.py install --apidir ../p4api-2018.2.1918133/
+
+
+WSL paths:
+/mnt/d/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/venv
+WSL service runs:
+https://gist.github.com/dentechy/de2be62b55cfd234681921d5a8b6be11
+Add the following code: C:\Windows\System32\bash.exe -c "sudo /usr/sbin/sshd -D"
+
