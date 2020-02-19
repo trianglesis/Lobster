@@ -4,7 +4,6 @@ import json
 import logging
 import unittest
 from pprint import pformat
-from time import sleep
 
 from celery.result import AsyncResult
 from django.utils import timezone
@@ -15,13 +14,13 @@ from octo.tasks import TSupport
 from octo_adm.tasks import TaskADDMService
 from octo_tku_patterns.models import TestCases, TestCasesDetails
 from octo_tku_patterns.models import TestLast
-from run_core.models import AddmDev
 from octo_tku_patterns.night_test_balancer import BalanceNightTests
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
-from octo_tku_patterns.tasks import TPatternParse, TPatternExecTest
+from octo_tku_patterns.tasks import TPatternExecTest
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.tasks import UploadTaskPrepare
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
+from run_core.models import AddmDev, TestOutputs
 
 log = logging.getLogger("octo.octologger")
 
@@ -210,15 +209,28 @@ class PatternTestUtils(unittest.TestCase):
         msg = '''Night routine has been executed. Options used:
                  ADDM actual: {addm_act} | 
                  Branch {branch} | 
-                 Overall tests to run: {tst_len} | 
+                 Start at: {start_time} |
                  Overall tests time weight: {tst_w_t} | 
-                 Start at: {start_time} |'''.format(
+                 Overall tests to run: {queryset_count} | 
+                 Tests selected by: {queryset_explain} | 
+                 Tests selection query: {queryset_query} | 
+                 '''.format(
             addm_act=self.addm_group_l,
             branch=self.branch,
-            tst_len=self.queryset.count(),
             tst_w_t=self.all_tests_w,
             start_time=self.now,
+            queryset_count=self.queryset.count(),
+            queryset_explain=self.queryset.explain(),
+            queryset_query=self.queryset.query(),
         )
+        log.info(msg)
+        kwargs_d = dict(
+            option_key=f'NightTestRoutine.{self.branch}',
+            option_value=msg,
+            description=f'Night test routine executed.',
+        )
+        test_out = TestOutputs(**kwargs_d)
+        test_out.save()
         return msg
 
     def before_tests(self):
