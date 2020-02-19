@@ -75,9 +75,9 @@ class PatternTestUtils(unittest.TestCase):
         # Select addm:
         self.select_addm_set()
         # Sort test over selected ADDM groups:
-        # self.balance_tests_on_workers()
+        self.balance_tests_on_workers()
         # FINISH STEP:
-        # self.put_test_cases()
+        self.put_test_cases()
 
     def tearDown(self) -> None:
         log.debug("<=PatternTestUtils=> Test finished")
