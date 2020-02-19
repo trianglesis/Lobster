@@ -4,6 +4,7 @@ Example for octo test
 import unittest
 import datetime
 import pytz
+
 try:
     from octotests import octo_tests
 except ModuleNotFoundError:
@@ -21,8 +22,18 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # self.fake_run_on(True)
         # self.silent_on(True)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
-        self.tkn_main_changes_exclude = ['791013', '784570', '784672', '784741', '790845']
-        self.tkn_ship_changes_exclude = ['716460', '716461', '790846', '787058', '787059']
+        self.exclude_changes = [
+            '791013',
+            '784570',
+            '784672',
+            '784741',
+            '790845',
+            '716460',  # TKN SHIP STARTED HERE
+            '716461',
+            '790846',
+            '787058',
+            '787059',
+        ]
 
     def test_001_night_routine_main(self):
         """
@@ -32,8 +43,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
-        self.queryset = self.queryset.exclude(change__in=self.tkn_main_changes_exclude)
         self.excluded_group()
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
         self.addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
         self.wipe_logs_on(True)
         self.run_case()
@@ -46,20 +57,9 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
-        self.queryset = self.queryset.exclude(change__in=self.tkn_ship_changes_exclude)
-        self.queryset = self.queryset.exclude(change__in=[
-                    '716460',  # TKN SHIP STARTED HERE
-                    '716461',
-                    '790846',
-                    '787058',
-                    '787059',
-                    '716460',  # TKN SHIP STARTED HERE
-                    '716461',
-                    '790846',
-                    '787058',
-                    '787059',
-        ])
         self.excluded_group()
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
         self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
         self.wipe_logs_on(True)
         self.run_case()
@@ -72,8 +72,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(60))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
-        self.queryset = self.queryset.exclude(change__in=self.tkn_main_changes_exclude)
         self.excluded_group()
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
         self.wipe_logs_on(True)
         self.addm_group_l = ['hotel']
         self.run_case()
@@ -89,10 +89,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
-        self.queryset = self.queryset.exclude(change__in=self.tkn_main_changes_exclude)
+        self.queryset = self.queryset.filter(tkn_branch__exact='tkn_main')
         self.key_group()
         self.excluded_group()
-        self.queryset = self.queryset.filter(tkn_branch__exact='tkn_main')
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
         self.addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
         self.wipe_logs_on(True)
         self.run_case()
@@ -108,10 +108,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
-        self.queryset = self.queryset.exclude(change__in=self.tkn_ship_changes_exclude)
+        self.queryset = self.queryset.filter(tkn_branch__exact='tkn_ship')
         self.key_group()
         self.excluded_group()
-        self.queryset = self.queryset.filter(tkn_branch__exact='tkn_ship')
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
         self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
         self.wipe_logs_on(True)
         self.run_case()
@@ -158,38 +158,18 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # self.wipe_logs_on(False)
         self.branch = 'tkn_main'
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
-        # self.excluded_group()
-        # self.queryset = self.queryset.exclude(change__in=[
-        #             '791013',
-        #             '784570',
-        #             '784672',
-        #             '784741',
-        #             '790845',
-        # ])
         # self.queryset = self.queryset.filter(test_py_path__exact='/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/CORE/MicroStrategy/tests/test.py')
-        # self.addm_group_l = ['alpha', 'beta', 'echo']
-        self.queryset = self.queryset.exclude(change__in=[
-                    '716460',  # TKN SHIP STARTED HERE
-                    '716461',
-                    '790846',
-                    '787058',
-                    '787059',
-                    '716460',  # TKN SHIP STARTED HERE
-                    '716461',
-                    '790846',
-                    '787058',
-                    '787059',
-        ])
         self.key_group()
-        self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact='tkn_main')
+        self.excluded_group()
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
         print(self.queryset.count())
         print(self.queryset.explain())
         print(self.queryset.query)
-        self.addm_group_l = ['golf']
+        self.addm_group_l = ['beta']
         # OR:
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['golf'],
+            addm_group__in=['beta'],
             addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()

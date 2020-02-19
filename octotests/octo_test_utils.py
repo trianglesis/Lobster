@@ -75,9 +75,9 @@ class PatternTestUtils(unittest.TestCase):
         # Select addm:
         self.select_addm_set()
         # Sort test over selected ADDM groups:
-        self.balance_tests_on_workers()
+        # self.balance_tests_on_workers()
         # FINISH STEP:
-        self.put_test_cases()
+        # self.put_test_cases()
 
     def tearDown(self) -> None:
         log.debug("<=PatternTestUtils=> Test finished")
@@ -221,7 +221,7 @@ class PatternTestUtils(unittest.TestCase):
             start_time=self.now,
             queryset_count=self.queryset.count(),
             queryset_explain=self.queryset.explain(),
-            queryset_query=self.queryset.query(),
+            queryset_query=self.queryset.query,
         )
         log.info(msg)
         kwargs_d = dict(
