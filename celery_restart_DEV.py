@@ -50,12 +50,9 @@ CELERYD_NODES = [
     # 'romeo@tentacle',
 ]
 
-commands_list_start = "python3 {CELERY_BIN} multi start {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} " \
-                      "--logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
-commands_list_stop = "python3 {CELERY_BIN} multi kill {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} " \
-                     "--logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
-commands_list_restart = "python3 {CELERY_BIN} multi restart {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} " \
-                        "--logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
+# celery -A octo worker --loglevel=info
+# celery -A octo w_parsing@tentacle --pidfile=/opt/celery/w_parsing@tentacle.pid --logfile=/var/log/octopus/w_parsing@tentacle.log --loglevel=info --concurrency=1 -E
+commands_list_start = "{CELERY_BIN} multi start {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} --logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
 commands_list_kill = "pkill -9 -f 'celery worker'"
 
 
@@ -67,12 +64,10 @@ def th_run(args):
 
     stat = dict(
         start=commands_list_start,
-        stop=commands_list_stop,
-        restart=commands_list_restart,
         kill=commands_list_kill,
     )
     celery_bin = dict(
-        wsl_work='/mnt/d/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/venv/bin/celery',
+        wsl_work='venv/bin/celery',
         wsl_home='',
         octopus='/var/www/octopus/venv/bin/celery',
         lobster='/var/www/octopus/venv/bin/celery',
@@ -154,6 +149,6 @@ def worker_restart(**args_d):
 
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-m', '--mode', choices=['start', 'stop', 'restart', 'kill'], required=True)
+parser.add_argument('-m', '--mode', choices=['start', 'kill'], required=True)
 parser.add_argument('-e', '--env', choices=['wsl_work', 'wsl_home', 'octopus', 'lobster'], required=True)
 th_run(parser.parse_args())
