@@ -27,13 +27,13 @@ class UploadTestExec:
     def __init__(self):
         self.preparation_steps = dict(
             fresh=[
-                'show.addm.version'
                 'test.kill',
                 'tku.install.kill',
                 'tw_scan_control.clear',
                 'tw_pattern_management.remove_all',
                 'rpm.delete.tideway_content',
                 'rpm.delete.tideway_devices',
+                'show.addm.version',
             ],
             update=['show.addm.version', 'tw_scan_control.clear'],
             step=['show.addm.version', 'tw_scan_control.clear'],

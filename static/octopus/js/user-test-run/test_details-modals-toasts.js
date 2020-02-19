@@ -28,10 +28,12 @@ $(document).ready(function () {
 $(document).ready(function () {
     $('#actionsModal').on('show.bs.modal', function (event) {
         button = getButtonFromEvent(event);  // Get some context values from modal button 'Actions'
-        relCasesTestLogs = makeCaseTestDataSet(tests_digest_json, button.data('test_id'));
+        console.log(button.data('test_py_path'));
+        relCasesTestLogs = makeCaseTestDataSet(tests_digest_json, '', button.data('test_py_path'));
         modal = document.getElementById("actionsModal");
         // Run REST get to obtain related case for this test:
         // Use one
+        console.log(`relCasesTestLogs: ${relCasesTestLogs}`);
         new RESTGetCaseByTestPyPath(relCasesTestLogs[0], fillModalBodyAfterREST);
     })
 });

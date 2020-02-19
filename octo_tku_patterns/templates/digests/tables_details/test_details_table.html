@@ -42,10 +42,7 @@
                             <td class="actions_button">
                                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                         data-target="#actionsModal"
-                                        data-test_id="{{ test.id }}"
-                                        {% if "found" in request.path %}
-                                            data-test_py_path="{{ test.test_py_path }}"
-                                        {% endif %}
+                                        data-test_py_path="{{ test.test_py_path }}"
                                         data-tst_status="{{ context.selector.tst_status }}"
                                         data-addm_name="{{ context.selector.addm_name }}">Actions
                                 </button>

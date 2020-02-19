@@ -31,17 +31,23 @@ function makeCaseTestDataSet(dataJSON,
     for (let testItem of dataJSON) {
         //For case on last test
         if (case_id && (parseInt(testItem['case_id']) === parseInt(case_id))) {
-            // console.log(testItem);
+            console.log("Getting case by case_id");
             caseTestDataArr.push(testItem);
-            // For test on test details tables
+            return caseTestDataArr
+        // For test on test details tables
         } else if (case_id && (parseInt(testItem['id']) === parseInt(case_id))) {
+            console.log("Getting case by test id");
             caseTestDataArr.push(testItem);
-            // For test in found or when need to sort out related items from JSON by test_py_path
+            return caseTestDataArr
+        // For test in found or when need to sort out related items from JSON by test_py_path
         } else if (testPyPath && (testItem['test_py_path'] === testPyPath)) {
+            console.log("Getting case by test py path");
             caseTestDataArr.push(testItem);
-            // For multiple selection via checkboxes. Compare page QS JSON with array of casesIds (from checkboxes)
+            return caseTestDataArr
+        // For multiple selection via checkboxes. Compare page QS JSON with array of casesIds (from checkboxes)
         } else if (casesIds && casesIds[0]) {
             if (casesIds.includes(testItem['id']) || casesIds.includes(testItem['case_id'])) {
+                console.log("Getting multiple cases by IDs");
 
                 // For test last digest where case is presented by "case_id"
                 if (testItem['case_id']) {
@@ -62,7 +68,12 @@ function makeCaseTestDataSet(dataJSON,
             }
         }
     }
-    return caseTestDataArr
+    console.log(caseTestDataArr);
+    if (caseTestDataArr.length > 1) {
+        return caseTestDataArr
+    } else {
+        throw new Error('caseTestDataArr should not be empty! Check if JSON passed or has been parsed correctly!')
+    }
 }
 
 /**

@@ -243,6 +243,7 @@
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
     <script src="{% static 'octopus/js/user-test-run/test_last-modals-toasts.js' %}"></script>
     <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
+    <!-- Load test JSON -->
     <script type="text/javascript">
         {% if "test_history_digest_today" in request.path %}
             let tests_digest_json = {{ tests_digest|tku_patterns_json:'TestHistoryDigestDaily'|safe }};

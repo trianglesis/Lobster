@@ -84,6 +84,7 @@ class TestLastSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestLast
         fields = (
+            'id',
             'tkn_branch',
             'pattern_library',
             'pattern_folder_name',
@@ -108,6 +109,7 @@ class TestHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TestHistory
         fields = (
+            'id',
             'tkn_branch',
             'pattern_library',
             'pattern_folder_name',
@@ -133,6 +135,7 @@ class TestLatestDigestAllSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestLatestDigestAll
         fields = (
+            'id',
             'test_type',
             'tkn_branch',
             'addm_name',
@@ -150,6 +153,7 @@ class TestLatestDigestAllSerializer(serializers.ModelSerializer):
             'test_case_depot_path',
             'test_time_weight',
             'test_py_path',
+            'test_id',
             'case_id',
             'test_items_prepared',
             'fails',
@@ -164,6 +168,7 @@ class TestHistoryDigestDailySerializer(serializers.ModelSerializer):
     class Meta:
         model = TestHistoryDigestDaily
         fields = (
+            'id',
             'test_type',
             'tkn_branch',
             'addm_name',
@@ -181,6 +186,7 @@ class TestHistoryDigestDailySerializer(serializers.ModelSerializer):
             'test_case_depot_path',
             'test_time_weight',
             'test_py_path',
+            'test_id',
             'case_id',
             'test_items_prepared',
             'fails',
