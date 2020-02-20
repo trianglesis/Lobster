@@ -199,16 +199,3 @@ CONN_MAX_AGE = None
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# DEBUG OPT:
-if os.name == "nt":
-    log.debug("=========================================================")
-    log.debug("PROJECT_ROOT:     %s", PROJECT_ROOT)
-    log.debug("BASE DIR:         %s", BASE_DIR)
-    log.debug("=========================================================")
-    log.debug("TEMPLATES:        %s", TEMPLATES[0]['DIRS'][0])
-    log.debug("Static root:      %s", STATIC_ROOT)
-    log.debug("=========================================================")
-    log.debug("SYS PATH: ", sys.path)
-    log.debug("=========================================================")
-    log.debug("STATICFILES_DIRS: %s", STATICFILES_DIRS)

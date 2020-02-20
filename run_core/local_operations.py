@@ -19,6 +19,9 @@ from time import time
 import pytz
 from django.db.models.query import QuerySet
 
+import octo.config_cred as conf_cred
+from octo import settings
+
 from octo_tku_patterns.models import TestCases, TestHistory
 from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
@@ -73,7 +76,7 @@ class LocalPatternsParse:
         """
 
         pattern = re.compile(r'^test[\w]*\.py')
-        if os.name == "nt":
+        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
             p4_workspace = "d:{os_sep}perforce{os_sep}".format(os_sep=os.sep)
         else:
             p4_workspace = "/home/user/TH_Octopus/perforce"

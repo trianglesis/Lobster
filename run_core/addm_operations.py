@@ -27,7 +27,8 @@ from django.db.models.query import QuerySet
 import paramiko
 from paramiko import SSHClient
 
-from octo.config_cred import mails
+import octo.config_cred as conf_cred
+from octo import settings
 from octo.helpers.tasks_run import Runner
 from octo.helpers.tasks_mail_send import Mails
 from run_core.models import AddmDev, ADDMCommands
@@ -413,7 +414,7 @@ class ADDMStaticOperations:
         # TODO: Return simply the group without ping, verification and occupy.
         if fake_run:
             return addm_group_l
-        if os.name == 'nt':
+        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
             return addm_group_l
 
         if isinstance(addm_group_l, list):
@@ -427,7 +428,7 @@ class ADDMStaticOperations:
                 log.error("Some workers may be down: %s - sending email!", worker_up)
                 subject = f'Worker is down, cannot run all other tasks. W: {worker_up}'
                 body = f'Found some workers are DOWN while run (_old_addm_groups_validate) List: {worker_up}'
-                admin = mails['admin']
+                admin = conf_cred.mails['admin']
                 Mails.short(subject=subject, body=body, send_to=[admin])
                 # Nothing else to do here.
                 raise Exception(subject)

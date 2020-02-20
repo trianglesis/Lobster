@@ -6,16 +6,17 @@ Separate Celery settings file
 from __future__ import absolute_import, unicode_literals
 import os
 import django
+import octo.config_cred as conf_cred
+from octo import settings
 
 from celery import Celery
 from kombu import Exchange
-from octo.config_cred import cred
 
 # set the default Django settings module for the 'celery' program.
-if not os.name == "nt":
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octo.settings')
-else:
+if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octo.win_settings')
+else:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octo.settings')
 # Setup django project
 django.setup()
 # curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
@@ -23,10 +24,10 @@ django.setup()
 #  (or via the result_backend setting if you choose to use a configuration module):
 app = Celery('octo',
              # http://docs.celeryproject.org/en/latest/userguide/optimizing.html
-             broker=cred['broker'],
+             broker=conf_cred.cred['broker'],
 
              # http://docs.celeryproject.org/en/latest/userguide/configuration.html#result-backend
-             backend=cred['backend'],
+             backend=conf_cred.cred['backend'],
              )
 
 # Using a string here means the worker doesn't have to serialize
@@ -59,7 +60,7 @@ app.conf.update(
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#database-url-examples
     # https://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#keeping-results
     # 1406, "Data too long for column 'result' at row 1" - it's not so important to keep it in DB
-    result_backend = cred['result_backend'],
+    result_backend = conf_cred.cred['result_backend'],
     database_engine_options = {'pool_timeout': 90},
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#beat-scheduler
@@ -109,51 +110,26 @@ app.conf.update(
 
 )
 
-if not os.name == "nt":
-    app.control.cancel_consumer(
-        'default',
-        destination=[
-            'w_routines@tentacle',
-            "alpha@tentacle",
-            "beta@tentacle",
-            "charlie@tentacle",
-            "delta@tentacle",
-            "echo@tentacle",
-            "foxtrot@tentacle",
-            "golf@tentacle",
-            'hotel@tentacle',
-            'india@tentacle',
-            'juliett@tentacle',
-            'kilo@tentacle',
-            'lima@tentacle',
-            'mike@tentacle',
-            'november@tentacle',
-            'oskar@tentacle',
-            'papa@tentacle',
-            'quebec@tentacle',
-            'romeo@tentacle',
-        ])
-else:
-    app.control.cancel_consumer(
-        'default',
-        destination=[
-            'w_routines@tentacle',
-            "alpha@tentacle",
-            "beta@tentacle",
-            "charlie@tentacle",
-            "delta@tentacle",
-            "echo@tentacle",
-            "foxtrot@tentacle",
-            "golf@tentacle",
-            'hotel@tentacle',
-            'india@tentacle',
-            'juliett@tentacle',
-            'kilo@tentacle',
-            'lima@tentacle',
-            'mike@tentacle',
-            'november@tentacle',
-            'oskar@tentacle',
-            'papa@tentacle',
-            'quebec@tentacle',
-            'romeo@tentacle',
-        ])
+app.control.cancel_consumer(
+    'default',
+    destination=[
+        'w_routines@tentacle',
+        "alpha@tentacle",
+        "beta@tentacle",
+        "charlie@tentacle",
+        "delta@tentacle",
+        "echo@tentacle",
+        "foxtrot@tentacle",
+        "golf@tentacle",
+        'hotel@tentacle',
+        'india@tentacle',
+        'juliett@tentacle',
+        'kilo@tentacle',
+        'lima@tentacle',
+        'mike@tentacle',
+        'november@tentacle',
+        'oskar@tentacle',
+        'papa@tentacle',
+        'quebec@tentacle',
+        'romeo@tentacle',
+    ])

@@ -4,18 +4,18 @@ WIll use same logic from TPL IDE Automation.
 
 """
 
-import os
-import re
-from time import time, sleep
-import functools
-
-from octo.helpers.tasks_helpers import exception
-
-from run_core.addm_operations import ADDMOperations
-from octo_tku_patterns.models import TestLast, TestHistory
-
 # Python logger
 import logging
+import os
+import re
+from time import time
+
+import octo.config_cred as conf_cred
+from octo import settings
+
+from octo.helpers.tasks_helpers import exception
+from octo_tku_patterns.models import TestLast, TestHistory
+from run_core.addm_operations import ADDMOperations
 
 log = logging.getLogger("octo.octologger")
 
@@ -39,7 +39,7 @@ class TestExecutor:
         # TODO: We may want to save who run this test?
         self.user_email = ''
 
-        if os.name == "nt":
+        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
             self.p4_workspace = "d:{}perforce".format(os.sep)
         else:
             self.p4_workspace = "/home/user/TH_Octopus/perforce"

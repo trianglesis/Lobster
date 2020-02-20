@@ -205,16 +205,3 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/upload/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'upload')
-
-# # DEBUG OPT:
-# if os.name == "nt":
-#     log.debug("=========================================================")
-#     log.debug("PROJECT_ROOT:     %s", PROJECT_ROOT)
-#     log.debug("BASE DIR:         %s", BASE_DIR)
-#     log.debug("=========================================================")
-#     log.debug("TEMPLATES:        %s", TEMPLATES[0]['DIRS'][0])
-#     log.debug("Static root:      %s", "/static/ - str")
-#     log.debug("=========================================================")
-#     log.debug("SYS PATH: %s", sys.path)
-#     log.debug("=========================================================")
-#     log.debug("STATICFILES_DIRS: %s", STATICFILES_DIRS)

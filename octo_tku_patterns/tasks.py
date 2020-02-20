@@ -11,34 +11,29 @@ Note:
 """
 from __future__ import absolute_import, unicode_literals
 
-import os
 import datetime
 import logging
-import collections
+import os
 
 from django.db.models.query import QuerySet
 
-from octo.octo_celery import app
+import octo.config_cred as conf_cred
+from octo import settings
 
-from run_core.models import AddmDev
-from run_core.addm_operations import ADDMOperations
-from run_core.p4_operations import PerforceOperations
-from run_core.local_operations import LocalPatternsP4Parse
-
-from octo_tku_patterns.models import TestLast, TestCases, TestCasesDetails
-from octo_tku_patterns.test_executor import TestExecutor
-
+from octo.helpers.tasks_helpers import TMail
 from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_oper import TasksOperations
-from octo.helpers.tasks_helpers import TMail
 from octo.helpers.tasks_run import Runner
-
+from octo.octo_celery import app
 from octo.tasks import TSupport
 from octo_adm.tasks import TaskADDMService
-
-from run_core.addm_operations import ADDMStaticOperations
-
+from octo_tku_patterns.models import TestLast, TestCases, TestCasesDetails
+from octo_tku_patterns.test_executor import TestExecutor
 from octotests.tests_discover_run import TestRunnerLoc
+from run_core.addm_operations import ADDMStaticOperations
+from run_core.local_operations import LocalPatternsP4Parse
+from run_core.models import AddmDev
+from run_core.p4_operations import PerforceOperations
 
 log = logging.getLogger("octo.octologger")
 
@@ -195,10 +190,10 @@ class TaskPrepare:
         Should always be fake run!
         :return:
         """
-        if os.name == "nt":  # Always fake run on local test env:
+        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:  # Always fake run on local test env:
             # self.fake_run = True
-            log.debug("<=TaskPrepare=> Fake run for NT options: %s", self.options)
-            log.debug("<=TaskPrepare=> Fake run for NT request: %s", self.request)
+            log.debug("<=TaskPrepare=> Fake run for DEV LOCAL options: %s", self.options)
+            log.debug("<=TaskPrepare=> Fake run for DEV LOCAL request: %s", self.request)
 
         elif self.options.get('fake_run'):
             self.fake_run = True
@@ -527,7 +522,7 @@ class TaskPrepare:
         branch_w = WorkerGetAvailable.branched_w(tkn_branch)
         addm_group = branch_w[0]
 
-        if not self.fake_run and not os.name == 'nt':
+        if not self.fake_run:
             addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
         log.debug("<=TaskPrepare=> Get available addm_group: '%s'", addm_group)
         return addm_group

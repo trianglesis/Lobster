@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 import os
 import sys
+import octo.config_cred as conf_cred
+from octo import settings
 
 if __name__ == "__main__":
 
-    if not os.name == "nt":
+    if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.settings")
     else:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.win_settings")

@@ -6,6 +6,8 @@ import subprocess
 from unittest import TestSuite
 
 from octo.win_settings import BASE_DIR
+import octo.config_cred as conf_cred
+from octo import settings
 
 log = logging.getLogger("octo.octologger")
 
@@ -34,7 +36,7 @@ class TestRunnerLoc:
         cmd_list = []
 
         # DEV: Set paths to test and working dir:
-        if os.name == 'nt':
+        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
             if "KBP1" in os.getenv('COMPUTERNAME', 'defaultValue'):
                 test_env = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
                 octo_core = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster'
@@ -59,7 +61,7 @@ class TestRunnerLoc:
         else:
             test_cmd = f'python -m unittest {test_py_path}'
 
-        if not os.name == 'nt':
+        if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
             # Compose CMD run:
             cmd_list.append(f'. {test_env}{activate}')
             cmd_list.append(test_cmd)

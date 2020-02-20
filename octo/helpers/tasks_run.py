@@ -1,9 +1,8 @@
 """
 Task executor
 """
-import os
-
-
+import octo.config_cred as conf_cred
+from octo import settings
 from octo.helpers.tasks_helpers import exception
 from octo.tasks import TSupport
 from octo.helpers.tasks_oper import TasksOperations
@@ -76,11 +75,6 @@ class Runner:
         if t_task_time_limit:
             task_options.update(task_time_limit=t_task_time_limit)
 
-        # TODO: Later add on live examples
-        # all_tasks = Runner.check_task_added()
-        # if os.name == 'nt':
-        #     fake_run = True
-
         # Do not really send a task if fake=True
         if not fake_run:
             return task.apply_async(**task_options)
@@ -91,7 +85,7 @@ class Runner:
             log.info(msg)
             task_options.update(args=['fire_t', to_sleep])
             task_options.update(kwargs=dict(t_args=t_args, t_kwargs=t_kwargs))
-            if not os.name == 'nt':
+            if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
                 return TSupport.fake_task.apply_async(**task_options)
             else:
                 log.warning('<=Runner Fire Task=> Windows OS run!!!')
