@@ -84,10 +84,11 @@ tar zxvf p4api.tgz
 cd p4python-2019.1.1858212/
 ls
 mkdir /home/p4bld
-python3 setup.py build --apidir /home/p4bld/
-python3 setup.py install --apidir /home/p4bld/
+python3 setup.py build --apidir /home/user/p4BLD/
+python3 setup.py install --apidir /home/user/p4BLD/
+
 python3 setup.py build --apidir ../p4api-2018.2.1918133/
-python3 setup.py install --apidir ../p4api-2018.2.1918133/
+python3 setup.py install --apidir ../p4api-2019.1.1918131/
 
 
 WSL paths:
