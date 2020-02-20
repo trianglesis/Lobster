@@ -55,17 +55,17 @@ CELERYD_NODES = [
 commands_list_start = "{CELERY_BIN} multi start {celery_node} -A {CELERY_APP} --pidfile={CELERYD_PID_FILE} --logfile={CELERYD_LOG_FILE} --loglevel={CELERYD_LOG_LEVEL} {CELERYD_OPTS}"
 commands_list_kill = "pkill -9 -f 'celery worker'"
 
+FLOWER_CMD = "{CELERY_BIN} flower --broker=amqp://octo_user:hPoNaEb7@localhost:5672/tentacle --broker_api=http://octo_user:hPoNaEb7@localhost:15672/api/"
+FLOWER_KILL = "pkill -9 -f 'celery flower'"
+
 
 def th_run(args):
     print(args)
-    mode = args.mode
     env = args.env
-    print('Run th_run')
+    commands_list_ready = []  # All composed commands to be executed
 
-    stat = dict(
-        start=commands_list_start,
-        kill=commands_list_kill,
-    )
+    # REQUIRED:
+    # Assign Celery bin paths for different dev environments:
     celery_bin = dict(
         wsl_work='venv/bin/celery',
         wsl_home='',
@@ -73,7 +73,8 @@ def th_run(args):
         lobster='/var/www/octopus/venv/bin/celery',
     )
     CELERY_BIN = celery_bin[env]
-
+    # TODO: Use same? Later remove?
+    # Assign Celery log paths for different dev environments:
     celery_logs = dict(
         wsl_work='/var/log/octopus',
         wsl_home='',
@@ -82,6 +83,7 @@ def th_run(args):
     )
     CELERY_LOG_PATH = celery_logs[env]
 
+    # Working dir:
     cwd_path = dict(
         wsl_work='/mnt/d/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/',
         wsl_home='',
@@ -89,22 +91,55 @@ def th_run(args):
         lobster='/var/www/octopus/',
     )
 
+    if args.server:
+        if 'start' in args.server:
+            print("Start WEB Server")
+            server_cmd = 'python3 manage.py runserver'
+            commands_list_ready.append(server_cmd)
+        elif 'kill' in args.server:
+            print("Kill Web Server")
+            server_cmd = "pkill -9 -f 'manage.py runserver'"
+            commands_list_ready.append(server_cmd)
+
+    if args.celery:
+        if 'start' in args.celery:
+            print("Start celery workers!")
+            celery_cmd = commands_list_start
+            for celery_node in CELERYD_NODES:
+                cmd = celery_cmd.format(
+                    CELERY_BIN=CELERY_BIN,
+                    celery_node=celery_node,
+                    CELERY_APP=CELERY_APP,
+                    CELERYD_PID_FILE=CELERYD_PID_FILE.format(PID=celery_node),
+                    CELERYD_LOG_FILE=CELERYD_LOG_FILE.format(PATH=CELERY_LOG_PATH, LOG=celery_node),
+                    CELERYD_LOG_LEVEL=CELERYD_LOG_LEVEL,
+                    CELERYD_OPTS=CELERYD_OPTS,
+                )
+                commands_list_ready.append(cmd)
+        elif 'kill' in args.celery:
+            print("Kill celery workers!")
+            celery_cmd = commands_list_kill
+            commands_list_ready.append(celery_cmd)
+        else:
+            # Later add restart for single worker if needed?
+            print("No celery actions!")
+
+    if args.flower:
+        if 'start' in args.flower:
+            print("Start Flower")
+            flower_cmd = FLOWER_CMD.format(CELERY_BIN=CELERY_BIN)
+            commands_list_ready.append(flower_cmd)
+        elif 'kill' in args.flower:
+            print("Kill Flower")
+            flower_cmd = FLOWER_KILL
+            commands_list_ready.append(flower_cmd)
+
     ts = time()
     thread_list = []
     th_out = []
     test_q = Queue()
 
-    for celery_node in CELERYD_NODES:
-        cmd_draft = stat[mode]
-        cmd = cmd_draft.format(
-            CELERY_BIN=CELERY_BIN,
-            celery_node=celery_node,
-            CELERY_APP=CELERY_APP,
-            CELERYD_PID_FILE=CELERYD_PID_FILE.format(PID=celery_node),
-            CELERYD_LOG_FILE=CELERYD_LOG_FILE.format(PATH=CELERY_LOG_PATH, LOG=celery_node),
-            CELERYD_LOG_LEVEL=CELERYD_LOG_LEVEL,
-            CELERYD_OPTS=CELERYD_OPTS,
-        )
+    for cmd in commands_list_ready:
         print(f"Run: {cmd}")
         args_d = dict(cmd=cmd, test_q=test_q, cwd=cwd_path[env])
         th_name = f"Run CMD: {cmd}"
@@ -149,6 +184,22 @@ def worker_restart(**args_d):
 
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-m', '--mode', choices=['start', 'kill'], required=True)
+parser.add_argument('-s', '--server', choices=['start', 'kill'])
+parser.add_argument('-C', '--celery', choices=['start', 'kill'])
+parser.add_argument('-F', '--flower', choices=['start', 'kill'])
 parser.add_argument('-e', '--env', choices=['wsl_work', 'wsl_home', 'octopus', 'lobster'], required=True)
 th_run(parser.parse_args())
+
+"""
+On WSL:
+su user then activate env, then run
+
+Run celery and flower as separate, due flower will use std:
+venv/bin/python celery_restart_DEV.py --env=wsl_work --celery=kill; venv/bin/python celery_restart_DEV.py --env=wsl_work --celery=start
+venv/bin/python celery_restart_DEV.py --env=wsl_work --flower=kill; venv/bin/python celery_restart_DEV.py --env=wsl_work --flower=start
+
+venv/bin/python celery_restart_DEV.py --env=wsl_work --celery=start --server=start
+
+venv/bin/celery flower --broker=amqp://octo_user:hPoNaEb7@localhost:5672/tentacle --broker_api=http://octo_user:hPoNaEb7@localhost:15672/api/
+
+"""

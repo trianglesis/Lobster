@@ -146,3 +146,4 @@ octotests/tests/__pycache__/
 req.txt
 z_DEV/__pycache__/
 z_DEV/p4py_bld/*
+!.idea/*
