@@ -17,6 +17,8 @@ nssm.exe edit CELERY_routines && nssm.exe edit CELERY_alpha && nssm.exe edit CEL
 
 celery multi start w_parsing@tentacle -A octo.octo_celery:app --pidfile=/opt/celery/w_parsing@tentacle.pid --logfile=/var/log/octopus/w_parsing@tentacle.log --loglevel=INFO --concurrency=1 -E
 celery -A octo w_parsing@tentacle --pidfile=/opt/celery/w_parsing@tentacle.pid --logfile=/var/log/octopus/w_parsing@tentacle.log --loglevel=INFO --concurrency=1 -E
+celery beat -A octo.octo_celery:app --pidfile=/opt/celery/beat.pid --logfile=/var/log/celery/beat.log --loglevel=info --schedule=--schedule=django_celery_beat.schedulers:DatabaseScheduler
+
 """
 
 # CELERY_BIN = "/var/www/octopus/venv/bin/celery"

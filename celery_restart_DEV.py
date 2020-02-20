@@ -17,6 +17,7 @@ nssm.exe edit CELERY_routines && nssm.exe edit CELERY_alpha && nssm.exe edit CEL
 
 celery multi start w_parsing@tentacle -A octo.octo_celery:app --pidfile=/opt/celery/w_parsing@tentacle.pid --logfile=/var/log/octopus/w_parsing@tentacle.log --loglevel=INFO --concurrency=1 -E
 celery -A octo w_parsing@tentacle --pidfile=/opt/celery/w_parsing@tentacle.pid --logfile=/var/log/octopus/w_parsing@tentacle.log --loglevel=INFO --concurrency=1 -E
+celery beat -A octo.octo_celery:app --detach --pidfile=/opt/celery/beat.pid --logfile=/var/log/celery/beat.log --loglevel=info --schedule=--schedule=django_celery_beat.schedulers:DatabaseScheduler
 """
 
 # CELERY_BIN = "/var/www/octopus/venv/bin/celery"
@@ -30,14 +31,14 @@ CELERYD_NODES = [
     # "w_development@tentacle",
     "w_parsing@tentacle",
     "w_routines@tentacle",
-    "alpha@tentacle",
-    "beta@tentacle",
+    # "alpha@tentacle",
+    # "beta@tentacle",
     # "charlie@tentacle",
     # "delta@tentacle",
     # "echo@tentacle",
     # "foxtrot@tentacle",
-    # "golf@tentacle",
-    # 'hotel@tentacle',
+    "golf@tentacle",
+    'hotel@tentacle',
     # 'india@tentacle',
     # 'juliett@tentacle',
     # 'kilo@tentacle',
@@ -57,6 +58,9 @@ commands_list_kill = "pkill -9 -f 'celery worker'"
 
 FLOWER_CMD = "{CELERY_BIN} flower --broker=amqp://octo_user:hPoNaEb7@localhost:5672/tentacle --broker_api=http://octo_user:hPoNaEb7@localhost:15672/api/"
 FLOWER_KILL = "pkill -9 -f 'celery flower'"
+
+BEAT_CMD = "{CELERY_BIN} beat -A octo.octo_celery:app --detach --pidfile=/opt/celery/beat.pid --logfile={PATH}/beat.log --loglevel=info --schedule=--schedule=django_celery_beat.schedulers:DatabaseScheduler"
+BEAT_KILL = "pkill -9 -f 'celery beat'"
 
 
 def th_run(args):
@@ -85,7 +89,7 @@ def th_run(args):
 
     # Working dir:
     cwd_path = dict(
-        wsl_work='/var/www/lobster/',
+        wsl_work='/mnt/d/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/',
         wsl_home='',
         octopus='/var/www/octopus/',
         lobster='/var/www/octopus/',
@@ -123,6 +127,16 @@ def th_run(args):
         else:
             # Later add restart for single worker if needed?
             print("No celery actions!")
+
+    if args.beat:
+        if 'start' in args.beat:
+            print("Start Celery Beat")
+            beat_cmd = BEAT_CMD.format(CELERY_BIN=CELERY_BIN, PATH=CELERY_LOG_PATH)
+            commands_list_ready.append(beat_cmd)
+        elif 'kill' in args.beat:
+            print("Kill Celery Beat")
+            beat_cmd = BEAT_KILL
+            commands_list_ready.append(beat_cmd)
 
     if args.flower:
         if 'start' in args.flower:
@@ -186,6 +200,7 @@ def worker_restart(**args_d):
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-s', '--server', choices=['start', 'kill'])
 parser.add_argument('-C', '--celery', choices=['start', 'kill'])
+parser.add_argument('-B', '--beat', choices=['start', 'kill'])
 parser.add_argument('-F', '--flower', choices=['start', 'kill'])
 parser.add_argument('-e', '--env', choices=['wsl_work', 'wsl_home', 'octopus', 'lobster'], required=True)
 th_run(parser.parse_args())
@@ -195,8 +210,10 @@ On WSL:
 su user then activate env, then run
 
 Run celery and flower as separate, due flower will use std:
-venv/bin/python celery_restart_DEV.py --env=wsl_work --celery=kill; venv/bin/python celery_restart_DEV.py --env=wsl_work --celery=start
-venv/bin/python celery_restart_DEV.py --env=wsl_work --flower=kill; venv/bin/python celery_restart_DEV.py --env=wsl_work --flower=start
+source /var/www/lobster/venv/bin/activate
+python celery_restart_DEV.py --env=wsl_work --celery=kill; python celery_restart_DEV.py --env=wsl_work --celery=start
+python celery_restart_DEV.py --env=wsl_work --beat=kill; python celery_restart_DEV.py --env=wsl_work --beat=start
+python celery_restart_DEV.py --env=wsl_work --flower=kill; python celery_restart_DEV.py --env=wsl_work --flower=start
 
 venv/bin/python celery_restart_DEV.py --env=wsl_work --celery=start --server=start
 

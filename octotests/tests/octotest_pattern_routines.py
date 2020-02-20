@@ -4,11 +4,13 @@ Example for octo test
 import unittest
 import datetime
 import pytz
+import logging
 
 try:
     from octotests import octo_tests
     import octo.config_cred as conf_cred
     from octo import settings
+    log = logging.getLogger("octo.octologger")
 except ModuleNotFoundError:
     import octotests.octo_tests
 
@@ -174,11 +176,12 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         #     addm_group__in=['alpha'],
         #     addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
         #     disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
         if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
-            # self.run_case()
-            print("PROD MACHINE")
+            log.warning("PROD MACHINE")
         else:
-            print(f"DEV MACHINE {conf_cred.DEV_HOST} curr host {settings.CURR_HOSTNAME}")
+            log.warning(f"DEV MACHINE {conf_cred.DEV_HOST} curr host {settings.CURR_HOSTNAME}")
 
 
 if __name__ == "__main__":

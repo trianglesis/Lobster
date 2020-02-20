@@ -75,6 +75,10 @@ class Runner:
         if t_task_time_limit:
             task_options.update(task_time_limit=t_task_time_limit)
 
+        # TODO: Overriding on local
+        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
+            fake_run = True
+
         # Do not really send a task if fake=True
         if not fake_run:
             return task.apply_async(**task_options)
