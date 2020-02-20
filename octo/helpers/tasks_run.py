@@ -85,8 +85,5 @@ class Runner:
             log.info(msg)
             task_options.update(args=['fire_t', to_sleep])
             task_options.update(kwargs=dict(t_args=t_args, t_kwargs=t_kwargs))
-            if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
-                return TSupport.fake_task.apply_async(**task_options)
-            else:
-                log.warning('<=Runner Fire Task=> Windows OS run!!!')
-                return TSupport.fake_task.apply_async(**task_options)
+            log.warning('<=Runner Fire Task=> DEVELOPMENT MODE WILL NOT EXECUTE TASKS, BUT EMULATE WORK BY USING FAKE TASK')
+            return TSupport.fake_task.apply_async(**task_options)

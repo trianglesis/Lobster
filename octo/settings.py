@@ -103,7 +103,8 @@ DATABASES = {
         'PORT': cred['PORT'],
         'CONN_MAX_AGE': 3600,
         'OPTIONS': {
-            'read_default_file': '/etc/my.cnf',
+            # 'read_default_file': '/etc/my.cnf',
+            'read_default_file': '/etc/my.cnf.d/win_mysql.cnf',
             # 'init_command': 'SET default_storage_engine=INNODB;'
             # 'init_command': 'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',
             # 'init_command': 'SET default_storage_engine=INNODB',

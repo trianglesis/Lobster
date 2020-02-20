@@ -85,7 +85,7 @@ def th_run(args):
 
     # Working dir:
     cwd_path = dict(
-        wsl_work='/mnt/d/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/',
+        wsl_work='/var/www/lobster/',
         wsl_home='',
         octopus='/var/www/octopus/',
         lobster='/var/www/octopus/',

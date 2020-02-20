@@ -72,6 +72,7 @@ class PatternTestUtils(unittest.TestCase):
         self.user_and_mail()
 
     def run_case(self):
+        log.debug("Making test jobs...")
         # Select addm:
         self.select_addm_set()
         # Sort test over selected ADDM groups:

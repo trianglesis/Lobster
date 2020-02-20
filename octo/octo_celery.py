@@ -15,8 +15,13 @@ from kombu import Exchange
 # set the default Django settings module for the 'celery' program.
 if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octo.win_settings')
+    backend = conf_cred.cred['wsl_backend']
+    result_backend = conf_cred.cred['wsl_result_backend']
+
 else:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octo.settings')
+    backend = conf_cred.cred['backend']
+    result_backend = conf_cred.cred['result_backend']
 # Setup django project
 django.setup()
 # curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
@@ -27,7 +32,7 @@ app = Celery('octo',
              broker=conf_cred.cred['broker'],
 
              # http://docs.celeryproject.org/en/latest/userguide/configuration.html#result-backend
-             backend=conf_cred.cred['backend'],
+             backend=backend,
              )
 
 # Using a string here means the worker doesn't have to serialize
@@ -60,8 +65,8 @@ app.conf.update(
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#database-url-examples
     # https://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#keeping-results
     # 1406, "Data too long for column 'result' at row 1" - it's not so important to keep it in DB
-    result_backend = conf_cred.cred['result_backend'],
-    database_engine_options = {'pool_timeout': 90},
+    result_backend=result_backend,
+    database_engine_options={'pool_timeout': 90},
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#beat-scheduler
     beat_scheduler='django_celery_beat.schedulers:DatabaseScheduler',
