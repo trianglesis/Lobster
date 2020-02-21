@@ -46,21 +46,21 @@
         <!-- Navbar right part content -->
         <div class="nav-reports-right digest-test-log-levels"><!-- No Log levels sort for ADDM Digest: --></div>
     </nav>
-    {# Break queryset to portions based on tky_type, and then render ech type in it's own table   #}
-    {% regroup object_list|dictsort:'tku_type' by tku_type as tku_type_tests %}
+    {# Break queryset to portions based on mode_key, and then render ech type in it's own table   #}
+    {% regroup object_list|dictsort:'mode_key' by mode_key as mode_key_tests %}
     <div class="upload-test-today-content">
         <div class="row">
-            {% for test_tku_type in tku_type_tests %}
+            {% for test_mode_key in mode_key_tests %}
                 <div class="col-sm-6">
                     <div class="card">
-                        <div class="card-header">{{ test_tku_type.grouper }}</div>
+                        <div class="card-header">{{ test_mode_key.grouper }}</div>
                         <div class="card-body">
-                            <h5 class="card-title">Mode key: "{{ test_tku_type.list.0.mode_key }}"</h5>
-                            {% include 'digests/tables_details/today_table.html' with object_list=test_tku_type.list %}
-                            <p class="card-text"><small class="text-muted">Package name: {{ test_tku_type.list.0.package_type }}</small></p>
+                            <h5 class="card-title">Mode key: "{{ test_mode_key.list.0.mode_key }}"</h5>
+                            {% include 'digests/tables_details/today_table.html' with object_list=test_mode_key.list %}
+                            <p class="card-text"><small class="text-muted">Package name: {{ test_mode_key.list.0.package_type }}</small></p>
                         </div>
                         <div class="card-footer">
-                            <small class="text-muted">Test mode: {{ test_tku_type.list.0.test_mode }}</small>
+                            <small class="text-muted">Test mode: {{ test_mode_key.list.0.test_mode }}</small>
                         </div>
                     </div>
                 </div>
