@@ -17,17 +17,20 @@ function secondsToTime(secNum) {
 /**
  *
  * @param {Array} dataJSON
- * @param {string} case_id
- * @param testPyPath
- * @param casesIds
+ * @param {string} case_id: id of the case item from Test Cases
+ * @param testPyPath: path to test.py file, which is unique
+ * @param casesIds: an array of selected cases by ID
+ * @param test_id: id of the current test record, used to find according record from JSON
  * @returns {[]}
  */
 function makeCaseTestDataSet(dataJSON,
                              case_id = undefined,
                              testPyPath = undefined,
-                             casesIds = []) {
+                             casesIds = [],
+                             test_id = undefined) {
     let temp = [];
     let caseTestDataArr = [];
+    // TODO: Find a corresponds item in JSON by most unique value, like test record ID from table and on JSON
     for (let testItem of dataJSON) {
         //For case on last test
         if (case_id && (parseInt(testItem['case_id']) === parseInt(case_id))) {
@@ -36,6 +39,11 @@ function makeCaseTestDataSet(dataJSON,
             return caseTestDataArr
         // For test on test details tables
         } else if (case_id && (parseInt(testItem['id']) === parseInt(case_id))) {
+            console.log("Getting case by test id");
+            caseTestDataArr.push(testItem);
+            return caseTestDataArr
+        // For test where its ID corresponds an ID in JSON data from page footer
+        } else if (case_id && (parseInt(testItem['id']) === parseInt(test_id))) {
             console.log("Getting case by test id");
             caseTestDataArr.push(testItem);
             return caseTestDataArr

@@ -207,6 +207,8 @@ th_run(parser.parse_args())
 
 """
 On WSL:
+/usr/sbin/sshd -D
+
 su user then activate env, then run
 
 Run celery and flower as separate, due flower will use std:

@@ -4,6 +4,11 @@
 
 let relCasesTestLogs = [];
 let caseDataREST = [];
+let buttonCaseDataSet = {
+    'case_id': undefined,
+    'tst_class': undefined,
+    'tst_name': undefined,
+};
 let modal = '';
 let button = '';
 button.data = function (testId) {
@@ -28,12 +33,23 @@ $(document).ready(function () {
 $(document).ready(function () {
     $('#actionsModal').on('show.bs.modal', function (event) {
         button = getButtonFromEvent(event);  // Get some context values from modal button 'Actions'
-        console.log(button.data('test_py_path'));
+        console.log(button[0].dataset);
+        // We better use button dataset to assign most unique values to those, rather than trying to get
+        // them from JSON by any kind of comparison.
+        if (button.data('test_py_path')) {
+            buttonCaseDataSet.test_py_path = button.data('test_py_path')
+        }
+        if (button.data('tst_class')) {
+            buttonCaseDataSet.tst_class = button.data('tst_class')
+        }
+        if (button.data('tst_name')) {
+            buttonCaseDataSet.tst_name = button.data('tst_name')
+        }
         relCasesTestLogs = makeCaseTestDataSet(tests_digest_json, '', button.data('test_py_path'));
         modal = document.getElementById("actionsModal");
         // Run REST get to obtain related case for this test:
         // Use one
-        console.log(`relCasesTestLogs: ${relCasesTestLogs}`);
+        console.log(`relCasesTestLogs: ${relCasesTestLogs[0]}`);
         new RESTGetCaseByTestPyPath(relCasesTestLogs[0], fillModalBodyAfterREST);
     })
 });
@@ -57,11 +73,15 @@ function fillModalBodyAfterREST(caseItem) {
     // Assign REST result case data to this var to use for post task and toast drawing
     caseDataREST = caseItem;
     // We only require case_id key attr for buttons, there is no reason to pass whole data
-    let buttonCaseDataSet = {
-        'case_id': caseItem['id'],
-        'tst_class': relCasesTestLogs[0]['tst_class'],
-        'tst_name': relCasesTestLogs[0]['tst_name'],
-    };
+    buttonCaseDataSet.case_id = caseItem['id'];
+
+    // Alt way to assign test method, but should not be used by default, only if there was a problem with actual assign
+    if (!buttonCaseDataSet.tst_class) {
+        buttonCaseDataSet.tst_class = relCasesTestLogs[0]['tst_class'];
+    }
+    if (!buttonCaseDataSet.tst_class) {
+        buttonCaseDataSet.tst_name = relCasesTestLogs[0]['tst_name'];
+    }
     console.table(`Using set: ${buttonCaseDataSet}`);
 
     // Fill modal body with case details after REST:

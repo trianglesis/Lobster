@@ -107,12 +107,6 @@
                                     <a class="btn btn-sm btn-outline-info" id="addm_sync_shares" data-toggle="modal" data-target="#addmTableStale">Stale Table</a>
                                 </div>
                             </li>
-                            <li class="list-group-item">
-                                <span class="card-text fl-left">ADDM MobaXterm:</span>
-                                <div class="btn-group fl-right">
-                                    <a class="btn btn-sm btn-outline-info" id="addm_MobaXterm" data-toggle="modal" data-target="#addmMobaXterm">Moba Sessions</a>
-                                </div>
-                            </li>
                         </ul>
                     </div>
                 </div>
@@ -219,7 +213,6 @@
     {% include 'addm_workbench/includes/modal_addm_cmd_run.html' %}
     {% comment %}addmSYNCButtons{% endcomment %}
     {% include 'addm_workbench/includes/modal_addm_sync.html' %}
-    {% include 'addm_workbench/includes/modal_MobaXterm.html' %}
     {# JS #}
     <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
     <script src="{% static 'octopus/js/admin-workbench/addm-btn.js' %}"></script>

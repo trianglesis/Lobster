@@ -33,7 +33,7 @@
                                 <li class="tst_class {% popover 'hover' 'top' 'Future (TBV)' 'Push to copy&paste full test path + TestClass.test000_method for console usage' %}">{{ test.tst_class }}</li>
                                 <li class="tst_name {% popover 'hover' 'top' None 'Show all logs for current test method from history records' %}">
                                     <a style="cursor: pointer"
-                                       href="{% url "test_item_history" %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">{{ test.tst_name }}</a>
+                                       href="{% url 'test_item_history' %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">{{ test.tst_name }}</a>
                                 </li>
                                 <li id="tst_status" class="tst_status">{{ test.tst_status }}{% if not test.tst_status == 'ok' %} <span class="text {% popover 'hover' 'top' 'Future (TBV)' 'Failed test tip, show suggestion about how to fix some kind of issues. (TBV Vote for this)' %}"><i class="fas fa-info"></i></span>{% endif %}</li>
                                 <li id="tst_message" class="tst_message">{{ test.tst_message }}</li>
@@ -45,6 +45,9 @@
                                 {% if not anon_bool %}
                                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                         data-target="#actionsModal"
+                                        data-test_id="{{ test.id }}"
+                                        data-tst_class="{{ test.tst_class }}"
+                                        data-tst_name="{{ test.tst_name }}"
                                         data-test_py_path="{{ test.test_py_path }}"
                                         data-tst_status="{{ context.selector.tst_status }}"
                                         data-addm_name="{{ context.selector.addm_name }}">Actions
