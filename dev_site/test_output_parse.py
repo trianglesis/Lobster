@@ -1,4 +1,6 @@
 if __name__ == "__main__":
+    import re
+
     import logging
     import django
 
@@ -7,12 +9,87 @@ if __name__ == "__main__":
     from octo_tku_patterns.test_executor import TestExecutor
 
     log = logging.getLogger("octo.octologger")
-    test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-WebsphereMQ-WebsphereMQ')
+    parsed = []
+    log.info("Testing Octopus TH out parsing:")
+    test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-OracleRDBMS-OracleRDBMS')
+    # test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-WebsphereMQ-WebsphereMQ')
+    log.debug("test_outputs: %s", test_outputs)
     for test_out in test_outputs:
         log.info("Parsing: %s", test_out.option_key)
         # log.info("Test out: %s", test_out.option_value)
         stderr_output = test_out.option_value
-        parsed = TestExecutor().parse_test_result(stderr_output=stderr_output, test_item=None,
-                                                  addm_item={'addm_name': 'local_ff'}, time_spent_test=None)
-        log.info("Parsed values: %s", parsed)
+        parsed = TestExecutor().parse_test_result(
+            debug=True,
+            stderr_output=stderr_output, test_item=None,
+            addm_item={'addm_name': 'local_ff'}, time_spent_test=None)
 
+    for value in parsed:
+        log.info(value)
+        # log.info(f"Parsed tst_name: "
+        #          f"\n{value['tst_name']} "
+        #          f"\n\t{value['tst_status']}"
+        #          f"\n\t'{value['tst_message']}'"
+        #          f"\n\t'{value.get('fail_message', 'no fail')}'")
+
+
+REGEXES = [
+    re.compile(r"[A-Z]+:\s(test1_Unix_DRDC1_8270)\s\((__main__)\.(DefectCases)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test2_Unix_DRDC1_9174)\s\((__main__)\.(DefectCases)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test3_Unix_DRDC1_10283)\s\((__main__)\.(DefectCases)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test4_Unix_DRDC1_10283)\s\((__main__)\.(DefectCases)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test10_Unix_scan_name)\s\((__main__)\.(TestCluster)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test13_Windows_Oracle11_Rac)\s\((__main__)\.(TestCluster)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test18_Windows_RAC)\s\((__main__)\.(TestCluster)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test9_Unix_Orcl11_RAC)\s\((__main__)\.(TestCluster)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test_AIX12_Clusterware12c_DRDC1_11693)\s\((__main__)\.(TestCluster)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test_Unix_Oracle11_on_Clusterware)\s\((__main__)\.(TestCluster)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+
+    re.compile(r"[A-Z]+:\s(test_Unix_Oracle11_on_HACMP)\s\((__main__)\.(TestCluster)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test_Unix_Oracle11_on_HACMP)\s\((__main__)\.(TestCluster)\)\n-+(?:\n.*(?<![=\-]))+"),
+    re.compile(r"[A-Z]+\:\s(test_Unix_Oracle11_on_HACMP)\s\((__main__)\.(TestCluster)\)\n\-+(?P<fail_message>(?:\n.*(?<!=|-))+)"),
+
+    re.compile(r"[A-Z]+:\s(test_Solaris_zones)\s\((__main__)\.(TestClusteredOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test10_Unix_Orcl9)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test11_Unix_QM001861749)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test12_Windows_Oracle10_patches)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test14_Windows_OraclePE)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test15_Windows_Orcl10)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test16_Windows_Orcl11_file)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test17_Windows_Orcl11_proc_command)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test18_Oracl11_linked_databases)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test19_Oracle11_hostname_resolution)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test1_configipedia_check)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test20_DRDC1_10673)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test21_DRDC1_10989)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test22_DRDC1_12032)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test23_DRDC1_11102)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test24_standalone_to_RAC_12)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test25_DRDC1_12994)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test26_DRDC1_13517)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test27_DRDC1_13246)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test28_Oracle_PSU)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test29_Oracle_lecture)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test2_Unix_Oracle8)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test30_all_service_names)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test31_Oracle_Version_update)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test32_Oracle_SE_12_1)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test33_Oracle_RU_update)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test34_Oracle_unique_name_update)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test35_Oracle_SID_update)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test3_Unix_Oracle9)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test4_Unix_Orcl10_in_eBusiness_env)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test5_Unix_Oracle10_SE_and_PathVsSubdirQM00182199)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test6_Unix_Orcl10_listener_path)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test7_Unix_Orcl11_command)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test8_Unix_Orcl11_file)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test_Oracle12)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test_Oracle12_sql_pdb_dip)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test_Oracle9_resolved_sockets)\s\((__main__)\.(TestOracleRDBMS)\)\n-+(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+
+]
+
+EXPERIMENTAL = [
+    re.compile(r"[A-Z]+:\s(test_Unix_Oracle11_on_HACMP)\s\((__main__)\.(TestCluster)\)(?:(\n.+)+(?=-{69}).*)(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test_Unix_Oracle11_on_HACMP)\s\((__main__)\.(TestCluster)\)(?:(?:\n.+)+(?=-{69}).*)(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+    re.compile(r"[A-Z]+:\s(test18_Oracl11_linked_databases)\s\((__main__)\.(TestOracleRDBMS)\)(?:(?:\n.+)+(?=-69).*)(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
+]

@@ -231,7 +231,7 @@ class TestExecutor:
         return dict(std_output=std_output, stderr_output=stderr_output)
 
     @exception
-    def parse_test_result(self, **test_out) -> dict:
+    def parse_test_result(self, **test_out):
         # noinspection SpellCheckingInspection,PyPep8
         """
             Parse test result during run and add to database.
@@ -292,6 +292,8 @@ class TestExecutor:
             :param test_out:
             :return:
         """
+        debug = test_out.get('debug', False)
+        parsed_debug = []
         user_email = test_out.get('user_email')
 
         last_save = dict(table="last", saved=False)
@@ -310,6 +312,7 @@ class TestExecutor:
 
         # Do not use tst_status to compose RE group to match the result, test_name.module.class is enough.
         re_draft_5 = r'[A-Z]+\:\s({0})\s\(({1})\.({2})\)\n\-+(?P<fail_message>(?:\n.*(?<!=|-))+)'
+        re_draft_6 = r'[A-Z]+:\s({0})\s\(({1})\.({2})\)(?:(?:\n.+)+(?=-{3}).*)(?P<fail_message>(?:\n.*(?<![=\-]))+)'
         test_output = re.match(test_name_f_verb_re, stderr_output)
         if test_output:  # Search for all test declarations after run. In TOP if content.
             test_cases = re.finditer(test_name_f_verb_re, stderr_output)
@@ -321,18 +324,24 @@ class TestExecutor:
                     time_spent_test=time_spent_test
                 )
                 # Check the other part of content for fail|error details with composed regex:
-                fail_details_srt = re_draft_5.format(item.group('test_name'), item.group('module'), item.group('class'))
+                fail_details_srt = re_draft_6.format(item.group('test_name'), item.group('module'), item.group('class'), '{69}')
+                log.debug(f"fail_details_srt: {fail_details_srt}")
                 test_fil_details = re.finditer(fail_details_srt, stderr_output)
                 for detail in test_fil_details:
                     test_res.update(fail_message=detail.group('fail_message').replace("-" * 70, "").replace("=" * 70, ""))
-
-                last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
-                hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
+                if not debug:
+                    last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
+                    hist_save.update(saved=self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
+                else:
+                    parsed_debug.append(test_res)
         else:
             test_res = dict(tst_status='ERROR', fail_message=stderr_output, time_spent_test=time_spent_test)
             log.error("<=PARSE_TEST_RESULT=> test_res %s", test_res)
-            last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
-        return {'last': last_save, 'history': hist_save}
+            # last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
+        if not debug:
+            return {'last': last_save, 'history': hist_save}
+        else:
+            return parsed_debug
 
     @staticmethod
     @exception
