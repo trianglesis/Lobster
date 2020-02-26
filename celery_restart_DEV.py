@@ -72,7 +72,7 @@ def th_run(args):
     # Assign Celery bin paths for different dev environments:
     celery_bin = dict(
         wsl_work='venv/bin/celery',
-        wsl_home='',
+        wsl_home='venv/bin/celery',
         octopus='/var/www/octopus/venv/bin/celery',
         lobster='/var/www/octopus/venv/bin/celery',
     )
@@ -81,7 +81,7 @@ def th_run(args):
     # Assign Celery log paths for different dev environments:
     celery_logs = dict(
         wsl_work='/var/log/octopus',
-        wsl_home='',
+        wsl_home='/var/log/octopus',
         octopus='/var/log/octopus',
         lobster='/var/log/octopus',
     )
@@ -90,7 +90,7 @@ def th_run(args):
     # Working dir:
     cwd_path = dict(
         wsl_work='/mnt/d/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster/',
-        wsl_home='',
+        wsl_home='/mnt/d/Projects/PycharmProjects/lobster/',
         octopus='/var/www/octopus/',
         lobster='/var/www/octopus/',
     )
@@ -207,6 +207,7 @@ th_run(parser.parse_args())
 
 """
 On WSL:
+https://www.jetbrains.com/help/pycharm/using-wsl-as-a-remote-interpreter.html
 /usr/sbin/sshd -D
 
 su user then activate env, then run
@@ -217,6 +218,10 @@ python celery_restart_DEV.py --env=wsl_work --celery=kill; python celery_restart
 python celery_restart_DEV.py --env=wsl_work --beat=kill; python celery_restart_DEV.py --env=wsl_work --beat=start
 python celery_restart_DEV.py --env=wsl_work --flower=kill; python celery_restart_DEV.py --env=wsl_work --flower=start
 
+On scheduler:
+C:\Windows\System32\bash.exe -c "cd ~/lobster; source venv/bin/activate; python celery_restart_DEV.py --env=wsl_home --flower=kill; python celery_restart_DEV.py --env=wsl_home --flower=start"
+C:\Windows\System32\bash.exe -c "cd ~/lobster; source venv/bin/activate; python celery_restart_DEV.py --env=wsl_home --celery=kill; python celery_restart_DEV.py --env=wsl_home --celery=start"
+C:\Windows\System32\bash.exe -c "cd ~/lobster; source venv/bin/activate; python celery_restart_DEV.py --env=wsl_home --beat=kill; python celery_restart_DEV.py --env=wsl_home --beat=start"
 venv/bin/python celery_restart_DEV.py --env=wsl_work --celery=start --server=start
 
 venv/bin/celery flower --broker=amqp://octo_user:hPoNaEb7@localhost:5672/tentacle --broker_api=http://octo_user:hPoNaEb7@localhost:15672/api/

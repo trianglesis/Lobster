@@ -44,6 +44,7 @@ ls /usr/bin/ | grep python
 whereis python
 
 ========= WSGI MOD ================================
+We should have HTTPD installed!
 pip3 install mod_wsgi
 
 ========= VENV ================================
@@ -67,6 +68,7 @@ virtualenv --python=/usr/local/bin/python3.8 venv --system-site-packages
 source venv/bin/activate
 pip install -r "" --ignore-installed
 ========= WSGI INSTALL ================================
+We should have HTTPD installed!
 pip install mod_wsgi
 or in requirements
 
@@ -89,6 +91,11 @@ python3 setup.py install --apidir /home/user/p4BLD/
 
 python3 setup.py build --apidir ../p4api-2018.2.1918133/
 python3 setup.py install --apidir ../p4api-2019.1.1918131/
+
+https://www.perforce.com/perforce/doc.current/user/p4pythonnotes.txt
+python setup.py install
+if this doesn't work, you may need to both build and install in the same incantation:
+python setup.py build --apidir <Perforce C++ API absolute path> --ssl <OpenSSL library path> --install
 
 
 WSL paths:
