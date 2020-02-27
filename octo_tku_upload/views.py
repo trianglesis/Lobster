@@ -372,6 +372,9 @@ class TKUOperationsREST(APIView):
         self.addm_group = ''
         self.package_type = ''
         self.package_detail = ''
+        self.test_method = ''
+        self.test_class = ''
+        self.test_module = ''
 
         self.fake_run = False
         self.goto_ = 'http://'+curr_hostname+'/octo_tku_upload/tku_operations/?operation_key='
@@ -406,6 +409,9 @@ class TKUOperationsREST(APIView):
             self.test_mode = self.request.POST.get('test_mode', None)
             self.tku_type = self.request.POST.get('tku_type', None)
             self.package_type = self.request.POST.get('package_type', None)
+            self.test_method = self.request.POST.get('test_method', None)
+            self.test_class = self.request.POST.get('test_class', None)
+            self.test_module = self.request.POST.get('test_module', None)
 
         elif self.request.GET:
             self.operation_key = self.request.GET.get('operation_key', None)
@@ -416,6 +422,9 @@ class TKUOperationsREST(APIView):
             self.test_mode = self.request.GET.get('test_mode', None)
             self.tku_type = self.request.GET.get('tku_type', None)
             self.package_type = self.request.GET.get('package_type', None)
+            self.test_method = self.request.GET.get('test_method', None)
+            self.test_class = self.request.GET.get('test_class', None)
+            self.test_module = self.request.GET.get('test_module', None)
 
         self.is_authenticated = self.request.user.is_authenticated
         self.user_name = self.request.user.get_username()
@@ -479,21 +488,23 @@ class TKUOperationsREST(APIView):
         :return:
         """
 
-        # HERE: We no longer require to keep view/request based data
         kw_options = dict(
-            data=self.request.data,
+            test_method=self.test_method,
+            test_class=self.test_class,
+            test_module=self.test_module,
             user_name=self.request.user.username,
             user_email=self.request.user.email,
         )
         t_tag = f'tag=t_upload_test;user_name={self.request.user.username};'
         t_queue = 'w_routines@tentacle.dq2'
-        t_routing_key = 'routines.TUploadExec.t_upload_test'
-        task = TUploadExec.t_upload_test.apply_async(
-            args=[t_tag],
-            kwargs=kw_options,
-            queue=t_queue,
-            routing_key=t_routing_key,
-        )
+        t_routing_key = 'routines.TUploadExec.t_upload_routines'
+        task = Runner.fire_t(TUploadExec.t_upload_routines,
+                             # fake_run=self.fake_run, to_sleep=2, to_debug=True,
+                             args=[t_tag],
+                             t_kwargs=kw_options,
+                             t_queue=t_queue,
+                             t_routing_key=t_routing_key,)
+
         log.debug("task_added: %s", task.id)
         return {'task_id': task.id}
 

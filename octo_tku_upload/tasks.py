@@ -2,7 +2,6 @@ from __future__ import absolute_import, unicode_literals
 
 import datetime
 import logging
-import os
 from itertools import groupby
 from operator import itemgetter
 # noinspection PyUnresolvedReferences
@@ -19,10 +18,9 @@ from octo.octo_celery import app
 from octo.tasks import TSupport
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.test_executor import UploadTestExec
+from octotests.tests_discover_run import TestRunnerLoc
 from run_core.local_operations import LocalDownloads
 from run_core.models import AddmDev
-
-from octotests.tests_discover_run import TestRunnerLoc
 
 log = logging.getLogger("octo.octologger")
 logger = get_task_logger(__name__)
@@ -84,7 +82,7 @@ class TUploadExec:
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
     def t_upload_prep(t_tag, **kwargs):
-        return UploadTestExec().upload_preparations_threads(**kwargs)
+        return UploadTestExec().upload_preparations(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
@@ -326,46 +324,41 @@ class UploadTaskPrepare:
         Upload test initial step, prepare ADDM before install TKU.
         It could be - removing old TKU, product content, restart services.
         """
-        t_kwargs = ''
+        options = ''
 
-        # TODO: Maybe move this to upload_preparations_threads? OR to test utils?
+        # TODO: Maybe move this to upload_preparations? OR to test utils?
         if self.test_mode == 'fresh' and step_k == 'step_1':
             self.vcenter_prepare(mode='snapRevert')
-            t_kwargs = dict(test_mode='fresh')  # 1st step is always fresh
+            options = dict(test_mode='fresh')  # 1st step is always fresh
             log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - TKU wipe and prod content delete!")
 
         elif self.test_mode == 'update' and step_k == 'step_1':
-            t_kwargs = dict(test_mode='fresh')  # 1st step is always fresh
+            options = dict(test_mode='fresh')  # 1st step is always fresh
             log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - TKU wipe and prod content delete!")
 
         elif self.test_mode == 'step' and step_k == 'step_1':
-            t_kwargs = dict(test_mode='step')  # It can be not fresh, because we install one by one
+            options = dict(test_mode='step')  # It can be not fresh, because we install one by one
             log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - will install over previous TKU !")
 
         elif self.test_mode == 'tideway_content' or self.test_mode == 'tideway_devices':
-            t_kwargs = dict(test_mode=self.test_mode)
+            options = dict(test_mode=self.test_mode)
             log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - Will delete '{self.test_mode}'!")
 
         else:
             log.debug(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - no preparations.")
 
-        if t_kwargs:
+        if options:
             for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
-                t_kwargs.update(addm_items=addm_items, addm_group=addm_group, step_k=step_k, user_email=self.user_email)
+                options.update(addm_items=addm_items, addm_group=addm_group, step_k=step_k, user_email=self.user_email)
                 subject = f"UploadTaskPrepare | addm_prepare | {self.test_mode} | {addm_group} | {step_k}"
                 body = f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, "
                 self.mail(t_args=[f"UploadTaskPrepare.addm_prepare"],
                           t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
                           t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail",
                           t_queue=f'{addm_group}@tentacle.dq2')
-                task = Runner.fire_t(TUploadExec.t_upload_prep,
-                                     # fake_run=True, to_sleep=2, to_debug=True,
-                                     t_queue=f'{addm_group}@tentacle.dq2',
-                                     t_args=[f"UploadTaskPrepare.addm_prepare;task=t_upload_prep;test_mode={self.test_mode};"
-                                             f"addm_group={addm_group};user={self.user_name}"],
-                                     t_kwargs=t_kwargs,
-                                     t_routing_key=f"{addm_group}.TUploadExec.t_upload_prep")
-                self.tasks_added.append(task)
+                # New approach:
+                results = UploadTestExec().upload_preparations(**options)
+                self.tasks_added.append(results)
 
     def package_unzip(self, step_k, packages_from_step):
         """
@@ -379,6 +372,7 @@ class UploadTaskPrepare:
         for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path')
             subject = f"UploadTaskPrepare | t_upload_unzip | {self.test_mode} | {addm_group} | {step_k}"
+            log.info(f"<=package_unzip=> Actually start task: {subject}")
             body = f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, " \
                    f"packages: {list(packs)}"
             self.mail(t_args=[f"UploadTaskPrepare.package_unzip"],
@@ -401,6 +395,7 @@ class UploadTaskPrepare:
         for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path')
             subject = f"UploadTaskPrepare | t_tku_install | {self.test_mode} | {addm_group} | {step_k}"
+            log.info(f"<=tku_install=> Actually start task: {subject}")
             body = f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, " \
                    f"packages: {list(packs)}, package_detail: {self.package_detail}"
             self.mail(t_args=[f"UploadTaskPrepare.tku_install"],

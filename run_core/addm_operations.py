@@ -12,25 +12,22 @@ double_decker                 172.25.144.122    vl-aus-tkudev-42    ADDM_10_1   
 
 """
 
-import datetime
 # Python logger
 import logging
 import os
-import re
+from queue import Queue
 from time import sleep
 from time import time
-from queue import Queue
-
-from django.db.models.query import QuerySet
 
 # noinspection PyCompatibility
 import paramiko
+from django.db.models.query import QuerySet
 from paramiko import SSHClient
 
 import octo.config_cred as conf_cred
 from octo import settings
-from octo.helpers.tasks_run import Runner
 from octo.helpers.tasks_mail_send import Mails
+from octo.helpers.tasks_run import Runner
 from run_core.models import AddmDev, ADDMCommands
 
 log = logging.getLogger("octo.octologger")
@@ -105,7 +102,7 @@ class ADDMStaticOperations:
     def select_operation(command_key):
         operations = ADDMCommands.objects.all()
         if isinstance(command_key, str):
-            operations = operations.filter(command_key__exact=command_key)
+            operations = operations.get(command_key__exact=command_key)
         elif isinstance(command_key, list):
             operations = operations.filter(command_key__in=command_key)
         else:
@@ -170,7 +167,9 @@ class ADDMStaticOperations:
         for test_th in th_list:
             test_th.join()
             th_out.append(out_q.get())
-        return {cmd_k: th_out, 'time': time() - ts}
+        output = {cmd_k: th_out, 'time': time() - ts}
+        log.info(f"ADDM CMD Output: {output}")
+        return output
 
     @staticmethod
     def run_static_cmd(out_q, addm_item, operation_cmd, ssh):

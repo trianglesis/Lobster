@@ -33,6 +33,7 @@ class UploadTestExec:
                 'test.kill',
                 'tku.install.kill',
                 'tw_scan_control.clear',
+                'tw_service_control.restart.reasoning',
                 'tw_pattern_management.remove_all',
                 'rpm.delete.tideway_content',
                 'rpm.delete.tideway_devices',
@@ -70,7 +71,7 @@ class UploadTestExec:
             r"Pattern\smodule\s(?P<module>\S+)\s+Errors:\s+(?P<error>.+)")
 
     @exception
-    def upload_preparations_threads(self, **kwargs):
+    def upload_preparations(self, **kwargs):
         """
         Run sequence of commands on each ADDM to prepare it for TKU Install.
         Usually just delete older TKU (to install released one later), restart services and so on.
@@ -82,33 +83,24 @@ class UploadTestExec:
         step_k = kwargs.get('step_k', None)
         addm_group = kwargs.get('addm_group', None)
 
-        ts = time()
-        start_time = datetime.now()
-        thread_outputs = []
-
         preps = self.preparation_steps[test_mode]
-        commands = ADDMStaticOperations.select_operation(preps)
-        for operation_cmd in commands:
-            log.info(f"<=UploadTestExec=> Running {operation_cmd.command_key} for ADDM set in threading mode.")
-            # Normal run: loop over commands list, one cmd = one threaded instance: (do not work, die after 1st)
-            # out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
+        for operation in preps:
+            operation_cmd = ADDMStaticOperations.select_operation(operation)
+            log.info(f"<=UploadTestExec=> Running {operation_cmd.command_key} for ADDM set in task mode.")
             # Alternate run: execute each as separate task with single CMD:
-            t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_email={user_email};command_k={operation_cmd.command_key};'
+            t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_email={user_email};' \
+                    f'command_k={operation_cmd.command_key};'
             t_kwargs = dict(addm_set=addm_items, operation_cmd=operation_cmd)
-            task = Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
-                                 t_queue=f'{addm_group}@tentacle.dq2',
-                                 t_args=[t_tag],
-                                 t_kwargs=t_kwargs,
-                                 t_routing_key=f'{addm_group}.addm_sync_for_test')
-            thread_outputs.append(task)
-        log.info(f"ADDM Preparations output: {thread_outputs}")
+            Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
+                          t_queue=f'{addm_group}@tentacle.dq2',
+                          t_args=[t_tag],
+                          t_kwargs=t_kwargs,
+                          t_routing_key=f'{addm_group}.addm_sync_for_test')
 
-        subject = f"TKU_Upload_routines | upload_preparations_threads | {step_k} |  {addm_group} | Finished!"
-        log.info(subject)
-        body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
-               f"\n\tstart_time: {start_time}, \n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
+        subject = f"TKU_Upload_routines | upload_preparations | {step_k} |  {addm_group} | Executed!"
+        body = f"ADDM group: {addm_group}\ntest_mode: {test_mode}\nstep_k: {step_k}\npreps: {preps}"
         Mails.short(subject=subject, body=body, send_to=[user_email])
-        return f'upload_preparations_threads Took {time() - ts} CMD: {commands} mail: {body}'
+        return f'upload_preparations CMD: {preps} mail: {body}'
 
     @exception
     def upload_unzip_threads(self, **kwargs):
@@ -235,31 +227,6 @@ class UploadTestExec:
                f"start_time: {start_time}, time spent: {time() - ts} mode_key={mode_key} "
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'install_tku_threads Took {time() - ts} {body}'
-
-    @exception
-    def upload_preparations(self, **kwargs):
-        """
-        Run preparations before or after TKU zip upload install.
-        Executes after TKU zips are on places and right before install.
-
-        :return:
-        """
-        test_q = kwargs.get('test_q')
-        ssh = kwargs.get('ssh')
-        mode = kwargs.get('test_mode')
-        addm_item = kwargs.get('addm_item')  # test mode change the level of preparations.
-        cmd_outputs = []
-
-        if ssh and ssh.get_transport().is_active():
-            log.info("<=upload_preparations=> PASSED: SSH Is active")
-
-        preps = self.preparation_steps[mode]
-        for operation_cmd in preps:
-            res = "ADDMStaticOperations().solo_exec_cmd(ssh=ssh, addm_item=addm_item, operation_cmd=operation_cmd)"
-            cmd_outputs.append(f"{operation_cmd} {mode} {addm_item['addm_name']} output: {res}")
-
-        test_q.put(cmd_outputs)
-        return True
 
     @exception
     def install_activate(self, **kwargs):
