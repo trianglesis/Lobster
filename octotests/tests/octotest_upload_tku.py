@@ -89,7 +89,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['beta'],
+            addm_group__in=['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett'],
             addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
@@ -108,7 +108,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['echo'],
+            addm_group__in=['echo', 'foxtrot', 'golf', 'kilo'],
             addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
