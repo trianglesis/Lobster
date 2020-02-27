@@ -85,7 +85,7 @@ class UploadTestExec:
 
         preps = self.preparation_steps[test_mode]
         for operation in preps:
-            operation_cmd = ADDMStaticOperations.select_operation(operation)
+            operation_cmd = ADDMStaticOperations.select_operation(operation).first()
             log.info(f"<=UploadTestExec=> Running {operation_cmd.command_key} for ADDM set in task mode.")
             # Alternate run: execute each as separate task with single CMD:
             t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_email={user_email};' \

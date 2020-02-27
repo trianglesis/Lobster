@@ -102,7 +102,7 @@ class ADDMStaticOperations:
     def select_operation(command_key):
         operations = ADDMCommands.objects.all()
         if isinstance(command_key, str):
-            operations = operations.get(command_key__exact=command_key)
+            operations = operations.filter(command_key__exact=command_key)
         elif isinstance(command_key, list):
             operations = operations.filter(command_key__in=command_key)
         else:
