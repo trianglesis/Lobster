@@ -86,6 +86,7 @@ class UploadTestExec:
         preps = self.preparation_steps[test_mode]
         commands = ADDMStaticOperations.select_operation(preps)
         for operation_cmd in commands:
+            log.info(f"<=UploadTestExec=> Running {operation_cmd.command_key} for ADDM set in threading mode.")
             out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
             thread_outputs.append(out)
         log.info(f"ADDM Preparations output: {thread_outputs}")
