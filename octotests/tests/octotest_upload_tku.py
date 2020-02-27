@@ -190,6 +190,10 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
+    def test005_release_ga_upgrade_and_fresh(self):
+        self.test005_release_ga_upgrade()
+        self.test006_release_ga_fresh()
+
     def test999_tkn_main_continuous_fresh(self):
         self.silent = True
         self.tku_wget = False
