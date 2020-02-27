@@ -120,8 +120,8 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         This group is locked only for upload tests! Cron 24-30 days.
         :return:
         """
-        self.silent = True
-        # self.tku_wget = True
+        # self.silent = True
+        self.tku_wget = True
         self.test_mode = 'update'
         # Update mode will select packages for upgrade test by itself
         # previous = self.select_latest_released()
