@@ -325,7 +325,7 @@ class TestExecutor:
                 )
                 # Check the other part of content for fail|error details with composed regex:
                 fail_details_srt = re_draft_6.format(item.group('test_name'), item.group('module'), item.group('class'), '{69}')
-                log.debug(f"fail_details_srt: {fail_details_srt}")
+                # log.debug(f"fail_details_srt: {fail_details_srt}")
                 test_fil_details = re.finditer(fail_details_srt, stderr_output)
                 for detail in test_fil_details:
                     test_res.update(fail_message=detail.group('fail_message').replace("-" * 70, "").replace("=" * 70, ""))
