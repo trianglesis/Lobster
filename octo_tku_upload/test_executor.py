@@ -71,6 +71,7 @@ class UploadTestExec:
         """
         Run sequence of commands on each ADDM to prepare it for TKU Install.
         Usually just delete older TKU (to install released one later), restart services and so on.
+        test_mode - fresh, update, step, tideway_content, tideway_devices
         """
         user_email = kwargs.get('user_email', None)
         addm_items = kwargs.get('addm_items', None)

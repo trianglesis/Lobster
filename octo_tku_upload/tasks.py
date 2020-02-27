@@ -294,7 +294,9 @@ class UploadTaskPrepare:
             raise Exception(msg)
 
     def tku_run_steps(self):
-        """ Previously composed dict of 'step_n = TKU' now initiates runs"""
+        """ Previously composed dict of 'step_n = TKU' now initiates runs
+            Each 'step = package' instance initiate one iteration:
+        """
         for step_k, packages_v in self.packages.items():
             log.info(f"{_LH_}Processing packages step by step: {step_k}")
             # Power on machines for upload test or check online:
@@ -325,19 +327,25 @@ class UploadTaskPrepare:
         It could be - removing old TKU, product content, restart services.
         """
         t_kwargs = ''
+
+        # TODO: Maybe move this to upload_preparations_threads? OR to test utils?
         if self.test_mode == 'fresh' and step_k == 'step_1':
             self.vcenter_prepare(mode='snapRevert')
-            t_kwargs = dict(test_mode='fresh')
+            t_kwargs = dict(test_mode='fresh')  # 1st step is always fresh
             log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - TKU wipe and prod content delete!")
+
         elif self.test_mode == 'update' and step_k == 'step_1':
-            t_kwargs = dict(test_mode='update')
+            t_kwargs = dict(test_mode='fresh')  # 1st step is always fresh
             log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - TKU wipe and prod content delete!")
+
         elif self.test_mode == 'step' and step_k == 'step_1':
-            t_kwargs = dict(test_mode='step')
-            log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - TKU wipe and prod content delete!")
+            t_kwargs = dict(test_mode='step')  # It can be not fresh, because we install one by one
+            log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - will install over previous TKU !")
+
         elif self.test_mode == 'tideway_content' or self.test_mode == 'tideway_devices':
             t_kwargs = dict(test_mode=self.test_mode)
             log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - Will delete '{self.test_mode}'!")
+
         else:
             log.debug(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - no preparations.")
 
