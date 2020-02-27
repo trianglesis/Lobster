@@ -16,6 +16,9 @@ from time import time
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_helpers import exception
 
+from octo.helpers.tasks_run import Runner
+from octo_adm.tasks import TaskADDMService
+
 from octo_tku_upload.models import UploadTestsNew as UploadTests
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
 
@@ -87,8 +90,17 @@ class UploadTestExec:
         commands = ADDMStaticOperations.select_operation(preps)
         for operation_cmd in commands:
             log.info(f"<=UploadTestExec=> Running {operation_cmd.command_key} for ADDM set in threading mode.")
-            out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
-            thread_outputs.append(out)
+            # Normal run: loop over commands list, one cmd = one threaded instance: (do not work, die after 1st)
+            # out = ADDMStaticOperations().threaded_exec_cmd(addm_set=addm_items, operation_cmd=operation_cmd)
+            # Alternate run: execute each as separate task with single CMD:
+            t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_email={user_email};command_k={operation_cmd.command_key};'
+            t_kwargs = dict(addm_set=addm_items, operation_cmd=operation_cmd)
+            task = Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
+                                 t_queue=f'{addm_group}@tentacle.dq2',
+                                 t_args=[t_tag],
+                                 t_kwargs=t_kwargs,
+                                 t_routing_key=f'{addm_group}.addm_sync_for_test')
+            thread_outputs.append(task)
         log.info(f"ADDM Preparations output: {thread_outputs}")
 
         subject = f"TKU_Upload_routines | upload_preparations_threads | {step_k} |  {addm_group} | Finished!"
@@ -96,7 +108,7 @@ class UploadTestExec:
         body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
                f"\n\tstart_time: {start_time}, \n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
         Mails.short(subject=subject, body=body, send_to=[user_email])
-        return f'upload_preparations_threads Took {time() - ts} {body}'
+        return f'upload_preparations_threads Took {time() - ts} CMD: {commands} mail: {body}'
 
     @exception
     def upload_unzip_threads(self, **kwargs):
@@ -501,7 +513,8 @@ class UploadTestExec:
             formatted_stdout = std_output
 
         try:
-            formatted_stderr = stderr_output.decode('utf-8').replace(chr(27), ';').replace('[0G', '#').replace('[K', '\n')
+            formatted_stderr = stderr_output.decode('utf-8').replace(chr(27), ';').replace('[0G', '#').replace('[K',
+                                                                                                               '\n')
         except Exception as e:
             log.error("STDERR Cannot decode and replace for clear log: %s", e)
             formatted_stderr = stderr_output

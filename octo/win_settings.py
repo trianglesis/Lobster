@@ -36,6 +36,8 @@ CURR_HOSTNAME = socket.getfqdn()
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 INTERNAL_IPS = ['localhost', '127.0.0.1']
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
 # Application definition
 INSTALLED_APPS = [
     # 'django_celery_results',  # Disable if result_backend = 'django-db'

@@ -68,6 +68,7 @@ def exception(function):
             raise Exception(e)
 
         except Exception as e:
+            log.error("Unusual task exception! Check mail or logs for more info.")
             exc_type, exc_value, exc_traceback = sys.exc_info()
             sam = traceback.format_exception(exc_type, exc_value, exc_traceback)
             exc_more = f'{e} Task catches the unusual exception. Please check logs or run debug. \n\t - Traceback: {sam}'
@@ -78,8 +79,11 @@ def exception(function):
                 args=args,
                 kwargs=kwargs,
             )
-            item_sort = json.dumps(error_d, indent=2, ensure_ascii=False, default=pformat)
-            log.error("Task Exception: %s", item_sort)
+            try:
+                item_sort = json.dumps(error_d, indent=2, ensure_ascii=False, default=pformat)
+                log.error("Task Exception: %s", item_sort)
+            except TypeError:
+                log.error("Task Exception: %s", error_d)
             if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
                 TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             raise Exception(e)

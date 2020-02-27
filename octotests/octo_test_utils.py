@@ -409,3 +409,7 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
     @staticmethod
     def select_any_amount_of_packages():
         pass
+
+    @staticmethod
+    def preparation_step():
+        pass
