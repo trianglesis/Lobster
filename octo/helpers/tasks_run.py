@@ -41,8 +41,6 @@ class Runner:
         :param kwargs:
         :return:
         """
-        # from octo.tasks import TSupport
-        # Debug and test options:
         fake_run = kwargs.get('fake_run', False)
         to_debug = kwargs.get('to_debug', False)
 
@@ -72,6 +70,7 @@ class Runner:
         # TODO: Overriding on local
         # if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
         #     fake_run = True
+
         # Do not really send a task if fake=True
         if not fake_run:
             return task.apply_async(**task_options)

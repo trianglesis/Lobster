@@ -263,7 +263,7 @@ class PatternTestUtils(unittest.TestCase):
                           t_queue=f'{_addm_group}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
-                          t_routing_key=f'{_addm_group}.addm_sync_for_test')
+                          t_routing_key=f'PatternTestUtils.{_addm_group}.sync_test_data_addm_set.TaskADDMService.t_addm_cmd_thread')
 
     def start_mail(self, _addm_group, addm_tests, addm_tests_weight, tent_avg):
         self.mail_task_arg = 'tag=night_routine;lock=True;lvl=auto;type=send_mail'

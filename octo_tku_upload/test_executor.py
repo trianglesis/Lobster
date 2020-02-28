@@ -89,7 +89,7 @@ class UploadTestExec:
             operation_cmd = ADDMStaticOperations.select_operation(operation).first()
             log.info(f"<=UploadTestExec=> Running: {operation} selected: {operation_cmd.command_key} for ADDM set in task mode.")
             # Alternate run: execute each as separate task with single CMD:
-            t_tag = f'tag=t_addm_rsync_threads;addm_group={addm_group};user_email={user_email};' \
+            t_tag = f'tag=t_addm_cmd_thread;addm_group={addm_group};user_email={user_email};' \
                     f'command_k={operation_cmd.command_key};'
             t_kwargs = dict(addm_set=addm_items, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
@@ -97,7 +97,7 @@ class UploadTestExec:
                           t_queue=f'{addm_group}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
-                          t_routing_key=f'{addm_group}.addm_sync_for_test')
+                          t_routing_key=f'{addm_group}.upload_preparations.TaskADDMService.t_addm_cmd_thread')
 
         subject = f"TKU_Upload_routines | upload_preparations | {step_k} |  {addm_group} | Executed!"
         body = f"ADDM group: {addm_group}\ntest_mode: {test_mode}\nstep_k: {step_k}\npreps: {preps}"

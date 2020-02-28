@@ -96,19 +96,24 @@ class TSupport:
         :param kwargs:
         :return:
         """
-        t_args = kwargs.get('t_args')
-        t_kwargs = kwargs.get('t_kwargs')
+        args = kwargs.get('args')
+        _kwargs = kwargs.get('kwargs')
+
+        queue = kwargs.get('queue')
+        routing_key = kwargs.get('routing_key')
+        soft_time_limit = kwargs.get('soft_time_limit')
+        task_time_limit = kwargs.get('task_time_limit')
+
         to_sleep = kwargs.get('to_sleep')
         to_debug = kwargs.get('to_debug')
-        t_routing_key = kwargs.get('t_routing_key')
-        t_queue = kwargs.get('t_queue')
 
-        log.info(f"<=Fake Task=> Running task: {t_routing_key}, queue: {t_queue}")
+        msg = ''
         if to_debug:
-            log.info(f'<=Fake Task=> Args: {t_args} Kwargs: {t_kwargs}')
+            msg = f'Args: {args} \n\tKwargs: {_kwargs}'
+        log.info(f"<=Fake Task=> Start.\n\tRunning task: \n\t{routing_key}\n\tqueue: {queue}\n\t{msg}")
 
         sleep(to_sleep)
-        return f'<=Fake Task=> Finished work: {t_routing_key}, queue: {t_queue}'
+        return f'<=Fake Task=> Finished work: {routing_key}, queue: {queue}.\t\tEnd.'
 
 
 class TInternal:

@@ -276,7 +276,7 @@ class TaskPrepare:
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_sync = Runner.fire_t(TPatternParse.t_p4_sync,
                                   fake_run=self.fake_run, t_args=[t_tag], t_queue='w_parsing@tentacle.dq2',
-                                  t_routing_key='parsing.perforce.TaskPrepare.sync_depot')
+                                  t_routing_key='parsing.perforce.TaskPrepare.sync_depot.TPatternParse.t_p4_sync')
         if not self.fake_run:
             log.debug("<=TaskPrepare=> Start waiting for t_p4_sync...")
             if TasksOperations().task_wait_success(t_p4_sync, 't_p4_sync'):
@@ -569,7 +569,7 @@ class TaskPrepare:
                               t_queue=f'{addm["addm_group"]}@tentacle.dq2',
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
-                              t_routing_key=f'{addm["addm_group"]}.addm_sync_for_test')
+                              t_routing_key=f'{addm["addm_group"]}.addm_rsync.TaskADDMService.t_addm_cmd_thread')
 
     def prep_step(self, addm_set):
         log.info("<=TaskPrepare=> Preparing step before test run!")
@@ -587,7 +587,7 @@ class TaskPrepare:
                 addm = mail_opts.get('addm_set').first()
                 test_item = mail_opts.get('test_item')
 
-                mail_r_key = f'{addm["addm_group"]}.TSupport.t_user_mail.{mode}'
+                mail_r_key = f'{addm["addm_group"]}.TSupport.t_user_mail.{mode}.TSupport.t_user_test'
                 t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'test_py_path={test_item["test_py_path"]}'
 

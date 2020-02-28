@@ -331,7 +331,7 @@ class ADDMStaticOperations:
                                      t_queue=f'{addm_}@tentacle.dq2',
                                      t_args=[t_tag],
                                      t_kwargs=t_kwargs,
-                                     t_routing_key=f'{addm_}.addm_custom_cmd'
+                                     t_routing_key=f'{addm_}.run_operation_cmd.TaskADDMService.t_addm_cmd_thread'
                                      )
                 tasks_ids.update({addm_: task.id})
         return tasks_ids

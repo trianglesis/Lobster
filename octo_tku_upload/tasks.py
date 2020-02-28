@@ -383,7 +383,7 @@ class UploadTaskPrepare:
                                  t_kwargs=dict(addm_items=addm_items, addm_group=addm_group,
                                                test_mode=self.test_mode, step_k=step_k,
                                                packages=packages_from_step, user_email=self.user_email),
-                                 t_routing_key=f"{addm_group}.TUploadExec.t_upload_unzip")
+                                 t_routing_key=f"{addm_group}.TUploadExec.package_unzip.TUploadExec.t_upload_unzip")
             self.tasks_added.append(task)
 
     def tku_install(self, step_k, packages_from_step):
@@ -407,7 +407,7 @@ class UploadTaskPrepare:
                                                test_mode=self.test_mode, step_k=step_k,
                                                packages=packages_from_step, package_detail=self.package_detail,
                                                user_email=self.user_email),
-                                 t_routing_key=f"{addm_group}.TUploadExec.t_tku_install")
+                                 t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
             self.tasks_added.append(task)
 
     def mail(self, t_kwargs, t_queue=None, t_args=None, t_routing_key=None):

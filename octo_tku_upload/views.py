@@ -499,7 +499,7 @@ class TKUOperationsREST(APIView):
         )
         t_tag = f'tag=t_upload_test;user_name={self.request.user.username};test_method={self.test_method}'
         t_queue = 'w_routines@tentacle.dq2'
-        t_routing_key = 'routines.TUploadExec.t_upload_routines'
+        t_routing_key = 'TKUOperationsREST.tku_install_test.TUploadExec.t_upload_routines'
         task = Runner.fire_t(TUploadExec.t_upload_routines,
                              # fake_run=self.fake_run, to_sleep=2, to_debug=True,
                              args=[t_tag],
