@@ -49,7 +49,7 @@ class TestRunnerLoc:
         else:
             octo_core = '/var/www/octopus/'
             activate = 'source venv/bin/activate'
-            deactivate = 'source venv/bin/deactivate'
+            deactivate = 'deactivate'
 
         # Set unit test cmd:
         if test_module and test_class and test_method:
