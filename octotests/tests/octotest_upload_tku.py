@@ -190,9 +190,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.run_case()
 
     def test009_release_ga_upgrade_and_fresh(self):
-        # self.tku_wget = True
-        # self.silent = True
-        # self.fake_run = True
+        self.tku_wget = True
         self.test005_release_ga_upgrade()
         self.test006_release_ga_fresh()
 
