@@ -1,6 +1,6 @@
 <div class="modal fade" id="releaseUpload" tabindex="-1" role="dialog"
      aria-labelledby="releaseUploadLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="releaseUploadLabel">Run upload test for release</h5>
@@ -12,6 +12,21 @@
                 <p>Actions:</p>
                 <div class="btn-rows">
                     <div class="flex-space-bw">
+                        {# test_method=test009_release_ga_upgrade_and_fresh;test_class=OctoTestCaseUpload;test_module=octotests.tests.octotest_upload_tku#}
+                        <a class="btn btn-sm btn-info"
+                           id="ga_upgrade-fresh-install"
+                           data-test_method="test009_release_ga_upgrade_and_fresh"
+                           data-test_class="OctoTestCaseUpload"
+                           data-test_module="octotests.tests.octotest_upload_tku">
+                            GA Upgrade | GA Fresh
+                        </a>
+                        <span class="txt-sm">
+                            <span class="btn btn-sm btn-outline-secondary"><i class="fas fa-play"></i> {{ objects.max_released.package_type }}</span>
+                            <span class="btn btn-sm btn-outline-success"><i class="fas fa-step-forward"></i> {{ objects.max_ga.package_type }}</span>
+                            <span class="btn btn-sm btn-outline-success"><i class="fas fa-play"></i> {{ objects.max_ga.package_type }}</span>
+                        </span>
+                    </div>
+                    <div class="flex-space-bw">
                         <a class="btn btn-sm btn-info"
                            id="ga-upgrade-install"
                            data-test_method="test005_release_ga_upgrade"
@@ -19,7 +34,10 @@
                            data-test_module="octotests.tests.octotest_upload_tku">
                             GA Upgrade
                         </a>
-                        <span class="txt-sm">Install: {{ objects.max_released.package_type }}, then {{ objects.max_ga.package_type }} </span>
+                        <span class="txt-sm">
+                            <span class="btn btn-sm btn-outline-secondary"><i class="fas fa-play"></i> {{ objects.max_released.package_type }}</span>
+                            <span class="btn btn-sm btn-outline-success"><i class="fas fa-step-forward"></i> {{ objects.max_ga.package_type }}</span>
+                        </span>
                     </div>
                     <div class="flex-space-bw">
                         <a class="btn btn-sm btn-info"
@@ -29,18 +47,9 @@
                            data-test_module="octotests.tests.octotest_upload_tku">
                             GA Fresh
                         </a>
-                        <span class="txt-sm">Install: {{ objects.max_ga.package_type }}</span>
-                    </div>
-                    <div class="flex-space-bw">
-                        {# test_method=test009_release_ga_upgrade_and_fresh;test_class=OctoTestCaseUpload;test_module=octotests.tests.octotest_upload_tku#}
-                        <a class="btn btn-sm btn-info"
-                           id="ga_upgrade-fresh-install"
-                           data-test_method="test009_release_ga_upgrade_and_fresh"
-                           data-test_class="OctoTestCaseUpload"
-                           data-test_module="octotests.tests.octotest_upload_tku">
-                            GA Fresh
-                        </a>
-                        <span class="txt-sm">Install: {{ objects.max_ga.package_type }}</span>
+                        <span class="txt-sm">
+                            <span class="btn btn-sm btn-outline-success"><i class="fas fa-play"></i> {{ objects.max_ga.package_type }}</span>
+                        </span>
                     </div>
                     <div class="flex-space-bw">
                         <a class="btn btn-sm btn-info disabled"
@@ -49,8 +58,14 @@
                            data-package_types="{{ objects.max_released.package_type }}">
                             Released
                         </a>
-                        <span class="txt-sm">Install {{ objects.max_released.package_type }}</span>
+                        <span class="txt-sm">
+                            <span class="btn btn-sm btn-outline-secondary"><i class="fas fa-play"></i> {{ objects.max_released.package_type }}</span>
+                        </span>
                     </div>
+                </div>
+                <div class="upload-modes-explain">
+                    <p><i class="fas fa-play"></i> - Install Fresh</p>
+                    <p><i class="fas fa-step-forward"></i> - Install Upgrade (after fresh step)</p>
                 </div>
             </div>
             <div class="modal-footer">
