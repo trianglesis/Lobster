@@ -14,9 +14,6 @@ import logging
 from time import sleep
 from django.conf import settings
 
-from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
-from billiard.exceptions import WorkerLostError
-
 from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_oper import WorkerOperations, TasksOperations
@@ -88,18 +85,30 @@ class TSupport:
         """
         sleep(sleep_t)
 
+    @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport.fake_task',
               soft_time_limit=HOURS_2, task_time_limit=HOURS_2+900)
     @exception
-    def fake_task(t_tag, sleep_t, **kwargs):
-        debug_me = kwargs.get('debug_me', None)
-        debug_str = "tag={};sleep_t={};kwargs={}".format(t_tag, sleep_t, kwargs)
-        if debug_me:
-            log.info("This task\\worker has been occupied: %s sleep_t %s", t_tag, sleep_t)
-            log.info("Task can also return all args\\kwargs items for debug purposes.")
-        sleep(sleep_t)
-        # raise TimeLimitExceeded('Exc message!!!')
-        return debug_str
+    def fake_task(t_tag, **kwargs):
+        """
+        Show all passed args and sleep for selected time.
+        :param t_tag:
+        :param kwargs:
+        :return:
+        """
+        t_args = kwargs.get('t_args')
+        t_kwargs = kwargs.get('t_kwargs')
+        to_sleep = kwargs.get('to_sleep')
+        to_debug = kwargs.get('to_debug')
+        t_routing_key = kwargs.get('t_routing_key')
+        t_queue = kwargs.get('t_queue')
+
+        log.info(f"<=Fake Task=> Running task: {t_routing_key}, queue: {t_queue}")
+        if to_debug:
+            log.info(f'<=Fake Task=> Args: {t_args} Kwargs: {t_kwargs}')
+
+        sleep(to_sleep)
+        return f'<=Fake Task=> Finished work: {t_routing_key}, queue: {t_queue}'
 
 
 class TInternal:

@@ -401,6 +401,7 @@ class TKUOperationsREST(APIView):
 
     def metadata_options_set(self):
         if self.request.POST:
+            log.debug(f"self.request.POST: {self.request.POST}")
             self.operation_key = self.request.POST.get('operation_key', None)
             self.fake_run = self.request.POST.get('fake_run', True)  # TODO: Debug, remove default True
             self.task_id = self.request.POST.get('task_id', 'ThisIsNotTheTaskJustSayingYouKnow?')
@@ -409,11 +410,13 @@ class TKUOperationsREST(APIView):
             self.test_mode = self.request.POST.get('test_mode', None)
             self.tku_type = self.request.POST.get('tku_type', None)
             self.package_type = self.request.POST.get('package_type', None)
+
             self.test_method = self.request.POST.get('test_method', None)
             self.test_class = self.request.POST.get('test_class', None)
             self.test_module = self.request.POST.get('test_module', None)
 
         elif self.request.GET:
+            log.debug(f"self.request.GET: {self.request.GET}")
             self.operation_key = self.request.GET.get('operation_key', None)
             self.fake_run = self.request.GET.get('fake_run', True)  # TODO: Debug, remove default True
             self.task_id = self.request.GET.get('task_id', '')
@@ -422,6 +425,7 @@ class TKUOperationsREST(APIView):
             self.test_mode = self.request.GET.get('test_mode', None)
             self.tku_type = self.request.GET.get('tku_type', None)
             self.package_type = self.request.GET.get('package_type', None)
+
             self.test_method = self.request.GET.get('test_method', None)
             self.test_class = self.request.GET.get('test_class', None)
             self.test_module = self.request.GET.get('test_module', None)
@@ -481,10 +485,8 @@ class TKUOperationsREST(APIView):
         Run test of TKU Upload with selected 'tku_packages' or 'test_mode'. If test_mode selected - will run
         predefined internal logic, of 'tku_package' selected - will install TKU as usual knowledge update without
         additional steps or preparations.
-        Example upgrade routine run:
-            (operation_key=tku_install_test;addm_group=alpha;test_mode=update) |
-        Example product content update MAIN:
-            (operation_key=tku_install_test;addm_group=golf;package_types=tkn_main_continuous_2069-11-1-000;package_detail=TKU-Product-Content;test_mode=fresh)
+        operation_key=tku_install_test;test_method=test009_release_ga_upgrade_and_fresh;test_class=OctoTestCaseUpload;test_module=octotests.tests.octotest_upload_tku
+
         :return:
         """
 
@@ -495,7 +497,7 @@ class TKUOperationsREST(APIView):
             user_name=self.request.user.username,
             user_email=self.request.user.email,
         )
-        t_tag = f'tag=t_upload_test;user_name={self.request.user.username};'
+        t_tag = f'tag=t_upload_test;user_name={self.request.user.username};test_method={self.test_method}'
         t_queue = 'w_routines@tentacle.dq2'
         t_routing_key = 'routines.TUploadExec.t_upload_routines'
         task = Runner.fire_t(TUploadExec.t_upload_routines,
@@ -503,9 +505,7 @@ class TKUOperationsREST(APIView):
                              args=[t_tag],
                              t_kwargs=kw_options,
                              t_queue=t_queue,
-                             t_routing_key=t_routing_key,)
-
-        log.debug("task_added: %s", task.id)
+                             t_routing_key=t_routing_key)
         return {'task_id': task.id}
 
     def tku_sync_packages(self):

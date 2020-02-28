@@ -1,8 +1,6 @@
 """
 Task executor
 """
-import octo.config_cred as conf_cred
-from octo import settings
 from octo.helpers.tasks_helpers import exception
 from octo.tasks import TSupport
 from octo.helpers.tasks_oper import TasksOperations
@@ -57,10 +55,6 @@ class Runner:
         t_soft_time_limit = kwargs.get('t_soft_time_limit', None)
         t_task_time_limit = kwargs.get('t_task_time_limit', None)
 
-        # Show debug messages:
-        if to_debug:
-            log.debug(f"<=Runner Fire Task=> REAL DEBUG: About to fire a task {task.name}")
-
         task_options = dict()
         if t_args:
             task_options.update(args=t_args)
@@ -78,16 +72,17 @@ class Runner:
         # TODO: Overriding on local
         # if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
         #     fake_run = True
-
         # Do not really send a task if fake=True
         if not fake_run:
             return task.apply_async(**task_options)
         else:
             to_sleep = kwargs.get('to_sleep', 10)
-            log.info(f"<=Runner Fire Task=> FAKE: About to fire a task Name {task.name}")
-            msg = f"<=Runner Fire Task=> FAKE: Task passed arguments: \n\t\t t_queue={t_queue} \n\t\t t_args={t_args} \n\t\t t_kwargs={t_kwargs} \n\t\t t_routing_key={t_routing_key}"
-            log.info(msg)
-            task_options.update(args=['fire_t', to_sleep])
-            task_options.update(kwargs=dict(t_args=t_args, t_kwargs=t_kwargs))
-            log.warning('<=Runner Fire Task=> DEVELOPMENT MODE WILL NOT EXECUTE TASKS, BUT EMULATE WORK BY USING FAKE TASK')
-            return TSupport.fake_task.apply_async(**task_options)
+            task_options.update(to_sleep=to_sleep, to_debug=to_debug)
+            return TSupport.fake_task.apply_async(
+                args=[f'Fake task run: t_args: {t_args}; sleep {to_sleep}; debug {to_debug}'],
+                kwargs=task_options,
+                queue=t_queue,
+                routing_key=t_routing_key,
+                soft_time_limit=t_soft_time_limit,
+                task_time_limit=t_task_time_limit,
+            )

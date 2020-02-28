@@ -120,8 +120,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         This group is locked only for upload tests! Cron 24-30 days.
         :return:
         """
-        # self.silent = True
-        self.tku_wget = True
+        # self.tku_wget = True
         self.test_mode = 'update'
         # Update mode will select packages for upgrade test by itself
         # previous = self.select_latest_released()
@@ -142,7 +141,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         :return:
         """
         package_type = self.select_latest_ga()
-        self.tku_wget = True
+        # self.tku_wget = True
         self.test_mode = 'fresh'
         self.addm_set = self.addm_set.filter(
             addm_group__in=['alpha'],
@@ -190,7 +189,9 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
-    def test005_release_ga_upgrade_and_fresh(self):
+    def test009_release_ga_upgrade_and_fresh(self):
+        self.silent = True
+        self.fake_run = True
         self.test005_release_ga_upgrade()
         self.test006_release_ga_fresh()
 

@@ -20,18 +20,22 @@ $(document).ready(function () {
         // let modal = document.getElementById("addmButtonsModal");
         let gaFreshInstall = document.getElementById('ga-fresh-install');
         let gaUpgradeInstall = document.getElementById('ga-upgrade-install');
+        let gaUpgradeFreshInstall = document.getElementById('ga_upgrade-fresh-install');
         let releasedTknFreshInstall = document.getElementById('released-tkn-fresh-install');
 
         gaFreshInstall.dataset.operation_key = 'tku_install_test';
         gaUpgradeInstall.dataset.operation_key = 'tku_install_test';
         releasedTknFreshInstall.dataset.operation_key = 'tku_install_test';
+        gaUpgradeFreshInstall.dataset.operation_key = 'tku_install_test';
 
         gaFreshInstall.modalId = 'releaseUpload';
         gaUpgradeInstall.modalId = 'releaseUpload';
+        gaUpgradeFreshInstall.modalId = 'releaseUpload';
         releasedTknFreshInstall.modalId = 'releaseUpload';
 
         gaFreshInstall.addEventListener('click', buttonActivationUpload);
         gaUpgradeInstall.addEventListener('click', buttonActivationUpload);
+        gaUpgradeFreshInstall.addEventListener('click', buttonActivationUpload);
         releasedTknFreshInstall.addEventListener('click', buttonActivationUpload);
 
     });

@@ -44,75 +44,42 @@
         {% endwith %}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
-                <div class="card-header card-header-shrink txt-nice">
-                    "TKN Main" longest tests
-                </div>
                 <div class="card-body card-body-sm">
                     <table class="table table-shrink table-hover table-sm">
-                        <tr>
-                            <thead class="table-th-txt">
-                            <!-- Patterns table Head: -->
-                            <tr>
-                                <th class="text-center table-info">Category</th>
-                                <th class="text-center table-info">TS</th>
-                                <th class="text-center table-info">Run last:</th>
-                                <th class="text-center table-info">ADDM</th>
-                                <th class="text-center table-info">Group</th>
-                            </tr>
-                            </thead>
-                        </tr>
                         <tbody>
                         <!-- Patterns table rows in cycle: -->
                         {% regroup objects.tests_top_main by time_spent_test as long_patt_tests %}
-                        {% for long_group in long_patt_tests|slice:'4' %}
+                        {% for long_group in long_patt_tests|slice:'6' %}
                             <tr>
                                 <td class="text-left table-light text-dark">{{ long_group.list.0.pattern_library }}/{{ long_group.list.0.pattern_folder_name }}</td>
                                 <td class="text-center table-light text-dark">{{ long_group.list.0.time_spent_test | f_sec }}</td>
-                                <td class="text-center table-light text-dark">{{ long_group.list.0.test_date_time|naturaltime }}</td>
                                 <td class="text-center table-light text-dark">{{ long_group.list.0.addm_name }}</td>
-                                <td class="text-center table-light text-dark">{{ long_group.list.0.addm_group }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
+                <div class="card-footer card-header-shrink txt-nice">"TKN Main" longest tests</div>
             </div>
         </div>
         <div class="grid-col-2">
             <div class="card bg-light border-light">
-                <div class="card-header card-header-shrink txt-nice">
-                    "TKN Ship" longest tests
-                </div>
                 <div class="card-body card-body-sm">
                     <table class="table table-shrink table-hover table-sm">
-                        <tr>
-                            <thead class="table-th-txt">
-                            <!-- Patterns table Head: -->
-                            <tr>
-                                <th class="text-center table-info">Category</th>
-                                <th class="text-center table-info">TS</th>
-                                <th class="text-center table-info">Run last:</th>
-                                <th class="text-center table-info">ADDM</th>
-                                <th class="text-center table-info">Group</th>
-                            </tr>
-                            </thead>
-                        </tr>
                         <tbody>
                         <!-- Patterns table rows in cycle: -->
                         {% regroup objects.tests_top_ship by time_spent_test as long_patt_tests %}
-                        {% for long_group in long_patt_tests|slice:'4' %}
+                        {% for long_group in long_patt_tests|slice:'6' %}
                             <tr>
                                 <td class="text-left table-light text-dark">{{ long_group.list.0.pattern_library }}/{{ long_group.list.0.pattern_folder_name }}</td>
                                 <td class="text-center table-light text-dark">{{ long_group.list.0.time_spent_test | f_sec }}</td>
-                                <td class="text-center table-light text-dark">{{ long_group.list.0.test_date_time|naturaltime }}</td>
                                 <td class="text-center table-light text-dark">{{ long_group.list.0.addm_name }}</td>
-                                <td class="text-center table-light text-dark">{{ long_group.list.0.addm_group }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
-
+                <div class="card-footer card-header-shrink txt-nice">"TKN Ship" longest tests</div>
             </div>
         </div>
         <div class="grid-col-3">

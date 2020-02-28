@@ -32,6 +32,17 @@
                         <span class="txt-sm">Install: {{ objects.max_ga.package_type }}</span>
                     </div>
                     <div class="flex-space-bw">
+                        {# test_method=test009_release_ga_upgrade_and_fresh;test_class=OctoTestCaseUpload;test_module=octotests.tests.octotest_upload_tku#}
+                        <a class="btn btn-sm btn-info"
+                           id="ga_upgrade-fresh-install"
+                           data-test_method="test009_release_ga_upgrade_and_fresh"
+                           data-test_class="OctoTestCaseUpload"
+                           data-test_module="octotests.tests.octotest_upload_tku">
+                            GA Fresh
+                        </a>
+                        <span class="txt-sm">Install: {{ objects.max_ga.package_type }}</span>
+                    </div>
+                    <div class="flex-space-bw">
                         <a class="btn btn-sm btn-info disabled"
                            id="released-tkn-fresh-install"
                            data-test_mode="fresh"

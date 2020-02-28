@@ -53,8 +53,8 @@ class TUploadExec:
         :param kwargs: dict(test_method, test_class, test_module)
         :return:
         """
-        log.info("<=t_upload_routines=> Running task %s", kwargs)
-        return TestRunnerLoc().run_subprocess(**kwargs)
+        log.info(f"<=t_upload_routines=> Running task {t_tag} {kwargs}")
+        TestRunnerLoc().run_subprocess(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_tku_upload_test_new',
@@ -77,12 +77,6 @@ class TUploadExec:
     def t_parse_tku(t_tag, **kwargs):
         log.debug("Tag: %s, kwargs %s", t_tag, kwargs)
         return LocalDownloads().only_parse_tku(**kwargs)
-
-    @staticmethod
-    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    @exception
-    def t_upload_prep(t_tag, **kwargs):
-        return UploadTestExec().upload_preparations(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
@@ -349,8 +343,10 @@ class UploadTaskPrepare:
 
         if options:
             for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
-                options.update(addm_items=addm_items, addm_group=addm_group, step_k=step_k, user_email=self.user_email)
+                options.update(addm_items=addm_items, addm_group=addm_group, step_k=step_k, user_email=self.user_email,
+                               fake_run=self.fake_run)
                 subject = f"UploadTaskPrepare | addm_prepare | {self.test_mode} | {addm_group} | {step_k}"
+                log.info(f"<=addm_prepare=> Actually start task: {subject}")
                 body = f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, "
                 self.mail(t_args=[f"UploadTaskPrepare.addm_prepare"],
                           t_kwargs=dict(subject=subject, body=body, send_to=[self.user_email]),
@@ -380,7 +376,7 @@ class UploadTaskPrepare:
                       t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail",
                       t_queue=f'{addm_group}@tentacle.dq2')
             task = Runner.fire_t(TUploadExec.t_upload_unzip,
-                                 # fake_run=True, to_sleep=2, to_debug=True,
+                                 fake_run=self.fake_run, to_sleep=2, to_debug=True,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[f"UploadTaskPrepare;task=t_upload_unzip;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],
@@ -403,7 +399,7 @@ class UploadTaskPrepare:
                       t_routing_key=f"{addm_group}.UploadTaskPrepare.TSupport.t_short_mail",
                       t_queue=f'{addm_group}@tentacle.dq2')
             task = Runner.fire_t(TUploadExec.t_tku_install,
-                                 # fake_run=True, to_sleep=2, to_debug=True,
+                                 fake_run=self.fake_run, to_sleep=2, to_debug=True,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[f"UploadTaskPrepare;task=t_tku_install;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],

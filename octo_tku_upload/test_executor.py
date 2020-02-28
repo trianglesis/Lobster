@@ -82,6 +82,7 @@ class UploadTestExec:
         test_mode = kwargs.get('test_mode', None)
         step_k = kwargs.get('step_k', None)
         addm_group = kwargs.get('addm_group', None)
+        fake_run = kwargs.get('fake_run', False)
 
         preps = self.preparation_steps[test_mode]
         for operation in preps:
@@ -92,6 +93,7 @@ class UploadTestExec:
                     f'command_k={operation_cmd.command_key};'
             t_kwargs = dict(addm_set=addm_items, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
+                          fake_run=fake_run, to_sleep=2, to_debug=True,
                           t_queue=f'{addm_group}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,

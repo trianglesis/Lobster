@@ -26,6 +26,7 @@ class TestRunnerLoc:
         test_method = kwargs.get('test_method', None)  # test001_product_content_update_tkn_main
         test_class = kwargs.get('test_class', None)  # OctoTestCaseUpload
         test_module = kwargs.get('test_module', None)  # run_core.tests.octotest_upload_tku
+        log.info(f"<=TestRunnerLoc=> Getting test method {test_method} from: {test_module}.{test_class}")
 
         # Set the ENV:
         my_env = os.environ.copy()
@@ -37,19 +38,18 @@ class TestRunnerLoc:
 
         # DEV: Set paths to test and working dir:
         if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
-            if "KBP1" in os.getenv('COMPUTERNAME', 'defaultValue'):
-                test_env = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
-                octo_core = 'D:\\perforce\\addm\\tkn_sandbox\\o.danylchenko\\projects\\PycharmProjects\\lobster'
+            if "KBP1" in settings.CURR_HOSTNAME:
+                wsl_path = '/mnt/d/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster'
+                octo_core = wsl_path
             else:
-                test_env = 'D:\\Projects\\PycharmProjects\\lobster\\venv\\Scripts\\'
-                octo_core = 'D:\\Projects\\PycharmProjects\\lobster'
-            activate = 'activate.bat'
-            deactivate = 'deactivate.bat'
+                wsl_path = '/mnt/d/Projects/PycharmProjects/lobster'
+                octo_core = wsl_path
+            activate = 'bash -c "source {WSL_PATH}venv/bin/activate"'.format(WSL_PATH=wsl_path)
+            deactivate = 'bash -c "source {WSL_PATH}venv/bin/deactivate"'.format(WSL_PATH=wsl_path)
         else:
-            test_env = '/var/www/octopus/'
             octo_core = '/var/www/octopus/'
-            activate = 'venv/bin/activate'
-            deactivate = 'venv/bin/activate'
+            activate = 'source venv/bin/activate'
+            deactivate = 'source venv/bin/deactivate'
 
         # Set unit test cmd:
         if test_module and test_class and test_method:
@@ -61,15 +61,14 @@ class TestRunnerLoc:
         else:
             test_cmd = f'python -m unittest {test_py_path}'
 
-        if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
-            # Compose CMD run:
-            cmd_list.append(f'. {test_env}{activate}')
-            cmd_list.append(test_cmd)
-            cmd_list.append(f'. {test_env}{deactivate}')
+        cmd_list.append(activate)
+        cmd_list.append(test_cmd)
+        cmd_list.append(deactivate)
 
+        log.info(f"<=TestRunnerLoc=> Composed commands to execute: {cmd_list}")
         for cmd in cmd_list:
             try:
-                # log.debug("<=TEST=> Run: %s", cmd)
+                log.debug("<=TEST=> Run: %s", cmd)
                 run_cmd = subprocess.Popen(cmd,
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE,
@@ -82,12 +81,11 @@ class TestRunnerLoc:
                 stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
                 run_cmd.wait(timeout=300)  # wait until command finished
                 run_results.append({'stdout': stdout, 'stderr': stderr})
-                # log.debug('<=TEST=> stdout %s', stdout)
-                # log.debug('<=TEST=> stderr %s', stderr)
+                log.debug('<=TEST=> stdout %s', stdout)
+                log.debug('<=TEST=> stderr %s', stderr)
             except Exception as e:
                 log.error("<=run_subprocess=> Error during operation for: %s %s", cmd, e)
-        # TODO: Save to logs?
-        # log.debug("<=run_subprocess=> run_results: %s", run_results)
+        log.debug("<=run_subprocess=> run_results: %s", run_results)
         return run_results
 
 
