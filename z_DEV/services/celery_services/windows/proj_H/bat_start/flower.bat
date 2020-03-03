@@ -1,1 +1,0 @@
-D:\Projects\PycharmProjects\lobster\venv\Scripts\activate.bat && celery flower --broker=amqp://octo_user:hPoNaEb7@localhost:5672/tentacle --broker_api=http://octo_user:hPoNaEb7@localhost:15672/api/flower

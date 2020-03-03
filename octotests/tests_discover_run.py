@@ -39,7 +39,7 @@ class TestRunnerLoc:
         # DEV: Set paths to test and working dir:
         if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
             if "KBP1" in settings.CURR_HOSTNAME:
-                wsl_path = '/mnt/d/perforce/addm/tkn_sandbox/o.danylchenko/projects/PycharmProjects/lobster'
+                wsl_path = '/mnt/d/Projects/PycharmProjects/lobster'
                 octo_core = wsl_path
             else:
                 wsl_path = '/mnt/d/Projects/PycharmProjects/lobster'
