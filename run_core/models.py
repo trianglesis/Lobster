@@ -128,6 +128,8 @@ class RoutinesLog(models.Model):
     """
 
     task_name = models.CharField(max_length=255)  # Name of task - to group by kind of tasks
+    # TODO: Add foreign key to user instance?
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
 
     t_args = models.TextField(blank=True, null=True)  # task args for debug
     t_kwargs = models.TextField(blank=True, null=True)  # task kwargs for debug
@@ -155,6 +157,8 @@ class ServicesLog(models.Model):
     Save here internal events: service tasks, addm related, parsing, wget and so on.
     """
     task_name = models.CharField(max_length=255)  # Name of task - to group by kind of tasks
+    # TODO: Add foreign key to user instance?
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
 
     t_args = models.TextField(blank=True, null=True)  # task args for debug
     t_kwargs = models.TextField(blank=True, null=True)  # task kwargs for debug
