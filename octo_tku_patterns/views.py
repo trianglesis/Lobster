@@ -5,6 +5,7 @@ Input requests - output pages with some results.
 
 # Python logger
 import logging
+import datetime
 
 from celery.result import AsyncResult
 from django import forms
@@ -307,13 +308,18 @@ class TestItemSingleHistoryListView(ListView):
 
 # Test History Latest View:
 class TestHistoryArchiveIndexView(ArchiveIndexView):
+    """
+    This will show INDEX of everything in TestHistory.
+    We don't need this kind of detalisations often. Think something interesting here.
+    """
     __url_path = '/octo_tku_patterns/test_history_index/'
     model = TestHistory
     date_field = "test_date_time"
-    allow_future = False
+    allow_future = True
     allow_empty = True
     template_name = 'digests/tests_history_day.html'
     context_object_name = 'test_detail'
+
 
     def get_context_data(self, **kwargs):
         UserCheck().logator(self.request, 'info', "<=TestHistoryArchiveIndexView=> test history index")
@@ -321,16 +327,28 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
         context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
 
+    def get_queryset(self):
+        date = datetime.date.today()
+        log.info(f"day - {date} previous_day - {self.get_previous_day(date)} next_day - {self.get_next_day(date)} previous_month - {self.get_previous_month(date)} next_month - {self.get_next_month(date)}")
+        # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
+        sel_opts = compose_selector(self.request.GET)
+        queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
+        log.debug(f" <=TestHistoryArchiveIndexView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
+        return queryset
 
 # Test History Daily View:
 class TestHistoryDayArchiveView(DayArchiveView):
     """
-    http://127.0.0.1:8000/octo_tku_patterns/test_history_day/2019/sep/30/?test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/SymantecAntiVirus/tests/test.py
+    It will show detailed test logs for selected day.
+    Sorting by usual values, such as test_py, tst_status and so on.
+    Useful case when want to show particular test case logs by date
+        octo_tku_patterns/test_history_day/2019/sep/30/?test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_ship/tku_patterns/CORE/SymantecAntiVirus/tests/test.py
+        octo_tku_patterns/test_history_day/2020/feb/22/?tst_status=notpass;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/Celerra/tests/test.py;
     """
     __url_path = '/octo_tku_patterns/test_history_day/<int:year>/<str:month>/<int:day>/'
     model = TestHistory
     date_field = "test_date_time"
-    allow_future = False
+    allow_future = True
     allow_empty = True
     template_name = 'digests/tests_history_day.html'
     context_object_name = 'test_detail'
@@ -349,17 +367,21 @@ class TestHistoryDayArchiveView(DayArchiveView):
         # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
         sel_opts = compose_selector(self.request.GET)
         queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
-        # log.debug("TestHistoryDayArchiveView queryset explain \n%s", queryset.explain())
-        # log.debug("<=TestHistoryDayArchiveView=> selected len: %s query: \n%s", queryset.count(), queryset.query)
+        log.info(f" <=TestHistoryDayArchiveView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
         return queryset
 
 
 # Test History Today View:
 class TestHistoryTodayArchiveView(TodayArchiveView):
+    """
+    Such as TestHistoryDayArchiveView but with no specified date, use default as today.
+    Can browse then to past/future.
+    Cane be specified by selectables and sorting.
+    """
     __url_path = '/octo_tku_patterns/test_history_today/'
     model = TestHistory
     date_field = "test_date_time"
-    allow_future = False
+    allow_future = True
     allow_empty = True
     template_name = 'digests/tests_history_day.html'
     context_object_name = 'test_detail'
@@ -370,13 +392,23 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
         context.update(selector=compose_selector(self.request.GET), selector_str='')
         return context
 
+    def get_queryset(self):
+        # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
+        sel_opts = compose_selector(self.request.GET)
+        queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
+        log.info(f" <=TestHistoryTodayArchiveView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
+        return queryset
 
 # Test History Digest Today View:
 class TestHistoryDigestTodayView(TodayArchiveView):
+    """
+    PLAN: Should show digest as usual, but locked to today's date, it could possible be used as default digest
+    but with historical browsing past\future. Can be detailed by statuses, branch - as usual TestLast Digest view?
+    """
     __url_path = '/octo_tku_patterns/test_history_digest_today/'
-    model = TestHistoryDigestDaily
+    # model = TestHistoryDigestDaily
     date_field = "test_date_time"
-    allow_future = False
+    allow_future = True
     allow_empty = True
     template_name = 'digests/tests_last.html'
     context_object_name = 'tests_digest'
@@ -389,13 +421,19 @@ class TestHistoryDigestTodayView(TodayArchiveView):
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
             return context
 
+    def get_queryset(self):
+        # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
+        sel_opts = compose_selector(self.request.GET)
+        queryset = PatternsDjangoTableOper.sel_dynamical(TestHistoryDigestDaily, sel_opts=sel_opts)
+        # log.info(f" <=TestHistoryDigestTodayView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
+        return queryset
 
 # Test History Digest Daily View:
 class TestHistoryDigestDailyView(DayArchiveView):
     __url_path = '/octo_tku_patterns/test_history_digest_day/'
-    model = TestHistoryDigestDaily
+    # model = TestHistoryDigestDaily
     date_field = "test_date_time"
-    allow_future = False
+    allow_future = True
     allow_empty = True
     template_name = 'digests/tests_last.html'
     context_object_name = 'tests_digest'
@@ -427,7 +465,7 @@ class TestHistoryDigestDailyView(DayArchiveView):
             queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
 
         queryset = tst_status_selector(queryset, sel_opts)
-        # log.debug("TestHistoryDigestDailyView queryset explain \n%s", queryset.explain())
+        # log.debug(f" <=TestHistoryDigestDailyView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
         return queryset
 
 

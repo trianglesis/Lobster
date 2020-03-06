@@ -258,7 +258,54 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted">Just a quick refference for available REST operations.</small>
+                    <small class="text-muted">Just a quick reference for available REST operations.</small>
+                </div>
+            </div>
+        </div>
+        <div class="experimental-views">
+            <div class="card">
+                <div class="card-header">Experimental Views</div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header"></div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">History digest:</span>
+                                        <div class="fl-right">
+                                            <a class="btn btn-sm btn-outline-warning disabled" href="{% url 'test_history_index_archive' %}?tst_status=notpass;">History | Index (Should show all history Gigs of data!)</a>
+                                            <a class="btn btn-sm btn-outline-warning" href="{% url 'test_history_archive_day' year='2020' month='feb' day='22' %}?tst_status=notpass;">History | Archive day (year=2020 month=feb day=22)</a>
+                                            <a class="btn btn-sm btn-outline-warning" href="{% url 'test_history_archive_today' %}?tst_status=notpass;">History | Archive today</a>
+                                            <a class="btn btn-sm btn-outline-warning" href="{% url 'test_history_digest_today' %}?tst_status=notpass;">History | Digest today</a>
+                                            <a class="btn btn-sm btn-outline-warning" href="{% url 'test_history_digest_day' year='2020' month='feb' day='22' %}?tst_status=notpass;">History | Digest by day (year=2020 month=feb day=22)</a>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">...</span>
+                                        <div class="btn-group fl-right">
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header"></div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="card-text fl-left">Functions:</span>
+                                        <div class="btn-group fl-right">
+{#                                            <a class="btn btn-sm btn-outline-info" href="{% url 'admin_operations' %}">Admin Operations</a>#}
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Those are for test or check ideas.</small>
                 </div>
             </div>
         </div>
