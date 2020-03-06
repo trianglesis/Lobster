@@ -122,40 +122,56 @@ class AddmDevProxy(AddmDev):
         proxy = True
 
 
-class RoutineExecutionLog(models.Model):
-    routine_key = models.CharField(primary_key=True, max_length=255)
-    routine_name = models.CharField(max_length=255)
-    routine_time_spent = models.CharField(blank=True, null=True, max_length=255)
-    routine_args = models.CharField(blank=True, null=True, max_length=255)
-    routine_kwargs = models.CharField(blank=True, null=True, max_length=255)
-    routine_desc_details = models.TextField(blank=True, null=True)
-    # Left it in ITC by default, then will convert to UK or UA:
-    created_at = models.DateTimeField(auto_now=True)
+class RoutinesLog(models.Model):
+    """
+    Save here routine execution logs for night tests, upload routines, user test
+    """
+
+    task_name = models.CharField(max_length=255)  # Name of task - to group by kind of tasks
+
+    t_args = models.TextField(blank=True, null=True)  # task args for debug
+    t_kwargs = models.TextField(blank=True, null=True)  # task kwargs for debug
+
+    description = models.TextField(blank=True, null=True)  # Readable useful information.
+
+    input = models.TextField(blank=True, null=True)  # optional - what was passed to run
+    out = models.TextField(blank=True, null=True)  # optional -
+    err = models.TextField(blank=True, null=True)  # optional -
+    raw = models.TextField(blank=True, null=True)  # optional -
+
+    t_start_time = models.DateTimeField(null=True)
+    t_finish_time = models.DateTimeField(null=True)
+    t_est_time = models.DurationField()  # datetime.timedelta(days =-1, seconds = 68400)
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         managed = True
-        db_table = 'ROUTINES_LOG'
-        unique_together = (('routine_key', 'created_at'),)
+        db_table = 'octo_routines_log'
 
 
-class ServiceLog(models.Model):
-    log_key = models.CharField(max_length=255)
-    # Left it in ITC by default, then will convert to UK or UA:
-    created_at = models.DateTimeField(auto_now=True)
-    # Ags from executed cmd, routine
-    log_args = models.TextField(blank=True, null=True)
-    log_kwargs = models.TextField(blank=True, null=True)
-    # If ADDM related:
-    addm_name = models.TextField(max_length=255, blank=True, null=True)
-    addm_host = models.TextField(max_length=255, blank=True, null=True)
-    # All informative inputs and outputs.
-    log_out = models.TextField(blank=True, null=True)
-    log_err = models.TextField(blank=True, null=True)
-    log_input = models.TextField(blank=True, null=True)
-    # Optional output from any PIPE - non formatted.
-    log_outputs_raw = models.TextField(blank=True, null=True)
+class ServicesLog(models.Model):
+    """
+    Save here internal events: service tasks, addm related, parsing, wget and so on.
+    """
+    task_name = models.CharField(max_length=255)  # Name of task - to group by kind of tasks
+
+    t_args = models.TextField(blank=True, null=True)  # task args for debug
+    t_kwargs = models.TextField(blank=True, null=True)  # task kwargs for debug
+
+    description = models.TextField(blank=True, null=True)  # Readable useful information.
+
+    input = models.TextField(blank=True, null=True)  # optional - what was passed to run
+    out = models.TextField(blank=True, null=True)  # optional -
+    err = models.TextField(blank=True, null=True)  # optional -
+    raw = models.TextField(blank=True, null=True)  # optional -
+
+    t_start_time = models.DateTimeField(null=True)
+    t_finish_time = models.DateTimeField(null=True)
+    t_est_time = models.DurationField()  # datetime.timedelta(days =-1, seconds = 68400)
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         managed = True
-        db_table = 'SERVICE_LOG'
-        unique_together = (('log_key', 'created_at'),)
+        db_table = 'octo_service_log'

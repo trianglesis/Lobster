@@ -189,10 +189,6 @@ class TestOutputsAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
-# DEV DEBUG:
-admin.site.register(RoutineExecutionLog)
-
-
 @admin.register(TestCases)
 class TestCasesAdmin(admin.ModelAdmin):
     """ https://djangobook.com/mdj2-django-admin/ """
