@@ -65,7 +65,7 @@ class TUploadExec:
 
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2',
-              soft_time_limit=MIN_20, task_time_limit=MIN_40)
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
     def t_tku_sync(t_tag, **kwargs):
         return LocalDownloads().wget_tku_build_hub_option(**kwargs)
@@ -85,7 +85,7 @@ class TUploadExec:
         return UploadTestExec().upload_unzip_threads(**kwargs)
 
     @staticmethod
-    @app.task(soft_time_limit=HOURS_1, task_time_limit=HOURS_2)
+    @app.task(soft_time_limit=MIN_90, task_time_limit=HOURS_2)
     @exception
     def t_tku_install(t_tag, **kwargs):
         return UploadTestExec().install_tku_threads(**kwargs)
