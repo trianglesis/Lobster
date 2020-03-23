@@ -208,7 +208,6 @@ class TestLastDigestListView(ListView):
 
     def get_context_data(self, **kwargs):
         # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_context_data")
-
         # Get unique addm names based on table latest run:
         addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
         # log.debug("TestLastDigestListView addm_names explain \n%s", addm_names.explain())
@@ -756,3 +755,9 @@ class AddmDigestListViewTeams(ListView):
     model = AddmDigest
     template_name = 'digests/addm_digest_short.html'
     context_object_name = 'addm_digest'
+
+
+class TestLastDigestListViewShort(TestLastDigestListView):
+    __url_path = '/octo_tku_patterns/tests_last_short/'
+    template_name = 'digests/tests_last_short.html'
+    context_object_name = 'tests_digest'

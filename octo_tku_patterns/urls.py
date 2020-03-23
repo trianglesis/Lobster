@@ -44,6 +44,7 @@ urlpatterns = [
     # 2nd level
     url(r'^tests_last/', TestLastDigestListView.as_view(), name='tests_last'),
     url(r'^patterns_digest/', TestLastDigestListView.as_view(), name='patterns_digest'),
+    url(r'^patterns_digest_short/', TestLastDigestListViewShort.as_view(), name='patterns_digest_short'),
     # 3rd level
     url(r'^test_details/', TestLastSingleDetailedListView.as_view(), name='test_details'),
     url(r'^pattern_logs/', TestLastSingleDetailedListView.as_view(), name='pattern_logs'),
