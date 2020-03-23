@@ -1,0 +1,92 @@
+{% extends "main/main_short.html" %}
+{% load static %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        TKU Upload Workbench
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/upload-tests.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
+    <!-- Content of the page -->
+    <div class="upload-workbench-content">
+        {# Latest upload tables in cards #}
+        <div class="row tku-upload-latest">
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">latest_cont_main: {{ objects.latest_cont_main.test_date_time }}</h5>
+                        <div class="last-upload-test">
+                            {% regroup objects.upload_cont_main|dictsortreversed:'addm_name' by tku_type as upload_cont_main %}
+                            {% for test_type in upload_cont_main %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">latest_cont_ship: {{ objects.latest_cont_ship.test_date_time }}</h5>
+                        <div class="last-upload-test">
+                            {% regroup objects.upload_cont_ship|dictsortreversed:'addm_name' by tku_type as upload_cont_ship %}
+                            {% for test_type in upload_cont_ship %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">latest_ga_upgrade: {{ objects.latest_ga_upgrade.test_date_time }}</h5>
+                        <div class="last-upload-test step-2">
+                            <span class="txt-nice">{{ objects.upload_ga_upgrade.0.tku_type }}</span>
+                            <span class="txt-monospace">{{ objects.upload_ga_upgrade.0.package_type }}</span>
+                            <span class="badge badge-info txt-sm" >{{ objects.upload_ga_upgrade.0.mode_key }}</span>
+                            {% regroup objects.upload_ga_upgrade|dictsortreversed:'addm_name' by tku_type as upload_ga_upgrade %}
+                            {% for test_type in upload_ga_upgrade %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                        <div class="last-upload-test step-1">
+                            <span class="txt-nice">{{ objects.upload_ga_prep.0.tku_type }}</span>
+                            <span class="txt-monospace">{{ objects.upload_ga_prep.0.package_type }}</span>
+                            <span class="badge badge-info txt-sm" >{{ objects.upload_ga_prep.0.mode_key }}</span>
+                            {% regroup objects.upload_ga_prep|dictsortreversed:'addm_name' by tku_type as upload_ga_prep %}
+                            {% for test_type in upload_ga_prep %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-shrink">
+                <div class="card">
+                    <div class="card-body card-body-sm">
+                        <h5 class="card-title txt-nice">latest_ga_fresh: {{ objects.latest_ga_fresh.test_date_time }}</h5>
+                        <div class="last-upload-test">
+                            <span class="txt-nice">{{ objects.upload_ga_fresh.0.tku_type }}</span>
+                            <span class="txt-monospace">{{ objects.upload_ga_fresh.0.package_type }}</span>
+                            <span class="badge badge-info txt-sm" >{{ objects.upload_ga_fresh.0.mode_key }}</span>
+                            {% regroup objects.upload_ga_fresh|dictsortreversed:'addm_name' by tku_type as upload_ga_fresh %}
+                            {% for test_type in upload_ga_fresh %}
+                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'octopus/js/upload-test-table-color.js' %}"></script>
+{% endblock %}

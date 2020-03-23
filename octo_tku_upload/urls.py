@@ -16,6 +16,7 @@ urlpatterns = [
     # GENERIC VIEWS:
     # TKU Workbench
     path('tku_workbench/', TKUUpdateWorkbenchView.as_view(), name="tku_workbench"),
+    path('tku_workbench_short/', TKUUpdateWorkbenchViewShort.as_view(), name="tku_workbench_short"),
     # Packages
     path('tku_packages_index/', TKUPackagesListView.as_view(), name="tku_packages_index"),
     # Latest by date

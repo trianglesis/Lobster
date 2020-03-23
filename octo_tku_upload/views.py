@@ -568,3 +568,8 @@ class TKUOperationsREST(APIView):
         packages = packages_qs.filter(package_type__exact=max_package.package_type)
         serializer = TkuPackagesNewSerializer(packages, many=True)
         return serializer.data
+
+
+## Short views:
+class TKUUpdateWorkbenchViewShort(TKUUpdateWorkbenchView):
+    template_name = 'workbench_short.html'
