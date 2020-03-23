@@ -1,0 +1,80 @@
+{% load static %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+<div class="upload-test-today-table">
+    <table class="table table-shrink table-sm table-bordered table-hover table-shrink">
+        <thead>
+        <tr class="text-center">
+{#            <th class="table-info" id="num">#</th>#}
+            <th class="table-info"><i class="fas fa-server"></i> Discovery</th>
+            <th class="table-info">v.</th>
+            {#            <th>Mode</th>#}
+            {#            <th>mode_key</th>#}
+            <th class="table-info"><i class="fas fa-tags"></i> package_type</th>
+            {#            <th>tku_type</th>#}
+            {#            <th>tku_build</th>#}
+            {#            <th>tku_date</th>#}
+            {#            <th>tku_month</th>#}
+{#            <th>Status</th>#}
+            {#            <th>upload_test_str_stdout</th>#}
+            {#            <th>upload_test_str_stderr</th>#}
+            {#            <th>important_out</th>#}
+            <th class="table-info text-danger"><i class="fas fa-exclamation-triangle"></i></th>
+            <th class="table-info text-warning"><i class="fas fa-exclamation-circle"></i></th>
+            {#            <th>upload_warnings</th>#}
+            {#            <th>upload_errors</th>#}
+            {#            <th>tku_statuses</th>#}
+            {#            <th>tested_zips</th>#}
+            {#            <th>addm_host</th>#}
+            {#            <th>addm_ip</th>#}
+            {#            <th>addm_version</th>#}
+            <th class="table-info"><i class="far fa-clock"></i> Spent</th>
+            <th class="table-info" id="test_date_time"><i class="fas fa-calendar-day"></i> Date</th>
+            <th class="table-info"></th>
+{#            <th class="table-info"><i class="fas fa-location-arrow"></i></th>#}
+        </tr>
+        </thead>
+        <tbody class="table-shrink">
+        {% for test in object_list %}
+            <tr {% popover 'hover' 'top' None test.mode_key %}>
+{#                <td id="num">{{ forloop.counter }}</td>#}
+                <td id="addm_name">{{ test.addm_name }}</td>
+                <td id="addm_v_int">{{ test.addm_v_int }}</td>
+                {#                <td id="test_mode">{{ test.test_mode }}</td>#}
+                {#                <td id="mode_key">{{ test.mode_key }}</td>#}
+                <td id="package_type" class="txt-sm-mon">{{ test.package_type }}</td>
+                {#                <td id="tku_type">{{ test.tku_type }}</td>#}
+                {#                <td id="tku_build">{{ test.tku_build }}</td>#}
+                {#                <td id="tku_date">{{ test.tku_date }}</td>#}
+                {#                <td id="tku_month">{{ test.tku_month }}</td>#}
+                {#                <td id="upload_test_str_stdout">{{ test.upload_test_str_stdout|escape|safe }}</td>#}
+                {#                <td id="upload_test_str_stderr">{{ test.upload_test_str_stderr|escape|safe }}</td>#}
+                {#                <td id="important_out">{{ test.important_out|escape|safe }}</td>#}
+                <td id="all_errors" class="text-center">{{ test.all_errors }}</td>
+                <td id="all_warnings" class="text-center">{{ test.all_warnings }}</td>
+                {#                <td id="upload_warnings">{{ test.upload_warnings|escape|safe }}</td>#}
+                {#                <td id="tku_statuses">{{ test.tku_statuses|escape|safe }}</td>#}
+                {#                <td id="tested_zips">{{ test.tested_zips }}</td>#}
+                {#                <td id="addm_host">{{ test.addm_host }}</td>#}
+                {#                <td id="addm_ip">{{ test.addm_ip }}</td>#}
+                {#                <td id="addm_version">{{ test.addm_version }}</td>#}
+                <td id="time_spent_test_ui" class="txt-sm-mon">{{ test.time_spent_test|f_sec }}</td>
+                <td id="test_date_time"
+                    class="txt-sm-mon">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
+                <td {% tooltip_tku_upload 'popover' 'right' test %} ><i class="far fa-eye"></i></td>
+{#                <td id="actions">#}
+{#                    <a class="btn btn-sm-er btn-outline-info" href="{% url 'admin:index' %}octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a>#}
+{#                </td>#}
+                <td id="test_id" style="display: none">{{ test.id }}</td>
+                <td id="test_mode" style="display: none">{{ test.test_mode }}</td>
+                <td id="mode_key" style="display: none">{{ test.mode_key }}</td>
+                <td id="upload_test_status" style="display: none">{{ test.upload_test_status }}</td>
+                <td id="time_spent_test" style="display: none">{{ test.time_spent_test }}</td>
+{#                <td id="upload_errors" style="display: none">{{ test.upload_errors }}</td>#}
+                <td id="upload_errors" style="display: none">{{ test.upload_errors|json_script:"upload_errors" }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

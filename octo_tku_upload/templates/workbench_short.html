@@ -26,7 +26,7 @@
                         <div class="last-upload-test">
                             {% regroup objects.upload_cont_main|dictsortreversed:'addm_name' by tku_type as upload_cont_main %}
                             {% for test_type in upload_cont_main %}
-                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                                {% include 'digests/tables_details/today_table_short.html' with object_list=test_type.list %}
                             {% endfor %}
                         </div>
                     </div>
@@ -39,7 +39,7 @@
                         <div class="last-upload-test">
                             {% regroup objects.upload_cont_ship|dictsortreversed:'addm_name' by tku_type as upload_cont_ship %}
                             {% for test_type in upload_cont_ship %}
-                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                                {% include 'digests/tables_details/today_table_short.html' with object_list=test_type.list %}
                             {% endfor %}
                         </div>
                     </div>
@@ -55,7 +55,7 @@
                             <span class="badge badge-info txt-sm" >{{ objects.upload_ga_upgrade.0.mode_key }}</span>
                             {% regroup objects.upload_ga_upgrade|dictsortreversed:'addm_name' by tku_type as upload_ga_upgrade %}
                             {% for test_type in upload_ga_upgrade %}
-                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                                {% include 'digests/tables_details/today_table_short.html' with object_list=test_type.list %}
                             {% endfor %}
                         </div>
                         <div class="last-upload-test step-1">
@@ -64,7 +64,7 @@
                             <span class="badge badge-info txt-sm" >{{ objects.upload_ga_prep.0.mode_key }}</span>
                             {% regroup objects.upload_ga_prep|dictsortreversed:'addm_name' by tku_type as upload_ga_prep %}
                             {% for test_type in upload_ga_prep %}
-                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                                {% include 'digests/tables_details/today_table_short.html' with object_list=test_type.list %}
                             {% endfor %}
                         </div>
                     </div>
@@ -80,7 +80,7 @@
                             <span class="badge badge-info txt-sm" >{{ objects.upload_ga_fresh.0.mode_key }}</span>
                             {% regroup objects.upload_ga_fresh|dictsortreversed:'addm_name' by tku_type as upload_ga_fresh %}
                             {% for test_type in upload_ga_fresh %}
-                                {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
+                                {% include 'digests/tables_details/today_table_short.html' with object_list=test_type.list %}
                             {% endfor %}
                         </div>
                     </div>
