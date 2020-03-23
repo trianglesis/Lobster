@@ -38,6 +38,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
             '787058',
             '787059',
         ]
+        # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
+        # self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
+        self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf']
 
     def test_001_night_routine_main(self):
         """
@@ -49,7 +53,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.excluded_group()
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
-        self.addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        self.addm_group_l = self.tkn_main_addm_group_l
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -63,7 +67,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.excluded_group()
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
-        self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
+        self.addm_group_l = self.tkn_ship_addm_group_l
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -96,7 +100,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
         self.excluded_group()                                                           # 4
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
-        self.addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        self.addm_group_l = self.tkn_main_addm_group_l
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -115,7 +119,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
         self.excluded_group()                                                           # 4
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
-        self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
+        self.addm_group_l = self.tkn_ship_addm_group_l
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -138,7 +142,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_main'
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
-        self.addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        self.addm_group_l = self.tkn_main_addm_group_l
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -150,7 +154,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_ship'
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
-        self.addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
+        self.addm_group_l = self.tkn_ship_addm_group_l
         self.wipe_logs_on(True)
         self.run_case()
 
