@@ -748,3 +748,11 @@ def dev_mail_user_test(request):
 
     mail_html = TMail().user_test(mail_opts)
     return HttpResponse(mail_html)
+
+
+## View for teams:
+class AddmDigestListViewTeams(ListView):
+    __url_path = '/octo_tku_patterns/addm_digest/'
+    model = AddmDigest
+    template_name = 'digests/addm_digest_short.html'
+    context_object_name = 'addm_digest'

@@ -172,3 +172,5 @@ z_DEV/p4py_bld/*
 requrements_move_now.txt
 z_DEV/test_004_night_routine_wide_tkn_main.sql
 z_DEV/test_999_local_debug.sql
+
+!.idea/*

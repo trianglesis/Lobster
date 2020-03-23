@@ -1,0 +1,36 @@
+{% extends "main/main_short.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        ADDM Digest
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% block content %}
+    <div class="addm-digest-content">
+        {% with addm_digest as addm_digest %}
+            <div class="grid-col-1">
+                <div class="card bg-light border-light">
+                    <div class="card-header">"TKN Main" pattern test digest</div>
+                    <div class="card-body card-body-sm">
+                        {% include 'digests/tables_details/addm_digest_table.html' with var_branch='tkn_main' %}
+                    </div>
+                </div>
+            </div>
+            <div class="grid-col-2">
+                <div class="card bg-light border-light">
+                    <div class="card-header">"TKN Ship" pattern test digest</div>
+                    <div class="card-body card-body-sm">
+                        {% include 'digests/tables_details/addm_digest_table.html' with var_branch='tkn_ship' %}
+                    </div>
+                </div>
+            </div>
+        {% endwith %}
+    </div>
+{% endblock %}

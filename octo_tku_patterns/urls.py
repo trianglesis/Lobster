@@ -39,6 +39,7 @@ urlpatterns = [
     # Tests ADDM digest:
     # 1st level
     url(r'^addm_digest/', AddmDigestListView.as_view(), name='addm_digest'),
+    url(r'^addm_digest_short/', AddmDigestListViewTeams.as_view(), name='addm_digest_short'),
     # Tests last:
     # 2nd level
     url(r'^tests_last/', TestLastDigestListView.as_view(), name='tests_last'),
