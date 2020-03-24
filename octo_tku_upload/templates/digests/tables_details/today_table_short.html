@@ -8,7 +8,6 @@
         <tr class="text-center">
 {#            <th class="table-info" id="num">#</th>#}
             <th class="table-info"><i class="fas fa-server"></i> Discovery</th>
-            <th class="table-info">v.</th>
             {#            <th>Mode</th>#}
             {#            <th>mode_key</th>#}
             <th class="table-info"><i class="fas fa-tags"></i> package_type</th>
@@ -29,8 +28,8 @@
             {#            <th>addm_host</th>#}
             {#            <th>addm_ip</th>#}
             {#            <th>addm_version</th>#}
-            <th class="table-info"><i class="far fa-clock"></i> Spent</th>
-            <th class="table-info" id="test_date_time"><i class="fas fa-calendar-day"></i> Date</th>
+{#            <th class="table-info"><i class="far fa-clock"></i> Spent</th>#}
+{#            <th class="table-info" id="test_date_time"><i class="fas fa-calendar-day"></i> Date</th>#}
             <th class="table-info"></th>
 {#            <th class="table-info"><i class="fas fa-location-arrow"></i></th>#}
         </tr>
@@ -39,8 +38,7 @@
         {% for test in object_list %}
             <tr {% popover 'hover' 'top' None test.mode_key %}>
 {#                <td id="num">{{ forloop.counter }}</td>#}
-                <td id="addm_name">{{ test.addm_name }}</td>
-                <td id="addm_v_int">{{ test.addm_v_int }}</td>
+                <td id="addm_name">{{ test.addm_v_int }} {{ test.addm_name }}</td>
                 {#                <td id="test_mode">{{ test.test_mode }}</td>#}
                 {#                <td id="mode_key">{{ test.mode_key }}</td>#}
                 <td id="package_type" class="txt-sm-mon">{{ test.package_type }}</td>
@@ -59,9 +57,9 @@
                 {#                <td id="addm_host">{{ test.addm_host }}</td>#}
                 {#                <td id="addm_ip">{{ test.addm_ip }}</td>#}
                 {#                <td id="addm_version">{{ test.addm_version }}</td>#}
-                <td id="time_spent_test_ui" class="txt-sm-mon">{{ test.time_spent_test|f_sec }}</td>
-                <td id="test_date_time"
-                    class="txt-sm-mon">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
+{#                <td id="time_spent_test_ui" class="txt-sm-mon">{{ test.time_spent_test|f_sec }}</td>#}
+{#                <td id="test_date_time"#}
+{#                    class="txt-sm-mon">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>#}
                 <td {% tooltip_tku_upload 'popover' 'right' test %} ><i class="far fa-eye"></i></td>
 {#                <td id="actions">#}
 {#                    <a class="btn btn-sm-er btn-outline-info" href="{% url 'admin:index' %}octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a>#}
