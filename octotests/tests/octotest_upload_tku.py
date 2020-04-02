@@ -38,6 +38,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
     def setUp(self):
         octo_tests.OctoTestCase.setUp(self)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
+        # TODO: Use ADDM groups from Options value?
         # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
         self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
         # self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
@@ -197,6 +198,42 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.tku_wget = True
         self.test005_release_ga_upgrade()
         self.test006_release_ga_fresh()
+
+    def test010_product_content_update_tkn_main_beta(self):
+        """
+        Product Content Update tkn_main
+        Install tideway_content, except ADDM where continuous build installs
+        """
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'tideway_content'
+        self.package_detail = 'TKU-Product-Content'
+        package_type = self.select_latest_continuous(tkn_branch='tkn_main')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['beta'],
+            addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
+    def test011_product_content_update_tkn_ship_echo(self):
+        """
+        Product Content Update tkn_ship
+        Install tideway_content, except ADDM where continuous build installs
+        """
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'tideway_content'
+        self.package_detail = 'TKU-Product-Content'
+        package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['echo'],
+            addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
 
     def test999_tkn_main_continuous_fresh(self):
         self.silent = True

@@ -38,6 +38,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
             '787058',
             '787059',
         ]
+        # TODO: Use ADDM groups from Options value?
         # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
         self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
         # self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
@@ -155,6 +156,44 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
         self.addm_group_l = self.tkn_ship_addm_group_l
+        self.wipe_logs_on(True)
+        self.run_case()
+
+    def test_012_night_routine_wide_tkn_main_beta(self):
+        """
+        Run during the working week (Mon, Tue, Wed, Thu), each evening at about 17:30 UK time.
+        Select all for the last 2 years, excluding mass depot changes, add key patterns,
+            exclude using cases group "excluded" and sort the only tkn_ship.
+        Use only locked ADDMs for the current branch!
+        :return:
+        """
+        self.branch = 'tkn_main'
+        date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
+        self.key_group()                                                                # 2
+        self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
+        self.excluded_group()                                                           # 4
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.addm_group_l = ['beta']
+        self.wipe_logs_on(True)
+        self.run_case()
+
+    def test_013_night_routine_wide_tkn_ship_echo(self):
+        """
+        Run during the working week (Mon, Tue, Wed, Thu), each evening at about 17:30 UK time.
+        Select all for the last 2 years, excluding mass depot changes, add key patterns,
+            exclude using cases group "excluded" and sort the only tkn_ship.
+        Use only locked ADDMs for the current branch!
+        :return:
+        """
+        self.branch = 'tkn_ship'
+        date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
+        self.key_group()                                                                # 2
+        self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
+        self.excluded_group()                                                           # 4
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.addm_group_l = ['echo']
         self.wipe_logs_on(True)
         self.run_case()
 
