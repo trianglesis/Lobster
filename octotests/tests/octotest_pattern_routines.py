@@ -4,13 +4,12 @@ Example for octo test
 import unittest
 import datetime
 import pytz
-import logging
 
 try:
     from octotests import octo_tests
     import octo.config_cred as conf_cred
     from octo import settings
-    log = logging.getLogger("octo.octologger")
+    from run_core.models import Options
 except ModuleNotFoundError:
     import octotests.octo_tests
 
@@ -38,10 +37,11 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
             '787058',
             '787059',
         ]
-        # TODO: Use ADDM groups from Options value?
+        # Wide set:
         # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
-        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
         # self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
+        # Short set:
+        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
         self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf']
 
     def test_001_night_routine_main(self):
@@ -197,6 +197,44 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.wipe_logs_on(True)
         self.run_case()
 
+    def test_014_night_routine_main_options_addm(self):
+        """
+        Run during the working week (Mon, Tue, Wed, Thu), each evening at about 17:30 UK time.
+        Select all for the last 2 years, excluding mass depot changes, add key patterns,
+            exclude using cases group "excluded" and sort the only tkn_ship.
+        Use only locked ADDMs for the current branch!
+        :return:
+        """
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
+        self.branch = 'tkn_main'
+        date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
+        self.key_group()                                                                # 2
+        self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
+        self.excluded_group()                                                           # 4
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.wipe_logs_on(True)
+        self.run_case()
+
+    def test_015_night_routine_ship_options_addm(self):
+        """
+        Run during the working week (Mon, Tue, Wed, Thu), each evening at about 17:30 UK time.
+        Select all for the last 2 years, excluding mass depot changes, add key patterns,
+            exclude using cases group "excluded" and sort the only tkn_ship.
+        Use only locked ADDMs for the current branch!
+        :return:
+        """
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
+        self.branch = 'tkn_ship'
+        date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
+        self.key_group()                                                                # 2
+        self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
+        self.excluded_group()                                                           # 4
+        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.wipe_logs_on(True)
+        self.run_case()
+
     def test_999_local_debug(self):
         date_from = now - datetime.timedelta(days=int(730))
         self.silent_on(True)
@@ -222,9 +260,9 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
         if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
-            log.warning("PROD MACHINE")
+            print("PROD MACHINE")
         else:
-            log.warning(f"DEV MACHINE {conf_cred.DEV_HOST} curr host {settings.CURR_HOSTNAME}")
+            print(f"DEV MACHINE {conf_cred.DEV_HOST} curr host {settings.CURR_HOSTNAME}")
 
 
 if __name__ == "__main__":

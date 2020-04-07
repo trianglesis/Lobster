@@ -2,6 +2,7 @@ import os
 import logging
 import atexit
 import ssl
+# noinspection PyUnresolvedReferences
 from pyVim import connect
 # noinspection PyUnresolvedReferences
 from pyVmomi import vim

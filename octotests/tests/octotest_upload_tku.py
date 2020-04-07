@@ -7,6 +7,7 @@ from operator import itemgetter
 
 try:
     from octotests import octo_tests
+    from run_core.models import Options
 except ModuleNotFoundError:
     import octotests.octo_tests
 
@@ -231,6 +232,44 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=['echo'],
+            addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
+    def test012_product_content_update_main_options_addm(self):
+        """
+        Product Content Update tkn_main
+        Install tideway_content, except ADDM where continuous build installs
+        """
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'tideway_content'
+        self.package_detail = 'TKU-Product-Content'
+        package_type = self.select_latest_continuous(tkn_branch='tkn_main')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=self.addm_group_l,
+            addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
+    def test013_product_content_update_ship_options_addm(self):
+        """
+        Product Content Update tkn_ship
+        Install tideway_content, except ADDM where continuous build installs
+        """
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'tideway_content'
+        self.package_detail = 'TKU-Product-Content'
+        package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=self.addm_group_l,
             addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
