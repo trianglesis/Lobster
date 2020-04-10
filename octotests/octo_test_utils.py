@@ -178,9 +178,11 @@ class PatternTestUtils(unittest.TestCase):
         """Select latest test cases logs with failed status"""
         failed_test_py = []
         failed_q =  TestLatestDigestFailed.objects.filter(tkn_branch__exact=self.branch).values('test_py_path')
+        log.info(f"Selected failed cases from latest: {failed_q.count()}")
         for item in failed_q:
             if item['test_py_path'] not in failed_test_py:
                 failed_test_py.append(item['test_py_path'])
+        log.info(f"Sorted test_py from latest: {len(failed_test_py)}")
         return failed_test_py
 
     def select_failed_cases(self, test_py_list):
