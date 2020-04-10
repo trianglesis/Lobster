@@ -159,7 +159,6 @@ class TaskPrepare:
             self.options = {}
             self.user_name = obj.user_name
             self.user_email = obj.user_email
-            print("Ehh")
 
         # Define fake run:
         self.fake_run = False

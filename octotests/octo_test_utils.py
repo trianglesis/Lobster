@@ -173,9 +173,7 @@ class PatternTestUtils(unittest.TestCase):
     def select_latest_failed(self):
         """Select latest test cases logs with failed status"""
         failed_test_py = []
-        failed_q =  TestLatestDigestFailed.objects.filter(
-            tkn_branch__exact=self.branch,
-            ).values('test_py_path')
+        failed_q =  TestLatestDigestFailed.objects.filter(tkn_branch__exact=self.branch).values('test_py_path')
         for item in failed_q:
             if item['test_py_path'] not in failed_test_py:
                 failed_test_py.append(item['test_py_path'])
@@ -325,7 +323,6 @@ class PatternTestUtils(unittest.TestCase):
     def run_cases_router(self, addm_tests, _addm_group, addm_item):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
         for test_item in addm_tests:
-            print(f"test_item: {test_item} weight {test_item['test_time_weight']}")
             if test_item['test_time_weight']:
                 test_t_w = round(float(test_item['test_time_weight']))  # TODO: If NoneType - use 0
             else:

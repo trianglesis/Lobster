@@ -237,28 +237,39 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def test_016_execute_failed_main(self):
         self.silent_on(True)
-        self.fake_run_on(True)
         self.branch = 'tkn_main'
         # Select failed log entries
         test_py_list = self.select_latest_failed()
-        print(f"Selected latest fails test py {test_py_list}")
+        print(f"Sorted list of tests: {len(test_py_list)} - {test_py_list}")
         # Select actual test cases from failed log details
         cases_q = self.select_failed_cases(test_py_list)
-        print(f"Selected cases by fails {cases_q.count}")
+        print(f"Selected cases for rerun: {cases_q.count()}")
         # For each of selected assign worker and add test task:
         for test_item in cases_q:
-            print(f"Assigning test: {test_item}")
             self.select_addm_group()
-            print(f"Selected min worker addm set: {self.addm_set}")
             if self.addm_set:
                 # Now wipe old results
                 self.wipe_case_logs(test_item['test_py_path'])
-                print("Wiped latest logs for this test item.")
                 # Put each case on selected group
                 self.put_test_cases_short([test_item])
-                print("Test assigned on worker.")
-                break
 
+    def test_017_execute_failed_ship(self):
+        self.silent_on(True)
+        self.branch = 'tkn_ship'
+        # Select failed log entries
+        test_py_list = self.select_latest_failed()
+        print(f"Sorted list of tests: {len(test_py_list)} - {test_py_list}")
+        # Select actual test cases from failed log details
+        cases_q = self.select_failed_cases(test_py_list)
+        print(f"Selected cases for rerun: {cases_q.count()}")
+        # For each of selected assign worker and add test task:
+        for test_item in cases_q:
+            self.select_addm_group()
+            if self.addm_set:
+                # Now wipe old results
+                self.wipe_case_logs(test_item['test_py_path'])
+                # Put each case on selected group
+                self.put_test_cases_short([test_item])
 
     def test_999_local_debug(self):
         date_from = now - datetime.timedelta(days=int(730))
