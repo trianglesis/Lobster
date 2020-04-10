@@ -161,9 +161,13 @@ class PatternTestUtils(unittest.TestCase):
         if not self.fake_run:
             log.debug("<=PatternTestUtils=> Will wipe logs of selected patterns.")
             if isinstance(test_py_path, list):
-                TestLast.objects.filter(test_py_path__in=test_py_path).delete()
+                to_delete = TestLast.objects.filter(test_py_path__in=test_py_path)
+                # log.warning(f"About to delete test logs: {to_delete.count()}\n{to_delete.query}\n{to_delete}")
+                to_delete.delete()
             elif isinstance(test_py_path, str):
-                TestLast.objects.filter(test_py_path__exact=test_py_path).delete()
+                to_delete = TestLast.objects.filter(test_py_path__exact=test_py_path)
+                # log.warning(f"About to delete test logs: {to_delete.count()}\n{to_delete.query}\n{to_delete}")
+                to_delete.delete()
             else:
                 log.warning("Do not wipe logs is test_py_path is not a list or str!")
 

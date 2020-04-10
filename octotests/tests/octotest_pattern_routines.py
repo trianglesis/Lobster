@@ -249,6 +249,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
             self.select_addm_group()
             if self.addm_set:
                 # Now wipe old results
+                print(f"Wipe last logs for {test_item['test_py_path']}")
                 self.wipe_case_logs(test_item['test_py_path'])
                 # Put each case on selected group
                 self.put_test_cases_short([test_item])
@@ -267,6 +268,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
             self.select_addm_group()
             if self.addm_set:
                 # Now wipe old results
+                print(f"Wipe last logs for {test_item['test_py_path']}")
                 self.wipe_case_logs(test_item['test_py_path'])
                 # Put each case on selected group
                 self.put_test_cases_short([test_item])
