@@ -143,7 +143,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_main'
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
-        self.addm_group_l = self.tkn_main_addm_group_l
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -155,7 +155,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_ship'
         self.excluded_group()
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
-        self.addm_group_l = self.tkn_ship_addm_group_l
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
         self.wipe_logs_on(True)
         self.run_case()
 
