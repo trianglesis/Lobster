@@ -143,14 +143,23 @@ class TaskPrepare:
 
     def __init__(self, obj):
         # Initial view requests:
-        assert isinstance(obj, dict), 'TaskPrepare obj arg should be a dict!'
+        # assert isinstance(obj, dict), 'TaskPrepare obj arg should be a dict!'
         self.view_obj = obj
-        self.options = self.view_obj.get('context')
-        self.request = self.view_obj.get('request')
-        # Assign generated context for further usage:
-        self.selector = self.options.get('selector', {})
-        self.user_name = self.view_obj.get('user_name')
-        self.user_email = self.view_obj.get('user_email')
+        if isinstance(obj, dict):
+            self.options = self.view_obj.get('context')
+            self.request = self.view_obj.get('request')
+            # Assign generated context for further usage:
+            self.selector = self.options.get('selector', {})
+            self.user_name = self.view_obj.get('user_name')
+            self.user_email = self.view_obj.get('user_email')
+
+            # It's only single test run can include wiping for test_function.
+            self.test_function = self.request.get('test_function', None)
+        else:
+            self.options = {}
+            self.user_name = obj.user_name
+            self.user_email = obj.user_email
+            print("Ehh")
 
         # Define fake run:
         self.fake_run = False
@@ -159,9 +168,6 @@ class TaskPrepare:
         # Get user and mail:
         self.start_time = datetime.datetime.now()
         log.info("<=TaskPrepare=> Prepare tests for user: %s - %s", self.user_name, self.user_email)
-
-        # It's only single test run can include wiping for test_function.
-        self.test_function = self.request.get('test_function', None)
 
         # Internal statuses:
         self.silent = False

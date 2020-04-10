@@ -12,8 +12,8 @@ from octo.config_cred import mails
 from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
 from octo_adm.tasks import TaskADDMService
-from octo_tku_patterns.models import TestCases, TestCasesDetails
-from octo_tku_patterns.models import TestLast
+from octo_tku_patterns.models import TestCases, TestCasesDetails, TestLast
+from octo_tku_patterns.model_views import TestLatestDigestFailed
 from octo_tku_patterns.night_test_balancer import BalanceNightTests
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
 from octo_tku_patterns.tasks import TPatternExecTest
@@ -21,6 +21,7 @@ from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.tasks import UploadTaskPrepare
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
 from run_core.models import AddmDev, TestOutputs
+from octo_tku_patterns.tasks import TaskPrepare
 
 log = logging.getLogger("octo.octologger")
 
@@ -155,8 +156,33 @@ class PatternTestUtils(unittest.TestCase):
             self.wipe_logs = True
             TestLast.objects.filter(tkn_branch__exact=self.branch).delete()
 
+    def wipe_case_logs(self, test_py_path):
+        """Delete latest logs for selected test cases if they're were selected to run."""
+        if not self.fake_run:
+            log.debug("<=PatternTestUtils=> Will wipe logs of selected patterns.")
+            if isinstance(test_py_path, list):
+                TestLast.objects.filter(test_py_path__in=test_py_path).delete()
+            elif isinstance(test_py_path, str):
+                TestLast.objects.filter(test_py_path__exact=test_py_path).delete()
+            else:
+                log.warning("Do not wipe logs is test_py_path is not a list or str!")
+
     def select_test_cases(self, **sel_opts):
         self.queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)
+
+    def select_latest_failed(self):
+        """Select latest test cases logs with failed status"""
+        failed_test_py = []
+        failed_q =  TestLatestDigestFailed.objects.filter(
+            tkn_branch__exact=self.branch,
+            ).values('test_py_path')
+        for item in failed_q:
+            if item['test_py_path'] not in failed_test_py:
+                failed_test_py.append(item['test_py_path'])
+        return failed_test_py
+
+    def select_failed_cases(self, test_py_list):
+        return TestCases.objects.filter(test_py_path__in=test_py_list).values()
 
     def excluded_group(self):
         excluded_group = TestCasesDetails.objects.get(title__exact='excluded')
@@ -176,6 +202,11 @@ class PatternTestUtils(unittest.TestCase):
         :return: list of sets or queryset
         """
         self.addm_set = ADDMOperations.select_addm_set(addm_group=self.addm_group_l)
+
+    def select_addm_group(self):
+        """ Select min worker - same as in octo_tku_patterns.tasks.TaskPrepare """
+        addm_group = TaskPrepare(self).addm_group_get(tkn_branch=self.branch)
+        self.addm_set = TaskPrepare(self).addm_set_select(addm_group=addm_group)
 
     def balance_tests_on_workers(self):
         """Balance tests between selected ADDM groups each group/queue will be filled
@@ -234,6 +265,10 @@ class PatternTestUtils(unittest.TestCase):
         test_out.save()
         return msg
 
+    def put_test_cases_short(self, test_item):
+        _addm_group = self.addm_set[0]['addm_group']
+        self.run_cases_router(addm_tests=test_item, _addm_group=_addm_group, addm_item=self.addm_set)
+
     def before_tests(self):
         log.debug("<=PatternTestUtils=> ADDM group run some preparations before test run?")
         # Add a task, and it will be executed early before test queue.
@@ -290,6 +325,7 @@ class PatternTestUtils(unittest.TestCase):
     def run_cases_router(self, addm_tests, _addm_group, addm_item):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
         for test_item in addm_tests:
+            print(f"test_item: {test_item} weight {test_item['test_time_weight']}")
             if test_item['test_time_weight']:
                 test_t_w = round(float(test_item['test_time_weight']))  # TODO: If NoneType - use 0
             else:
