@@ -192,9 +192,6 @@ class TasksOperations:
 
         :return:
         """
-        # workers_list = kwargs.get('workers_list', None)
-        # excluding_task = kwargs.get('excluding_task', None)
-        excl = 'lock=True'
         excluded_option = Options.objects.filter(option_key__exact='workers_excluded_list').values('option_value')[0]
         excluded_list = excluded_option.get('option_value', []).replace(' ', '').split(',')
         included_list = []
@@ -219,19 +216,18 @@ class TasksOperations:
         log.debug("<=get_free_worker=> excluded_list: %s", excluded_list)
         for worker in inspected:
             for w_key, w_val in worker.items():
-                all_tasks = w_val.get('all_tasks')
-
-                # Update excluded list with new workers where tasks lock=True
-                if any(excl in d.get('args') for d in all_tasks) or any(excl in d.get('name') for d in all_tasks):
-                    log.debug("<=get_free_worker=> Exclude worker due task lock: %s", w_key)
-                    excluded_list.append(w_key)
-                    break
-                else:
-
-                    # 2nd check if inspected worker is in dynamical excluded list:
-                    if w_key not in excluded_list:
-                        if w_key not in included_list:
-                            included_list.append(w_key)
+                # all_tasks = w_val.get('all_tasks')
+                # Do not care about lock no more - add task to min worker
+                # # Update excluded list with new workers where tasks lock=True
+                # if any(excl in d.get('args') for d in all_tasks) or any(excl in d.get('name') for d in all_tasks):
+                #     log.debug("<=get_free_worker=> Exclude worker due task lock: %s", w_key)
+                #     excluded_list.append(w_key)
+                #     break
+                # else:
+                # 2nd check if inspected worker is in dynamical excluded list:
+                if w_key not in excluded_list:
+                    if w_key not in included_list:
+                        included_list.append(w_key)
 
         for candidate in included_list:
             # 3rd check after all:

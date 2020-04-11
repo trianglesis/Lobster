@@ -96,17 +96,18 @@ class WorkerGetAvailable:
         Exclude workers where task has a lock key in name or args.
         :type inspected: list
         """
-        excl = 'lock=True'
+        # excl = 'lock=True'
         included_list: List[Dict] = []
         for worker in inspected:
-            for w_key, w_val in worker.items():
-                all_tasks = w_val.get('all_tasks')
-                if any(excl in d.get('args') for d in all_tasks) or any(excl in d.get('name') for d in all_tasks):
-                    log.debug("<=WorkerGetAvailable=> Exclude worker due task lock: %s", w_key)
-                    break
-                else:
-                    if worker not in included_list:
-                        included_list.append(worker)
+            if worker not in included_list:
+                included_list.append(worker)
+            # for w_key, w_val in worker.items():
+                # # Do not care about lock no more - add task to min worker
+                # all_tasks = w_val.get('all_tasks')
+                # if any(excl in d.get('args') for d in all_tasks) or any(excl in d.get('name') for d in all_tasks):
+                #     log.debug("<=WorkerGetAvailable=> Exclude worker due task lock: %s", w_key)
+                #     break
+                # else:
         return included_list
 
     @staticmethod

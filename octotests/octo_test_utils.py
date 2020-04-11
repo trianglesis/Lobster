@@ -305,7 +305,7 @@ class PatternTestUtils(unittest.TestCase):
                           t_routing_key=f'PatternTestUtils.{_addm_group}.sync_test_data_addm_set.TaskADDMService.t_addm_cmd_thread')
 
     def start_mail(self, _addm_group, addm_tests, addm_tests_weight, tent_avg):
-        self.mail_task_arg = 'tag=night_routine;lock=True;lvl=auto;type=send_mail'
+        self.mail_task_arg = 'tag=night_routine;lvl=auto;type=send_mail'
         self.mail_kwargs = dict(
             mode="run",
             r_type='Night',
@@ -334,7 +334,7 @@ class PatternTestUtils(unittest.TestCase):
             else:
                 test_t_w = 300
 
-            tsk_msg = 'tag=night_routine;lock=True;type=routine {}/{}/{} t:{} on: "{}" by: {}'
+            tsk_msg = 'tag=night_routine;type=routine {}/{}/{} t:{} on: "{}" by: {}'
             r_key = '{}.TExecTest.nightly_routine_case.{}'.format(_addm_group, test_item['pattern_folder_name'])
             t_tag = tsk_msg.format(test_item['tkn_branch'], test_item['pattern_library'],
                                    test_item['pattern_folder_name'], test_t_w, _addm_group, self.user_name)
