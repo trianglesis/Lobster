@@ -248,6 +248,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         for test_item in cases_q:
             self.select_addm_group()
             if self.addm_set:
+                # Sync test data to ADDM
+                self.sync_test_data_addm_set(addm_item=self.addm_set)
                 # Now wipe old results
                 print(f"Wipe last logs for {test_item['test_py_path']}")
                 self.wipe_case_logs(test_item['test_py_path'])
@@ -267,6 +269,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         for test_item in cases_q:
             self.select_addm_group()
             if self.addm_set:
+                # Sync test data to ADDM
+                self.sync_test_data_addm_set(addm_item=self.addm_set)
                 # Now wipe old results
                 print(f"Wipe last logs for {test_item['test_py_path']}")
                 self.wipe_case_logs(test_item['test_py_path'])

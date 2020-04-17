@@ -290,6 +290,8 @@ class PatternTestUtils(unittest.TestCase):
         _addm_group = addm_item[0]['addm_group']
         log.debug(f"<=TaskPrepare=> Adding task to sync addm group: {_addm_group} at set: {addm_item}")
         commands_set = ADDMStaticOperations.select_operation([
+            'test.kill.term',  # Kill any hanged test before.
+            'tw_scan_control.clear',  # Stop any running scan
             'rsync.python.testutils',
             'rsync.tideway.utils',
             'rsync.tku.data',

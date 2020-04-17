@@ -11,7 +11,8 @@ if __name__ == "__main__":
     log = logging.getLogger("octo.octologger")
     parsed = []
     log.info("Testing Octopus TH out parsing:")
-    test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-OracleRDBMS-OracleRDBMS')
+    test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-VMwareVirtualCenter')
+    # test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-OracleRDBMS-OracleRDBMS')
     # test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-WebsphereMQ-WebsphereMQ')
     log.debug("test_outputs: %s", test_outputs)
     for test_out in test_outputs:
