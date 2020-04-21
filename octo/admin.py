@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.forms import TextInput, Textarea, SelectMultiple
 
+from .model_views import *
 from .models import *
 from run_core.models import *
 from octo_tku_upload.models import *
@@ -542,5 +543,23 @@ class CeleryTaskmetaAdmin(admin.ModelAdmin):
     list_display = ('task_id', 'status', 'date_done')
     list_filter = ('status', 'date_done')
 
+@admin.register(DjangoContentType)
+class DjangoContentTypeAdmin(admin.ModelAdmin):
+    fields = (
+        ('id', 'app_label',),
+        ('model',)
+    )
+    list_display = ('app_label', 'model')
+    list_filter = ('app_label', 'model')
+
+@admin.register(DjangoMigrations)
+class DjangoMigrationsAdmin(admin.ModelAdmin):
+    fields = (
+        ('id', 'app',),
+        ('name',),
+        ('applied',),
+    )
+    list_display = ('id', 'app', 'name', 'applied')
+    list_filter = ('id', 'app', 'name', 'applied')
 
 admin.site.register(CeleryTasksetmeta)
