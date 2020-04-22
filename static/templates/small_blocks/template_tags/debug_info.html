@@ -2,9 +2,6 @@
 {% load user_groups %}
 {% load template_simplify %}
 
-{% is_user_log_in as anon_bool %} <!-- Is anon -->
-{% is_power_user as power_user_bool %} <!-- is_power_user -->
-{% is_user_staff as staff_user_bool %} <!-- is_user_staff -->
 
 <div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:1%">
     <div class="alert alert-dark" role="alert">
@@ -32,7 +29,7 @@
             </tr>
             <tr>
               <td scope="row">if power_user_bool</td>
-            {% if power_user_bool %}
+            {% if user.has_perm('run_core.test_run') %}
               <td>True</td>
             {% else %}
               <td>False</td>
@@ -40,7 +37,7 @@
             </tr>
             <tr>
               <td scope="row">if staff_user_bool</td>
-            {% if staff_user_bool %}
+            {% if user.is_staff %}
               <td>True</td>
             {% else %}
               <td>False</td>
@@ -48,7 +45,7 @@
             </tr>
             <tr>
               <td scope="row">if anon_bool</td>
-            {% if anon_bool %}
+            {% if user.is_anonymous %}
               <td>True</td>
             {% else %}
               <td>False</td>

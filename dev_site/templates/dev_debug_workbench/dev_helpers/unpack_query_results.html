@@ -5,7 +5,7 @@ Octopus administration
 {% block content %}
 {% load static %}
 {% load tz %}
-{% if not anon_bool %}
+{% if not user.is_anonymous %}
 <div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
     <!-- Content header block with navigation: -->
     <div class="alert alert-secondary" role="alert">

@@ -14,7 +14,7 @@
     </div>
 </div>
 <div style="padding-left:1%;padding-right:1%">
-    {% if not anon_bool %}
+    {% if not user.is_anonymous %}
     <div class="alert alert-info" role="alert">
         <li>ga_candidate_max = <span class="badge badge-primary">{{ ga_candidate_max.package_type__max }}</span> - current last known build, used for fresh install, or upgrade from previous, marked bold in current *(candidate release)</li>
         <li>released_tkn_max = <span class="badge badge-success">{{ released_tkn_max.package_type__max }}</span> - stable release to install and then upgrade, marked bold in current table*(previous release)</li>

@@ -13,7 +13,6 @@
 {% load template_simplify %}
 {% load intro_selections %}
 {% load user_groups %}
-{% is_user_log_in as anon_bool %} <!-- Is anon -->
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-actions-modal-toast.css' %}"/>
@@ -103,7 +102,7 @@
         <!-- Navbar right part content -->
         <div class="nav-reports-right digest-test-log-levels">
             <div class="btn-group dropleft reexecute-failed-tests">
-                {% if not anon_bool %}
+                {% if not user.is_anonymous %}
                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                         data-run_selected="true"
                         data-target="#actionsModal" >Actions</button>

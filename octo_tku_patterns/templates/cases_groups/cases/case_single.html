@@ -12,7 +12,6 @@
 {% load humanize %}
 {% load template_simplify %}
 {% load user_groups %}
-{% is_user_log_in as anon_bool %} <!-- Is anon -->
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/cases_and_tku_patterns.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-actions-modal-toast.css' %}"/>
@@ -203,7 +202,7 @@
                        href="{% url 'test_item_history' %}?tst_status=notpass;tkn_branch={{ case.tkn_branch }};pattern_library={{ case.pattern_library }};pattern_folder_name={{ case.pattern_folder_name }}"
                        title="Show all tests for this case from history...(long) not passed"><i class="fas fa-history"></i> History tests</a>
                     </div>
-                    {% if not anon_bool %}
+                    {% if not user.is_anonymous %}
                     <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                             data-target="#actionsModal"
                             data-case_id="{{ case.id }}">Actions

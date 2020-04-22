@@ -4,9 +4,6 @@ You cannot access or have no permission for this function.
 {% endblock %}
 {% block content %}
 {% load user_groups %}
-{% is_user_log_in as anon_bool %} <!-- Is anon -->
-{% is_power_user as power_user_bool %} <!-- is_power_user -->
-{% is_user_staff as staff_user_bool %} <!-- is_user_staff -->
 <div style="padding-left:1%;padding-right:1%;margin-bottom:5px;margin-top:5px">
     <!-- Content header block with navigation: -->
     <div class="alert alert-danger text-center" role="alert">Forbidden</div>
@@ -16,7 +13,7 @@ You cannot access or have no permission for this function.
         <div class="card text-center">
         <div class="card-header alert-danger">You cannot access or have no permission for this function.</div>
             <div class="card-body">
-                {% if anon_bool %}
+                {% if user.is_anonymous %}
                     You can
                     <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'login' %}">Log in</a> or
                     <a role="button" class="btn btn-sm btn-outline-info" href="{% url 'django_registration_register' %}">Register</a>

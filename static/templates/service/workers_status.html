@@ -7,7 +7,7 @@
 {% load tz %}
 {% load template_simplify %}
     <!-- IF not ANON -->
-    {% if not anon_bool %}
+    {% if not user.is_anonymous %}
         <!-- Task buttons for power users -->
         {% if power_user_bool %}
         <div style="padding-left:1%;padding-right:1%;margin-top:1em">
@@ -17,7 +17,7 @@
                 <div aria-label="Subject">All tasks statuses in system. On user octopus_super request.
                     <!-- PLACE to manage tasks: kill active, empty queue, kill hanged etc. -->
                     <div class="btn-group btn-group-sm" aria-label="Tasks actions" style="float: right">
-                    {% if staff_user_bool %}
+                    {% if user.is_staff %}
                         <div class="btn-group btn-group-sm" style="float: right">
                             <a role="button" class="btn btn-sm btn-light" href="#discard_all_tasks" title="Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Discard waiting tasks</a>
                             <a role="button" class="btn btn-sm btn-light" href="#purge_all_tasks" title="Discard all waiting tasks. This will ignore all tasks waiting for execution, and they will be deleted from the messaging server.">Purge waiting tasks</a>
@@ -102,7 +102,7 @@
                                                 <a role="button" class="btn btn-sm btn-outline-warning" href="#revoke_task_by_id?task_id={{ worker_item_d.TASKS_ITEMS.TASK_ID }}{% spaceless %}
                                                 {% endspaceless %}{% if WORKER_NAME %}&worker_name={{ WORKER_NAME }}{% endif %}" title="Cancel task (Tell all (or specific) workers to revoke a task by id. {% spaceless %}
                                                 {% endspaceless %} If a task is revoked, the workers will ignore the task and not execute it after all.)">Revoke task</a>
-                                            {% if staff_user_bool %}
+                                            {% if user.is_staff %}
                                                 <a role="button" class="btn btn-sm btn-danger" href="#revoke_task_by_id?task_id={{ worker_item_d.TASKS_ITEMS.TASK_ID }}{% spaceless %}
                                                 {% endspaceless %}{% if WORKER_NAME %}&worker_name={{ WORKER_NAME }}{% endif %}&terminate=True" title="Cancel task (Tell all (or specific) workers to revoke a task by id. {% spaceless %}
                                                 {% endspaceless %} If a task is revoked, the workers will ignore the task and not execute it after all.)">Revoke task and terminate proc</a>
@@ -213,7 +213,7 @@
                 </div>
             </div>
         </div>
-        {% if staff_user_bool %}
+        {% if user.is_staff %}
             <div style="padding-left:1%;padding-right:1%;margin-top:1em">
                 <div class="alert alert-secondary" role="alert">
                     Danger zone: restart system services
