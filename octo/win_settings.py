@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'octo_tku_upload',
     'octo_tku_patterns',
     'dev_site',
+    'django_ftpserver',
 ]
 
 MIDDLEWARE = [
@@ -207,3 +208,8 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/upload/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'upload')
+
+FTPSERVER_AUTHORIZER = 'django_ftpserver.authorizers.FTPAccountAuthorizer'
+FTPSERVER_HANDLER = 'pyftpdlib.handlers.FTPHandler'
+FTPSERVER_TLSHANDLER = 'pyftpdlib.handlers.TLS_FTPHandler'
+FTPSERVER_FILESYSTEM = 'django_ftpserver.filesystems.StorageFS'

@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'octo_tku_upload',
     'octo_tku_patterns',
     'dev_site',
+    'django_ftpserver',
 ]
 
 MIDDLEWARE = [

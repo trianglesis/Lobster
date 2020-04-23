@@ -7,6 +7,7 @@ from .models import *
 from run_core.models import *
 from octo_tku_upload.models import *
 from octo_tku_patterns.models import *
+from django_ftpserver.models import *
 
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
@@ -563,3 +564,5 @@ class DjangoMigrationsAdmin(admin.ModelAdmin):
     list_filter = ('id', 'app', 'name', 'applied')
 
 admin.site.register(CeleryTasksetmeta)
+# admin.site.register(FTPUserGroup)
+# admin.site.register(FTPUserAccount)
