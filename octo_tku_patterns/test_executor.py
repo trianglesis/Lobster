@@ -136,7 +136,7 @@ class TestExecutor:
         test_py_t = test_item.get('test_py_path_template', False)
         test_time_weight = test_item.get('test_time_weight', '')
 
-        modern_addms = Options.objects.get(option_key__exact='modern_addm').replace(' ', '').split(',')
+        modern_addms = Options.objects.get(option_key__exact='modern_addm').option_value.replace(' ', '').split(',')
 
         test_info = f" {test_py_t} | '{addm_item['addm_name']}' v'{addm_item['addm_v_int']}' " \
                     f"{addm_item['addm_ip']} - {addm_item['addm_host']} {addm_item['addm_group']}"
