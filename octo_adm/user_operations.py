@@ -25,15 +25,19 @@ class UserCheck:
 
     @staticmethod
     def is_staff(user):
-        return user.groups.filter(name='admin_users').exists()
+        return user.is_staff
 
     @staticmethod
     def is_admin(user):
-        return user.groups.filter(name='admin_users').exists()
+        if user.groups.filter(name='manager').exists():
+            return True
+        return False
 
     @staticmethod
     def is_power(user):
-        return user.groups.filter(name='power_users').exists()
+        if user.groups.filter(name='manager').exists() or user.groups.filter(name='executer').exists():
+            return True
+        return False
 
     def user_string_f(self, request):
         user_name  = self.get_user_name(request)

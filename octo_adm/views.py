@@ -608,7 +608,7 @@ class TaskOperationsREST(APIView):
         https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks
         :return
         """
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         task_id = self.task_id
         resp = TasksOperations.revoke_task_by_id(task_id=task_id)
@@ -622,7 +622,7 @@ class TaskOperationsREST(APIView):
         https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks
         :return
         """
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         workers = self.workers
         log.debug("workers: %s", workers)
@@ -636,7 +636,7 @@ class TaskOperationsREST(APIView):
         https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks
         :return
         """
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         workers = self.workers
         resp = TasksOperations().revoke_tasks_reserved(workers=workers)
@@ -649,7 +649,7 @@ class TaskOperationsREST(APIView):
         https://docs.celeryproject.org/en/latest/userguide/workers.html#revoke-revoking-tasks
         :return
         """
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         workers = self.workers
         resp = TasksOperations().revoke_tasks_active_reserved(workers=workers)
@@ -662,7 +662,7 @@ class TaskOperationsREST(APIView):
         https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.discard_all
         :return
         """
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         resp = TasksOperations().task_discard_all()
         return {'response': resp}
@@ -674,7 +674,7 @@ class TaskOperationsREST(APIView):
         https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.purge
         :return
         """
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         resp = TasksOperations().task_purge_all()
         return {'response': resp}
@@ -716,7 +716,7 @@ class TaskOperationsREST(APIView):
         https://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.pool_restart
         :return
         """
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         workers = self.workers
         resp = WorkerOperations().worker_restart(workers=workers)
@@ -866,7 +866,7 @@ class AdminOperationsREST(APIView):
         Require: admin_users;
         Example: operation_key=cases_weight
         :return {'task': t_pattern_weight_index.id}"""
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         t_tag = f'tag=t_pattern_weight_index;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_pattern_weight_index = Runner.fire_t(TPatternParse.t_pattern_weight_index, fake_run=self.fake_run, t_args=[t_tag])
@@ -896,7 +896,7 @@ class AdminOperationsREST(APIView):
         Require: admin_users;
         Example: operation_key=p4_sync_force
         :return{'task': t_p4_sync_force.id}"""
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
 
         t_tag = f'tag=t_p4_sync_force;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
@@ -911,7 +911,7 @@ class AdminOperationsREST(APIView):
         Example: operation_key=addm_cleanup;addm_group=alpha
         :return: mode: task.id
         """
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
 
         command_key = [
@@ -954,7 +954,7 @@ class AdminOperationsREST(APIView):
         Options: (command_key=(), addm_group=()
         Example: operation_key=addm_cmd_run;addm_group=alpha;command_key=show.addm.version
         :return cmd_k: task.id """
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         command_key = self.command_key.split(',')
         # TODO: I can fill the variables of CMD string right here, if neded, using user input or extra input (like: upload_unzip)?
@@ -1006,7 +1006,7 @@ class AdminOperationsREST(APIView):
         Options: addm_group=()
         Example: operation_key=addm_sync_utils;addm_group=alpha
         :return task: task.id"""
-        if not UserCheck.is_admin(self.request.user):
+        if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         command_key = [
             "rsync.python.testutils",
