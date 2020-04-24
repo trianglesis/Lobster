@@ -277,7 +277,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
     def test014_product_content_update_main_continuous(self):
         """ Usual branch is tkn_main, no ship alowed because there should be only released packages and VMs
         Install dev TKU packages for latest addm. (12.0 for example)"""
-        # self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.silent = True
         self.development = True
         self.tku_wget = False
@@ -287,8 +287,8 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_tku_type(tku_type='main_continuous')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            # addm_group__in=self.addm_group_l,
-            addm_group__in=['beta'],
+            addm_group__in=self.addm_group_l,
+            # addm_group__in=['beta'],
             addm_name__in=['fish_finger'],
             disables__isnull=True).values().order_by('addm_group')
         print(self.addm_set.values())
@@ -297,7 +297,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
     def test015_product_content_update_main_latest(self):
         """ Usual branch is tkn_main, no ship alowed because there should be only released packages and VMs
         Install dev TKU packages for latest addm. (12.0 for example)"""
-        # self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.silent = True
         self.development = True
         self.tku_wget = False
@@ -307,8 +307,8 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_tku_type(tku_type='main_latest')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            # addm_group__in=self.addm_group_l,
-            addm_group__in=['beta'],
+            addm_group__in=self.addm_group_l,
+            # addm_group__in=['beta'],
             addm_name__in=['fish_finger'],
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
@@ -316,7 +316,6 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
     def test016_tku_install_main_continuous(self):
         """ Usual branch is tkn_main, no ship alowed because there should be only released packages and VMs
         Install dev TKU packages for latest addm. (12.0 for example)"""
-        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.silent = True
         self.development = True
         self.tku_wget = False
@@ -333,7 +332,6 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
     def test017_tku_install_main_latest(self):
         """ Usual branch is tkn_main, no ship alowed because there should be only released packages and VMs
         Install dev TKU packages for latest addm. (12.0 for example)"""
-        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.silent = True
         self.development = True
         self.tku_wget = False
