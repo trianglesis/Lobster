@@ -614,6 +614,7 @@ class ADDMOperations:
         ssh = kwargs.get('ssh')
         addm_item = kwargs.get('addm_item')
         packages = kwargs.get('packages')
+        development = kwargs.get('development', False)
 
         outputs_l = []
         tku_zip_cmd_l = []
@@ -623,7 +624,12 @@ class ADDMOperations:
         rmTidewayTempRelease = ADDMStaticOperations.select_operation('rm.tideway.TEMP.release').first()
 
         # Compose commands for single ADDM:
-        package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
+        # TODO: Think to set newer addm package for dev apl like 12.0 when addm is 11.90
+        if development:
+            package_ = packages
+        else:
+            package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
+
         zip_path = [package.zip_file_path.replace('/home/user/TH_Octopus', '/usr/tideway') for package in package_]
         clean_cmd_l = [cmd.command_value for cmd in clean_tku_TEMP]
         tku_zip_cmd_l.extend(clean_cmd_l)

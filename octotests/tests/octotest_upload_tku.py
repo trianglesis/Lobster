@@ -274,6 +274,72 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
+    def test014_product_content_update_main_continuous(self):
+        """ Usual branch is tkn_main, no ship alowed because there should be only released packages and VMs
+        Install dev TKU packages for latest addm. (12.0 for example)"""
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'tideway_content'
+        self.package_detail = 'TKU-Product-Content'
+        package_type = self.select_tku_type(tku_type='main_continuous')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=self.addm_group_l,
+            addm_name__in=['fish_finger'],
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
+    def test015_product_content_update_main_latest(self):
+        """ Usual branch is tkn_main, no ship alowed because there should be only released packages and VMs
+        Install dev TKU packages for latest addm. (12.0 for example)"""
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'tideway_content'
+        self.package_detail = 'TKU-Product-Content'
+        package_type = self.select_tku_type(tku_type='main_latest')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=self.addm_group_l,
+            addm_name__in=['fish_finger'],
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
+    def test016_tku_install_main_continuous(self):
+        """ Usual branch is tkn_main, no ship alowed because there should be only released packages and VMs
+        Install dev TKU packages for latest addm. (12.0 for example)"""
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'fresh'
+        package_type = self.select_tku_type(tku_type='main_continuous')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['beta'],
+            addm_name__in=['fish_finger'],
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
+    def test017_tku_install_main_latest(self):
+        """ Usual branch is tkn_main, no ship alowed because there should be only released packages and VMs
+        Install dev TKU packages for latest addm. (12.0 for example)"""
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
+        self.silent = True
+        self.tku_wget = False
+        self.fake_run = False
+        self.test_mode = 'fresh'
+        package_type = self.select_tku_type(tku_type='main_latest')
+        self.package_types = [package_type]
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['beta'],
+            addm_name__in=['fish_finger'],
+            disables__isnull=True).values().order_by('addm_group')
+        self.run_case()
+
     def test999_tkn_main_continuous_fresh(self):
         self.silent = True
         self.tku_wget = False

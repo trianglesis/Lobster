@@ -53,6 +53,11 @@ class OctoTestCase(UploadTaskUtils):
                                                   addm_version__exact='11.3').aggregate(Max('package_type'))
         return package_type['package_type__max']
 
+    def select_tku_type(self, tku_type):
+        package_type = TkuPackages.objects.filter(tku_type__exact=tku_type).aggregate(
+            Max('package_type'))
+        return package_type['package_type__max']
+
 
 def main(module_name):
     log.info("Running tests: %s", module_name)
