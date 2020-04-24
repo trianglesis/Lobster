@@ -132,7 +132,7 @@ class UploadTestExec:
             if ssh and ssh.get_transport().is_active():
                 m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item['addm_name']} {addm_item['addm_host']} {addm_item['addm_group']}"
                 log.info(m)
-                kwargs = dict(ssh=ssh, addm_item=addm_item, packages=packages, test_q=test_q)
+                kwargs = dict(ssh=ssh, addm_item=addm_item, packages=packages, development=development, test_q=test_q)
                 th_name = f"Upload unzip TKU: addm {addm_item['addm_name']}"
                 try:
                     unzip_th = Thread(target=ADDMOperations().upload_unzip, name=th_name, kwargs=kwargs)

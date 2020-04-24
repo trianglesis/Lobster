@@ -625,8 +625,12 @@ class ADDMOperations:
 
         # Compose commands for single ADDM:
         # TODO: Think to set newer addm package for dev apl like 12.0 when addm is 11.90
+        log.debug(f"Using packages: {packages}")
+        log.debug(f"Development: {development}")
         if development:
             package_ = packages
+            for p in package_:
+                log.debug(f"Development packages will be used: {p}")
         else:
             package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
 

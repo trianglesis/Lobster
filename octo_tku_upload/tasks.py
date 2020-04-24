@@ -247,16 +247,20 @@ class UploadTaskPrepare:
                 packages.update({f'step_{step}': package})
         # Mode to install TKU simply.
         else:
-            log.info(f"{_LH_} Will install TKU in Custom mode.")
+            log.info(f"{_LH_} Will install TKU in Custom mode self.package_types: {self.package_types}")
             step = 0
             for package_type in self.package_types:
                 step += 1
                 package = TkuPackages.objects.filter(package_type__exact=package_type)
                 # If query return anything other (probably old GA, where pack type could be same)
                 # with released_tkn - prefer last option.
-                package_dis = package.filter(tku_type__exact='released_tkn')
-                if package_dis:
-                    package = package_dis
+                # TODO: Add development way
+                if self.development:
+                    pass
+                else:
+                    package_dis = package.filter(tku_type__exact='released_tkn')
+                    if package_dis:
+                        package = package_dis
                 packages.update({f'step_{step}': package})
 
         log.info(f"{_LH_}Selected packages for test in mode: {self.test_mode}")
