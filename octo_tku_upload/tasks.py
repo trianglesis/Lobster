@@ -122,6 +122,8 @@ class UploadTaskPrepare:
         self.package_types = ''
         self.packages = dict()
         self.addm_set = ''
+        # To ignore filter packages by ADDM version during unzip func
+        self.development = False
 
         # Current status args:
         self.tku_downloaded = False
@@ -382,7 +384,7 @@ class UploadTaskPrepare:
                                          f"addm_group={addm_group};user={self.user_name}"],
                                  t_kwargs=dict(addm_items=addm_items, addm_group=addm_group,
                                                test_mode=self.test_mode, step_k=step_k,
-                                               packages=packages_from_step, user_email=self.user_email),
+                                               packages=packages_from_step, user_email=self.user_email, development=self.development),
                                  t_routing_key=f"{addm_group}.TUploadExec.package_unzip.TUploadExec.t_upload_unzip")
             self.tasks_added.append(task)
 

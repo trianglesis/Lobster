@@ -279,6 +279,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         Install dev TKU packages for latest addm. (12.0 for example)"""
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.silent = True
+        self.development = True
         self.tku_wget = False
         self.fake_run = False
         self.test_mode = 'tideway_content'
@@ -296,6 +297,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         Install dev TKU packages for latest addm. (12.0 for example)"""
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.silent = True
+        self.development = True
         self.tku_wget = False
         self.fake_run = False
         self.test_mode = 'tideway_content'
@@ -313,6 +315,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         Install dev TKU packages for latest addm. (12.0 for example)"""
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.silent = True
+        self.development = True
         self.tku_wget = False
         self.fake_run = False
         self.test_mode = 'fresh'
@@ -329,6 +332,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         Install dev TKU packages for latest addm. (12.0 for example)"""
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.silent = True
+        self.development = True
         self.tku_wget = False
         self.fake_run = False
         self.test_mode = 'fresh'

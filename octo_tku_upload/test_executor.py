@@ -118,6 +118,7 @@ class UploadTestExec:
         test_mode = kwargs.get('test_mode', None)
         step_k = kwargs.get('step_k', None)
         addm_group = kwargs.get('addm_group', None)
+        development = kwargs.get('development', False)
         pack = packages.first()
 
         thread_list = []
