@@ -607,14 +607,14 @@ class LocalDownloads:
                 {'11_2_0_2': 'ftp://buildhub.tideway.com/hub/RELEASED/11_2_0_2/publish/tkn/11.2/tku/'},
                 {'11_3': 'ftp://buildhub.tideway.com/hub/RELEASED/11_3/publish/tkn/11.3/tku/'}
                 ],
-            'addm_main_nightly': 'ftp://buildhub.tideway.com/hub/addm_main-latest/publish/tkn/11.3/tku/',
-            'addm_main_continuous': 'ftp://buildhub.tideway.com/hub/addm_main-continuous/publish/tkn/11.3/tku/'}
+            'main_latest': 'ftp://buildhub.tideway.com/hub/main-latest/publish/tkn/11.3/tku/',
+            'main_continuous': 'ftp://buildhub.tideway.com/hub/main-continuous/publish/tkn/'}
 
         download_paths_d: {
             'addm_released': '/home/user/TH_Octopus/UPLOAD/HUB/RELEASED',
             'released_tkn': '/home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN',
-            'continuous': '/home/user/TH_Octopus/UPLOAD/HUB/addm_main-continuous',
-            'nightly': '/home/user/TH_Octopus/UPLOAD/HUB/addm_main-nightly'}
+            'continuous': '/home/user/TH_Octopus/UPLOAD/HUB/main_continuous',
+            'nightly': '/home/user/TH_Octopus/UPLOAD/HUB/main_latest'}
 
 
         """
@@ -625,66 +625,6 @@ class LocalDownloads:
         """
         Set paths to TKU packages on remote hub and local FS
         Use dev ADDM versions to compose paths for only current addm versions.
-
-        BUILDHUB:
-            addm_released_tkn:
-             - /hub/RELEASED/11_2_0_1/publish/tkn/11.2
-             - /hub/RELEASED/11_1_0_6/publish/tkn/11.1
-             - /hub/RELEASED/11_0_0_4/publish/tkn/11.0
-             - /hub/RELEASED/10_2_0_6/publish/tkn/10.2
-             - /hub/RELEASED/11_3/publish/tkn/11.3
-
-             addm_main_continuous:
-             - /hub/addm_main-continuous/publish/tkn/ (11.3)
-
-             addm_main_nightly:
-             - /hub/addm_main-nightly-180409190810/publish/tkn/ (11.3)
-
-             release_sprints:
-             - /hub/RELEASED/TKN/ (TKN_release_2018-03-1-90)
-
-        LOCAL:
-             nightly:
-             - /home/user/TH_Octopus/UPLOAD/HUB/addm_main-nightly/
-
-              continuous:
-             - /home/user/TH_Octopus/UPLOAD/HUB/addm_main-continuous/
-
-             addm_released:
-             - /home/user/TH_Octopus/UPLOAD/HUB/RELEASED/
-
-             released_tkn:
-             - /home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN/
-
-        PARSE:
-              2018 Jan 24 16:31  Directory   <a href="ftp://buildhub.tideway.com:21/hub/RELEASED/
-                                        TKN/TKN_release_2018-01-1-76/">TKN_release_2018-01-1-76/</a>
-              2018 Feb 22 17:02  Directory   <a href="ftp://buildhub.tideway.com:21/hub/RELEASED/
-                                        TKN/TKN_release_2018-02-1-80/">TKN_release_2018-02-1-80/</a>
-              2018 Mar 02 09:44  Directory   <a href="ftp://buildhub.tideway.com:21/hub/RELEASED/
-                                        TKN/TKN_release_2018-02-2-82/">TKN_release_2018-02-2-82/</a>
-              2018 Mar 13 16:41  Directory   <a href="ftp://buildhub.tideway.com:21/hub/RELEASED/
-                                        TKN/TKN_release_2018-02-3-85/">TKN_release_2018-02-3-85/</a>
-              2018 Mar 26 15:29  Directory   <a href="ftp://buildhub.tideway.com:21/hub/RELEASED/
-                                        TKN/TKN_release_2018-03-1-90/">TKN_release_2018-03-1-90/</a>
-
-        ftp://buildhub.tideway.com/hub/TKN_release_2018-04-1-91
-
-        buildhub_paths:
-        {
-        'ga_candidate_path': 'ftp://buildhub.tideway.com/hub/',
-        'addm_main_nightly': 'ftp://buildhub.tideway.com/hub/addm_main-latest/publish/tkn/11.3/',
-        'addm_tkn_paths': [
-            {'11_0_0_4': 'ftp://buildhub.tideway.com/hub/RELEASED/11_0_0_4/publish/tkn/11.0/'},
-            {'11_1_0_6': 'ftp://buildhub.tideway.com/hub/RELEASED/11_1_0_6/publish/tkn/11.1/'},
-            {'11_2_0_1': 'ftp://buildhub.tideway.com/hub/RELEASED/11_2_0_1/publish/tkn/11.2/'},
-            {'11_2_0_2': 'ftp://buildhub.tideway.com/hub/RELEASED/11_2_0_2/publish/tkn/11.2/'},
-            {'11_3': 'ftp://buildhub.tideway.com/hub/RELEASED/11_3/publish/tkn/11.3/'},
-            {'11_3_0_2': 'ftp://buildhub.tideway.com/hub/RELEASED/11_3_0_2/publish/tkn/11.3/'}],
-        'addm_main_continuous': 'ftp://buildhub.tideway.com/hub/addm_main-continuous/publish/tkn/11.3/',
-        'tkn_main_cont_path': 'ftp://buildhub.tideway.com/hub/tkn_main-continuous/publish/tkn/',
-        'release_sprints': 'ftp://buildhub.tideway.com/hub/RELEASED/TKN/'
-        }
 
 
         :return:
@@ -698,27 +638,11 @@ class LocalDownloads:
             addm_group__in=['alpha', 'beta', 'charlie', 'delta', 'echo', 'foxtrot']
         ).order_by('addm_full_version').values('addm_v_int', 'addm_full_version')
 
-        # tkn_main_cont_paths = []
         place = '/home/user/TH_Octopus/UPLOAD/'
         hub_path = 'ftp://buildhub.tideway.com/'
 
-        # Latest ADDM released
-        # DEV: For addm dev code - it is not needed fot TKU.
-        addm_main_continuous = '{}hub/addm_main-continuous/publish/tkn/11.3/tku/'.format(hub_path)
-        # addm_main_continuous = '{}hub/addm_main-continuous/publish/tkn/11.3/'.format(hub_path)
-        # ftp://buildhub.tideway.com/hub/addm_main-latest
-        addm_main_nightly = '{}hub/addm_main-latest/publish/tkn/11.3/tku/'.format(hub_path)
-        # addm_main_nightly    = '{}hub/addm_main-latest/publish/tkn/11.3/'.format(hub_path)
-
-        # TKN Release:
-        ga_candidate_path = '{}hub/'.format(hub_path)
-        # TKN Daily builds:
-        tkn_main_continuous_path = '{}hub/tkn_main-continuous/publish/tkn/'.format(hub_path)  # MAIN
-        tkn_ship_continuous_path = '{}hub/tkn_ship-nightly-latest/publish/tkn/'.format(hub_path)  # SHIP
-
         # RELEASED TKU:
         released = '{}hub/RELEASED/'.format(hub_path)
-        release_sprints = '{}TKN/'.format(released)
         released_tkn = '{}HUB/RELEASED/TKN'.format(place)
 
         for addm_item in addm_versions:
@@ -742,18 +666,18 @@ class LocalDownloads:
 
         buildhub_paths = dict(
             # Continuous:
-            tkn_main_cont_path=tkn_main_continuous_path,  # MAIN
-            tkn_ship_cont_path=tkn_ship_continuous_path,  # SHIP
+            tkn_main_cont_path='{}hub/tkn_main_continuous/publish/tkn/'.format(hub_path),  # MAIN
+            tkn_ship_cont_path='{}hub/tkn_ship-nightly-latest/publish/tkn/'.format(hub_path),  # SHIP
             # Other
-            release_sprints=release_sprints,
+            release_sprints='{}TKN/'.format(released),
             addm_tkn_paths=addm_tkn_paths,
-            ga_candidate_path=ga_candidate_path,
+            ga_candidate_path='{}hub/'.format(hub_path),
             # DEV: For addm dev code - it is not needed fot TKU.
-            # /hub/addm_main-continuous/publish/tkn/11.3/tku
-            addm_main_continuous=addm_main_continuous,
-            # /hub/addm_main-nightly-156/publish/tkn/11.3/tku
-            addm_main_nightly=addm_main_nightly,
-            # /hub/tkn_main-continuous/publish/tkn/11.3/tku
+            # /hub/main-continuous/publish/tkn//tku
+            main_continuous='{}hub/main-continuous/publish/tkn/'.format(hub_path),
+            # /hub/main_latest-156/publish/tkn/11.3/tku
+            main_latest='{}hub/main-latest/publish/tkn/'.format(hub_path),
+            # /hub/tkn_main_continuous/publish/tkn/11.3/tku
         )
         # log.debug("<=BUILDHUB_PATHS=> buildhub_paths: %s", buildhub_paths)
 
@@ -761,16 +685,16 @@ class LocalDownloads:
             # /hub/RELEASED/TKN/TKN_release_2018-02-2-82/publish/tkn/11.3/tku/
             released_tkn=released_tkn,
             addm_released="{}HUB/RELEASED".format(place),
-            # /hub/tkn_main-continuous/publish/tkn/11.3/tku
+            # /hub/tkn_main_continuous/publish/tkn/11.3/tku
             tkn_main_continuous="{}HUB/tkn_main_continuous".format(place),
             tkn_ship_continuous="{}HUB/tkn_ship-nightly-latest".format(place),
             # sftp://user@172.25.144.117/home/user/TH_Octopus/UPLOAD/HUB/GA_CANDIDATE
             ga_candidate="{}HUB/GA_CANDIDATE".format(place),
             # DEV: For addm dev code - it is not needed fot TKU.
-            # /hub/addm_main-continuous/publish/tkn/11.3/tku
-            continuous="{}HUB/addm_main-continuous".format(place),
-            # /hub/addm_main-nightly-156/publish/tkn/11.3/tku
-            nightly="{}HUB/addm_main-nightly".format(place),
+            # /hub/main-continuous/publish/tkn//tku
+            main_continuous="{}HUB/main_continuous".format(place),
+            # /hub/main_latest-156/publish/tkn/11.3/tku
+            main_latest="{}HUB/main_latest".format(place),
         )
         # log.debug("<=DOWNLOAD_PATHS=> download_paths: %s", download_paths)
 
@@ -780,25 +704,25 @@ class LocalDownloads:
         """
         Prepare list of commands to execute:
 
-        addm_main_continuous:
+        main_continuous:
             wget --no-verbose --continue --recursive --no-host-directories --read-timeout=120
                  --reject='*.log,*log,*com_tkn.log'
                  --exclude-directories='*/*/*/*/*/kickstarts/,*/*/*/*/kickstarts/,*/*/*/kickstarts/,*/*/kickstarts/'
-                 --cut-dirs=5 ftp://buildhub.tideway.com/hub/addm_main-continuous/publish/tkn/11.3/tku/
-                 --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/addm_main-continuous
+                 --cut-dirs=5 ftp://buildhub.tideway.com/hub/main-continuous/publish/tkn//tku/
+                 --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/main_continuous
 
-        addm_main_nightly:
+        main_latest:
             wget --no-verbose --continue --recursive --no-host-directories --read-timeout=120
                  --reject='*.log,*log,*com_tkn.log'
                  --exclude-directories='*/*/*/*/*/kickstarts/,*/*/*/*/kickstarts/,*/*/*/kickstarts/,*/*/kickstarts/'
-                 --cut-dirs=5 ftp://buildhub.tideway.com/hub/addm_main-latest/publish/tkn/11.3/tku/
-                 --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/addm_main-nightly
+                 --cut-dirs=5 ftp://buildhub.tideway.com/hub/main-latest/publish/tkn/11.3/tku/
+                 --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/main_latest
 
         tkn_main_continuous:
             wget --no-verbose --continue --recursive --no-host-directories --read-timeout=120
                  --reject='*.log,*log,*com_tkn.log'
                  --exclude-directories='*/*/*/*/*/kickstarts/,*/*/*/*/kickstarts/,*/*/*/kickstarts/,*/*/kickstarts/'
-                 --cut-dirs=4 ftp://buildhub.tideway.com/hub/tkn_main-continuous/publish/tkn/
+                 --cut-dirs=4 ftp://buildhub.tideway.com/hub/tkn_main_continuous/publish/tkn/
                  --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/tkn_main_continuous
 
         released_tkn:
@@ -837,6 +761,8 @@ class LocalDownloads:
 
         # WGET options need to be filled with args:
         #            "--timestamping;" \
+        exclude_dirs = '*/*/*/*/*/kickstarts/,*/*/*/*/kickstarts/,*/*/*/kickstarts/,*/*/kickstarts/,*/kickstarts/'
+        exclude_dirs_main = '*/*/*/*/*/*community,*/*/*/*/*community,*/*/*/*community,*/*/*/*community,*community'
         wget_rec = "wget;" \
                    "--no-verbose;" \
                    "--timestamping;" \
@@ -844,28 +770,28 @@ class LocalDownloads:
                    "--no-host-directories;" \
                    "--read-timeout=120;" \
                    "--reject='*.log,*log,*com_tkn.log';" \
-                   "--exclude-directories='*/*/*/*/*/kickstarts/,*/*/*/*/kickstarts/,*/*/*/kickstarts/,*/*/kickstarts/,*/kickstarts/';" \
+                   "--exclude-directories='{excl}';" \
                    "--cut-dirs={cut};{ftp};" \
                    "--directory-prefix={dir}"
 
         # DEV: For addm dev code - it is not needed fot TKU.
         # Compose download wget cmd for CONTINUOUS:
-        # wget_continuous = wget_rec.format(cut=5, ftp=buildhub_paths_d['addm_main_continuous'],
-        #                                   dir=download_paths_d['continuous'])
-        # wget_cmd_d.update(addm_main_continuous=wget_continuous)
+        wget_main_continuous = wget_rec.format(cut=4, ftp=buildhub_paths_d['main_continuous'], excl=exclude_dirs_main,
+                                               dir=download_paths_d['main_continuous'])
+        wget_cmd_d.update(main_continuous=wget_main_continuous)
 
         # DEV: For addm dev code - it is not needed fot TKU.
         # Compose download wget cmd for NIGHTLY
-        # wget_nightly = wget_rec.format(cut=5, ftp=buildhub_paths_d['addm_main_nightly'],
-        #                                dir=download_paths_d['nightly'])
-        # wget_cmd_d.update(addm_main_nightly=wget_nightly)
+        wget_main_latest = wget_rec.format(cut=4, ftp=buildhub_paths_d['main_latest'], excl=exclude_dirs_main,
+                                           dir=download_paths_d['main_latest'])
+        wget_cmd_d.update(main_latest=wget_main_latest)
 
-        # Compose download wget cmd for tkn_main-continuous
+        # Compose download wget cmd for tkn_main_continuous
         # 4 - do not cut addm version folders
-        tkn_main_cont_wget = wget_rec.format(cut=4, ftp=buildhub_paths_d['tkn_main_cont_path'],
+        tkn_main_cont_wget = wget_rec.format(cut=4, ftp=buildhub_paths_d['tkn_main_cont_path'], excl=exclude_dirs,
                                              dir=download_paths_d['tkn_main_continuous'])
         # For TKN_SHIP:
-        tkn_ship_cont_wget = wget_rec.format(cut=4, ftp=buildhub_paths_d['tkn_ship_cont_path'],
+        tkn_ship_cont_wget = wget_rec.format(cut=4, ftp=buildhub_paths_d['tkn_ship_cont_path'], excl=exclude_dirs,
                                              dir=download_paths_d['tkn_ship_continuous'])
 
         wget_cmd_d.update(
@@ -875,13 +801,13 @@ class LocalDownloads:
 
         # Compose download wget cmd for each sprint TKN
         for sprint in release_sprints:
-            wget_sprints_html = wget_rec.format(cut=3, ftp=sprint, dir=download_paths_d['released_tkn'])
+            wget_sprints_html = wget_rec.format(cut=3, ftp=sprint, dir=download_paths_d['released_tkn'], excl=exclude_dirs)
             if wget_sprints_html not in wget_cmd_d:
                 wget_cmd_d.update(released_tkn=wget_sprints_html)
 
         # GA Candidate -  Compose download wget cmd for each sprint TKN
         for ga_candidate in ga_candidates:
-            ga_candidate_html = wget_rec.format(cut=1, ftp=ga_candidate, dir=download_paths_d['ga_candidate'])
+            ga_candidate_html = wget_rec.format(cut=1, ftp=ga_candidate, dir=download_paths_d['ga_candidate'], excl=exclude_dirs)
             if ga_candidate_html not in wget_cmd_d:
                 wget_cmd_d.update(ga_candidate=ga_candidate_html)
 
@@ -889,7 +815,7 @@ class LocalDownloads:
         for addm_va_d_item in buildhub_paths_d['addm_tkn_paths']:
             for va_k, va_v in addm_va_d_item.items():
                 # local_path_to_zip = download_paths_d['addm_released']+va_k
-                wget_addm_va = wget_rec.format(cut=2, ftp=va_v, dir=download_paths_d['addm_released'])
+                wget_addm_va = wget_rec.format(cut=2, ftp=va_v, dir=download_paths_d['addm_released'], excl=exclude_dirs)
                 if wget_addm_va not in wget_cmd_d:
                     # log.debug("<=LocalDownloads=> Download ADDM VA: %s %s", va_k, wget_addm_va)
                     wget_cmd_d.update(addm_released=wget_addm_va)
@@ -901,8 +827,8 @@ class LocalDownloads:
         """
         Download and parse only selected package:
         available options:
-            addm_main_continuous
-            addm_main_nightly
+            main_continuous
+            main_latest
             tkn_main_continuous
             released_tkn
             addm_released
@@ -982,7 +908,7 @@ class LocalDownloads:
         """
         Parse local packages of TKU and save versions and file info to DB
 
-        Nightly path: '/home/user/TH_Octopus/UPLOAD/HUB/addm_main-nightly'
+        Nightly path: '/home/user/TH_Octopus/UPLOAD/HUB/main_latest'
             dir: 'nightly'
                 items: '['tku']'
 
@@ -991,7 +917,7 @@ class LocalDownloads:
                 items: '['index.html', 'TKN_release_2018-01-1-76', 'TKN_release_2018-02-1-80',
                 'TKN_release_2018-02-2-82', 'TKN_release_2018-02-3-85', 'TKN_release_2018-03-1-90']'
 
-        Continuous path: '/home/user/TH_Octopus/UPLOAD/HUB/addm_main-continuous'
+        Continuous path: '/home/user/TH_Octopus/UPLOAD/HUB/main_continuous'
             dir: 'continuous'
                 items: '['tku']'
 
@@ -1007,42 +933,63 @@ class LocalDownloads:
         log.debug("<=LocalDownloads=> tku_packages_parse.")
         for key, path_v in download_paths_d.items():
             # DEV: For addm dev code - it is not needed fot TKU.
-            if key == 'nightly':
-                pass
-                # /home/user/TH_Octopus/UPLOAD/HUB/addm_main-nightly/tku/
-                #   Technology-Knowledge-Update-2068-04-1-ADDM-11.3+.zip
-                # tku_zips = os.path.join(path_v, "tku")
-                # tku_content = os.listdir(tku_zips)
-                # tkn_nightly_zip_list = self.compose_tku_args(dir_content=tku_content, tku_zips=tku_zips,
-                #                                              dir_key=key, package_type='nightly', zip_type='tku')
-                # # log.debug("<=LocalDownloads=> Insert TKU nightly package details in db.")
-                # self.insert_tku_package(tkn_nightly_zip_list)
-                #
-                # edp_zips = os.path.join(path_v, "edp")
-                # edp_content = os.listdir(edp_zips)
-                # nightly_edp_zip_list = self.compose_tku_args(dir_content=edp_content, tku_zips=edp_zips,
-                #                                              dir_key=key, package_type='nightly', zip_type='edp')
-                # # log.debug("<=LocalDownloads=> Insert TKU nightly package details in db.")
-                # self.insert_tku_package(nightly_edp_zip_list)
-
+            if key == 'main_latest':
+                # /home/user/TH_Octopus/UPLOAD/HUB/main_latest/12.0/tku/Technology-Knowledge-Update-2020-04-2-ADDM-12.0+.zip
+                tku_content = os.listdir(path_v)
+                for dir_item in tku_content:
+                    log.debug("dir_item %s", dir_item)
+                    # /home/user/TH_Octopus/UPLOAD/HUB/main_latest/12.0
+                    path_to_dir_item = os.path.join(path_v, dir_item)
+                    if os.path.isdir(path_to_dir_item):
+                        # /home/user/TH_Octopus/UPLOAD/HUB/main_latest/12.0/tku/
+                        tku_zips = os.path.join(path_to_dir_item, 'tku')
+                        if os.path.isdir(tku_zips):
+                            tku_content = os.listdir(tku_zips)
+                            addm_tku_zip_list = self.compose_tku_args(dir_content=tku_content,
+                                                                      tku_zips=tku_zips,
+                                                                      dir_key=key,
+                                                                      zip_type='tku')
+                            log.debug("<=LocalDownloads=> Insert TKU tkn_main_continuous package details in db.")
+                            self.insert_tku_package(addm_tku_zip_list)
+                        # List all ZIPs in edp folder
+                        edp_zips = os.path.join(path_to_dir_item, 'edp')
+                        if os.path.isdir(edp_zips):
+                            edp_content = os.listdir(edp_zips)
+                            addm_edp_zip_list = self.compose_tku_args(dir_content=edp_content,
+                                                                      tku_zips=edp_zips,
+                                                                      dir_key=key,
+                                                                      zip_type='edp')
+                            log.debug("<=LocalDownloads=> Insert TKU tkn_main_continuous package details in db.")
+                            self.insert_tku_package(addm_edp_zip_list)
             # DEV: For addm dev code - it is not needed fot TKU.
-            elif key == 'continuous':
-                pass
-                # # /home/user/TH_Octopus/UPLOAD/HUB/addm_main-continuous/tku/
-                # #   Technology-Knowledge-Update-2068-04-1-ADDM-11.3+.zip
-                # tku_zips = os.path.join(path_v, "tku")
-                # tku_content = os.listdir(tku_zips)
-                # tkn_nightly_zip_list = self.compose_tku_args(dir_content=tku_content, tku_zips=tku_zips,
-                #                                              dir_key=key, package_type='continuous', zip_type='tku')
-                # # log.debug("<=LocalDownloads=> Insert TKU continuous package details in db.")
-                # self.insert_tku_package(tkn_nightly_zip_list)
-                #
-                # edp_zips = os.path.join(path_v, "edp")
-                # edp_content = os.listdir(edp_zips)
-                # nightly_edp_zip_list = self.compose_tku_args(dir_content=edp_content, tku_zips=edp_zips,
-                #                                              dir_key=key, package_type='continuous', zip_type='edp')
-                # # log.debug("<=LocalDownloads=> Insert TKU continuous package details in db.")
-                # self.insert_tku_package(nightly_edp_zip_list)
+            elif key == 'main_continuous':
+                # /home/user/TH_Octopus/UPLOAD/HUB/main_continuous/12.0/tku/Technology-Knowledge-Update-2020-04-2-ADDM-12.0+.zip
+                tku_content = os.listdir(path_v)
+                for dir_item in tku_content:
+                    log.debug("dir_item %s", dir_item)
+                    # /home/user/TH_Octopus/UPLOAD/HUB/main_continuous/12.0
+                    path_to_dir_item = os.path.join(path_v, dir_item)
+                    if os.path.isdir(path_to_dir_item):
+                        # /home/user/TH_Octopus/UPLOAD/HUB/main_continuous/12.0/tku/
+                        tku_zips = os.path.join(path_to_dir_item, 'tku')
+                        if os.path.isdir(tku_zips):
+                            tku_content = os.listdir(tku_zips)
+                            addm_tku_zip_list = self.compose_tku_args(dir_content=tku_content,
+                                                                      tku_zips=tku_zips,
+                                                                      dir_key=key,
+                                                                      zip_type='tku')
+                            log.debug("<=LocalDownloads=> Insert TKU tkn_main_continuous package details in db.")
+                            self.insert_tku_package(addm_tku_zip_list)
+                        # List all ZIPs in edp folder
+                        edp_zips = os.path.join(path_to_dir_item, 'edp')
+                        if os.path.isdir(edp_zips):
+                            edp_content = os.listdir(edp_zips)
+                            addm_edp_zip_list = self.compose_tku_args(dir_content=edp_content,
+                                                                      tku_zips=edp_zips,
+                                                                      dir_key=key,
+                                                                      zip_type='edp')
+                            log.debug("<=LocalDownloads=> Insert TKU tkn_main_continuous package details in db.")
+                            self.insert_tku_package(addm_edp_zip_list)
 
             elif key == 'tkn_main_continuous':
                 # /home/user/TH_Octopus/UPLOAD/HUB/tkn_main_continuous
@@ -1415,12 +1362,12 @@ class LocalDownloads:
         CMD EXAMPLES:
 
         wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
-            --cut-dirs=5,ftp://buildhub.tideway.com/hub/addm_main-continuous/publish/tkn/11.3/tku/,
-                --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/addm_main-continuous
+            --cut-dirs=5,ftp://buildhub.tideway.com/hub/main-continuous/publish/tkn//tku/,
+                --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/main_continuous
 
         wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
-            --cut-dirs=5,ftp://buildhub.tideway.com/hub/addm_main-latest/publish/tkn/11.3/tku/,
-                --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/addm_main-nightly
+            --cut-dirs=5,ftp://buildhub.tideway.com/hub/main-latest/publish/tkn/11.3/tku/,
+                --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/main_latest
 
         wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
             --cut-dirs=3,ftp://buildhub.tideway.com/hub/RELEASED/TKN/TKN_release_2018-01-1-76/,
@@ -1468,15 +1415,15 @@ class LocalDownloads:
 
         # DEV: For addm dev code - it is not needed fot TKU.
         # Compose download wget cmd for CONTINUOUS:
-        # wget_continuous = wget_rec.format(5, buildhub_paths_d['addm_main_continuous'], download_paths_d['continuous'])
+        # wget_continuous = wget_rec.format(5, buildhub_paths_d['main_continuous'], download_paths_d['continuous'])
         # wget_cmd_list.append(wget_continuous)
 
         # DEV: For addm dev code - it is not needed fot TKU.
         # Compose download wget cmd for NIGHTLY
-        # wget_nightly = wget_rec.format(5, buildhub_paths_d['addm_main_nightly'], download_paths_d['nightly'])
+        # wget_nightly = wget_rec.format(5, buildhub_paths_d['main_latest'], download_paths_d['nightly'])
         # wget_cmd_list.append(wget_nightly)
 
-        # Compose download wget cmd for tkn_main-continuous
+        # Compose download wget cmd for tkn_main_continuous
         # 4 - do not cut addm version folders
         tkn_main_cont_wget = wget_rec.format(cut=4, ftp=buildhub_paths_d['tkn_main_cont_path'],
                                              dir=download_paths_d['tkn_main_continuous'])

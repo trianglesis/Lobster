@@ -609,6 +609,7 @@ class ADDMOperations:
         :param tku_zip_list:
         :return:
         """
+        # TODO: Abort an further execution if zip fails to load
         test_q = kwargs.get('test_q')
         ssh = kwargs.get('ssh')
         addm_item = kwargs.get('addm_item')
