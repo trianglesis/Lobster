@@ -135,6 +135,7 @@
                     <div class="card-body card-body-sm">
 {#                        <h5 class="card-title txt-nice">Run upload tests</h5>#}
                         <div>
+                            {% if user.is_authenticated %}
                             <div class="list-group">
                                 <a href="#" class="list-group-item list-group-item-action" data-toggle="modal" data-target="#releaseUpload">
                                     <div class="d-flex w-100 justify-content-between"><h5 class="mb-1 txt-nice">Release preparations</h5><small>Upload\Upgrade</small></div>
@@ -152,6 +153,10 @@
                                     <small class="text-muted">Usually run automatically</small>
                                 </a>
                             </div>
+                            {% else %}
+                                <p>Please, log in!</p>
+                                <a class="btn btn-sm btn-outline-warning" href="{% url 'login' %}">Log in</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -237,12 +242,16 @@
             </div>
         </div>
         <div class="row tku-upload-rest-references">
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations' %}">REST TKU Operations All</a>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=tku_install_test">REST 'tku_install_test'</a>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=tku_sync_packages">REST 'tku_sync_packages'</a>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=tku_parse_packages">REST 'tku_parse_packages'</a>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=show_latest_tku_type">REST 'show_latest_tku_type'</a>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=select_latest_tku_type">REST 'select_latest_tku_type'</a>
+            {% if user.is_authenticated %}
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations' %}">REST TKU Operations All</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=tku_install_test">REST 'tku_install_test'</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=tku_sync_packages">REST 'tku_sync_packages'</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=tku_parse_packages">REST 'tku_parse_packages'</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=show_latest_tku_type">REST 'show_latest_tku_type'</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'tku_operations'%}?operation_key=select_latest_tku_type">REST 'select_latest_tku_type'</a>
+            {% else %}
+                <p>Please, log in!</p>
+            {% endif %}
         </div>
     </div>
     <!-- Navbar bottom fixed -->

@@ -29,11 +29,13 @@
                 <td id="addm_host">{{ addm.addm_host }}</td>
                 <td id="addm_ip">{{ addm.addm_ip }}</td>
                 <td id="buttons">
+                    {% if user.is_authenticated %}
                     <a type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal"
                        data-target="#addmServiceButtonsModal"
                        data-addm_id="{{ addm.id }}"
                        data-addm_host="{{ addm.addm_host }}"
                     >Service</a>
+                    {% endif %}
                     <a type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                        data-target="#addmUIButtonsModal"
                        data-addm_id="{{ addm.id }}"

@@ -50,6 +50,7 @@
     {# CONTENT #}
     {# CONTENT #}
     <div class="celery-admin-content">
+    {% if user.is_authenticated %}
         <div class="card-deck">
             <div class="card">
                 <div class="card-header">Workers live:</div>
@@ -126,6 +127,9 @@
                 </div>
             </div>
         </div>
+    {% else %}
+        <p>Please, log in first.</p>
+    {% endif %}
     </div>
     <!-- Navbar bottom fixed -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">

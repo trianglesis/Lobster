@@ -54,30 +54,34 @@
             <div class="card">
                 <div class="card-header">ADDM Preparations</div>
                 <div class="card-body">
-                    <div class="card-text">V-center operations, data sync between ADDMs and so on.</div>
-                    <div class="card">
-                        <div class="card-header">Addm batch operations:</div>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <span class="card-text fl-left">Cleanup</span>
-                                <div class="btn-group fl-right">
-                                    <a class="btn btn-sm btn-outline-info" id="addm_cleanup" data-toggle="modal" data-target="#addmCleanupButtons">Routines</a>
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="card-text fl-left">Run custom cmd:</span>
-                                <div class="btn-group fl-right">
-                                    <a class="btn btn-sm btn-outline-info" id="addm_cmd_run" data-toggle="modal" data-target="#addmCMDRun">CMD Run</a>
-                                </div>
+                    {% if user.is_authenticated %}
+                        <div class="card-text">V-center operations, data sync between ADDMs and so on.</div>
+                        <div class="card">
+                            <div class="card-header">Addm batch operations:</div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <span class="card-text fl-left">Cleanup</span>
+                                    <div class="btn-group fl-right">
+                                        <a class="btn btn-sm btn-outline-info" id="addm_cleanup" data-toggle="modal" data-target="#addmCleanupButtons">Routines</a>
+                                    </div>
                                 </li>
-                            <li class="list-group-item">
-                                <span class="card-text fl-left">Sync ADDM:</span>
-                                <div class="btn-group fl-right">
-                                    <a class="btn btn-sm btn-outline-info" id="addm_sync_shares" data-toggle="modal" data-target="#addmSYNCButtons">Sync shares</a>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+                                <li class="list-group-item">
+                                    <span class="card-text fl-left">Run custom cmd:</span>
+                                    <div class="btn-group fl-right">
+                                        <a class="btn btn-sm btn-outline-info" id="addm_cmd_run" data-toggle="modal" data-target="#addmCMDRun">CMD Run</a>
+                                    </div>
+                                    </li>
+                                <li class="list-group-item">
+                                    <span class="card-text fl-left">Sync ADDM:</span>
+                                    <div class="btn-group fl-right">
+                                        <a class="btn btn-sm btn-outline-info" id="addm_sync_shares" data-toggle="modal" data-target="#addmSYNCButtons">Sync shares</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <p>Please, log in!</p>
+                    {% endif %}
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">Control test environments and data on it</small>
@@ -86,29 +90,33 @@
             <div class="card">
                 <div class="card-header">ADDM alt views</div>
                 <div class="card-body">
-                    <div class="card">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <span class="card-text fl-left">ADDM Tables old:</span>
-                                <div class="btn-group fl-right">
-                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'addm_buttons_page' %}">ADDM Buttons</a>
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="card-text fl-left">ADDM admin models:</span>
-                                <div class="btn-group fl-right">
-                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmdev/">ADDM Admin</a>
-                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmdevproxy/">ADDM Proxy</a>
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="card-text fl-left">ADDM table CopyPaste:</span>
-                                <div class="btn-group fl-right">
-                                    <a class="btn btn-sm btn-outline-info" id="addm_sync_shares" data-toggle="modal" data-target="#addmTableStale">Stale Table</a>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+                    {% if user.is_authenticated %}
+                        <div class="card">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <span class="card-text fl-left">ADDM Tables old:</span>
+                                    <div class="btn-group fl-right">
+                                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'addm_buttons_page' %}">ADDM Buttons</a>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="card-text fl-left">ADDM admin models:</span>
+                                    <div class="btn-group fl-right">
+                                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmdev/">ADDM Admin</a>
+                                        <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmdevproxy/">ADDM Proxy</a>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="card-text fl-left">ADDM table CopyPaste:</span>
+                                    <div class="btn-group fl-right">
+                                        <a class="btn btn-sm btn-outline-info" id="addm_sync_shares" data-toggle="modal" data-target="#addmTableStale">Stale Table</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <p>Please, log in!</p>
+                    {% endif %}
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">Execute custom commands on ADDMs</small>
@@ -117,29 +125,33 @@
             <div class="card border-warning">
                 <div class="card-header bg-warning">ADDM Servicing</div>
                 <div class="card-body">
-                    <div class="card-text">Reboot ADDM vms, revert snapshots, etc.</div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <span class="card-text fl-left"></span>
-                            <div class="btn-group fl-right"></div>
-                        </li>
-                        <li class="list-group-item">
-                            <span class="card-text fl-left"></span>
-                            <div class="btn-group fl-right"></div>
-                        </li>
-                        <li class="list-group-item">
-                            <span class="card-text fl-left">Admin commands keys:</span>
-                            <div class="btn-group fl-right">
-                                <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmcommands/">ADDM commands</a>
-                            </div>
-                        </li>
-                        <li class="list-group-item">
-                            <span class="card-text fl-left">Admin Operations Rest:</span>
-                            <div class="btn-group fl-right">
-                                <a class="btn btn-sm btn-outline-info" href="{% url 'admin_operations' %}">Admin Operations</a>
-                            </div>
-                        </li>
-                    </ul>
+                    {% if user.is_authenticated %}
+                        <div class="card-text">Reboot ADDM vms, revert snapshots, etc.</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <span class="card-text fl-left"></span>
+                                <div class="btn-group fl-right"></div>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="card-text fl-left"></span>
+                                <div class="btn-group fl-right"></div>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="card-text fl-left">Admin commands keys:</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin:index' %}run_core/addmcommands/">ADDM commands</a>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="card-text fl-left">Admin Operations Rest:</span>
+                                <div class="btn-group fl-right">
+                                    <a class="btn btn-sm btn-outline-info" href="{% url 'admin_operations' %}">Admin Operations</a>
+                                </div>
+                            </li>
+                        </ul>
+                    {% else %}
+                        <p>Please, log in!</p>
+                    {% endif %}
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">Maintenance operations, such as restarts, upgrades.</small>
