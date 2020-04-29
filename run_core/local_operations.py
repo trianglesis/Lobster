@@ -666,7 +666,7 @@ class LocalDownloads:
 
         buildhub_paths = dict(
             # Continuous:
-            tkn_main_cont_path='{}hub/tkn_main_continuous/publish/tkn/'.format(hub_path),  # MAIN
+            tkn_main_cont_path='{}hub/tkn_main-continuous/publish/tkn/'.format(hub_path),  # MAIN
             tkn_ship_cont_path='{}hub/tkn_ship-nightly-latest/publish/tkn/'.format(hub_path),  # SHIP
             # Other
             release_sprints='{}TKN/'.format(released),
