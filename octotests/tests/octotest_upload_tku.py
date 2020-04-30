@@ -261,7 +261,6 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=self.addm_group_l,
-            addm_v_int__in=['11.90'],
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
@@ -280,7 +279,6 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=self.addm_group_l,
-            addm_v_int__in=['11.90'],
             disables__isnull=True).values().order_by('addm_group')
         self.run_case()
 
