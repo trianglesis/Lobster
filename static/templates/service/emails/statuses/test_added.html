@@ -43,23 +43,14 @@
     </table>
     <br>
     {% if mail_opts.mode == 'finish' %}
-        <ul>
-            <li>
-                {# This is pattern related #}
-                {% if mail_opts.test_item.pattern_folder_name %}
-                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ mail_opts.test_item.tkn_branch }};pattern_library={{ mail_opts.test_item.pattern_library }};pattern_folder_name={{ mail_opts.test_item.pattern_folder_name }};tst_status=None">
-                        See logs: {{ mail_opts.test_item.tkn_branch }} - {{ mail_opts.test_item.pattern_library }}/{{ mail_opts.test_item.pattern_folder_name }}
-                    </a>
-                    {# This is case not pattern related: #}
-                {% else %}
-                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?test_py_path={{ mail_opts.test_item.test_py_path }};tst_status=None">
-                        => Test logs <=
-                    </a>
-                {% endif %}
-            </li>
-        </ul>
+        <table>
+            {% include 'digests/tables_details/tests_last_table_email.html' %}
+        </table>
     {% endif %}
     {# Table for user selector options: #}
+    <br>
+    <br>
+    <br>
     {% if mail_opts.test_item %}
         <span id="selector-span">Octopus have processed:</span>
         <table id="table-test-item">

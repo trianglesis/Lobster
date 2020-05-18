@@ -196,7 +196,7 @@ class TaskPrepare:
         :return:
         """
         if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:  # Always fake run on local test env:
-            # self.fake_run = True
+            self.fake_run = True
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL options: %s", self.options)
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL request: %s", self.request)
 
@@ -508,6 +508,7 @@ class TaskPrepare:
                     # 7.2 Fire task for test execution
                     self.test_exec(addm_set, test_item)
                     # 7.3 Add mail task after one test, so it show when one test was finished.
+                    # TODO When test task is finished - add task to compose a mail with brief test results here:
                     self.mail_status(mail_opts=dict(mode='finish', test_item=test_item, addm_set=addm_set))
             else:
                 log.debug("<=TaskPrepare=> This branch had no selected tests to run: '%s'", branch_k)
@@ -526,10 +527,14 @@ class TaskPrepare:
         from octo_tku_patterns.user_test_balancer import WorkerGetAvailable
         branch_w = WorkerGetAvailable.branched_w(tkn_branch)
         addm_group = branch_w[0]
+        log.debug(f"Initial addm_group: {addm_group}")
 
         if not self.fake_run:
-            addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
-        log.debug("<=TaskPrepare=> Get available addm_group: '%s'", addm_group)
+            if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
+                addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
+            else:
+                log.info("Skipping workers check on local dev.")
+        log.debug("<=TaskPrepare=> Got an available addm_group: '%s'", addm_group)
         return addm_group
 
     def addm_set_select(self, addm_group=None):
@@ -596,7 +601,7 @@ class TaskPrepare:
                 t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'test_py_path={test_item["test_py_path"]}'
 
-                Runner.fire_t(TSupport.t_user_test, fake_run=self.fake_run, t_args=[t_tag],
+                Runner.fire_t(TSupport.t_user_test, fake_run=False, t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
                               t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
             elif mode == 'init':

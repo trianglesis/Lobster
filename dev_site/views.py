@@ -8,6 +8,7 @@ from django.template import loader
 from django.contrib.auth.decorators import permission_required
 
 from octo_adm.user_operations import UserCheck
+from octo_tku_patterns.model_views import TestLatestDigestAll
 
 # Python logger
 import logging
@@ -40,3 +41,27 @@ class DevAdminViews:
         # widgets_page = page_widgets.render(widgets)
         # https://docs.djangoproject.com/en/2.0/topics/http/shortcuts/
         return HttpResponse(page_widgets.render(widgets, request))
+
+
+    @staticmethod
+    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
+    def dev_user_test_finished(request):
+        test_added = loader.get_template('service/emails/statuses/test_added.html')
+
+
+        test_item = dict(test_py_path='/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/HP_P2000/tests/test.py')
+        mail_opts = dict(mode='finish')
+
+        # TODO: Select addm digest for test case and last test results
+        tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name').distinct()
+        log.info(f"Test results selected by: {test_item['test_py_path']} are {tests_digest}")
+
+        mail_html = test_added.render(
+            dict(
+                subject='User test email DEV',
+                domain='SITE_DOMAIN',
+                mail_opts=mail_opts,
+                tests_digest=tests_digest,
+            )
+        )
+        return HttpResponse(mail_html)

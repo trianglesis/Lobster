@@ -1,47 +1,70 @@
 {% extends "main/main.html" %}
 {% block page_title %}
-Octopus administration console
+    Octopus administration console
 {% endblock %}
 {% block content %}
-{% load static %}
-{% load dev_tags %}
-{% load template_simplify %}
-{% load tz %}
-{% get_current_timezone as TIME_ZONE %}
-<!-- Sub nav on child page Patterns Summary -->
-<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
-    <!-- Content header block with navigation: -->
-    <div class="alert alert-secondary" role="alert">
-        <!-- Subject: -->
-        {{SUBJECT}} | Server django {% now "Y-m-d H:i:s" %}
-        |
-        {% timezone "Europe/London" %}
-            London time: {% now "Y-m-d H:i:s" %}
-        {% endtimezone %}
-        |
-        {% timezone "UTC" %}
-            UTC: {% now "Y-m-d H:i:s" %}
-        {% endtimezone %}
+    {% load static %}
+    {% load dev_tags %}
+    {% load template_simplify %}
+    {% load tz %}
+    {% get_current_timezone as TIME_ZONE %}
+    <!-- Sub nav on child page Patterns Summary -->
+    <div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+        <!-- Content header block with navigation: -->
+        <div class="alert alert-secondary" role="alert">
+            <!-- Subject: -->
+            {{ SUBJECT }} | Server django {% now "Y-m-d H:i:s" %}
+            |
+            {% timezone "Europe/London" %}
+                London time: {% now "Y-m-d H:i:s" %}
+            {% endtimezone %}
+            |
+            {% timezone "UTC" %}
+                UTC: {% now "Y-m-d H:i:s" %}
+            {% endtimezone %}
 
+        </div>
     </div>
-</div>
-<!-- Only for staff -->
-{% if user.is_staff %}
-<div style="padding-left:2%;padding-right:2%;padding-top:1%">
-{# THIS IS THE PLACE FOR DEV WIDGETS INCLUDE #}
-    {# ROW #}
-    <div class="row">
-    {% include "dev_debug_workbench/dev_includes/dev_col_1.html" %}
-    {% include "dev_debug_workbench/dev_includes/dev_col_2.html" %}
-    {% include "dev_debug_workbench/dev_includes/dev_col_3.html" %}
-    </div>
-</div>
-{% else %}
-<!-- Login form request. -->
-<div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
-    <div class="alert alert-warning" role="alert">
-        This page is only for "staff" users and development.
-    </div>
-</div>
-{% endif %}
+    <!-- Only for staff -->
+    {% if user.is_staff %}
+        <div style="padding-left:2%;padding-right:2%;padding-top:1%">
+            <div class="card">
+                <div class="card-header">DEV</div>
+                <div class="card-body">
+                    <h5 class="card-title">Development views and functions tests</h5>
+                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                </div>
+            </div>
+            {# THIS IS THE PLACE FOR DEV WIDGETS INCLUDE #}
+            {# ROW #}
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Test email</h5>
+                            <p class="card-text">user test finished email table view.</p>
+                            <a href="{% url 'dev_user_test_finished' %}" class="btn btn-primary">Test email view</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Special title treatment</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional
+                                content.</p>
+                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Login form request. -->
+        <div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">
+            <div class="alert alert-warning" role="alert">
+                This page is only for "staff" users and development.
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

@@ -5,6 +5,9 @@ from octo.helpers.tasks_helpers import exception
 from octo.tasks import TSupport
 from octo.helpers.tasks_oper import TasksOperations
 
+import octo.config_cred as conf_cred
+from octo import settings
+
 # Python logger
 import logging
 log = logging.getLogger("octo.octologger")

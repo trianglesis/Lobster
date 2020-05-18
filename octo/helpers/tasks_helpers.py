@@ -26,6 +26,8 @@ from octo import settings
 
 from octo.helpers.tasks_mail_send import Mails
 from run_core.models import Options, MailsTexts, TestOutputs
+from octo_tku_patterns.models import TestLast
+from octo_tku_patterns.model_views import TestLatestDigestAll
 
 import json
 from pprint import pformat, pprint
@@ -227,6 +229,12 @@ class TMail:
             else:
                 subject_str = f'{test_item["test_py_path_template"]} '
 
+        tests_digest = []
+        if mode == 'finish':
+            # TODO: Select addm digest for test case and last test results
+            tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name').distinct()
+            log.info(f"Test results selected by: {test_item['test_py_path']} are {tests_digest}")
+
         # Cases can be selected by attribute names, last days, date from or by id
         # Depending on those options - compose different subjects for 'init' mail
         if request.get('cases_ids', False):
@@ -237,6 +245,7 @@ class TMail:
         # Compose mail mode context:
         mode_context = dict(
             # This stage is when routine only starts
+            # TODO: Add more information, select some pattern so show details of it.
             init=dict(
                 subject=f'[{SITE_SHORT_NAME}] User test init: {init_subject}',
             ),
@@ -259,6 +268,7 @@ class TMail:
                 subject=mode_context[mode].get('subject'),
                 domain=SITE_DOMAIN,
                 mail_opts=mail_opts,
+                tests_digest=tests_digest,
             )
         )
         Mails.short(subject=mode_context[mode].get('subject'),
