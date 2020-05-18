@@ -231,7 +231,6 @@ class TMail:
 
         tests_digest = []
         if mode == 'finish':
-            # TODO: Select addm digest for test case and last test results
             tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name').distinct()
             log.info(f"Test results selected by: {test_item['test_py_path']} are {tests_digest}")
 

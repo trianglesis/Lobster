@@ -508,7 +508,6 @@ class TaskPrepare:
                     # 7.2 Fire task for test execution
                     self.test_exec(addm_set, test_item)
                     # 7.3 Add mail task after one test, so it show when one test was finished.
-                    # TODO When test task is finished - add task to compose a mail with brief test results here:
                     self.mail_status(mail_opts=dict(mode='finish', test_item=test_item, addm_set=addm_set))
             else:
                 log.debug("<=TaskPrepare=> This branch had no selected tests to run: '%s'", branch_k)
@@ -601,6 +600,7 @@ class TaskPrepare:
                 t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'test_py_path={test_item["test_py_path"]}'
 
+                # TODO: Change to
                 Runner.fire_t(TSupport.t_user_test, fake_run=False, t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
                               t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
