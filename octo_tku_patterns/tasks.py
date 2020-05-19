@@ -600,8 +600,7 @@ class TaskPrepare:
                 t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'test_py_path={test_item["test_py_path"]}'
 
-                # TODO: Change to
-                Runner.fire_t(TSupport.t_user_test, fake_run=False, t_args=[t_tag],
+                Runner.fire_t(TSupport.t_user_test, fake_run=self.fake_run, t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
                               t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
             elif mode == 'init':
