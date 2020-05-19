@@ -36,6 +36,7 @@ class Mails:
         send_cc = mail_args.get('send_cc', '')
         attach_file = mail_args.get('attach_file', '')
         attach_content = mail_args.get('attach_content', '')
+        attach_content_name = mail_args.get('attach_content_name', 'octopus.html')
 
         txt = '{} {} host: {}'
         if not body and not mail_html:
@@ -74,7 +75,7 @@ class Mails:
                 if attach_file:
                     email.attach_file(attach_file)
                 if attach_content:
-                    email.attach('test_log.html', attach_content, "text/html")
+                    email.attach(attach_content_name, attach_content, "text/html")
                 email.send()
             else:
                 email = EmailMessage(**email_args)
@@ -82,7 +83,7 @@ class Mails:
                 if attach_file:
                     email.attach_file(attach_file)
                 if attach_content:
-                    email.attach('test_log.html', attach_content, "text/html")
+                    email.attach(attach_content_name, attach_content, "text/html")
                 email.send()
                 # log.debug("<=MAIL SIMPLE=> Mail txt send")
         return msg

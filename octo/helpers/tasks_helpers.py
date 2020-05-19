@@ -253,7 +253,6 @@ class TMail:
         # Compose mail mode context:
         mode_context = dict(
             # This stage is when routine only starts
-            # TODO: Add more information, select some pattern so show details of it.
             init=dict(
                 subject=f'[{SITE_SHORT_NAME}] User test init: {init_subject}',
             ),
@@ -280,10 +279,12 @@ class TMail:
                 cases_selected=cases_selected,
             )
         )
+        time_stamp = datetime.datetime.now(tz=timezone.utc).strftime('%Y-%m-%d_%H-%M')
         Mails.short(subject=mode_context[mode].get('subject'),
                     send_to=[user_email],
                     send_cc=mail_opts.get('send_cc', self.m_user_test),
                     mail_html=mail_html,
                     attach_content=log_html,
+                    attach_content_name=f'{subject_str}_test_{time_stamp}.html',
                     )
         return mail_html
