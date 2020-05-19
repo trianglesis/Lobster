@@ -80,23 +80,6 @@
             {% include 'digests/tables_details/tests_last_table_email.html' %}
         </table>
     {% endif %}
-    {# Table for user selector options: #}
-    <br>
-    <br>
-    <br>
-    {% if mail_opts.test_item %}
-        <span id="selector-span">Octopus have processed:</span>
-        <table id="table-test-item">
-            {% for k, v in mail_opts.test_item.items %}
-                {% if v and not v == 'None' %}
-                    <tr>
-                        <td style="font-weight: bold;">{{ k }}</td>
-                        <td style="font-weight: lighter;font-family: monospace;font-size: 0.875em">{{ v }}</td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-        </table>
-    {% endif %}
     </body>
 {% endblock %}
 </html>
