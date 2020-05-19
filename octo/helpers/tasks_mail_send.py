@@ -28,12 +28,14 @@ class Mails:
         :return:
         """
         fake_run = mail_args.get('fake_run', False)
-        mail_html = mail_args.get('mail_html', '')   # When nothing to render - send just plain text
-        body      = mail_args.get('body', False)     # When nothing to render - send just plain text
-        subject   = mail_args.get('subject', False)  # When nothing to render - send just plain text
+        mail_html = mail_args.get('mail_html', '')  # When nothing to render - send just plain text
+        body = mail_args.get('body', False)  # When nothing to render - send just plain text
+        subject = mail_args.get('subject', False)  # When nothing to render - send just plain text
 
-        send_to   = mail_args.get('send_to', [mails['admin'], ])  # Send to me, if None.
-        send_cc   = mail_args.get('send_cc', '')
+        send_to = mail_args.get('send_to', [mails['admin'], ])  # Send to me, if None.
+        send_cc = mail_args.get('send_cc', '')
+        attach_file = mail_args.get('attach_file', '')
+        attach_content = mail_args.get('attach_content', '')
 
         txt = '{} {} host: {}'
         if not body and not mail_html:
@@ -60,7 +62,7 @@ class Mails:
                 bcc        = [admin, ],  # Always send to me.
                 subject    = subject,
                 body       = body,
-                connection = connection
+                connection = connection,
             )
 
             # log.debug("<=MailSender=> short email_args - %s", email_args)
@@ -69,10 +71,18 @@ class Mails:
                 email = EmailMultiAlternatives(**email_args)
                 # log.debug("<=MailSender=> short email_args - %s", email_args)
                 email.attach_alternative(mail_args.get('mail_html', ''), "text/html")
+                if attach_file:
+                    email.attach_file(attach_file)
+                if attach_content:
+                    email.attach('test_log.html', attach_content, "text/html")
                 email.send()
             else:
                 email = EmailMessage(**email_args)
                 # log.debug("<=MailSender=> short email_args - %s", email_args)
+                if attach_file:
+                    email.attach_file(attach_file)
+                if attach_content:
+                    email.attach('test_log.html', attach_content, "text/html")
                 email.send()
                 # log.debug("<=MAIL SIMPLE=> Mail txt send")
         return msg

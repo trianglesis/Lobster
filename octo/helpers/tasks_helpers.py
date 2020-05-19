@@ -26,7 +26,7 @@ from octo import settings
 
 from octo.helpers.tasks_mail_send import Mails
 from run_core.models import Options, MailsTexts, TestOutputs
-from octo_tku_patterns.models import TestLast
+from octo_tku_patterns.models import TestLast, TestCases
 from octo_tku_patterns.model_views import TestLatestDigestAll
 
 import json
@@ -229,10 +229,19 @@ class TMail:
             else:
                 subject_str = f'{test_item["test_py_path_template"]} '
 
+        # Select and show all cases by id
+        cases_selected = []
+        if mode == 'init':
+            cases_selected = TestCases.objects.filter(id__in=[request.get("cases_ids", [])])
+
+        log_html = []
         tests_digest = []
         if mode == 'finish':
+            test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
             tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name').distinct()
-            log.info(f"Test results selected by: {test_item['test_py_path']} are {tests_digest}")
+            # Compose raw log and attach to email:
+            test_logs = TestLast.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name').distinct()
+            log_html = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN,))
 
         # Cases can be selected by attribute names, last days, date from or by id
         # Depending on those options - compose different subjects for 'init' mail
@@ -268,10 +277,13 @@ class TMail:
                 domain=SITE_DOMAIN,
                 mail_opts=mail_opts,
                 tests_digest=tests_digest,
+                cases_selected=cases_selected,
             )
         )
         Mails.short(subject=mode_context[mode].get('subject'),
                     send_to=[user_email],
                     send_cc=mail_opts.get('send_cc', self.m_user_test),
-                    mail_html=mail_html)
+                    mail_html=mail_html,
+                    attach_content=log_html,
+                    )
         return mail_html

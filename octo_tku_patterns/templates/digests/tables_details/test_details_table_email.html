@@ -1,0 +1,89 @@
+{% load static %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% block content %}
+    {% regroup test_detail by addm_name as test_details_addm_sort %}
+    {% for addm_tests in test_details_addm_sort %}
+        <div style="display: flex;justify-content: center;align-items: center">
+            <div style="display: inline-block">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="4" style="font-size: xx-large">{{ addm_tests.grouper }}</th>
+                        </tr>
+                        <tr>
+                            <th>Tested at:</th>
+                            <th>ETA:</th>
+                            <th>ADDM Test host</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ addm_tests.list.0.test_date_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+                            <td>{{ addm_tests.list.0.time_spent_test|f_sec }}</td>
+                            <td><a href="http://{{ addm_tests.list.0.addm_host }}.bmc.com/ui/DiscoveryHome">{{ addm_tests.list.0.addm_host }} \ {{ addm_tests.list.0.addm_group }}</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% spaceless %}
+            <!-- ADDM logs table content: -->
+            <div>
+                <table>
+                    <thead>
+                    <!-- ADDM table Head: -->
+                    <th>Branch</th>
+                    <th>Library</th>
+                    <th>Folder</th>
+                    <th>Test class</th>
+                    <th>Test method</th>
+                    <th>Test status msg</th>
+                    <th>Fail message</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    </thead>
+                    <tbody>
+                    <!-- ADDM table rows in cycle: -->
+                    {% for test in addm_tests.list %}
+                            <tr>
+                                <td style="font-size: 10pt;text-align: center">{{ test.tkn_branch }}</td>
+                                <td style="font-size: 11pt;text-align: center">{{ test.pattern_library }}</td>
+                                <td style="font-size: 11pt;text-align: center">{{ test.pattern_folder_name }}</td>
+                                <td style="font-size: 11pt;text-align: center">{{ test.tst_class }}</td>
+                                <td>
+                                    <a style="font-size: 11pt;text-align: center; cursor: pointer" href="http://{{ domain }}/octo_tku_patterns/test_item_history/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">
+                                    {{ test.tst_name }}
+                                    </a>
+                                </td>
+                                <td style="font-size: 8pt;font-family: monospace;max-width: 500px;min-width:200px;word-wrap: break-spaces">{{ test.tst_status }}{% if not test.tst_status == 'ok' %}{% endif %}{{ test.tst_message }}</td>
+                                <td style="font-size: 10pt;font-family: monospace;max-width: 500px;min-width:200px;word-wrap: break-spaces">{{ test.fail_message|safe }}</td>
+                                <td id="test_id" style="display:none">{{ test.id }}</td>
+                                <td id="tkn_branch" style="display:none">{{ test.tkn_branch }}</td>
+                                <td id="pattern_library" style="display:none">{{ test.pattern_library }}</td>
+                                <td id="pattern_folder_name" style="display:none">{{ test.pattern_folder_name }}</td>
+                                <td id="time_spent_test" style="display:none">{{ test.time_spent_test }}</td>
+                                <td id="tst_status" style="display:none">{{ test.tst_status }}</td>
+                                <td id="tst_class" style="display:none">{{ test.tst_class }}</td>
+                                <td id="tst_name" style="display:none">{{ test.tst_name }}</td>
+                                <td id="tst_module" style="display:none">{{ test.tst_module }}</td>
+                                <td id="addm_group" style="display:none">{{ test.addm_group }}</td>
+                                <td id="addm_v_int" style="display:none">{{ test.addm_v_int }}</td>
+                                <td id="addm_host" style="display:none">{{ test.addm_host }}</td>
+                                <td id="addm_ip" style="display:none">{{ test.addm_ip }}</td>
+                                <td id="pattern_file_path" style="display:none">{{ test.pattern_file_path }}</td>
+                                <td id="test_py_path" style="display:none">{{ test.test_py_path }}</td>
+                                <td id="pattern_folder_path_depot" style="display:none">{{ test.pattern_folder_path_depot }}</td>
+                                <td id="pattern_file_path_depot" style="display:none">{{ test.pattern_file_path_depot }}</td>
+                            </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endspaceless %}
+    {% endfor %}
+{% endblock %}
+

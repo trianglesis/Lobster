@@ -4,6 +4,7 @@
     {% load tz %}
     {% load i18n static %}
     {% load template_simplify %}
+    {% load humanize %}
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width"/>
     <title>{{ subject }}</title>
@@ -42,6 +43,38 @@
         </tr>
     </table>
     <br>
+    {% if mail_opts.mode == 'init' %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Num</th>
+                    <th>Branch</th>
+                    <th>Library</th>
+                    <th>Folder name</th>
+                    <th>Change #</th>
+                    <th>User</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>ETA (sum)</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for case in cases_selected %}
+                <tr>
+                    <td style="text-align: center;">{{ forloop.counter }}</td>
+                    <td>{{ case.tkn_branch }}</td>
+                    <td>{{ case.pattern_library }}</td>
+                    <td>{{ case.pattern_folder_name }}</td>
+                    <td style="font-size: 9pt; text-align: center;">{{ case.change }}</td>
+                    <td style="font-size: 9pt; text-align: center;">{{ case.change_user }}</td>
+                    <td style="font-size: 9pt; text-align: center;">{{ case.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+                    <td style="font-size: 7pt">{{ case.change_desc|safe }}</td>
+                    <td style="font-size: 9pt; text-align: center;">{{ case.test_time_weight|f_sec }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
     {% if mail_opts.mode == 'finish' %}
         <table>
             {% include 'digests/tables_details/tests_last_table_email.html' %}
