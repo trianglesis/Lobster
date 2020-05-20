@@ -3,6 +3,14 @@
 {% load humanize %}
 {% load template_simplify %}
 {% block content %}
+    <style>
+        .non-ok { background-color: lightcoral }
+        .skipped { background-color: lightblue }
+        .passed { background-color: lightgreen }
+        .txt-sm-center {font-size: 11pt;text-align: center}
+        .txt-extra-sm-center {font-size: 10pt;text-align: left;font-family: monospace;word-wrap: break-spaces}
+    </style>
+
     {% regroup test_detail by addm_name as test_details_addm_sort %}
     {% for addm_tests in test_details_addm_sort %}
         <div style="display: flex;justify-content: center;align-items: center">
@@ -49,18 +57,18 @@
                     <tbody>
                     <!-- ADDM table rows in cycle: -->
                     {% for test in addm_tests.list %}
-                            <tr>
-                                <td style="font-size: 10pt;text-align: center">{{ test.tkn_branch }}</td>
-                                <td style="font-size: 11pt;text-align: center">{{ test.pattern_library }}</td>
-                                <td style="font-size: 11pt;text-align: center">{{ test.pattern_folder_name }}</td>
-                                <td style="font-size: 11pt;text-align: center">{{ test.tst_class }}</td>
+                            <tr class="{% if 'skipped' in test.tst_status %}skipped{% elif 'ERROR' in test.tst_status or 'FAIL' in test.tst_status %}non-ok{% elif 'ok' in test.tst_status %}passed{% endif %}">
+                                <td class="txt-extra-sm-center">{{ test.tkn_branch }}</td>
+                                <td class="txt-sm-center">{{ test.pattern_library }}</td>
+                                <td class="txt-sm-center">{{ test.pattern_folder_name }}</td>
+                                <td class="txt-sm-center">{{ test.tst_class }}</td>
                                 <td>
-                                    <a style="font-size: 11pt;text-align: center; cursor: pointer" href="http://{{ domain }}/octo_tku_patterns/test_item_history/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">
+                                    <a class="txt-sm-center" style="cursor: pointer" href="http://{{ domain }}/octo_tku_patterns/test_item_history/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">
                                     {{ test.tst_name }}
                                     </a>
                                 </td>
-                                <td style="font-size: 8pt;font-family: monospace;max-width: 500px;min-width:200px;word-wrap: break-spaces">{{ test.tst_status }}{% if not test.tst_status == 'ok' %}{% endif %}{{ test.tst_message }}</td>
-                                <td style="font-size: 10pt;font-family: monospace;max-width: 500px;min-width:200px;word-wrap: break-spaces">{{ test.fail_message|safe }}</td>
+                                <td class="txt-extra-sm-center" style="min-width:200px;">{{ test.tst_status }} {{ test.tst_message }}</td>
+                                <td class="txt-extra-sm-center" style="min-width:200px;white-space: pre-wrap;">{{ test.fail_message|safe }}</td>
                                 <td id="test_id" style="display:none">{{ test.id }}</td>
                                 <td id="tkn_branch" style="display:none">{{ test.tkn_branch }}</td>
                                 <td id="pattern_library" style="display:none">{{ test.pattern_library }}</td>

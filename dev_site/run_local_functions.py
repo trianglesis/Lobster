@@ -5,78 +5,64 @@ if __name__ == "__main__":
     import copy
     import collections
     import datetime
+    from itertools import groupby
     from operator import itemgetter
 
     django.setup()
+    from django.template import loader
+    from django.db.models import Q
 
     from octo_tku_patterns.models import TestCases, TestCasesDetails
+    from octo_tku_patterns.model_views import TestLatestDigestAll
+    from run_core.models import UserAdprod
 
     log = logging.getLogger("octo.octologger")
-    log.info("\n\n\n\n\nRun dev_site/run_local_functions.py")
 
-    now = datetime.datetime.now(tz=pytz.utc)
-    tomorrow = now + datetime.timedelta(days=1)
-    queryset_all = TestCases.objects.all()
+    def failed_pattern_test_user_daily_digest():
+        """
+        Send failed test warnings to users related to change of failed patterns.
+        One mail per user will all failed tests log.
+        :return:
+        """
+        mail_body = loader.get_template('digests/user_nonpass_digest_email.html')
+        test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
 
-    exclude_changes = [
-        '791013',
-        '784570',
-        '784672',
-        '784741',
-        '790845',
-        '716460',  # TKN SHIP STARTED HERE
-        '716461',
-        '790846',
-        '787058',
-        '787059',
-    ]
+        all_nonpass_tests = TestLatestDigestAll.objects.filter(Q(fails__gte=1) | Q(error__gte=1)).values().order_by('-change_user')
+        all_nonpass_tests = groupby(all_nonpass_tests, itemgetter('change_user'))
+        print(f"Selected non passed tests grouped: {all_nonpass_tests}")
+
+        # Iter each user and set of failed tests:
+        for user_k, test_v in all_nonpass_tests:
+            print()
+            # Select user email:
+            try:
+                user = UserAdprod.objects.get(adprod_username__exact=user_k)
+                print(f"User: {user_k}: {user.user.email}")
+            except:
+                print(f"This user doesn't have an ADPROD: {user_k}")
+
+            # Compose short test latest digest
+            mail_body.render(dict(tests_digest=test_v))
+
+            for test in test_v:
+                print(f"Test: {test}")
+                log.debug(f"Non passed test by user: {test.change_user} - {test.tkn_branch}, {test.pattern_library}, {test.pattern_folder_name}")
+            # Compose detailed test log
+
+            print(mail_body)
+
+    def all_pattern_test_team_daily_digest():
+        """
+        Daily digest of overall pattern tests status, same as ADDM Digest.
+        :return:
+        """
+
+    def upload_test_failed_warning():
+        """
+        Managers and team warning when upload test failed.
+        Consider different functions for each upload type, or use args
+        :return:
+        """
 
 
-    def key_group(queryset):
-        key_group_ = TestCasesDetails.objects.get(title__exact='key')
-        included = key_group_.test_cases.values('id')
-        key_cases = TestCases.objects.filter(id__in=included)
-        queryset = queryset | key_cases
-        return queryset
-
-
-    def excluded_group(queryset):
-        excluded_group_ = TestCasesDetails.objects.get(title__exact='excluded')
-        excluded_ids = excluded_group_.test_cases.values('id')
-        queryset = queryset.exclude(id__in=excluded_ids)
-        return queryset
-
-
-    def night_select(branch, queryset):
-        date_from = now - datetime.timedelta(days=int(730))
-        queryset = queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        key_group(queryset)  # 2
-        queryset = queryset.filter(tkn_branch__exact=branch)  # 3
-        excluded_group(queryset)  # 4
-        queryset = queryset.exclude(change__in=exclude_changes)  # 5
-        return queryset
-
-    # Explain and show query:
-    selected_tkn_main = night_select('tkn_main', queryset_all)
-    log.info(f"Explain QUERY for tkn_main: \ncount: {selected_tkn_main.count()} \nexplain: {selected_tkn_main.explain()} \nQUERY\n'''{selected_tkn_main.query}'''")
-    selected_tkn_ship = night_select('tkn_ship', queryset_all)
-    log.info(f"Explain QUERY for tkn_ship: \ncount: {selected_tkn_ship.count()} \nexplain: {selected_tkn_ship.explain()} \nQUERY\n'''{selected_tkn_ship.query}'''")
-
-    # Show objects:
-    shorten_tkn_main = selected_tkn_main.values('pattern_library', 'pattern_folder_name')
-    log.debug(f"Shorten 'tkn_main' queryset with only few values: {shorten_tkn_main} \nQUERY\n'''{shorten_tkn_main.query}'''")
-    shorten_tkn_ship = selected_tkn_ship.values('pattern_library', 'pattern_folder_name')
-    log.debug(f"Shorten 'tkn_ship' queryset with only few values: {shorten_tkn_ship} \nQUERY\n'''{shorten_tkn_ship.query}'''")
-
-    # Evaluate and make lists:
-    l_tkn_main = list(shorten_tkn_main)
-    # log.debug(f"Full list of selected: 'l_tkn_main' {len(l_tkn_main)}: {l_tkn_main}")
-    l_tkn_ship = list(shorten_tkn_ship)
-    # log.debug(f"Full list of selected: 'l_tkn_ship' {len(l_tkn_ship)}: {l_tkn_ship}")
-
-    not_in_ship = []
-    for item in l_tkn_main:
-        if item not in l_tkn_ship:
-            not_in_ship.append(item)
-    log.debug(f"Cases are not in ship: {not_in_ship}")
-
+    failed_pattern_test_user_daily_digest()
