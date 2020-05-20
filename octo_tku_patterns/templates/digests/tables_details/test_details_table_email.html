@@ -4,13 +4,13 @@
 {% load template_simplify %}
 {% block content %}
     <style>
-        .non-ok { background-color: lightcoral }
+        .fail { background-color: lightcoral }
+        .error { background-color: lightgoldenrodyellow }
         .skipped { background-color: lightblue }
         .passed { background-color: lightgreen }
         .txt-sm-center {font-size: 11pt;text-align: center}
         .txt-extra-sm-center {font-size: 10pt;text-align: left;font-family: monospace;word-wrap: break-spaces}
     </style>
-
     {% regroup test_detail by addm_name as test_details_addm_sort %}
     {% for addm_tests in test_details_addm_sort %}
         <div style="display: flex;justify-content: center;align-items: center">
@@ -18,19 +18,23 @@
                 <table>
                     <thead>
                         <tr>
-                            <th colspan="4" style="font-size: xx-large">{{ addm_tests.grouper }}</th>
+                            <th colspan="3" style="font-size: xx-large">{{ addm_tests.grouper }}</th>
                         </tr>
                         <tr>
+                            {% if mail_opts %}
                             <th>Tested at:</th>
                             <th>ETA:</th>
                             <th>ADDM Test host</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
+                            {% if mail_opts %}
                             <td>{{ addm_tests.list.0.test_date_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
                             <td>{{ addm_tests.list.0.time_spent_test|f_sec }}</td>
                             <td><a href="http://{{ addm_tests.list.0.addm_host }}.bmc.com/ui/DiscoveryHome">{{ addm_tests.list.0.addm_host }} \ {{ addm_tests.list.0.addm_group }}</a></td>
+                            {% endif %}
                         </tr>
                     </tbody>
                 </table>
@@ -57,7 +61,7 @@
                     <tbody>
                     <!-- ADDM table rows in cycle: -->
                     {% for test in addm_tests.list %}
-                            <tr class="{% if 'skipped' in test.tst_status %}skipped{% elif 'ERROR' in test.tst_status or 'FAIL' in test.tst_status %}non-ok{% elif 'ok' in test.tst_status %}passed{% endif %}">
+                            <tr class="{% if 'skipped' in test.tst_status %}skipped{% elif 'ERROR' in test.tst_status %}error{% elif 'FAIL' in test.tst_status %}fail{% elif 'ok' in test.tst_status %}passed{% endif %}">
                                 <td class="txt-extra-sm-center">{{ test.tkn_branch }}</td>
                                 <td class="txt-sm-center">{{ test.pattern_library }}</td>
                                 <td class="txt-sm-center">{{ test.pattern_folder_name }}</td>

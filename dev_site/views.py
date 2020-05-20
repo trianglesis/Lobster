@@ -111,28 +111,36 @@ class DevAdminViews:
             # Select user email:
             try:
                 user = UserAdprod.objects.get(adprod_username__exact=user_k)
+                user_email = user.user.email
                 log.info(f"User: {user_k}: {user.user.email}")
             except:
+                user_email = None
                 log.info(f"This user doesn't have an ADPROD: {user_k}")
 
-            # # Compose short test latest digest
-            # widgets = dict(
-            #     subject='This is the digest of not passed tests, see attachment for detailed log.',
-            #     domain=SITE_DOMAIN,
-            #     user=user_k,
-            #     tests_digest=test_v
-            # )
+            if user_email:
+                tests_digest = []
+                sel_test_py = []
+                for test in test_v:
+                    log.info(f"TEST: {test} {test['test_py_path']}")
+                    sel_test_py.append(test['test_py_path'])
+                    tests_digest.append(test)
+                log.info(f"Selected IDs: {sel_test_py}")
 
-            # Compose detailed test log
-            sel_test_py = []
-            for test in test_v:
-                log.info(f"TEST: {test} {test['test_py_path']}")
-                sel_test_py.append(test['test_py_path'])
-            log.info(f"Selected IDs: {sel_test_py}")
+                # Compose short test latest digest
+                subject = 'This is the digest of not passed tests, see attachment for detailed log.'
 
-            test_logs = TestLast.objects.filter(test_py_path__in=sel_test_py).order_by('-addm_name').distinct()
-            log.info(f"Selected test_logs: {test_logs}")
+                mail_html = mail_body.render(
+                    dict(
+                        subject=subject,
+                        domain=SITE_DOMAIN,
+                        user=user_k,
+                        tests_digest=tests_digest
+                    )
+                )
+                test_logs = TestLast.objects.filter(test_py_path__in=sel_test_py).order_by('-addm_name')
+                log.info(f"Selected test_logs: {test_logs}")
 
-
-            return HttpResponse(test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN), request))
-            # return HttpResponse(mail_body.render(widgets, request))
+                test_log_html_attach = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN))
+                # return HttpResponse(test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN), request))
+                # return HttpResponse(test_log_html_attach, request)
+                return HttpResponse(mail_html, request)

@@ -238,7 +238,7 @@ class TMail:
         tests_digest = []
         if mode == 'finish':
             test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
-            tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name').distinct()
+            tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name')
             # Compose raw log and attach to email:
             test_logs = TestLast.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name').distinct()
             log_html = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN,))
