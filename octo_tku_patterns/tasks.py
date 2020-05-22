@@ -29,6 +29,8 @@ from octo.tasks import TSupport
 from octo_adm.tasks import TaskADDMService
 from octo_tku_patterns.models import TestLast, TestCases, TestCasesDetails
 from octo_tku_patterns.test_executor import TestExecutor
+from octo_tku_patterns.digests import TestDigestMail
+
 from octotests.tests_discover_run import TestRunnerLoc
 from run_core.addm_operations import ADDMStaticOperations
 from run_core.local_operations import LocalPatternsP4Parse
@@ -658,3 +660,18 @@ class TaskPrepare:
     def test_and_addm_check(self, addm_set, test_item):
         if not addm_set or not test_item:
             self.mail_status(mail_opts=dict(mode='fail', test_item=test_item))
+
+
+class MailDigests:
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_user_digest',
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    def t_user_digest(t_tag, **kwargs):
+        TestDigestMail().failed_pattern_test_user_daily_digest(**kwargs)
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_lib_digest',
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    def t_lib_digest(t_tag, **kwargs):
+        TestDigestMail().all_pattern_test_team_daily_digest(**kwargs)

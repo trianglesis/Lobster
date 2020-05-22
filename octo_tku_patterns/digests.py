@@ -1,37 +1,37 @@
-if __name__ == "__main__":
-    import logging
-    import django
-    import pytz
-    import copy
-    import collections
-    import datetime
-    from itertools import groupby
-    from operator import itemgetter
 
-    django.setup()
-    from django.utils import timezone
-    from django.template import loader
-    from django.db.models import Q
+import logging
+import django
+import datetime
+from itertools import groupby
+from operator import itemgetter
 
-    from octo.win_settings import SITE_DOMAIN
+django.setup()
+from django.utils import timezone
+from django.template import loader
+from django.db.models import Q
 
-    from octo_tku_patterns.models import TestLast
-    from octo_tku_patterns.model_views import TestLatestDigestAll
-    from run_core.models import UserAdprod
+from octo.win_settings import SITE_DOMAIN
 
-    from octo.helpers.tasks_mail_send import Mails
-    from octo.helpers.tasks_run import Runner
-    from octo.tasks import TSupport
+from octo_tku_patterns.models import TestLast
+from octo_tku_patterns.model_views import TestLatestDigestAll
+from run_core.models import UserAdprod
 
-    log = logging.getLogger("octo.octologger")
+from octo.helpers.tasks_run import Runner
+from octo.tasks import TSupport
 
-    def failed_pattern_test_user_daily_digest():
+log = logging.getLogger("octo.octologger")
+
+
+class TestDigestMail:
+
+
+    def failed_pattern_test_user_daily_digest(self, **kwargs):
         """
         Send failed test warnings to users related to change of failed patterns.
         One mail per user will all failed tests log.
         :return:
         """
-        fake_run = False
+        fake_run = kwargs.get('fake_run', False)
 
         mail_body = loader.get_template('digests/user_nonpass_digest_email.html')
         test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
@@ -60,7 +60,7 @@ if __name__ == "__main__":
                     tests_digest.append(test)
 
                 # Compose short test latest digest
-                subject = 'This is the digest of not passed tests, see attachment for detailed log.'
+                subject = f'User test digest {user_k}'
                 mail_html = mail_body.render(
                     dict(
                         subject=subject,
@@ -75,7 +75,7 @@ if __name__ == "__main__":
                 test_log_html_attachment = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN,))
                 time_stamp = datetime.datetime.now(tz=timezone.utc).strftime('%Y-%m-%d_%H-%M')
                 t_kwargs = dict(subject=subject,
-                    send_to=['oleksandr_danylchenko_cw@bmc.com'],
+                    send_to=[user_email],
                     send_cc=['oleksandr_danylchenko_cw@bmc.com'],
                     mail_html=mail_html,
                     attach_content=test_log_html_attachment,
@@ -94,12 +94,12 @@ if __name__ == "__main__":
                 log.warning(f"User has no adprod record! {user_k}: {user_email}")
 
 
-    def all_pattern_test_team_daily_digest():
+    def all_pattern_test_team_daily_digest(self, **kwargs):
         """
         Daily digest of overall pattern tests status, same as ADDM Digest.
         :return:
         """
-        fake_run = False
+        fake_run = kwargs.get('fake_run', False)
         mail_body = loader.get_template('digests/library_nonpass_digest_email.html')
         # test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
             if library_not_passed:
                 log.warning(f"{lib_k} library has failed\error tests today.")
                 # Compose short test latest digest
-                subject = f'This is the digest of not passed tests for {lib_k} patterns.'
+                subject = f'Test digest for {lib_k} patterns.'
                 mail_html = mail_body.render(
                     dict(
                         subject=subject,
@@ -133,7 +133,7 @@ if __name__ == "__main__":
                 t_routing_key = 'PatternDigest.TSupport.t_short_mail'
                 t_queue = 'w_routines@tentacle.dq2'
                 t_kwargs = dict(subject=subject,
-                    send_to=['oleksandr_danylchenko_cw@bmc.com'],
+                    send_to=[mail_v],
                     send_cc=['oleksandr_danylchenko_cw@bmc.com'],
                     mail_html=mail_html,
                     # attach_content=test_log_html_attachment,
@@ -145,15 +145,3 @@ if __name__ == "__main__":
             else:
                 log.info(f"Current library has no failed\error tests today {lib_k}")
                 # TODO: Send email with 100% passed?
-
-
-    def upload_test_failed_warning():
-        """
-        Managers and team warning when upload test failed.
-        Consider different functions for each upload type, or use args
-        :return:
-        """
-
-
-    failed_pattern_test_user_daily_digest()
-    # all_pattern_test_team_daily_digest()
