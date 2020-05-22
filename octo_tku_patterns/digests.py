@@ -87,8 +87,6 @@ class TestDigestMail:
                 Runner.fire_t(TSupport.t_short_mail,
                               fake_run=fake_run, to_sleep=2, to_debug=True,
                               t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
-
-                break
             else:
                 # Send a warning email about user ADPROD
                 log.warning(f"User has no adprod record! {user_k}: {user_email}")
