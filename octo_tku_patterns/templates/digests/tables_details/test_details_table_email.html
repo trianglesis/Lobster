@@ -4,10 +4,31 @@
 {% load template_simplify %}
 {% block content %}
     <style>
-        .fail { background-color: lightcoral }
-        .error { background-color: lightgoldenrodyellow }
-        .skipped { background-color: lightblue }
-        .passed { background-color: lightgreen }
+        /* tst_status colors */
+        .tst-notpass {
+            /* 30% Saturation */
+            background-color: rgb(237, 222, 222) !important;
+        }
+        .tst-fail {
+            /* 30% Saturation */
+            background-color: rgb(237, 222, 222) !important;
+        }
+        .tst-error {
+            /* 30% Saturation */
+            background-color: rgb(237, 237, 222) !important;
+        }
+        .tst-skip {
+            /* 30% Saturation */
+            background-color: rgb(222, 222, 237) !important;
+        }
+        .tst-pass {
+            /* 30% Saturation */
+            background-color: rgb(222, 237, 222) !important;
+        }
+        .tst-None {
+            /* 30% Saturation */
+            background-color: rgb(226, 222, 237) !important;
+        }
         .txt-sm-center {font-size: 11pt;text-align: center}
         .txt-extra-sm-center {font-size: 10pt;text-align: left;font-family: monospace;word-wrap: break-spaces}
     </style>
@@ -61,7 +82,17 @@
                     <tbody>
                     <!-- ADDM table rows in cycle: -->
                     {% for test in addm_tests.list %}
-                            <tr class="{% if 'skipped' in test.tst_status %}skipped{% elif 'ERROR' in test.tst_status %}error{% elif 'FAIL' in test.tst_status %}fail{% elif 'ok' in test.tst_status %}passed{% endif %}">
+                            <tr {% if 'skipped' in test.tst_status %}
+                                    class="tst-skip"
+                                {% elif 'ERROR' in test.tst_status %}
+                                    class="tst-error"
+                                {% elif 'FAIL' in test.tst_status %}
+                                    class="tst-notpass"
+                                {% elif 'ok' in test.tst_status %}
+                                    class="tst-pass"
+                                {% else %}
+                                    class="tst-None"
+                                {% endif %}>
                                 <td class="txt-extra-sm-center">{{ test.tkn_branch }}</td>
                                 <td class="txt-sm-center">{{ test.pattern_library }}</td>
                                 <td class="txt-sm-center">{{ test.pattern_folder_name }}</td>

@@ -72,6 +72,7 @@ if __name__ == "__main__":
                 test_log_html_attachment = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN,))
 
                 time_stamp = datetime.datetime.now(tz=timezone.utc).strftime('%Y-%m-%d_%H-%M')
+                # TODO: Make each a separate task: octo.tasks.TSupport.t_short_mail
                 Mails.short(subject=subject,
                     send_to=['oleksandr_danylchenko_cw@bmc.com'],
                     send_cc=['oleksandr_danylchenko_cw@bmc.com'],
@@ -91,6 +92,44 @@ if __name__ == "__main__":
         :return:
         """
 
+        mail_body = loader.get_template('digests/library_nonpass_digest_email.html')
+        test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
+
+        digest_sets = dict(
+            ALL='_1b3892@BMC.com',  # For ADDM TKU
+            CLOUD='_3186b0@BMC.com',
+            NETWORK='_7727f@BMC.com',
+            STORAGE='_328264@BMC.com',
+        )
+
+        all_nonpass_tests = TestLatestDigestAll.objects.filter(Q(fails__gte=1) | Q(error__gte=1)).values().order_by('pattern_folder_name')
+        for lib_k, mail_v in digest_sets.items():
+            library_not_passed = all_nonpass_tests.filter(pattern_library__exact=lib_k)
+            if library_not_passed:
+                log.info(f"Current library has failed\error tests today {lib_k}")
+                # Compose short test latest digest
+                subject = f'This is the digest of not passed tests for {lib_k} patterns.'
+                mail_html = mail_body.render(
+                    dict(
+                        subject=subject,
+                        domain=SITE_DOMAIN,
+                        tests_digest=library_not_passed
+                    )
+                )
+                # TODO: add or not to ADD test logs?
+                # TODO: Make each a separate task: octo.tasks.TSupport.t_short_mail
+                Mails.short(subject=subject,
+                    send_to=['oleksandr_danylchenko_cw@bmc.com'],
+                    send_cc=['oleksandr_danylchenko_cw@bmc.com'],
+                    mail_html=mail_html,
+                    # attach_content=test_log_html_attachment,
+                    # attach_content_name=f'{user_k}_digest_{time_stamp}.html',
+                    )
+            else:
+                log.info(f"Current library has no failed\error tests today {lib_k}")
+                # TODO: Send email with 100% passed?
+
+
     def upload_test_failed_warning():
         """
         Managers and team warning when upload test failed.
@@ -100,3 +139,4 @@ if __name__ == "__main__":
 
 
     failed_pattern_test_user_daily_digest()
+    all_pattern_test_team_daily_digest()

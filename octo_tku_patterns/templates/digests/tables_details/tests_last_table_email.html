@@ -25,32 +25,43 @@
         <tbody >
         <!-- ADDM table rows in cycle: -->
         {% for test in tests_digest|dictsortreversed:'test_date_time' %}
-            <tr>
-                <td id="tkn_branch">{{ test.tkn_branch }}</td>
-                <td id="pattern_library"><span>{{ test.pattern_library }}</span></td>
-                <td id="pattern_folder_name"><span>{{ test.pattern_folder_name }}</span></td>
-                <td id="addm_name" style="text-align: center;"><span>{{ test.addm_name }}</span></td>
-                <td id="addm_v_int" style="text-align: center;">{{ test.addm_v_int }}</td>
-                <td id="change_user" style="text-align: center;">{{ test.change_user }}</td>
-                <td id="test_items_prepared" style="text-align: center;">
-                    <a style="color: black"
-                       href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }}#{{ test.addm_name }}">{{ test.test_items_prepared }}</a>
+            <tr
+                {% if test.fails > 0 %}
+                    class="tst-notpass"
+                {% elif test.error >= 1 and test.fails <= 0 %}
+                    class="tst-error"
+                {% elif test.passed > 0 and test.error < 1 and test.fails < 1 %}
+                    class="tst-pass"
+                {% elif test.skipped > 0 and test.passed < 1 %}
+                    class="tst-skip"
+                {% else %}
+                    class="tst-None"
+                {% endif %}>
+                <td class="txt-center-nowrap" id="tkn_branch">{{ test.tkn_branch }}</td>
+                <td class="txt-center-nowrap" id="pattern_library"><span>{{ test.pattern_library }}</span></td>
+                <td class="txt-center-nowrap" id="pattern_folder_name"><span>{{ test.pattern_folder_name }}</span></td>
+                <td class="txt-center-nowrap" id="addm_name" style="text-align: center;"><span>{{ test.addm_name }}</span></td>
+                <td class="txt-center-nowrap" id="addm_v_int" style="text-align: center;">{{ test.addm_v_int }}</td>
+                <td class="txt-center-nowrap" id="change_user" style="text-align: center;">{{ test.change_user }}</td>
+                <td class="txt-center-nowrap" id="test_items_prepared" style="text-align: center;">
+                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }}#{{ test.addm_name }}">
+                        {{ test.test_items_prepared }}</a>
                 </td>
                 <td id="fails" style="text-align: center;">
-                    <a style="color: red"
-                       href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=notpass#{{ test.addm_name }}">{{ test.fails }}</a>
+                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=notpass#{{ test.addm_name }}">
+                        {{ test.fails }}</a>
                 </td>
                 <td id="error" style="text-align: center;">
-                    <a style="color: orange"
-                       href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=error#{{ test.addm_name }}">{{ test.error }}</a>
+                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=error#{{ test.addm_name }}">
+                        {{ test.error }}</a>
                 </td>
                 <td id="passed" style="text-align: center;">
-                    <a style="color: green"
-                       href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=pass#{{ test.addm_name }}">{{ test.passed }}</a>
+                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=pass#{{ test.addm_name }}">
+                        {{ test.passed }}</a>
                 </td>
                 <td id="skipped" style="text-align: center;">
-                    <a style="color: cyan"
-                       href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=skip#{{ test.addm_name }}">{{ test.skipped }}</a>
+                    <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=skip#{{ test.addm_name }}">
+                        {{ test.skipped }}</a>
                 </td>
                 <td id="test_date_time">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
             </tr>

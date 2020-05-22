@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    {% load tz %}
+    {% load i18n static %}
+    {% load template_simplify %}
+    {% load humanize %}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <title>{{ subject }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@500&display=swap" rel="stylesheet">
+</head>
+{% block content %}
+    <style>
+        tr {
+            font-size: 1em;
+            font-family: 'Maven Pro', sans-serif;
+        }
+
+        a {
+            color: black;
+        }
+
+        table {
+            display: table;
+            width: 100%;
+            color: #212529;
+            border-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        td {
+            height: 1.4em;
+        }
+
+        /* tst_status colors */
+        .tst-notpass {
+            /* 30% Saturation */
+            background-color: rgb(237, 222, 222) !important;
+        }
+
+        .tst-fail {
+            /* 30% Saturation */
+            background-color: rgb(237, 222, 222) !important;
+        }
+
+        .tst-error {
+            /* 30% Saturation */
+            background-color: rgb(237, 237, 222) !important;
+        }
+
+        .tst-skip {
+            /* 30% Saturation */
+            background-color: rgb(222, 222, 237) !important;
+        }
+
+        .tst-pass {
+            /* 30% Saturation */
+            background-color: rgb(222, 237, 222) !important;
+        }
+
+        .tst-None {
+            /* 30% Saturation */
+            background-color: rgb(226, 222, 237) !important;
+        }
+
+        .txt-sm-center {
+            font-size: 11pt;
+            text-align: center
+        }
+
+        .txt-extra-sm-center {
+            font-size: 10pt;
+            text-align: left;
+            font-family: monospace;
+            word-wrap: break-spaces
+        }
+
+        .txt-center-nowrap {
+            white-space: nowrap;
+            text-align: center !important;
+        }
+
+    </style>
+    <body>
+    {{ subject }}
+    <br>
+    <br>
+    <table>
+        {% include 'digests/tables_details/tests_last_table_email.html' %}
+    </table>
+    </body>
+{% endblock %}
+</html>
