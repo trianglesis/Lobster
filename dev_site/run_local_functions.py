@@ -155,5 +155,5 @@ if __name__ == "__main__":
         """
 
 
-    failed_pattern_test_user_daily_digest()
+    # failed_pattern_test_user_daily_digest()
     # all_pattern_test_team_daily_digest()

@@ -4,6 +4,35 @@
 {% load template_simplify %}
 {% load user_groups %}
 {% block content %}
+    <style type="text/css">
+        /* tst_status colors */
+        .tst-notpass {
+            /* 30% Saturation */
+            background-color: rgb(237, 222, 222) !important;
+        }
+        .tst-fail {
+            /* 30% Saturation */
+            background-color: rgb(237, 222, 222) !important;
+        }
+        .tst-error {
+            /* 30% Saturation */
+            background-color: rgb(237, 237, 222) !important;
+        }
+        .tst-skip {
+            /* 30% Saturation */
+            background-color: rgb(222, 222, 237) !important;
+        }
+        .tst-pass {
+            /* 30% Saturation */
+            background-color: rgb(222, 237, 222) !important;
+        }
+        .tst-None {
+            /* 30% Saturation */
+            background-color: rgb(226, 222, 237) !important;
+        }
+        .txt-sm-center {font-size: 11pt;text-align: center}
+        .txt-extra-sm-center {font-size: 10pt;text-align: left;font-family: monospace;word-wrap: break-spaces}
+    </style>
     {% spaceless %}
     <!-- ADDM logs table content: -->
     <table id="tests-last-table">

@@ -84,7 +84,7 @@ class DevAdminViews:
                 cases_selected=cases_selected,
             )
         )
-        return HttpResponse(log_html)
+        return HttpResponse(mail_html)
 
     @staticmethod
     @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
