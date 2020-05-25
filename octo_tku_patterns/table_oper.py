@@ -254,11 +254,11 @@ class PatternsDjangoTableOper:
                     intra_qs = queryset.filter(~Q(tst_status__iregex='FAIL$') & ~Q(tst_status__iregex='ERROR$'))
                 elif option_value == 'fail':
                     # log.debug("use: fail_only")
-                    intra_qs = queryset.filter(tst_status__iregex='FAIL$')
+                    intra_qs = queryset.filter(Q(tst_status__iregex='FAIL$')| Q(tst_status__iregex='unexpected') | Q(tst_status__iregex='Warning'))
                 elif option_value == 'notpass':
                     # log.debug("use: not_pass_only")
                     intra_qs = queryset.filter(
-                        Q(tst_status__iregex='FAIL$') | Q(tst_status__iregex='ERROR$') | Q(tst_status__iregex='unexpected'))
+                        Q(tst_status__iregex='FAIL$') | Q(tst_status__iregex='ERROR$') | Q(tst_status__iregex='unexpected') | Q(tst_status__iregex='Warning'))
                 elif option_value == 'error':
                     # log.debug("use: error_only")
                     intra_qs = queryset.filter(tst_status__iregex='ERROR$')
