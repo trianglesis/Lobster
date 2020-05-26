@@ -123,6 +123,10 @@ def tst_status_selector(queryset, sel_opts):
     elif sel_opts.get('tst_status') == 'skip':
         # log.debug("use: skip_only")
         queryset = queryset.filter(skipped__gte=1)
+    # # TODO: Add selector for anything NOT as above!
+    # elif sel_opts.get('tst_status') == 'else':
+    #     # log.debug("use: else")
+    #     queryset = queryset.filter(skipped__gte=1)
     else:
         pass
         # log.debug("use: TestLatestDigestAll")
