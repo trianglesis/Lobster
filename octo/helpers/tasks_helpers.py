@@ -232,7 +232,8 @@ class TMail:
         # Select and show all cases by id
         cases_selected = []
         if mode == 'init':
-            cases_selected = TestCases.objects.filter(id__in=[request.get("cases_ids", [])])
+            cases_ids_l = request.get("cases_ids", "").split(',')
+            cases_selected = TestCases.objects.filter(id__in=[cases_ids_l])
 
         log_html = []
         tests_digest = []
