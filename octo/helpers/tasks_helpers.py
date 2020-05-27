@@ -234,7 +234,7 @@ class TMail:
         if mode == 'init':
             # Split
             cases_ids_l = request.get("cases_ids", "").split(',')
-            cases_selected = TestCases.objects.filter(id__in=[cases_ids_l])
+            cases_selected = TestCases.objects.filter(id__in=cases_ids_l)
 
         log_html = []
         tests_digest = []

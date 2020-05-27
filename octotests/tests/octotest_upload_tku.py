@@ -50,6 +50,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         Product Content Update tkn_main
         Install tideway_content, except ADDM where continuous build installs
         """
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
         self.silent = True
         self.tku_wget = False
         self.fake_run = False
@@ -69,6 +70,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         Product Content Update tkn_ship
         Install tideway_content, except ADDM where continuous build installs
         """
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
         self.silent = True
         self.tku_wget = False
         self.fake_run = False

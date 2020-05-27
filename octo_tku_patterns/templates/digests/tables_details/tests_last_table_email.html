@@ -4,56 +4,27 @@
 {% load template_simplify %}
 {% load user_groups %}
 {% block content %}
-    <style type="text/css">
-        /* tst_status colors */
-        .tst-notpass {
-            /* 30% Saturation */
-            background-color: rgb(237, 222, 222) !important;
-        }
-        .tst-fail {
-            /* 30% Saturation */
-            background-color: rgb(237, 222, 222) !important;
-        }
-        .tst-error {
-            /* 30% Saturation */
-            background-color: rgb(237, 237, 222) !important;
-        }
-        .tst-skip {
-            /* 30% Saturation */
-            background-color: rgb(222, 222, 237) !important;
-        }
-        .tst-pass {
-            /* 30% Saturation */
-            background-color: rgb(222, 237, 222) !important;
-        }
-        .tst-None {
-            /* 30% Saturation */
-            background-color: rgb(226, 222, 237) !important;
-        }
-        .txt-sm-center {font-size: 11pt;text-align: center}
-        .txt-extra-sm-center {font-size: 10pt;text-align: left;font-family: monospace;word-wrap: break-spaces}
-    </style>
     {% spaceless %}
     <!-- ADDM logs table content: -->
-    <table id="tests-last-table">
+    <table class="tests-last-table">
         <thead>
             <!-- ADDM table Head: -->
-            <th>Branch</th>
-            <th>Library</th>
-            <th>Folder name</th>
-            <th>Addm name</th>
-            <th>Addm v</th>
-            <th>User</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
             <th>Tests</th>
-            <th>Fail</th>
-            <th>Error</th>
-            <th>Pass</th>
-            <th>Skip</th>
-            <th>Tested</th>
+            <th class="tst-notpass">Fail</th>
+            <th class="tst-error">Error</th>
+            <th class="tst-pass">Pass</th>
+            <th class="tst-skip">Skip</th>
+            <th></th>
         </thead>
         <tbody >
         <!-- ADDM table rows in cycle: -->
-        {% for test in tests_digest|dictsortreversed:'test_date_time' %}
+        {% for test in tests %}
             <tr
                 {% if test.fails > 0 %}
                     class="tst-notpass"
@@ -67,8 +38,8 @@
                     class="tst-None"
                 {% endif %}>
                 <td class="txt-center-nowrap" id="tkn_branch">{{ test.tkn_branch }}</td>
-                <td class="txt-center-nowrap" id="pattern_library"><span>{{ test.pattern_library }}</span></td>
-                <td class="txt-center-nowrap" id="pattern_folder_name"><span>{{ test.pattern_folder_name }}</span></td>
+                <td class="txt-right-nowrap" id="pattern_library"><span>{{ test.pattern_library }}</span></td>
+                <td class="txt-left-nowrap" id="pattern_folder_name"><span>{{ test.pattern_folder_name }}</span></td>
                 <td class="txt-center-nowrap" id="addm_name" style="text-align: center;"><span>{{ test.addm_name }}</span></td>
                 <td class="txt-center-nowrap" id="addm_v_int" style="text-align: center;">{{ test.addm_v_int }}</td>
                 <td class="txt-center-nowrap" id="change_user" style="text-align: center;">{{ test.change_user }}</td>
@@ -92,7 +63,7 @@
                     <a href="http://{{ domain }}/octo_tku_patterns/test_details/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_status=skip#{{ test.addm_name }}">
                         {{ test.skipped }}</a>
                 </td>
-                <td id="test_date_time">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
+                <td class="txt-center-nowrap" id="test_date_time">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
             </tr>
         {% endfor %}
         </tbody>

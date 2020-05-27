@@ -23,14 +23,20 @@
 
         table {
             display: table;
-            width: 100%;
-            color: #212529;
             border-spacing: 2px;
             margin-bottom: 1rem;
         }
 
         td {
             height: 1.4em;
+        }
+
+        .tests-last-table {
+            display: table;
+            width: 100%;
+            color: #212529;
+            border-spacing: 2px;
+            margin-bottom: 1rem;
         }
 
         /* tst_status colors */
@@ -81,6 +87,23 @@
             text-align: center !important;
         }
 
+        .txt-left-nowrap {
+            white-space: nowrap;
+            text-align: left !important;
+        }
+
+        .txt-right-nowrap {
+            white-space: nowrap;
+            text-align: right !important;
+        }
+
+        .txt-sm-center {font-size: 11pt;text-align: center}
+        .txt-extra-sm-center {font-size: 10pt;text-align: left;font-family: monospace;word-wrap: break-spaces}
+
+        .head-font{
+            font-size: 1.4em;
+        }
+
     </style>
 </head>
 {% block content %}
@@ -88,9 +111,13 @@
     {{ subject }}
     <br>
     <br>
-    <table>
-        {% include 'digests/tables_details/tests_last_table_email.html' %}
-    </table>
+    {% regroup tests_digest|dictsortreversed:'addm_name' by addm_name as test_details_addm_sort %}
+    {% for addm_grouped_tests in test_details_addm_sort %}
+        <table><tr><th class="txt-center-nowrap head-font">{{ addm_grouped_tests.grouper }}</th></tr></table>
+        {% include 'digests/tables_details/tests_last_table_email.html' with tests=addm_grouped_tests.list %}
+        <hr>
+        <br>
+    {% endfor %}
     </body>
 {% endblock %}
 </html>

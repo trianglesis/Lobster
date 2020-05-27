@@ -8,6 +8,97 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width"/>
     <title>{{ subject }}</title>
+    <style type="text/css">
+
+        tr {
+            font-size: 1em;
+            font-family: 'Maven Pro', sans-serif;
+        }
+
+        a {
+            color: black;
+        }
+
+        table {
+            display: table;
+            border-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        td {
+            height: 1.4em;
+        }
+
+        .tests-last-table {
+            display: table;
+            width: 100%;
+            color: #212529;
+            border-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        /* tst_status colors */
+        .tst-notpass {
+            /* 30% Saturation */
+            background-color: rgb(237, 222, 222) !important;
+        }
+
+        .tst-fail {
+            /* 30% Saturation */
+            background-color: rgb(237, 222, 222) !important;
+        }
+
+        .tst-error {
+            /* 30% Saturation */
+            background-color: rgb(237, 237, 222) !important;
+        }
+
+        .tst-skip {
+            /* 30% Saturation */
+            background-color: rgb(222, 222, 237) !important;
+        }
+
+        .tst-pass {
+            /* 30% Saturation */
+            background-color: rgb(222, 237, 222) !important;
+        }
+
+        .tst-None {
+            /* 30% Saturation */
+            background-color: rgb(226, 222, 237) !important;
+        }
+
+        .txt-sm-center {
+            font-size: 11pt;
+            text-align: center
+        }
+
+        .txt-extra-sm-center {
+            font-size: 10pt;
+            text-align: left;
+            font-family: monospace;
+            word-wrap: break-spaces
+        }
+
+        .txt-center-nowrap {
+            white-space: nowrap;
+            text-align: center !important;
+        }
+
+        .txt-left-nowrap {
+            white-space: nowrap;
+            text-align: left !important;
+        }
+
+        .txt-right-nowrap {
+            white-space: nowrap;
+            text-align: right !important;
+        }
+        .head-font {
+            font-size: 1.4em;
+        }
+
+    </style>
 </head>
 {% block content %}
     <body>
@@ -46,17 +137,17 @@
     {% if mail_opts.mode == 'init' %}
         <table>
             <thead>
-                <tr>
-                    <th>Num</th>
-                    <th>Branch</th>
-                    <th>Library</th>
-                    <th>Folder name</th>
-                    <th>Change #</th>
-                    <th>User</th>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>ETA (sum)</th>
-                </tr>
+            <tr>
+                <th>Num</th>
+                <th>Branch</th>
+                <th>Library</th>
+                <th>Folder name</th>
+                <th>Change #</th>
+                <th>User</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>ETA (sum)</th>
+            </tr>
             </thead>
             <tbody>
             {% for case in cases_selected %}
@@ -77,7 +168,7 @@
     {% endif %}
     {% if mail_opts.mode == 'finish' %}
         <table>
-            {% include 'digests/tables_details/tests_last_table_email.html' %}
+            {% include 'digests/tables_details/tests_last_table_email.html' with tests=tests_digest %}
         </table>
     {% endif %}
     </body>
