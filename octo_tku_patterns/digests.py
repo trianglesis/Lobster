@@ -1,11 +1,9 @@
 
 import logging
-import django
 import datetime
 from itertools import groupby
 from operator import itemgetter
 
-django.setup()
 from django.utils import timezone
 from django.template import loader
 from django.db.models import Q

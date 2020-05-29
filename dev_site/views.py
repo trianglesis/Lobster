@@ -2,13 +2,19 @@
 OCTO DEV views only
 """
 
+import datetime
+
 from django.http import HttpResponse
 from django.template import loader
 from django.contrib.auth.decorators import permission_required
+from django.db.models import Q
 
 from octo_adm.user_operations import UserCheck
 from octo_tku_patterns.model_views import TestLatestDigestAll
 from octo_tku_patterns.models import TestLast, TestCases
+
+from octo_tku_upload.models import UploadTestsNew, TkuPackagesNew
+
 from octo.win_settings import SITE_DOMAIN, SITE_SHORT_NAME
 
 # Python logger
@@ -145,7 +151,6 @@ class DevAdminViews:
                 # return HttpResponse(test_log_html_attach, request)
                 return HttpResponse(mail_html, request)
 
-
     @staticmethod
     @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
     def overall_pattern_test_library_daily_digest(request):
@@ -154,7 +159,7 @@ class DevAdminViews:
         One mail per user will all failed tests log.
         :return:
         """
-        from django.db.models import Q
+
 
         mail_body = loader.get_template('digests/library_nonpass_digest_email.html')
         test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
@@ -193,3 +198,38 @@ class DevAdminViews:
             else:
                 log.info(f"Current library has no failed\error tests today {lib_k}")
                 # TODO: Send email with 100% passed?
+
+    @staticmethod
+    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
+    def upload_daily_fails(request):
+        # mail body
+        mail_body = loader.get_template('digests/email_upload_digest.html')
+        # digest table
+        mail_digest_tb = loader.get_template('digests/tables_details/email_today_table.html')
+        # Digest full log
+        mail_log_html = loader.get_template('digests/email_upload_full_log.html')
+
+        # Select ANY failed, errored or warning log:
+        today     = datetime.date.today()
+        log.debug(f"today: {today}")
+
+        queryset = UploadTestsNew.objects.all()
+
+        queryset = queryset.filter(Q(test_date_time__year=today.year, test_date_time__month=today.month, test_date_time__day=today.day))
+        log.debug(f"today queryset fail: {queryset.count()} - {queryset}\n{queryset.query}")
+
+        queryset = queryset.filter(~Q(all_errors__exact='0') | ~Q(all_warnings__exact='0'))
+        log.debug(f"not 0 issues query: {queryset.count()} - {queryset} \n{queryset.query}")
+
+        queryset = queryset.filter(Q(upload_warnings__isnull=False)| Q(upload_errors__isnull=False) | Q(upload_test_status__exact='failed'))
+        log.debug(f"upload errors\warnings query: {queryset.count()} - {queryset} \n{queryset.query}")
+
+        mail_html = mail_body.render(
+            dict(
+                subject='DEV EMAIL',
+                domain=SITE_DOMAIN,
+                mail_opts='mail_opts',
+                tests_digest=queryset,
+            )
+        )
+        return HttpResponse(mail_html)

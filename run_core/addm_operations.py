@@ -620,6 +620,10 @@ class ADDMOperations:
         tku_zip_cmd_l = []
         # Prepare zip commands with paths for each addm version:
         clean_tku_TEMP = ADDMStaticOperations.select_operation(['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']).order_by('-command_value')
+
+        # TODO: Save release.txt output
+        catZipRelease = ADDMStaticOperations.select_operation('cat.tku_zip.release').first()
+
         unzipTkuTemp = ADDMStaticOperations.select_operation('unzip.tku.TEMP').first()
         rmTidewayTempRelease = ADDMStaticOperations.select_operation('rm.tideway.TEMP.release').first()
 
@@ -637,6 +641,10 @@ class ADDMOperations:
         zip_path = [package.zip_file_path.replace('/home/user/TH_Octopus', '/usr/tideway') for package in package_]
         clean_cmd_l = [cmd.command_value for cmd in clean_tku_TEMP]
         tku_zip_cmd_l.extend(clean_cmd_l)
+
+        # TODO: Trying to get release info:
+        tku_zip_cmd_l.extend([catZipRelease.command_value.format(path_to_zip=zip_) for zip_ in zip_path])
+
         tku_zip_cmd_l.extend([unzipTkuTemp.command_value.format(path_to_zip=zip_) for zip_ in zip_path])
         tku_zip_cmd_l.append(rmTidewayTempRelease.command_value)
         log.info(f"{addm_item['addm_name']} upload_unzip commands: {tku_zip_cmd_l}")

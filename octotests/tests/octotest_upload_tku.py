@@ -171,6 +171,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         Can be any ADDM group, but not the reserved for upload test.
         :return:
         """
+        # TODO: Run this when WGET routine detects a new tkn_main_cont package by md5
         self.silent = True
         self.tku_wget = False
         self.fake_run = False
