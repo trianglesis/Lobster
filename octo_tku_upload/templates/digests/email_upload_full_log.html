@@ -15,6 +15,10 @@
             font-family: 'Maven Pro', sans-serif;
         }
 
+        th {
+            border: 1px solid #ccc;
+        }
+
         a {
             color: black;
         }
@@ -27,6 +31,7 @@
 
         td {
             height: 1.4em;
+            border: 1px solid #ccc;
         }
 
         .tests-last-table {
@@ -35,6 +40,8 @@
             color: #212529;
             border-spacing: 2px;
             margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         /* tst_status colors */
@@ -73,7 +80,7 @@
             text-align: center
         }
 
-        .txt-extra-sm-center {
+        .txt-extra-sm-left {
             font-size: 10pt;
             text-align: left;
             font-family: monospace;
@@ -95,7 +102,7 @@
             text-align: left !important;
         }
 
-        .head-font{
+        .head-font {
             font-size: 1.4em;
         }
 
@@ -103,15 +110,63 @@
 </head>
 {% block content %}
     <body>
+    {{ subject }}
     <br>
-    {#    TODO: Add full log and attach this#}
-    {% regroup tests_digest|dictsortreversed:'addm_name' by addm_name as test_details_addm_sort %}
-    {% for addm_grouped_tests in test_details_addm_sort %}
-        <table><tr><th class="txt-center-nowrap head-font">{{ addm_grouped_tests.grouper }}</th></tr></table>
-        {% include 'digests/tables_details/email_today_table.html' with tests=addm_grouped_tests.list %}
-        <hr>
-        <br>
-    {% endfor %}
+    <br>
+    <table class="tests-last-table">
+        <thead>
+        <tr class="text-center">
+            <th class="table-info">#</th>
+            <th class="txt-sm-center">Mode</th>
+            <th class="txt-sm-center">Status</th>
+            <th class="txt-sm-center">Er</th>
+            <th class="txt-sm-center">Warn</th>
+            <th class="txt-sm-center">ADDM</th>
+            <th class="txt-sm-center">ETA</th>
+            <th class="txt-sm-center">View</th>
+        </tr>
+        </thead>
+        <tbody class="table-shrink">
+        {% for test in tests_digest %}
+            <tr><td colspan="7" class="txt-center-nowrap head-font">{{ test.addm_name }}</td></tr>
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td class="txt-sm-center">{{ test.mode_key }}<br>{{ test.package_type }}<br>{{ test.tku_type }}</td>
+                <td class="txt-sm-center">{{ test.upload_test_status }}</td>
+                <td class="txt-sm-center">{{ test.all_errors }}</td>
+                <td class="txt-sm-center">{{ test.all_warnings }}</td>
+                <td class="txt-sm-center">{{ test.addm_name }} {{ test.addm_v_int }}<br>{{ test.addm_host }}<br>{{ test.addm_version }}</td>
+                <td class="txt-sm-center">{{ test.time_spent_test|f_sec }}<br>{{ test.test_date_time|naturaltime }}</td>
+                <td rowspan="7" class="txt-sm-center"><a class="btn btn-sm-er btn-outline-info"
+                       href="http://{{ domain }}/admin/octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a>
+                </td>
+            </tr>
+            <tr>
+                <th class="txt-extra-sm-left tst-notpass">Stderr</th>
+                <td colspan="6" class="txt-extra-sm-left tst-notpass">{{ test.upload_test_str_stderr }}</td>
+            </tr>
+            <tr>
+                <th class="txt-extra-sm-left">important_out</th>
+                <td colspan="6" class="txt-extra-sm-left">{{ test.important_out }}</td>
+            </tr>
+
+            <tr>
+                <th class="txt-extra-sm-left">Warn out</th>
+                <td colspan="6" class="txt-extra-sm-left">{{ test.upload_warnings }}</td>
+            </tr>
+            <tr>
+                <th class="txt-extra-sm-left tst-error">Err out</th>
+                <td colspan="6" class="txt-extra-sm-left tst-error">{{ test.upload_warnings }}</td>
+            </tr>
+            <tr>
+                <th class="txt-extra-sm-left">tku_statuses</th>
+                <td colspan="6" class="txt-extra-sm-left">{{ test.tku_statuses }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <br>
     </body>
 {% endblock %}
 </html>
