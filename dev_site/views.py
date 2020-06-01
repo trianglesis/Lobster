@@ -234,14 +234,14 @@ class DevAdminViews:
         if tku_type:
             queryset = queryset.filter(tku_type__exact=tku_type)
 
-        # mail_html = mail_body.render(
-        #     dict(
-        #         subject=f'Upload status mail: "{status}" type: {tku_type if tku_type else "all"}',
-        #         domain=SITE_DOMAIN,
-        #         mail_opts='mail_opts',
-        #         tests_digest=queryset,
-        #     )
-        # )
+        mail_html = mail_body.render(
+            dict(
+                subject=f'Upload status mail: "{status}" type: {tku_type if tku_type else "all"}',
+                domain=SITE_DOMAIN,
+                mail_opts='mail_opts',
+                tests_digest=queryset,
+            )
+        )
         mail_log = mail_log_html.render(
             dict(
                 subject=f'Upload status full log: "{status}" type: {tku_type if tku_type else "all"}',
