@@ -34,7 +34,6 @@ DEBUG = True
 
 CURR_HOSTNAME = socket.getfqdn()
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()), socket.gethostname()]
-log.info(f"Allowed hosts list {ALLOWED_HOSTS}")
 
 
 # Application definition
