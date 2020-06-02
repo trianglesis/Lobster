@@ -436,9 +436,7 @@ class UploadTaskPrepare:
                                              f"addm_group={addm_group};user={self.user_name}"],
                                      t_kwargs=dict(status='everything',
                                                    tku_type=self.tku_type,
-                                                   fake_run=self.fake_run,
-                                                   send_to=None,
-                                                   send_cc=None),
+                                                   fake_run=self.fake_run),
                                      t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
                 self.tasks_added.append(task)
 
@@ -452,9 +450,7 @@ class UploadTaskPrepare:
                                              f"addm_group={addm_group};user={self.user_name}"],
                                      t_kwargs=dict(status='status',
                                                    tku_type=self.tku_type,
-                                                   fake_run=self.fake_run,
-                                                   send_to=None,
-                                                   send_cc=None),
+                                                   fake_run=self.fake_run),
                                      t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
                 self.tasks_added.append(task)
 

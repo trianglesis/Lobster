@@ -1,15 +1,13 @@
 import logging
 import datetime
-from itertools import groupby
-from operator import itemgetter
 
-from django.utils import timezone
+from run_core.models import Options
 from django.template import loader
 from django.db.models import Q
 
 from octo.win_settings import SITE_DOMAIN
 
-from octo_tku_upload.models import UploadTestsNew, TkuPackagesNew
+from octo_tku_upload.models import UploadTestsNew
 
 from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
@@ -24,8 +22,12 @@ class TKUEmailDigest:
         status = kwargs.get('status', 'error')  # error, warning, everything
         tku_type = kwargs.get('tku_type', None)  # tku_type, everything
         fake_run = kwargs.get('fake_run', False)
-        send_to = kwargs.get('send_to', ['oleksandr_danylchenko_cw@bmc.com'])
+        send_to = kwargs.get('send_to', None)
         send_cc = kwargs.get('send_cc', ['oleksandr_danylchenko_cw@bmc.com'])
+
+        if not send_to:
+            m_upload = Options.objects.get(option_key__exact='mail_recipients.upload_test')
+            send_to = m_upload.option_value.replace(' ', '').split(',')
 
         # mail body
         mail_body = loader.get_template('digests/email_upload_digest.html')
