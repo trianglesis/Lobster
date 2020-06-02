@@ -448,7 +448,7 @@ class UploadTaskPrepare:
                                      t_queue=f"{addm_group}@tentacle.dq2",
                                      t_args=[f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
                                              f"addm_group={addm_group};user={self.user_name}"],
-                                     t_kwargs=dict(status='status',
+                                     t_kwargs=dict(status='error',
                                                    tku_type=self.tku_type,
                                                    fake_run=self.fake_run),
                                      t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")

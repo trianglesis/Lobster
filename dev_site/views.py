@@ -17,6 +17,8 @@ from octo_tku_upload.models import UploadTestsNew, TkuPackagesNew
 
 from octo.win_settings import SITE_DOMAIN, SITE_SHORT_NAME
 
+from run_core.models import Options
+
 from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
 
@@ -212,14 +214,18 @@ class DevAdminViews:
         send_to = request.GET.get('send_to', ['oleksandr_danylchenko_cw@bmc.com'])
         send_cc = request.GET.get('send_cc', ['oleksandr_danylchenko_cw@bmc.com'])
 
+        if not send_to:
+            m_upload = Options.objects.get(option_key__exact='mail_recipients.upload_test')
+            send_to = m_upload.option_value.replace(' ', '').split(',')
+
         # mail body
         mail_body = loader.get_template('digests/email_upload_digest.html')
         # Digest full log
         mail_log_html = loader.get_template('digests/email_upload_full_log.html')
 
         # Select ANY failed, errored or warning log:strp
-        today = datetime.date.today()
-        # today = datetime.datetime.strptime('2020-05-27', '%Y-%m-%d')
+        # today = datetime.date.today()
+        today = datetime.datetime.strptime('2020-05-27', '%Y-%m-%d')
 
         queryset = UploadTestsNew.objects.all()
         queryset = queryset.filter(
@@ -270,8 +276,8 @@ class DevAdminViews:
             t_args = f'TKU_Upload_digest.{status}.mail'
             t_routing_key = 'UserTestsDigest.TSupport.t_short_mail'
             t_queue = 'w_routines@tentacle.dq2'
-            Runner.fire_t(TSupport.t_short_mail, fake_run=fake_run, to_sleep=2, to_debug=True,
-                          t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
+            # Runner.fire_t(TSupport.t_short_mail, fake_run=fake_run, to_sleep=2, to_debug=True,
+            #               t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
 
             return HttpResponse(mail_html)
             # return HttpResponse(mail_log)

@@ -34,7 +34,7 @@ class TKUEmailDigest:
         # Digest full log
         mail_log_html = loader.get_template('digests/email_upload_full_log.html')
 
-        # Select ANY failed, errored or warning log:strp
+        # Select ANY failed, errored or warning log
         today = datetime.date.today()
 
         queryset = UploadTestsNew.objects.all()
