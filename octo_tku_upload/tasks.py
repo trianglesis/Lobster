@@ -98,7 +98,7 @@ class MailDigests:
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_upload_digest',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
     def t_upload_digest(t_tag, **kwargs):
-        TKUEmailDigest().upload_daily_fails_warnings(**kwargs)
+        TKUEmailDigest.upload_daily_fails_warnings(**kwargs)
 
 class UploadTaskPrepare:
 
