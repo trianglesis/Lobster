@@ -31,7 +31,17 @@
     </thead>
     <tbody class="table-shrink">
     {% for test in tests|dictsortreversed:'test_date_time' %}
-        <tr>
+        <tr {% if test.all_errors > 0 %}
+                    class="tst-notpass"
+                {% elif test.upload_test_str_stderr %}
+                    class="tst-notpass"
+                {% elif test.upload_test_status == 'failed' %}
+                    class="tst-notpass"
+                {% elif test.upload_test_status == 'passed' %}
+                    class="tst-pass"
+                {% else %}
+                    class="tst-None"
+                {% endif %}>
             <td>{{ forloop.counter }}</td>
             <td>{{ test.test_mode }}</td>
 {#                <td>{{ test.mode_key }}</td>#}

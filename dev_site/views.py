@@ -250,5 +250,5 @@ class DevAdminViews:
                 tests_digest=queryset,
             )
         )
-        # return HttpResponse(mail_html)
-        return HttpResponse(mail_log)
+        return HttpResponse(mail_html)
+        # return HttpResponse(mail_log)

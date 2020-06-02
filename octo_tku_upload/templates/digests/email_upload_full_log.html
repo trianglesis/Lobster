@@ -129,7 +129,17 @@
         <tbody class="table-shrink">
         {% for test in tests_digest %}
             <tr><td colspan="7" class="txt-center-nowrap head-font">{{ test.addm_name }}</td></tr>
-            <tr>
+            <tr {% if test.all_errors > 0 %}
+                    class="tst-notpass"
+                {% elif test.upload_test_str_stderr %}
+                    class="tst-notpass"
+                {% elif test.upload_test_status == 'failed' %}
+                    class="tst-notpass"
+                {% elif test.upload_test_status == 'passed' %}
+                    class="tst-pass"
+                {% else %}
+                    class="tst-None"
+                {% endif %}>
                 <td>{{ forloop.counter }}</td>
                 <td class="txt-sm-center">{{ test.mode_key }}<br>{{ test.package_type }}<br>{{ test.tku_type }}</td>
                 <td class="txt-sm-center">{{ test.upload_test_status }}</td>
@@ -142,8 +152,8 @@
                 </td>
             </tr>
             <tr>
-                <th class="txt-extra-sm-left tst-notpass">Stderr</th>
-                <td colspan="6" class="txt-extra-sm-left tst-notpass">{{ test.upload_test_str_stderr }}</td>
+                <th class="txt-extra-sm-left">Stderr</th>
+                <td colspan="6" class="txt-extra-sm-left {% if test.upload_test_str_stderr %}tst-error{% endif %}">{{ test.upload_test_str_stderr }}</td>
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">important_out</th>
@@ -155,8 +165,8 @@
                 <td colspan="6" class="txt-extra-sm-left">{{ test.upload_warnings }}</td>
             </tr>
             <tr>
-                <th class="txt-extra-sm-left tst-error">Err out</th>
-                <td colspan="6" class="txt-extra-sm-left tst-error">{{ test.upload_warnings }}</td>
+                <th class="txt-extra-sm-left">Err out</th>
+                <td colspan="6" class="txt-extra-sm-left {% if not test.upload_errors == '[]' %}tst-error{% endif %}">{{ test.upload_errors }}</td>
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">tku_statuses</th>
