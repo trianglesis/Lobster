@@ -225,10 +225,14 @@ class DevAdminViews:
 
         # Select ANY failed, errored or warning log
         today = datetime.date.today()
+        if fake_run:
+            today = datetime.datetime.strptime('2020-05-27', '%Y-%m-%d')
+
         queryset = UploadTestsNew.objects.all()
         queryset = queryset.filter(
             Q(test_date_time__year=today.year, test_date_time__month=today.month, test_date_time__day=today.day))
-        log.debug(f"Today: {today} queryset: {queryset}")
+        log.debug(f"Today: {today.year}-{today.month}-{today.day}, status: {status} queryset: {queryset}")
+        log.debug(f'queryset: {queryset.query}')
 
         if status == 'error':
             queryset = queryset.filter(~Q(all_errors__exact='0'))
