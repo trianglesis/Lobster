@@ -95,10 +95,14 @@
             text-align: left !important;
         }
 
-        .head-font{
+        .head-font {
             font-size: 1.4em;
         }
 
+        .txt-left-prewrap {
+            text-align: left;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 {% block content %}
@@ -108,7 +112,11 @@
     <br>
     {% regroup tests_digest|dictsortreversed:'addm_name' by addm_name as test_details_addm_sort %}
     {% for addm_grouped_tests in test_details_addm_sort %}
-        <table><tr><th class="txt-center-nowrap head-font">{{ addm_grouped_tests.grouper }}</th></tr></table>
+        <table>
+            <tr>
+                <th class="txt-center-nowrap head-font">{{ addm_grouped_tests.grouper }}</th>
+            </tr>
+        </table>
         {% include 'digests/tables_details/email_today_table.html' with tests=addm_grouped_tests.list %}
         <hr>
         <br>

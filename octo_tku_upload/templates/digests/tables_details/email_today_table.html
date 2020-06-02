@@ -7,64 +7,53 @@
     <tr class="text-center">
         <th class="table-info">#</th>
         <th class="txt-sm-center">Mode</th>
-{#            <th class="txt-sm-center">mode_key</th>#}
         <th class="txt-sm-center">Package</th>
-{#            <th class="txt-sm-center">tku_type</th>#}
         <th class="txt-sm-center">Status</th>
-{#            <th class="txt-sm-center">upload_test_str_stdout</th>#}
-        <th class="txt-sm-center">Stderr</th>
-{#            <th class="txt-sm-center">important_out</th>#}
         <th class="txt-sm-center">Er</th>
         <th class="txt-sm-center">Warn</th>
-        <th class="txt-sm-center">Warn out</th>
-        <th class="txt-sm-center">Err out</th>
-{#            <th class="txt-sm-center">tku_statuses</th>#}
-        <th class="txt-sm-center"></th>
-{#            <th class="txt-sm-center">addm_v_int</th>#}
-        <th class="txt-sm-center"></th>
-{#            <th class="txt-sm-center">addm_ip</th>#}
-        <th class="txt-sm-center"></th>
         <th class="txt-sm-center">ETA</th>
-        <th class="txt-sm-center"></th>
-        <th class="txt-sm-center"></th>
+        <th class="txt-sm-center">Date</th>
+        <th class="txt-sm-center">ADDM</th>
+        <th class="txt-sm-center">View</th>
     </tr>
     </thead>
     <tbody class="table-shrink">
     {% for test in tests|dictsortreversed:'test_date_time' %}
         <tr {% if test.all_errors > 0 %}
-                    class="tst-notpass"
-                {% elif test.upload_test_str_stderr %}
-                    class="tst-notpass"
-                {% elif test.upload_test_status == 'failed' %}
-                    class="tst-notpass"
-                {% elif test.upload_test_status == 'passed' %}
-                    class="tst-pass"
-                {% else %}
-                    class="tst-None"
-                {% endif %}>
+            class="tst-notpass"
+        {% elif test.upload_test_str_stderr %}
+            class="tst-notpass"
+        {% elif test.upload_test_status == 'failed' %}
+            class="tst-notpass"
+        {% elif test.upload_test_status == 'passed' %}
+            class="tst-pass"
+        {% else %}
+            class="tst-None"
+        {% endif %}>
             <td>{{ forloop.counter }}</td>
-            <td>{{ test.test_mode }}</td>
-{#                <td>{{ test.mode_key }}</td>#}
-            <td>{{ test.package_type }}</td>
-{#                <td>{{ test.tku_type }}</td>#}
-            <td>{{ test.upload_test_status }}</td>
-{#                <td>{{ test.upload_test_str_stdout }}</td>#}
-            <td class="txt-extra-sm-center">{{ test.upload_test_str_stderr }}</td>
-{#                <td>{{ test.important_out }}</td>#}
-            <td>{{ test.all_errors }}</td>
-            <td>{{ test.all_warnings }}</td>
-            <td class="txt-extra-sm-center">{{ test.upload_warnings }}</td>
-            <td class="txt-extra-sm-center">{{ test.upload_errors }}</td>
-{#                <td>{{ test.tku_statuses }}</td>#}
-            <td>{{ test.addm_name }}</td>
-{#                <td>{{ test.addm_v_int }}</td>#}
-            <td>{{ test.addm_host }}</td>
-{#                <td>{{ test.addm_ip }}</td>#}
-            <td>{{ test.addm_version }}</td>
-            <td>{{ test.time_spent_test|f_sec }}</td>
-            <td>{{ test.test_date_time|naturaltime }}</td>
-            <td><a class="btn btn-sm-er btn-outline-info" href="http://{{ domain }}/admin/octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a></td>
+            <td class="txt-sm-center">{{ test.test_mode }}</td>
+            <td class="txt-sm-center">{{ test.package_type }}</td>
+            <td class="txt-sm-center">{{ test.upload_test_status }}</td>
+            <td class="txt-sm-center">{{ test.all_errors }}</td>
+            <td class="txt-sm-center">{{ test.all_warnings }}</td>
+            <td class="txt-sm-center">{{ test.time_spent_test|f_sec }}</td>
+            <td class="txt-sm-center">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }} - {{ test.test_date_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+            <td class="txt-sm-center">{{ test.addm_name }}<br>{{ test.addm_host }}<br>{{ test.addm_version }}</td>
+            <td class="txt-sm-center"><a class="btn btn-sm-er btn-outline-info"
+                   href="http://{{ domain }}/admin/octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a></td>
         </tr>
+        {% if status == 'warning' and test.all_warnings > '0' %}
+        <tr>
+            <th class="txt-sm-center tst-error">important_out</th>
+            <td colspan="10" class="txt-extra-sm-center txt-left-prewrap tst-error">{{ test.important_out }}</td>
+        </tr>
+        {% endif %}
+        {% if test.all_errors > '0' %}
+        <tr>
+            <th class="txt-sm-center tst-error">Stderr</th>
+            <td colspan="10" class="txt-extra-sm-center txt-left-prewrap tst-error">{{ test.upload_test_str_stderr }}</td>
+        </tr>
+        {% endif %}
     {% endfor %}
     </tbody>
 </table>

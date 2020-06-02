@@ -106,6 +106,11 @@
             font-size: 1.4em;
         }
 
+        .txt-left-prewrap {
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
     </style>
 </head>
 {% block content %}
@@ -128,36 +133,40 @@
         </thead>
         <tbody class="table-shrink">
         {% for test in tests_digest %}
-            <tr><td colspan="7" class="txt-center-nowrap head-font">{{ test.addm_name }}</td></tr>
+            <tr>
+                <td colspan="7" class="txt-center-nowrap head-font">{{ test.addm_name }}</td>
+            </tr>
             <tr {% if test.all_errors > 0 %}
-                    class="tst-notpass"
-                {% elif test.upload_test_str_stderr %}
-                    class="tst-notpass"
-                {% elif test.upload_test_status == 'failed' %}
-                    class="tst-notpass"
-                {% elif test.upload_test_status == 'passed' %}
-                    class="tst-pass"
-                {% else %}
-                    class="tst-None"
-                {% endif %}>
+                class="tst-notpass"
+            {% elif test.upload_test_str_stderr %}
+                class="tst-notpass"
+            {% elif test.upload_test_status == 'failed' %}
+                class="tst-notpass"
+            {% elif test.upload_test_status == 'passed' %}
+                class="tst-pass"
+            {% else %}
+                class="tst-None"
+            {% endif %}>
                 <td>{{ forloop.counter }}</td>
                 <td class="txt-sm-center">{{ test.mode_key }}<br>{{ test.package_type }}<br>{{ test.tku_type }}</td>
                 <td class="txt-sm-center">{{ test.upload_test_status }}</td>
                 <td class="txt-sm-center">{{ test.all_errors }}</td>
                 <td class="txt-sm-center">{{ test.all_warnings }}</td>
-                <td class="txt-sm-center">{{ test.addm_name }} {{ test.addm_v_int }}<br>{{ test.addm_host }}<br>{{ test.addm_version }}</td>
+                <td class="txt-sm-center">{{ test.addm_name }} {{ test.addm_v_int }}<br>{{ test.addm_host }}<br>{{ test.addm_version }}
+                </td>
                 <td class="txt-sm-center">{{ test.time_spent_test|f_sec }}<br>{{ test.test_date_time|naturaltime }}</td>
                 <td rowspan="7" class="txt-sm-center"><a class="btn btn-sm-er btn-outline-info"
-                       href="http://{{ domain }}/admin/octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a>
+                                                         href="http://{{ domain }}/admin/octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a>
                 </td>
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">Stderr</th>
-                <td colspan="6" class="txt-extra-sm-left {% if test.upload_test_str_stderr %}tst-error{% endif %}">{{ test.upload_test_str_stderr }}</td>
+                <td colspan="6"
+                    class="txt-extra-sm-left txt-left-prewrap {% if test.upload_test_str_stderr %}tst-error{% endif %}">{{ test.upload_test_str_stderr }}</td>
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">important_out</th>
-                <td colspan="6" class="txt-extra-sm-left">{{ test.important_out }}</td>
+                <td colspan="6" class="txt-extra-sm-left txt-left-prewrap">{{ test.important_out }}</td>
             </tr>
 
             <tr>
@@ -166,11 +175,12 @@
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">Err out</th>
-                <td colspan="6" class="txt-extra-sm-left {% if not test.upload_errors == '[]' %}tst-error{% endif %}">{{ test.upload_errors }}</td>
+                <td colspan="6"
+                    class="txt-extra-sm-left {% if not test.upload_errors == '[]' %}tst-error{% endif %}">{{ test.upload_errors }}</td>
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">tku_statuses</th>
-                <td colspan="6" class="txt-extra-sm-left">{{ test.tku_statuses }}</td>
+                <td colspan="6" class="txt-extra-sm-left txt-left-prewrap">{{ test.tku_statuses }}</td>
             </tr>
         {% endfor %}
         </tbody>
