@@ -36,7 +36,6 @@ class TKUEmailDigest:
 
         # Select ANY failed, errored or warning log
         today = datetime.date.today()
-
         queryset = UploadTestsNew.objects.all()
         queryset = queryset.filter(
             Q(test_date_time__year=today.year, test_date_time__month=today.month, test_date_time__day=today.day))
@@ -90,3 +89,6 @@ class TKUEmailDigest:
                           t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
         else:
             log.info('Do not send any!')
+
+
+

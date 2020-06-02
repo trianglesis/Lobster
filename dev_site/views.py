@@ -223,10 +223,8 @@ class DevAdminViews:
         # Digest full log
         mail_log_html = loader.get_template('digests/email_upload_full_log.html')
 
-        # Select ANY failed, errored or warning log:strp
-        # today = datetime.date.today()
-        today = datetime.datetime.strptime('2020-05-27', '%Y-%m-%d')
-
+        # Select ANY failed, errored or warning log
+        today = datetime.date.today()
         queryset = UploadTestsNew.objects.all()
         queryset = queryset.filter(
             Q(test_date_time__year=today.year, test_date_time__month=today.month, test_date_time__day=today.day))
