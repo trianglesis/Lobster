@@ -18,7 +18,7 @@ log = logging.getLogger("octo.octologger")
 class TKUEmailDigest:
 
     @staticmethod
-    def upload_daily_fails_warnings(kwargs):
+    def upload_daily_fails_warnings(**kwargs):
         status = kwargs.get('status', 'error')  # error, warning, everything
         tku_type = kwargs.get('tku_type', None)  # tku_type, everything
         fake_run = kwargs.get('fake_run', False)
