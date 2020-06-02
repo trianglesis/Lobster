@@ -21,6 +21,8 @@ from octo_tku_upload.test_executor import UploadTestExec
 from octotests.tests_discover_run import TestRunnerLoc
 from run_core.local_operations import LocalDownloads
 from run_core.models import AddmDev
+from octo_tku_upload.digests import TKUEmailDigest
+
 
 log = logging.getLogger("octo.octologger")
 logger = get_task_logger(__name__)
@@ -90,6 +92,13 @@ class TUploadExec:
     def t_tku_install(t_tag, **kwargs):
         return UploadTestExec().install_tku_threads(**kwargs)
 
+class MailDigests:
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_upload_digest',
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    def t_upload_digest(t_tag, **kwargs):
+        TKUEmailDigest().upload_daily_fails_warnings(**kwargs)
 
 class UploadTaskPrepare:
 
@@ -415,6 +424,40 @@ class UploadTaskPrepare:
                                                user_email=self.user_email),
                                  t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
             self.tasks_added.append(task)
+
+            # When finished - last task for upload status update:
+            if self.tku_type == 'ga_candidate':
+                log.info(f"Send email of upload result for {self.tku_type}")
+                # digests.TKUEmailDigest.upload_daily_fails_warnings
+                task = Runner.fire_t(MailDigests.t_upload_digest,
+                                     fake_run=self.fake_run, to_sleep=2, to_debug=True,
+                                     t_queue=f"{addm_group}@tentacle.dq2",
+                                     t_args=[f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
+                                             f"addm_group={addm_group};user={self.user_name}"],
+                                     t_kwargs=dict(status='everything',
+                                                   tku_type=self.tku_type,
+                                                   fake_run=self.fake_run,
+                                                   send_to=None,
+                                                   send_cc=None),
+                                     t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
+                self.tasks_added.append(task)
+
+            elif self.tku_type == 'tkn_main_continuous' or self.tku_type == 'tkn_ship_continuous':
+                log.info(f"Send email of upload result for {self.tku_type}")
+                # digests.TKUEmailDigest.upload_daily_fails_warnings
+                task = Runner.fire_t(MailDigests.t_upload_digest,
+                                     fake_run=self.fake_run, to_sleep=2, to_debug=True,
+                                     t_queue=f"{addm_group}@tentacle.dq2",
+                                     t_args=[f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
+                                             f"addm_group={addm_group};user={self.user_name}"],
+                                     t_kwargs=dict(status='status',
+                                                   tku_type=self.tku_type,
+                                                   fake_run=self.fake_run,
+                                                   send_to=None,
+                                                   send_cc=None),
+                                     t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
+                self.tasks_added.append(task)
+
 
     def mail(self, t_kwargs, t_queue=None, t_args=None, t_routing_key=None):
         if not t_args:

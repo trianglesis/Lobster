@@ -42,15 +42,15 @@
             <td class="txt-sm-center"><a class="btn btn-sm-er btn-outline-info"
                    href="http://{{ domain }}/admin/octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a></td>
         </tr>
-        {% if status == 'warning' and test.all_warnings > '0' %}
+        {% if test.all_warnings > '0' %}
         <tr>
-            <th class="txt-sm-center tst-error">important_out</th>
+            <th class="txt-sm-center tst-error">Out</th>
             <td colspan="10" class="txt-extra-sm-center txt-left-prewrap tst-error">{{ test.important_out }}</td>
         </tr>
         {% endif %}
         {% if test.all_errors > '0' %}
         <tr>
-            <th class="txt-sm-center tst-error">Stderr</th>
+            <th class="txt-sm-center tst-error">STDERR</th>
             <td colspan="10" class="txt-extra-sm-center txt-left-prewrap tst-error">{{ test.upload_test_str_stderr }}</td>
         </tr>
         {% endif %}
