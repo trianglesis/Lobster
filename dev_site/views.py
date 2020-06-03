@@ -223,7 +223,6 @@ class DevAdminViews:
         # Digest full log
         mail_log_html = loader.get_template('digests/email_upload_full_log.html')
 
-        # Select ANY failed, errored or warning log
         today = datetime.date.today()
         if fake_run:
             today = datetime.datetime.strptime('2020-05-27', '%Y-%m-%d')
@@ -234,6 +233,7 @@ class DevAdminViews:
         log.debug(f"Today: {today.year}-{today.month}-{today.day}, status: {status} queryset: {queryset}")
         log.debug(f'queryset: {queryset.query}')
 
+        # Select ANY failed, errored or warning log
         if status == 'error':
             queryset = queryset.filter(~Q(all_errors__exact='0'))
             queryset = queryset.filter(Q(upload_warnings__isnull=False) | Q(upload_errors__isnull=False) | Q(
