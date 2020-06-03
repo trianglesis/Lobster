@@ -16,6 +16,7 @@
             <th><i class="fas fa-archive"></i> tku_name</th>
             <th><i class="fas fa-file-archive"></i> zip_file_name</th>
             <th><i class="far fa-clock"></i> updated_at</th>
+            <th><i class="far fa-building"></i> release</th>
             {#            <th>zip_file_path</th>#}
             {#            <th>tku_addm_version</th>#}
             {#            <th>tku_date</th>#}
@@ -50,6 +51,8 @@
                 </td>
                 <td id="zip_file_name" class="txt-left txt-sm">{{ package.zip_file_name }}</td>
                 <td id="updated_at" class="txt-left txt-sm {% popover 'hover' 'top' None package.updated_at|timezone:"Europe/London" %}">{{ package.updated_at|timezone:"Europe/London"|naturaltime }}</td>
+                <td id="release">{{ package.release }}</td>
+
                 <td id="zip_file_path" style="display: none">{{ package.zip_file_path }}</td>
                 <td id="tku_addm_version" style="display: none">{{ package.tku_addm_version }}</td>
                 <td id="tku_date" style="display: none">{{ package.tku_date }}</td>

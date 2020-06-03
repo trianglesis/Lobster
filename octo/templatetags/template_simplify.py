@@ -228,7 +228,7 @@ def tooltip_tku_upload(toggle, placement, test):
     <div class='mode_key'><span>Key: {{test.mode_key}}</span></div>
     <div class='package_type'><span>Zip: {{test.package_type}}</span></div>
     <div class='tku_type'><span>TKU: {{test.tku_type}}</span></div>
-    <div class='tku_build'><span>Build: {{test.tku_build}}.{{test.tku_month}}.{{test.tku_date}}</span></div>
+    <div class='tku_build'><span>Release: {{test.release}}</span></div>
     <div class='upload_test_status'><span>Status: {{test.upload_test_status}}</span></div>
     <div class='upload_test_str_stderr'><span> Stderr: {{test.upload_test_str_stderr}}</span></div>
     <div class='all_errors'><span>Err #: {{test.all_errors}}</span></div>
@@ -261,6 +261,7 @@ def tooltip_tku_package(toggle, placement, package):
     <div class='addm_name'><span>ADDM: {{package.addm_version}} - {{package.tku_addm_version}}</span></div>
     <div class='tku_name'><span>{{package.tku_name}}</span></div>
     <div class='tku_build'><span>Build: {{package.tku_build}}.{{package.tku_month}}.{{package.tku_date}}</span></div>
+    <div class='tku_build'><span>Release: {{package.release}}</span></div>
     {% if package.tku_pack %}<div class='tku_pack'><span>{{package.tku_pack}}</span></div>{% endif %}
     <div class='zip_file_md5_digest'><span>md5sum: {{package.zip_file_md5_digest}}</span></div>
     <div class='updated_at'><span>Updated: {{package.updated_at}}</span></div>

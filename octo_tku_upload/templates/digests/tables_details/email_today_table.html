@@ -8,6 +8,7 @@
         <th class="table-info">#</th>
         <th class="txt-sm-center">Mode</th>
         <th class="txt-sm-center">Package</th>
+        <th class="txt-sm-center">Build</th>
         <th class="txt-sm-center">Status</th>
         <th class="txt-sm-center">Er</th>
         <th class="txt-sm-center">Warn</th>
@@ -33,6 +34,7 @@
             <td>{{ forloop.counter }}</td>
             <td class="txt-sm-center">{{ test.test_mode }}</td>
             <td class="txt-sm-center">{{ test.package_type }}</td>
+            <td class="txt-sm-center">{{ test.release }}</td>
             <td class="txt-sm-center">{{ test.upload_test_status }}</td>
             <td class="txt-sm-center">{{ test.all_errors }}</td>
             <td class="txt-sm-center">{{ test.all_warnings }}</td>

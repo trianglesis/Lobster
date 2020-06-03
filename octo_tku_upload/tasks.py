@@ -405,7 +405,7 @@ class UploadTaskPrepare:
     def tku_install(self, step_k, packages_from_step):
         """ Install previously unzipped TKU from /usr/tideway/TEMP/*.zip """
         for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
-            packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path')
+            packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path', 'release', 'zip_file_md5_digest')
             subject = f"UploadTaskPrepare | t_tku_install | {self.test_mode} | {addm_group} | {step_k}"
             log.info(f"<=tku_install=> Actually start task: {subject}")
             body = f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, " \
@@ -454,7 +454,6 @@ class UploadTaskPrepare:
                                                    fake_run=self.fake_run),
                                      t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
                 self.tasks_added.append(task)
-
 
     def mail(self, t_kwargs, t_queue=None, t_args=None, t_routing_key=None):
         if not t_args:

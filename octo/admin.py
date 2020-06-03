@@ -487,7 +487,6 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
         'mode_key',
         'time_spent_test',
         'test_date_time',
-        'zip_file_md5_digest',
         'release',
     )
     list_filter = ('test_mode', 'mode_key', 'package_type', 'tku_type', 'addm_name', 'test_date_time')
@@ -504,7 +503,6 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
                 (
                     'tku_type',
                     'package_type',
-                    'zip_file_md5_digest',
                     'release',
                 ),
                 ('upload_test_status',),

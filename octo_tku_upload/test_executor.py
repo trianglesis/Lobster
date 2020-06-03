@@ -392,6 +392,7 @@ class UploadTestExec:
 
         package_type = packages[0].package_type
         tku_type = packages[0].tku_type
+        release = packages[0].release
 
         addm_item = th_out.get('addm_item')
 
@@ -405,6 +406,8 @@ class UploadTestExec:
             # TKU zip details:
             tku_type=tku_type,  # ga_candidate, ..
             package_type=package_type,  # TKN_release_2019-01-1-131, ..
+            # New
+            release=release,
             # # Clean outputs for debug:
             upload_test_status=upload_results_d['upload_status'],
             upload_test_str_stdout=upload_outputs_d['std_output'],

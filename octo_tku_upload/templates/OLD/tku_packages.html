@@ -37,6 +37,7 @@
 {#            <th class="text-center align-middle font-weight-bold" scope="col">tku_pack</th>#}
             <th class="text-center align-middle font-weight-bold" scope="col">zip_file_name</th>
             <th class="text-center align-middle font-weight-bold" scope="col">zip_file_path</th>
+            <th class="text-center align-middle font-weight-bold" scope="col">build</th>
             <th class="text-center align-middle font-weight-bold" scope="col">zip md5sum</th>
             <th class="text-center align-middle font-weight-bold" scope="col">updated_at</th>
             <th class="text-center align-middle font-weight-bold" scope="col">created_at</th>
@@ -59,6 +60,7 @@
 {#                    <td class="table-{{ color }} text-center align-middle" style="font-size: 0.8em;">{{ package.tku_pack }}</td>#}
                     <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.zip_file_name }}</td>
                     <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.zip_file_path }}</td>
+                    <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.release }}</td>
                     <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.zip_file_md5_digest }}</td>
                     <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.updated_at | timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
                     <td class="table-{{ color }}" style="font-size: 0.6em;">{{ package.created_at | timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
