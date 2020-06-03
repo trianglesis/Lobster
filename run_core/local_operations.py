@@ -13,6 +13,7 @@ import logging
 import os
 import os.path
 import re
+import subprocess
 from datetime import datetime, timezone, timedelta
 from time import time
 
@@ -25,7 +26,7 @@ from octo import settings
 from octo_tku_patterns.models import TestCases, TestHistory
 from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
-from run_core.models import AddmDev
+from run_core.models import AddmDev, ADDMCommands
 from run_core.p4_operations import PerforceOperations
 
 # Python logger
@@ -619,6 +620,9 @@ class LocalDownloads:
 
         """
         # self.addm_dev_group = AddmDev.objects.exclude(disables__isnull=True, addm_group__in=['alpha', 'beta', 'charlie', 'delta', 'echo', 'foxtrot']).order_by('addm_full_version')
+        # TODO: Save release.txt output
+        self.catZipRelease = ADDMCommands.objects.get(command_key__exact='cat.tku_zip.release')
+        self.release_re = re.compile(r'release\.txt\D+(\d{5,10})')
 
     @staticmethod
     def tku_local_paths():
@@ -931,6 +935,7 @@ class LocalDownloads:
         :return:
         """
         log.debug("<=LocalDownloads=> tku_packages_parse.")
+
         for key, path_v in download_paths_d.items():
             # DEV: For addm dev code - it is not needed fot TKU.
             if key == 'main_latest':
@@ -1223,6 +1228,7 @@ class LocalDownloads:
                 zip_path = os.path.join(tku_zips, item_zip)
                 parsed_zip_d = self.parse_tku_zip(item_zip)
                 md5_digest = self.md5(zip_path)
+                release = self.get_release(zip_path=zip_path)
 
                 if not pkg:
                     # TKN_release_%tku_build%-%tku_month%-%tku_date%-000
@@ -1237,6 +1243,7 @@ class LocalDownloads:
                     zip_file_name=item_zip,
                     zip_file_path=zip_path,
                     md5_digest=md5_digest,
+                    release=release,
                     zip_info_d=parsed_zip_d,
                     package_type=package_type,
                     addm_version=parsed_zip_d['tku_addm_version'],
@@ -1258,6 +1265,7 @@ class LocalDownloads:
         for item in parsed_zip_d:
             package = dict(
                 zip_file_md5_digest=item['md5_digest'],
+                release=item['release'],
                 zip_file_path=item['zip_file_path'],
                 zip_file_name=item['zip_file_name'],
                 package_type=item['package_type'],
@@ -1284,10 +1292,14 @@ class LocalDownloads:
 
             # Compare md5sum of current package with get:
             if get_if_exist:
-                # When md5sum is different - update current record:
-                if not get_if_exist.zip_file_md5_digest == package['zip_file_md5_digest']:
-                    log.debug("<=UPDATE=> (%s) != (%s)", get_if_exist.zip_file_md5_digest,
-                              package['zip_file_md5_digest'])
+                # When md5sum is different OR release.txt is different - update current record:
+                if not get_if_exist.zip_file_md5_digest == package['zip_file_md5_digest'] or not get_if_exist.release == package['release']:
+
+                    if not get_if_exist.zip_file_md5_digest == package['zip_file_md5_digest']:
+                        log.debug("<=UPDATE=> MD5SUM (%s) != (%s)", get_if_exist.zip_file_md5_digest, package['zip_file_md5_digest'])
+                    if not get_if_exist.release == package['release']:
+                        log.debug("<=UPDATE=> RELEASE (%s) != (%s)", get_if_exist.release, package['release'])
+
                     try:
                         updated, create_new = TkuPackages.objects.update_or_create(
                             zip_file_path=package.get('zip_file_path'),
@@ -1354,6 +1366,37 @@ class LocalDownloads:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_md5.update(chunk)
         return hash_md5.hexdigest()
+
+    def get_release(self, zip_path):
+        """ Check TKU zip release txt content and save as release value"""
+        release = 'None'
+        # log.debug(f"Getting release.txt from {zip_path}")
+        release_txt = self.catZipRelease.command_value.format(path_to_zip=zip_path)
+        run_cmd = subprocess.Popen(release_txt,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   shell=True,
+                                   )
+        stdout, stderr = run_cmd.communicate()
+        stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
+        run_cmd.wait()
+        if stdout:
+            release_search = self.release_re.search(stdout)
+            if release_search:
+                release = release_search.group(1)
+                # log.debug(f"release: {release}")
+        if stderr:
+            log.error(f"STDERR {stderr}")
+            """
+            Sometimes TKU files are corrupted - then, marking build as None - can help to avoid installation:
+            STDERR error [/home/user/TH_Octopus/UPLOAD/HUB/tkn_main_continuous/11.3/tku/Technology-Knowledge-Update-2068-12-1-ADDM-11.3+.zip]:  start of central directory not found;
+              zipfile corrupt.
+              (please check that you have transferred or created the zipfile in the
+              appropriate BINARY mode and that you have compiled UnZip properly)
+              
+            STDERR file #1:  bad zipfile offset (local header sig):  4398211
+            """
+        return release
 
     def _wget_tku_build_hub(self):
         """

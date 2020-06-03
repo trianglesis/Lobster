@@ -622,7 +622,7 @@ class ADDMOperations:
         clean_tku_TEMP = ADDMStaticOperations.select_operation(['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']).order_by('-command_value')
 
         # TODO: Save release.txt output
-        catZipRelease = ADDMStaticOperations.select_operation('cat.tku_zip.release').first()
+        # catZipRelease = ADDMStaticOperations.select_operation('cat.tku_zip.release').first()
 
         unzipTkuTemp = ADDMStaticOperations.select_operation('unzip.tku.TEMP').first()
         rmTidewayTempRelease = ADDMStaticOperations.select_operation('rm.tideway.TEMP.release').first()

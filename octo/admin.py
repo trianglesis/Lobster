@@ -435,7 +435,7 @@ class TestHistoryAdmin(admin.ModelAdmin):
 @admin.register(TkuPackagesNew)
 class TkuPackagesNewAdmin(admin.ModelAdmin):
 
-    readonly_fields = ('zip_file_md5_digest', 'updated_at', 'created_at',)
+    readonly_fields = ('zip_file_md5_digest', 'updated_at', 'created_at', 'release',)
 
     list_display = (
         'tku_type',
@@ -446,11 +446,12 @@ class TkuPackagesNewAdmin(admin.ModelAdmin):
         'tku_month',
         'tku_date',
         'zip_type',
+        'release',
         'zip_file_md5_digest', 'updated_at',
     )
-    list_filter = ('tku_type', 'addm_version', 'tku_build', 'zip_type', 'updated_at', 'created_at')
+    list_filter = ('tku_type', 'addm_version', 'tku_build', 'zip_type', 'updated_at', 'created_at', 'release',)
 
-    search_fields = ('tku_type', 'addm_version', 'tku_build')
+    search_fields = ('tku_type', 'addm_version', 'tku_build', 'release')
     fieldsets = (
         (None, {
             'fields': (
@@ -460,7 +461,7 @@ class TkuPackagesNewAdmin(admin.ModelAdmin):
                 ('addm_version', 'tku_addm_version',),
                 ('tku_build', 'tku_month', 'tku_date',),
                 ('zip_type', 'tku_name', 'tku_pack',),
-                'zip_file_md5_digest',
+                'zip_file_md5_digest', 'release',
                 'updated_at',
                 'created_at',
             )
@@ -486,10 +487,12 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
         'mode_key',
         'time_spent_test',
         'test_date_time',
+        'zip_file_md5_digest',
+        'release',
     )
     list_filter = ('test_mode', 'mode_key', 'package_type', 'tku_type', 'addm_name', 'test_date_time')
 
-    search_fields = ('test_mode', 'mode_key', 'package_type', 'tku_type', 'addm_name',)
+    search_fields = ('test_mode', 'mode_key', 'package_type', 'tku_type', 'addm_name', 'release',)
 
     fieldsets = (
         (None, {
@@ -501,6 +504,8 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
                 (
                     'tku_type',
                     'package_type',
+                    'zip_file_md5_digest',
+                    'release',
                 ),
                 ('upload_test_status',),
                 (

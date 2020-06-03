@@ -25,6 +25,8 @@ class TkuPackagesNew(models.Model):
     tku_month = models.CharField(max_length=50)
     tku_pack = models.CharField(max_length=50)
     zip_file_md5_digest = models.CharField(max_length=255)
+    # New:
+    release = models.CharField(max_length=50)
     # Set only when col created:
     updated_at = models.DateTimeField()
     # updated_at = models.DateTimeField(unique=False, auto_now=True)
@@ -53,6 +55,9 @@ class UploadTestsNew(models.Model):
     # TKU zip details:
     package_type = models.CharField(max_length=50)
     tku_type = models.CharField(max_length=50)
+    # New:
+    zip_file_md5_digest = models.CharField(max_length=255)
+    release = models.CharField(max_length=50)
     # Clean outputs for debug:
     upload_test_status = models.CharField(max_length=50)
     upload_test_str_stdout = models.TextField(blank=True, null=True)
