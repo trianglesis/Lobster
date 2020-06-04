@@ -230,8 +230,6 @@ class DevAdminViews:
         queryset = UploadTestsNew.objects.all()
         queryset = queryset.filter(
             Q(test_date_time__year=today.year, test_date_time__month=today.month, test_date_time__day=today.day))
-        log.debug(f"Today: {today.year}-{today.month}-{today.day}, status: {status} queryset: {queryset}")
-        log.debug(f'queryset: {queryset.query}')
 
         # Select ANY failed, errored or warning log
         if status == 'error':
@@ -249,6 +247,7 @@ class DevAdminViews:
             queryset = queryset.filter(tku_type__exact=tku_type)
             log.info(f"Show tku_type: {tku_type}")
 
+        log.debug(f"Today: {today.year}-{today.month}-{today.day}, status: {status}\nqueryset: {queryset}\nqueryset.query: {queryset.query}")
         if queryset:
             log.debug("Sending email with TKU fail upload statuses.")
             subject = f'Upload status mail: "{status}" type: {tku_type if tku_type else "all"}'

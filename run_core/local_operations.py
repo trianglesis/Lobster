@@ -572,7 +572,8 @@ class LocalPatternsP4Parse:
                 if not p4_file.get('action', None) == 'delete':
                     synced = PerforceOperations().p4_sync(path=file_path, force=True, p4_conn=p4_conn)
                     _files_synced_plan.append(file_path)
-                    _files_synced_actually.append(synced[0].get('clientFile', None))
+                    if synced:
+                        _files_synced_actually.append(synced[0].get('clientFile', None))
                     log.debug("This will be synced: %s - %s", file_path, p4_file.get('action', None))
                 else:
                     log.debug("This should be deleted: %s", file_path)
