@@ -642,9 +642,6 @@ class ADDMOperations:
         clean_cmd_l = [cmd.command_value for cmd in clean_tku_TEMP]
         tku_zip_cmd_l.extend(clean_cmd_l)
 
-        # TODO: Trying to get release info:
-        tku_zip_cmd_l.extend([catZipRelease.command_value.format(path_to_zip=zip_) for zip_ in zip_path])
-
         tku_zip_cmd_l.extend([unzipTkuTemp.command_value.format(path_to_zip=zip_) for zip_ in zip_path])
         tku_zip_cmd_l.append(rmTidewayTempRelease.command_value)
         log.info(f"{addm_item['addm_name']} upload_unzip commands: {tku_zip_cmd_l}")
