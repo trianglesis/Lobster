@@ -406,7 +406,7 @@ class ADDMStaticOperations:
         occupy_sec = kwargs.get('occupy_sec', 40)
         fake_run = kwargs.get('fake_run', False)
 
-        t_tag = f'tag=_old_addm_groups_validate;type=routine;user_name={user_name}'
+        t_tag = f'tag=addm_groups_validate;type=routine;user_name={user_name}'
         if not isinstance(addm_group_l, list):
             addm_group_l = addm_group_l.split(',')
 
@@ -426,7 +426,7 @@ class ADDMStaticOperations:
             if worker_up.get('down'):
                 log.error("Some workers may be down: %s - sending email!", worker_up)
                 subject = f'Worker is down, cannot run all other tasks. W: {worker_up}'
-                body = f'Found some workers are DOWN while run (_old_addm_groups_validate) List: {worker_up}'
+                body = f'Found some workers are DOWN while run (addm_groups_validate) List: {worker_up}'
                 admin = conf_cred.mails['admin']
                 Mails.short(subject=subject, body=body, send_to=[admin])
                 # Nothing else to do here.
