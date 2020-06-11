@@ -94,8 +94,8 @@
                                     class="tst-None"
                                 {% endif %}>
                                 <td class="txt-extra-sm-center">{{ test.tkn_branch }}</td>
-                                <td class="txt-sm-center">{{ test.pattern_library }}</td>
-                                <td class="txt-sm-center">{{ test.pattern_folder_name }}</td>
+                                <td class="txt-sm-center">{% if test.pattern_library %}{{ test.pattern_library }}{% else %}{{ test.test_case_dir }}{% endif %}</td>
+                                <td class="txt-sm-center">{% if test.pattern_folder_name %}{{ test.pattern_folder_name }}{% endif %}</td>
                                 <td class="txt-sm-center">{{ test.tst_class }}</td>
                                 <td>
                                     <a class="txt-sm-center" style="cursor: pointer" href="http://{{ domain }}/octo_tku_patterns/test_item_history/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">
