@@ -9,28 +9,43 @@
             /* 30% Saturation */
             background-color: rgb(237, 222, 222) !important;
         }
+
         .tst-fail {
             /* 30% Saturation */
             background-color: rgb(237, 222, 222) !important;
         }
+
         .tst-error {
             /* 30% Saturation */
             background-color: rgb(237, 237, 222) !important;
         }
+
         .tst-skip {
             /* 30% Saturation */
             background-color: rgb(222, 222, 237) !important;
         }
+
         .tst-pass {
             /* 30% Saturation */
             background-color: rgb(222, 237, 222) !important;
         }
+
         .tst-None {
             /* 30% Saturation */
             background-color: rgb(226, 222, 237) !important;
         }
-        .txt-sm-center {font-size: 11pt;text-align: center}
-        .txt-extra-sm-center {font-size: 10pt;text-align: left;font-family: monospace;word-wrap: break-spaces}
+
+        .txt-sm-center {
+            font-size: 11pt;
+            text-align: center
+        }
+
+        .txt-extra-sm-center {
+            font-size: 10pt;
+            text-align: left;
+            font-family: monospace;
+            word-wrap: break-spaces
+        }
     </style>
     {% regroup test_detail by addm_name as test_details_addm_sort %}
     {% for addm_tests in test_details_addm_sort %}
@@ -38,25 +53,27 @@
             <div style="display: inline-block">
                 <table>
                     <thead>
-                        <tr>
-                            <th colspan="3" style="font-size: xx-large">{{ addm_tests.grouper }}</th>
-                        </tr>
-                        <tr>
-                            {% if mail_opts %}
+                    <tr>
+                        <th colspan="3" style="font-size: xx-large">{{ addm_tests.grouper }}</th>
+                    </tr>
+                    <tr>
+                        {% if mail_opts %}
                             <th>Tested at:</th>
                             <th>ETA:</th>
                             <th>ADDM Test host</th>
-                            {% endif %}
-                        </tr>
+                        {% endif %}
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            {% if mail_opts %}
+                    <tr>
+                        {% if mail_opts %}
                             <td>{{ addm_tests.list.0.test_date_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
                             <td>{{ addm_tests.list.0.time_spent_test|f_sec }}</td>
-                            <td><a href="http://{{ addm_tests.list.0.addm_host }}.bmc.com/ui/DiscoveryHome">{{ addm_tests.list.0.addm_host }} \ {{ addm_tests.list.0.addm_group }}</a></td>
-                            {% endif %}
-                        </tr>
+                            <td>
+                                <a href="http://{{ addm_tests.list.0.addm_host }}.bmc.com/ui/DiscoveryHome">{{ addm_tests.list.0.addm_host }}
+                                    \ {{ addm_tests.list.0.addm_group }}</a></td>
+                        {% endif %}
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -82,46 +99,53 @@
                     <tbody>
                     <!-- ADDM table rows in cycle: -->
                     {% for test in addm_tests.list %}
-                            <tr {% if 'skipped' in test.tst_status %}
-                                    class="tst-skip"
-                                {% elif 'ERROR' in test.tst_status %}
-                                    class="tst-error"
-                                {% elif 'FAIL' in test.tst_status %}
-                                    class="tst-notpass"
-                                {% elif 'ok' in test.tst_status %}
-                                    class="tst-pass"
-                                {% else %}
-                                    class="tst-None"
-                                {% endif %}>
-                                <td class="txt-extra-sm-center">{{ test.tkn_branch }}</td>
-                                <td class="txt-sm-center">{% if test.pattern_library %}{{ test.pattern_library }}{% else %}{{ test.test_case_dir }}{% endif %}</td>
-                                <td class="txt-sm-center">{% if test.pattern_folder_name %}{{ test.pattern_folder_name }}{% endif %}</td>
-                                <td class="txt-sm-center">{{ test.tst_class }}</td>
-                                <td>
-                                    <a class="txt-sm-center" style="cursor: pointer" href="http://{{ domain }}/octo_tku_patterns/test_item_history/?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">
+                        <tr {% if 'skipped' in test.tst_status %}
+                            class="tst-skip"
+                        {% elif 'ERROR' in test.tst_status %}
+                            class="tst-error"
+                        {% elif 'FAIL' in test.tst_status %}
+                            class="tst-notpass"
+                        {% elif 'ok' in test.tst_status %}
+                            class="tst-pass"
+                        {% else %}
+                            class="tst-None"
+                        {% endif %}>
+                            <td class="txt-extra-sm-center">{{ test.tkn_branch }}</td>
+                            <td class="txt-sm-center">{% if test.pattern_library %}{{ test.pattern_library }}{% else %}
+                                {{ test.test_case_dir }}{% endif %}</td>
+                            <td class="txt-sm-center">
+                                {% if test.pattern_folder_name %}{{ test.pattern_folder_name }}{% endif %}</td>
+                            <td class="txt-sm-center">{{ test.tst_class }}</td>
+                            <td>
+                                <a class="txt-sm-center" style="cursor: pointer"
+                                   href="http://{{ domain }}/octo_tku_patterns/test_item_history/?tkn_branch={{ test.tkn_branch }}{% if test.pattern_library %};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }}{% endif %};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">
                                     {{ test.tst_name }}
-                                    </a>
-                                </td>
-                                <td class="txt-extra-sm-center" style="min-width:200px;">{{ test.tst_status }} {{ test.tst_message }}</td>
-                                <td class="txt-extra-sm-center" style="min-width:200px;white-space: pre-wrap;">{{ test.fail_message|safe }}</td>
-                                <td id="test_id" style="display:none">{{ test.id }}</td>
-                                <td id="tkn_branch" style="display:none">{{ test.tkn_branch }}</td>
-                                <td id="pattern_library" style="display:none">{{ test.pattern_library }}</td>
-                                <td id="pattern_folder_name" style="display:none">{{ test.pattern_folder_name }}</td>
-                                <td id="time_spent_test" style="display:none">{{ test.time_spent_test }}</td>
-                                <td id="tst_status" style="display:none">{{ test.tst_status }}</td>
-                                <td id="tst_class" style="display:none">{{ test.tst_class }}</td>
-                                <td id="tst_name" style="display:none">{{ test.tst_name }}</td>
-                                <td id="tst_module" style="display:none">{{ test.tst_module }}</td>
-                                <td id="addm_group" style="display:none">{{ test.addm_group }}</td>
-                                <td id="addm_v_int" style="display:none">{{ test.addm_v_int }}</td>
-                                <td id="addm_host" style="display:none">{{ test.addm_host }}</td>
-                                <td id="addm_ip" style="display:none">{{ test.addm_ip }}</td>
-                                <td id="pattern_file_path" style="display:none">{{ test.pattern_file_path }}</td>
-                                <td id="test_py_path" style="display:none">{{ test.test_py_path }}</td>
-                                <td id="pattern_folder_path_depot" style="display:none">{{ test.pattern_folder_path_depot }}</td>
-                                <td id="pattern_file_path_depot" style="display:none">{{ test.pattern_file_path_depot }}</td>
-                            </tr>
+                                </a>
+                            </td>
+                            <td class="txt-extra-sm-center"
+                                style="min-width:200px;">{{ test.tst_status }} {{ test.tst_message }}</td>
+                            <td class="txt-extra-sm-center"
+                                style="min-width:200px;white-space: pre-wrap;">{{ test.fail_message|safe }}</td>
+                            <td id="test_id" style="display:none">{{ test.id }}</td>
+                            <td id="tkn_branch" style="display:none">{{ test.tkn_branch }}</td>
+                            <td id="pattern_library" style="display:none">{{ test.pattern_library }}</td>
+                            <td id="pattern_folder_name" style="display:none">{{ test.pattern_folder_name }}</td>
+                            <td id="time_spent_test" style="display:none">{{ test.time_spent_test }}</td>
+                            <td id="tst_status" style="display:none">{{ test.tst_status }}</td>
+                            <td id="tst_class" style="display:none">{{ test.tst_class }}</td>
+                            <td id="tst_name" style="display:none">{{ test.tst_name }}</td>
+                            <td id="tst_module" style="display:none">{{ test.tst_module }}</td>
+                            <td id="addm_group" style="display:none">{{ test.addm_group }}</td>
+                            <td id="addm_v_int" style="display:none">{{ test.addm_v_int }}</td>
+                            <td id="addm_host" style="display:none">{{ test.addm_host }}</td>
+                            <td id="addm_ip" style="display:none">{{ test.addm_ip }}</td>
+                            <td id="pattern_file_path" style="display:none">{{ test.pattern_file_path }}</td>
+                            <td id="test_py_path" style="display:none">{{ test.test_py_path }}</td>
+                            <td id="pattern_folder_path_depot"
+                                style="display:none">{{ test.pattern_folder_path_depot }}</td>
+                            <td id="pattern_file_path_depot"
+                                style="display:none">{{ test.pattern_file_path_depot }}</td>
+                        </tr>
                     {% endfor %}
                     </tbody>
                 </table>
