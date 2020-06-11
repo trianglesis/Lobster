@@ -67,7 +67,7 @@ if __name__ == "__main__":
             """
 
             if os.name == "nt":
-                p4_workspace = "d:{os_sep}perforce{os_sep}".format(os_sep=os.sep)
+                p4_workspace = "/mnt/f/perforce/"
             else:
                 p4_workspace = "/home/user/TH_Octopus/perforce"
 
@@ -86,15 +86,17 @@ if __name__ == "__main__":
                             test_dir_path=root,
                             test_dir_path_template=root.replace(octo_workspace, "{}"),
                         )
+                        # Find branch in path:
+                        if 'tkn_main' in root:
+                            tkn_branch = 'tkn_main'
+                        elif 'tkn_ship' in root:
+                            tkn_branch = 'tkn_ship'
+                        else:
+                            tkn_branch = 'not_set'
 
                         if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
-                            if 'tkn_main' in root:
-                                tkn_branch = 'tkn_main'
-                            elif 'tkn_ship' in root:
-                                tkn_branch = 'tkn_ship'
-                            else:
-                                tkn_branch = 'not_set'
-
+                            split_root = root.split(os.sep)[4:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
+                            # log.info(f"\tThis is main tku_patterns test - case dir: {split_root} path: {root}")
                             test_dict.update(
                                 test_type='tku_patterns',
                                 tkn_branch=tkn_branch,
@@ -102,23 +104,44 @@ if __name__ == "__main__":
                                 pattern_folder_name=os.path.basename(os.path.dirname(root)),
                                 pattern_folder_path=os.path.dirname(root),
                                 test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
+                                test_case_dir='/'.join(split_root),
                                 pattern_library_path=os.path.dirname(os.path.dirname(root)),
                             )
-                        elif '/main/code/python' in root:
-                            # print("\tThis is main code test! {}".format(root))
+                        elif 'main/code/python' in root:
+                            split_root = root.split(os.sep)[3:]  # Cut n dirs until //addm/main/code/python
+                            log.info(f"\tThis is main code test -  case dir: {split_root} path: {root}")
                             test_dict.update(
                                 test_type='main_python',
+                                tkn_branch=tkn_branch,
                                 test_case_dir=os.path.basename(root),  # Like "pattern_folder_name" but for other tests
                                 test_case_depot_path=root.replace(octo_workspace, '/')
                             )
-                        # Here: will add something like octo_tests for plug-able mods
-
-                        # If not related to tku_patterns
+                        elif 'addm/rel/branches' in root:
+                            # split_root = os.path.dirname(root).split(os.sep)[4:]
+                            # log.info(f"\tThis is addm/rel/branches test - case dir: {split_root} path: {root} | Skipping!")
+                            pass
+                        elif 'tkn_sandbox' in root:
+                            # split_root = os.path.dirname(root).split(os.sep)[4:]
+                            # log.info(f"\tThis is tkn_sandbox - case dir: {split_root} path: {root} | Skipping!")
+                            pass
+                        elif 'product_content' in root:
+                            # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/product_content
+                            split_root = os.path.dirname(root).split(os.sep)[6:]
+                            log.info(f"\tThis is product_content test - case dir: {split_root} path: {root} ")
+                            test_dict.update(
+                                test_type='product_content',
+                                tkn_branch=tkn_branch,
+                                test_case_dir='/'.join(split_root),
+                                test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
+                            )
+                        # If any other place:
                         else:
-                            print("\tThis is not patterns test! {}".format(root))
-                            # HERE: Just compose all needed data for test entry
+                            # Cut just first 4 dirs
+                            split_root = os.path.dirname(root).split(os.sep)[3:]
+                            log.info(f"\tThis is custom path test - case dir: {split_root} path: {root}")
                             test_dict.update(
                                 test_type='other',
+                                tkn_branch=tkn_branch,
                                 test_case_dir=os.path.basename(root),  # Like "pattern_folder_name" but for other tests
                                 test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
                             )
@@ -756,10 +779,15 @@ if __name__ == "__main__":
     """
     # selectables = dict(test_type='tku_patterns')
     # LocalOperations().parse_and_changes_routine(selectables=selectables)
-    ts = time()
-    LocalOperations().last_changes_get()
-    print('Parsing took: {} '.format(time() - ts))
+    # ts = time()
+    # LocalOperations().last_changes_get()
+    # print('Parsing took: {} '.format(time() - ts))
     # Parsing took: 861.1626603603363
     # Parsing took: 865.2727689743042
     # When passing p4_conn to all chains:
     # Parsing took: 88.95439553260803
+
+    # 11-06-2020 Adding test.py from path like perforce\addm\tkn_main\product_content\r1_0\code\data\installed\tests
+    walked_test_data = TestsParseLocal().walk_fs_tests(local_depot_path='/mnt/f/perforce/')
+    # log.debug(f"walked_test_data: {walked_test_data}")
+
