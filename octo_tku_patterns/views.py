@@ -225,7 +225,7 @@ class TestLastDigestListView(ListView):
     def get_queryset(self):
         # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_queryset")
         sel_opts = compose_selector(self.request.GET)
-        queryset = TestLatestDigestAll.objects.all()
+        queryset = TestLatestDigestAll.objects.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
 
         if sel_opts.get('addm_name'):
             # log.debug("use: addm_name")
