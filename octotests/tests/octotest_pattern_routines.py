@@ -296,14 +296,12 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.branch = 'tkn_main'
         self.queryset = self.queryset.filter(test_type__exact='product_content', tkn_branch__exact='tkn_main')
         self.addm_group_l = ['beta']
-        self.wipe_logs_on(True)
         self.run_case()
 
     def test_019_taxonomy_tkn_ship(self):
         self.branch = 'tkn_ship'
         self.queryset = self.queryset.filter(test_type__exact='product_content', tkn_branch__exact='tkn_ship')
         self.addm_group_l = ['echo']
-        self.wipe_logs_on(True)
         self.run_case()
 
     def test_999_local_debug(self):
