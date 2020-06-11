@@ -484,9 +484,22 @@ class TestCasesListView(ListView):
         # UserCheck().logator(self.request, 'info', "<=TestCasesListView=> test cases table context")
         context = super(TestCasesListView, self).get_context_data(**kwargs)
         debug = self.request.GET.get('debug', False)
+
+        test_type_qs = TestCases.objects.filter(
+            test_type__isnull=False
+        ).values('test_type').annotate(total=Count('test_type')).order_by('test_type')
+        log.debug(f"test_type_qs: {test_type_qs}")
+
+        pattern_library_qs = TestCases.objects.filter(
+            pattern_library__isnull=False
+        ).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library')
+        log.debug(f"pattern_library_qs: {pattern_library_qs}")
+
         context.update(
             selector=compose_selector(self.request.GET),
             selector_str='',
+            test_type_qs=test_type_qs,
+            pattern_library_qs=pattern_library_qs,
             debug=debug,
         )
         return context
