@@ -19,6 +19,7 @@ class TestLast(models.Model):
 
     pattern_library = models.CharField(max_length=100, blank=True, null=True)
     pattern_folder_name = models.CharField(max_length=255, blank=True, null=True)
+    test_case_dir = models.CharField(max_length=255, blank=True, null=True)
     test_py_path = models.CharField(max_length=255)
 
     # Test details:
@@ -63,6 +64,7 @@ class TestHistory(models.Model):
 
     pattern_library = models.CharField(max_length=100, blank=True, null=True)
     pattern_folder_name = models.CharField(max_length=255, blank=True, null=True)
+    test_case_dir = models.CharField(max_length=255, blank=True, null=True)
     test_py_path = models.CharField(max_length=255)
 
     # Test details:
