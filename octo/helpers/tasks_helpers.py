@@ -222,12 +222,12 @@ class TMail:
         # Pattern related case has one set of attrs, py case - another:
         subject_str = 'Placeholder'
         if mode == 'start' or mode == 'finish':
-            if test_item['tkn_branch']:
+            if test_item['tkn_branch'] and test_item["pattern_library"]:
                 subject_str = f'{test_item["tkn_branch"]} | ' \
                               f'{test_item["pattern_library"]} | ' \
                               f'{test_item["pattern_folder_name"]} '
             else:
-                subject_str = f'{test_item["test_py_path_template"]} '
+                subject_str = f'{test_item["test_case_dir"]} '
 
         # Select and show all cases by id
         cases_selected = []
