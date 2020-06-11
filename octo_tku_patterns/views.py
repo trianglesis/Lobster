@@ -488,12 +488,10 @@ class TestCasesListView(ListView):
         test_type_qs = TestCases.objects.filter(
             test_type__isnull=False
         ).values('test_type').annotate(total=Count('test_type')).order_by('test_type')
-        log.debug(f"test_type_qs: {test_type_qs}")
 
         pattern_library_qs = TestCases.objects.filter(
             pattern_library__isnull=False
         ).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library')
-        log.debug(f"pattern_library_qs: {pattern_library_qs}")
 
         context.update(
             selector=compose_selector(self.request.GET),
