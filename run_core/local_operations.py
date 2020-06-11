@@ -171,7 +171,7 @@ class LocalPatternsParse:
                 defaults=dict(dict_test_case),
             )
             if create_new:
-                print("New pattern saved: updated %s, create_new %s, details %s", updated, create_new, dict_test_case)
+                print(f"New pattern saved: updated {updated}, create_new {create_new}, details {dict_test_case}")
             # if updated:
             #     print("Pattern info has been updated {}".format(updated))
         except Exception as e:
