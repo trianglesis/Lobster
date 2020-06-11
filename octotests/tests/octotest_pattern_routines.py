@@ -51,6 +51,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.excluded_group()
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
@@ -65,6 +66,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.excluded_group()
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
@@ -79,6 +81,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(60))
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.excluded_group()
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # Always last!
@@ -96,6 +99,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -115,6 +119,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -130,6 +135,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.select_test_cases(tkn_branch='tkn_main', date_from='2019-10-31', date_to='2019-11-20')
         self.excluded_group()
         # HERE: queryset will be set, so we can make django model manager exclude some?
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.exclude(change_time__range=['2019-10-30', '2019-11-07'])
         self.queryset = self.queryset.exclude(change_time__range=['2019-11-25', '2019-11-27'])
         self.wipe_logs_on(True)
@@ -142,6 +148,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.branch = 'tkn_main'
         self.excluded_group()
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.wipe_logs_on(True)
@@ -154,6 +161,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.branch = 'tkn_ship'
         self.excluded_group()
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
         self.wipe_logs_on(True)
@@ -169,6 +177,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -188,6 +197,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -208,6 +218,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -227,6 +238,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -284,6 +296,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # self.wipe_logs_on(False)
         self.branch = 'tkn_main'
         # self.queryset = self.queryset.filter(test_py_path__exact='/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/CORE/MicroStrategy/tests/test.py')
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -293,13 +306,16 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         print(self.queryset.count())
         print(self.queryset.explain())
         print(self.queryset.query)
+        # Show all:
+        for test in self.queryset:
+            print(test)
         self.addm_group_l = ['alpha']
         # OR:
         # self.addm_set = self.addm_set.filter(
         #     addm_group__in=['alpha'],
         #     addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
         #     disables__isnull=True).values().order_by('addm_group')
-        self.run_case()
+        # self.run_case()
 
         if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
             print("PROD MACHINE")
