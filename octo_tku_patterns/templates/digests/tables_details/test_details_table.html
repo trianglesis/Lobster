@@ -33,12 +33,10 @@
                                 <li class="tst_name {% popover 'hover' 'top' None 'Show all logs for current test method from history records' %}">
                                     {% if test.pattern_library %}
                                         <a style="cursor: pointer"
-                                           href="{% url 'test_item_history' %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">{{ test.tst_name }}
-                                        </a>
+                                           href="{% url 'test_item_history' %}?tkn_branch={{ test.tkn_branch }};pattern_library={{ test.pattern_library }};pattern_folder_name={{ test.pattern_folder_name }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">{{ test.tst_name }}</a>
                                     {% else %}
                                         <a style="cursor: pointer"
-                                           href="{% url 'test_item_history' %}?tkn_branch={{ test.tkn_branch }};test_case_dir={{ test.test_case_dir }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">{{ test.tst_name }}
-                                        </a>
+                                           href="{% url 'test_item_history' %}?tkn_branch={{ test.tkn_branch }};test_case_dir={{ test.test_case_dir }};tst_class={{ test.tst_class }};tst_name={{ test.tst_name }}#{{ test.addm_name }}">{{ test.tst_name }}</a>
                                     {% endif %}
                                 </li>
                                 <li id="tst_status" class="tst_status">{{ test.tst_status }}{% if not test.tst_status == 'ok' %} <span class="text {% popover 'hover' 'top' 'Future (TBV)' 'Failed test tip, show suggestion about how to fix some kind of issues. (TBV Vote for this)' %}"><i class="fas fa-info"></i></span>{% endif %}</li>
