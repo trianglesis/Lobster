@@ -79,6 +79,7 @@ def compose_selector(request_data):
         change_ticket=request_data.get('change_ticket', None),
         pattern_library=request_data.get('pattern_library', None),
         pattern_folder_name=request_data.get('pattern_folder_name', None),
+        test_case_dir=request_data.get('test_case_dir', None),
         pattern_folder_names=request_data.get('pattern_folder_names', []),
         change=request_data.get('change', None),
         # For day, week, month, year
