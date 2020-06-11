@@ -107,7 +107,6 @@ class LocalPatternsParse:
 
                     if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
                         split_root = root.split(os.sep)[6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
-                        # log.info(f"tku_patterns - case dir: {split_root} path: {root}")
                         test_dict.update(
                             test_type='tku_patterns',
                             tkn_branch=tkn_branch,
@@ -130,7 +129,6 @@ class LocalPatternsParse:
                         )
                     elif 'addm/rel/branches' in root:
                         split_root = root.split(os.sep)[5:]
-                        # log.info(f"addm/rel/branches - case dir: {split_root} path: {root} | Skipping!")
                         test_dict.update(
                             test_type='addm_rel',
                             tkn_branch=tkn_branch,
@@ -139,7 +137,6 @@ class LocalPatternsParse:
                         )
                     elif 'tkn_sandbox' in root:
                         # split_root = root.split(os.sep)[5:]
-                        # log.info(f"tkn_sandbox - case dir: {split_root} path: {root} | Skipping!")
                         pass
                     elif 'product_content' in root:
                         # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/product_content
@@ -155,7 +152,6 @@ class LocalPatternsParse:
                     else:
                         # Cut just first 4 dirs
                         split_root = root.split(os.sep)[5:]
-                        log.info(f"custom test - case dir: {split_root} path: {root}")
                         test_dict.update(
                             test_type='other',
                             tkn_branch=tkn_branch,
