@@ -129,9 +129,14 @@ class LocalPatternsParse:
                             test_case_depot_path=root.replace(octo_workspace, '/')
                         )
                     elif 'addm/rel/branches' in root:
-                        # split_root = root.split(os.sep)[5:]
+                        split_root = root.split(os.sep)[5:]
                         # log.info(f"addm/rel/branches - case dir: {split_root} path: {root} | Skipping!")
-                        pass
+                        test_dict.update(
+                            test_type='addm_rel',
+                            tkn_branch=tkn_branch,
+                            test_case_dir='/'.join(split_root),
+                            test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
+                        )
                     elif 'tkn_sandbox' in root:
                         # split_root = root.split(os.sep)[5:]
                         # log.info(f"tkn_sandbox - case dir: {split_root} path: {root} | Skipping!")
@@ -154,7 +159,7 @@ class LocalPatternsParse:
                         test_dict.update(
                             test_type='other',
                             tkn_branch=tkn_branch,
-                            test_case_dir=os.path.basename(root),  # Like "pattern_folder_name" but for other tests
+                            test_case_dir='/'.join(split_root),
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
                         )
                     walked_test_data.append(test_dict)

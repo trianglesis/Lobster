@@ -124,9 +124,14 @@ if __name__ == "__main__":
                                 test_case_depot_path=root.replace(octo_workspace, '/')
                             )
                         elif 'addm/rel/branches' in root:
-                            # split_root = root.split(os.sep)[5:]
+                            split_root = root.split(os.sep)[5:]
                             # log.info(f"addm/rel/branches - case dir: {split_root} path: {root} | Skipping!")
-                            pass
+                            test_dict.update(
+                                test_type='addm_rel',
+                                tkn_branch=tkn_branch,
+                                test_case_dir='/'.join(split_root),
+                                test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
+                            )
                         elif 'tkn_sandbox' in root:
                             # split_root = root.split(os.sep)[5:]
                             # log.info(f"tkn_sandbox - case dir: {split_root} path: {root} | Skipping!")
