@@ -89,12 +89,6 @@ class LocalPatternsParse:
         for root, dirs, files in os.walk(local_depot_path, topdown=False):
             iters += 1
             for name in files:  # Iter over all files in path:
-                if 'tkn_main' in root:
-                    tkn_branch = 'tkn_main'
-                elif 'tkn_ship' in root:
-                    tkn_branch = 'tkn_ship'
-                else:
-                    tkn_branch = 'not_set'
                 if self.is_test(pattern, name):  # Check only test.py files
                     test_py_path = os.path.join(root, name)  # Compose full path to test.py path
                     test_dict = dict(
@@ -103,7 +97,17 @@ class LocalPatternsParse:
                         test_dir_path=root,
                         test_dir_path_template=root.replace(octo_workspace, "{}"),
                     )
+                    # Find branch in path:
+                    if 'tkn_main' in root:
+                        tkn_branch = 'tkn_main'
+                    elif 'tkn_ship' in root:
+                        tkn_branch = 'tkn_ship'
+                    else:
+                        tkn_branch = 'not_set'
+
                     if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
+                        split_root = root.split(os.sep)[6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
+                        # log.info(f"tku_patterns - case dir: {split_root} path: {root}")
                         test_dict.update(
                             test_type='tku_patterns',
                             tkn_branch=tkn_branch,
@@ -111,23 +115,45 @@ class LocalPatternsParse:
                             pattern_folder_name=os.path.basename(os.path.dirname(root)),
                             pattern_folder_path=os.path.dirname(root),
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
+                            test_case_dir='/'.join(split_root),
                             pattern_library_path=os.path.dirname(os.path.dirname(root)),
                         )
-                    elif '/main/code/python' in root:
-                        # print("\tThis is main code test! {}".format(root))
+                    elif 'main/code/python' in root:
+                        log.info(root.split(os.sep))
+                        split_root = root.split(os.sep)[5:]  # Cut n dirs until //addm/main/code/python
+                        log.info(f"code -  case dir: {split_root} path: {root}")
                         test_dict.update(
                             test_type='main_python',
-                            test_case_dir=os.path.basename(root),  # Like "pattern_folder_name" but for other tests
+                            tkn_branch=tkn_branch,
+                            test_case_dir='/'.join(split_root),
                             test_case_depot_path=root.replace(octo_workspace, '/')
                         )
-                    # Here: will add something like octo_tests for plug-able mods
-
-                    # If not related to tku_patterns
+                    elif 'addm/rel/branches' in root:
+                        # split_root = root.split(os.sep)[5:]
+                        # log.info(f"addm/rel/branches - case dir: {split_root} path: {root} | Skipping!")
+                        pass
+                    elif 'tkn_sandbox' in root:
+                        # split_root = root.split(os.sep)[5:]
+                        # log.info(f"tkn_sandbox - case dir: {split_root} path: {root} | Skipping!")
+                        pass
+                    elif 'product_content' in root:
+                        # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/product_content
+                        split_root = root.split(os.sep)[6:]
+                        log.info(f"product_content - case dir: {split_root} path: {root} ")
+                        test_dict.update(
+                            test_type='product_content',
+                            tkn_branch=tkn_branch,
+                            test_case_dir='/'.join(split_root),
+                            test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
+                        )
+                    # If any other place:
                     else:
-                        print("\tThis is not patterns test! {}".format(root))
-                        # HERE: Just compose all needed data for test entry
+                        # Cut just first 4 dirs
+                        split_root = root.split(os.sep)[5:]
+                        log.info(f"custom test - case dir: {split_root} path: {root}")
                         test_dict.update(
                             test_type='other',
+                            tkn_branch=tkn_branch,
                             test_case_dir=os.path.basename(root),  # Like "pattern_folder_name" but for other tests
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
                         )
