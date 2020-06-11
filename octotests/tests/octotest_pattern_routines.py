@@ -40,6 +40,11 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # Wide set:
         # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
         # self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
+
+        # PatternTestUtils balance the load automatically
+        # self.tkn_main_addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
+        # self.tkn_ship_addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
+
         # Short set:
         self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
         self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf']
@@ -215,7 +220,6 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         Use only locked ADDMs for the current branch!
         :return:
         """
-        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
@@ -235,7 +239,6 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         Use only locked ADDMs for the current branch!
         :return:
         """
-        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
@@ -288,6 +291,20 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                 self.wipe_case_logs(test_item['test_py_path'])
                 # Put each case on selected group
                 self.put_test_cases_short([test_item])
+
+    def test_018_taxonomy_tkn_main(self):
+        self.branch = 'tkn_main'
+        self.queryset = self.queryset.filter(test_type__exact='product_content', tkn_branch__exact='tkn_main')
+        self.addm_group_l = ['beta']
+        self.wipe_logs_on(True)
+        self.run_case()
+
+    def test_019_taxonomy_tkn_ship(self):
+        self.branch = 'tkn_ship'
+        self.queryset = self.queryset.filter(test_type__exact='product_content', tkn_branch__exact='tkn_ship')
+        self.addm_group_l = ['echo']
+        self.wipe_logs_on(True)
+        self.run_case()
 
     def test_999_local_debug(self):
         date_from = now - datetime.timedelta(days=int(730))
