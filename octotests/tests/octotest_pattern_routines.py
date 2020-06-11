@@ -220,6 +220,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         Use only locked ADDMs for the current branch!
         :return:
         """
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
@@ -239,6 +240,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         Use only locked ADDMs for the current branch!
         :return:
         """
+        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
