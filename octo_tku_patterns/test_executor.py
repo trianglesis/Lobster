@@ -366,8 +366,8 @@ class TestExecutor:
         test_data_res = dict(
             # Part from tku_patterns table
             tkn_branch=test_item['tkn_branch'],
-            pattern_library=test_item['pattern_library'],
-            pattern_folder_name=test_item['pattern_folder_name'],
+            pattern_library=test_item.get('pattern_library', None),
+            pattern_folder_name=test_item.get('pattern_folder_name', None),
             test_py_path=test_item['test_py_path'],
             # Part from test parsed data
             tst_message=test_res.get('tst_message', ''),

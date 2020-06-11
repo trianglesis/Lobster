@@ -17,8 +17,8 @@ class TestLast(models.Model):
     # Pattern details:
     tkn_branch = models.CharField(max_length=10)
 
-    pattern_library = models.CharField(max_length=100)
-    pattern_folder_name = models.CharField(max_length=255)
+    pattern_library = models.CharField(max_length=100, blank=True, null=True)
+    pattern_folder_name = models.CharField(max_length=255, blank=True, null=True)
     test_py_path = models.CharField(max_length=255)
 
     # Test details:
@@ -61,8 +61,8 @@ class TestHistory(models.Model):
     # Pattern details:
     tkn_branch = models.CharField(max_length=10)
 
-    pattern_library = models.CharField(max_length=100)
-    pattern_folder_name = models.CharField(max_length=255)
+    pattern_library = models.CharField(max_length=100, blank=True, null=True)
+    pattern_folder_name = models.CharField(max_length=255, blank=True, null=True)
     test_py_path = models.CharField(max_length=255)
 
     # Test details:
