@@ -12,7 +12,7 @@ from octo.win_settings import SITE_DOMAIN
 
 from octo_tku_patterns.models import TestLast
 from octo_tku_patterns.model_views import TestLatestDigestAll
-from run_core.models import UserAdprod
+from run_core.models import UserAdprod, Options
 
 from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
@@ -98,24 +98,26 @@ class TestDigestMail:
         fake_run = kwargs.get('fake_run', False)
         mail_body = loader.get_template('digests/library_nonpass_digest_email.html')
         # test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
+        digest_mail_groups = Options.objects.filter(option_key__contains='digests.pattern_test')
 
         digest_sets = dict(
-            ALL='_1b3892@BMC.com',  # For ADDM TKU
-            CLOUD='_3186b0@BMC.com',
-            NETWORK='_7727f@BMC.com',
-            STORAGE='_328264@BMC.com',
+            ADDM_TKU='digests.pattern_test.ADDM_TKU',  # For ADDM TKU + STORAGE too
+            CLOUD='digests.pattern_test.CLOUD',
+            NETWORK='digests.pattern_test.NETWORK',
+            STORAGE='digests.pattern_test.STORAGE',
         )
 
         all_nonpass_tests = TestLatestDigestAll.objects.filter(Q(fails__gte=1) | Q(error__gte=1)).values().order_by('pattern_folder_name')
         for lib_k, mail_v in digest_sets.items():
 
-            if not lib_k == "ALL":
+            if not lib_k == "ADDM_TKU":
                 library_not_passed = all_nonpass_tests.filter(pattern_library__exact=lib_k)
             else:
                 library_not_passed= all_nonpass_tests
 
             if library_not_passed:
-                log.warning(f"{lib_k} library has failed\error tests today.")
+                send_to = digest_mail_groups.get(option_key__exact=mail_v).option_value.replace(' ', '').split(',')
+                log.warning(f"SENDING digest {lib_k} library has failed\error tests today.")
                 # Compose short test latest digest
                 subject = f'Test digest for {lib_k} patterns.'
                 mail_html = mail_body.render(
@@ -129,15 +131,17 @@ class TestDigestMail:
                 t_routing_key = 'PatternDigest.TSupport.t_short_mail'
                 t_queue = 'w_routines@tentacle.dq2'
                 t_kwargs = dict(subject=subject,
-                    send_to=[mail_v],
+                    send_to=send_to,
                     send_cc=['oleksandr_danylchenko_cw@bmc.com'],
                     mail_html=mail_html,
                     # attach_content=test_log_html_attachment,
                     # attach_content_name=f'{user_k}_digest_{time_stamp}.html',
                     )
+                log.debug(f"send_to: {send_to}")
                 Runner.fire_t(TSupport.t_short_mail,
                               fake_run=fake_run, to_sleep=2, to_debug=True,
                               t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
             else:
-                log.info(f"Current library has no failed\error tests today {lib_k}")
+                log.info(f"OK {lib_k} - current library has no failed\error tests today")
                 # TODO: Send email with 100% passed?
+        return 'Pattern digests finished work.'
