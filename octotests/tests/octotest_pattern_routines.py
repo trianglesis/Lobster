@@ -106,10 +106,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
         self.excluded_group()                                                           # 4
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.key_group()                                                                # 2
         self.addm_group_l = self.tkn_main_addm_group_l
         self.wipe_logs_on(True)
         self.run_case()
@@ -126,10 +126,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
         self.excluded_group()                                                           # 4
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.key_group()                                                                # 2
         self.addm_group_l = self.tkn_ship_addm_group_l
         self.wipe_logs_on(True)
         self.run_case()
@@ -184,10 +184,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
         self.excluded_group()                                                           # 4
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.key_group()                                                                # 2
         self.addm_group_l = ['beta']
         self.wipe_logs_on(True)
         self.run_case()
@@ -204,10 +204,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
         self.excluded_group()                                                           # 4
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.key_group()                                                                # 2
         self.addm_group_l = ['echo']
         self.wipe_logs_on(True)
         self.run_case()
@@ -225,10 +225,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
         self.excluded_group()                                                           # 4
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.key_group()                                                                # 2
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -245,10 +245,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         date_from = now - datetime.timedelta(days=int(730))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
         self.excluded_group()                                                           # 4
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.key_group()                                                                # 2
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -315,10 +315,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # self.queryset = self.queryset.filter(test_py_path__exact='/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/CORE/MicroStrategy/tests/test.py')
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        self.key_group()                                                                # 2
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
         self.excluded_group()                                                           # 4
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
+        self.key_group()                                                                # 2
 
         print(self.queryset.count())
         print(self.queryset.explain())
