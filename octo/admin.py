@@ -7,6 +7,7 @@ from .models import *
 from run_core.models import *
 from octo_tku_upload.models import *
 from octo_tku_patterns.models import *
+from octo_tku_patterns.model_views import *
 from django_ftpserver.models import *
 
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -374,6 +375,46 @@ class TestLastAdmin(admin.ModelAdmin):
     )
     list_per_page = 100
 
+@admin.register(TestLatestDigestAll)
+class TestLatestDigestAllAdmin(admin.ModelAdmin):
+    readonly_fields = ('test_date_time',)
+
+    list_display = (
+        'tkn_branch',
+        'pattern_library',
+        'pattern_folder_name',
+        'change',
+        'change_user',
+        'change_review',
+        'change_ticket',
+        'test_items_prepared',
+        'fails',
+        'error',
+        'passed',
+        'skipped',
+    )
+
+    list_filter = ('test_type', 'tkn_branch', 'pattern_library', 'addm_name', 'change_user')
+
+    search_fields = ('pattern_library', 'pattern_folder_name', 'test_py_path', 'tst_status')
+
+    fieldsets = (
+        (None, {
+            'fields': (
+                ('tkn_branch',),
+                ('pattern_library', 'pattern_folder_name', ),
+                ('test_py_path',),
+                ()
+            )
+        }),
+        (None, {
+            'fields': (
+                ('addm_group', 'addm_name', 'addm_v_int'),
+                ('addm_host', 'addm_ip'),
+            )
+        }),
+    )
+    list_per_page = 100
 
 @admin.register(TestHistory)
 class TestHistoryAdmin(admin.ModelAdmin):

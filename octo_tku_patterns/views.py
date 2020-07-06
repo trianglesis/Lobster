@@ -217,16 +217,39 @@ class TestLastDigestListView(ListView):
         addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
         # log.debug("TestLastDigestListView addm_names explain \n%s", addm_names.explain())
 
+        # Possible test types select
+        test_type_qs = TestLatestDigestAll.objects.filter(
+            test_type__isnull=False
+        ).values('test_type').annotate(total=Count('test_type')).order_by('test_type')
+        # Possible patt test libraries select
+        pattern_library_qs = TestLatestDigestAll.objects.filter(
+            pattern_library__isnull=False
+        ).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library')
+        # Possible users select?
+        change_user_qs = TestLatestDigestAll.objects.filter(
+            change_user__isnull=False
+        ).values('change_user').annotate(total=Count('change_user')).order_by('change_user')
+
         if self.request.method == 'GET':
             # log.debug("METHOD: GET - show test cases digest")
             context = super(TestLastDigestListView, self).get_context_data(**kwargs)
-            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            context.update(
+                selector=compose_selector(self.request.GET),
+                selector_str='',
+                addm_names=addm_names,
+                test_type_qs=test_type_qs,
+                pattern_library_qs=pattern_library_qs,
+                change_user_qs=change_user_qs,
+            )
             return context
 
     def get_queryset(self):
         # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_queryset")
         sel_opts = compose_selector(self.request.GET)
-        queryset = TestLatestDigestAll.objects.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
+        if sel_opts.get("test_type"):
+            queryset = TestLatestDigestAll.objects.filter(test_type__exact=sel_opts.get("test_type"))
+        else:
+            queryset = TestLatestDigestAll.objects.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
 
         if sel_opts.get('addm_name'):
             # log.debug("use: addm_name")
@@ -237,6 +260,9 @@ class TestLastDigestListView(ListView):
         if sel_opts.get('change_user'):
             # log.debug("use: change_user")
             queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
+        if sel_opts.get('pattern_library'):
+            # log.debug("use: pattern_library")
+            queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
 
         queryset = tst_status_selector(queryset, sel_opts)
         # log.debug("TestLastDigestListView queryset explain \n%s", queryset.explain())
@@ -420,15 +446,54 @@ class TestHistoryDigestTodayView(TodayArchiveView):
     def get_context_data(self, **kwargs):
         # Get unique addm names based on table latest run:
         addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
+
+        test_type_qs = TestLatestDigestAll.objects.filter(
+            test_type__isnull=False
+        ).values('test_type').annotate(total=Count('test_type')).order_by('test_type')
+        # Possible patt test libraries select
+        pattern_library_qs = TestLatestDigestAll.objects.filter(
+            pattern_library__isnull=False
+        ).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library')
+        # Possible users select?
+        change_user_qs = TestLatestDigestAll.objects.filter(
+            change_user__isnull=False
+        ).values('change_user').annotate(total=Count('change_user')).order_by('change_user')
+
         if self.request.method == 'GET':
             context = super(TestHistoryDigestTodayView, self).get_context_data(**kwargs)
-            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            context.update(
+                selector=compose_selector(self.request.GET),
+                selector_str='',
+                addm_names=addm_names,
+                test_type_qs=test_type_qs,
+                pattern_library_qs=pattern_library_qs,
+                change_user_qs=change_user_qs,
+            )
             return context
 
     def get_queryset(self):
+        log.info("Exec TestHistoryDigestTodayView.get_queryset")
         # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
         sel_opts = compose_selector(self.request.GET)
-        queryset = PatternsDjangoTableOper.sel_dynamical(TestHistoryDigestDaily, sel_opts=sel_opts)
+        if sel_opts.get("test_type"):
+            queryset = TestHistoryDigestDaily.objects.filter(test_type__exact=sel_opts.get("test_type"))
+        else:
+            queryset = TestHistoryDigestDaily.objects.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
+
+        if sel_opts.get('addm_name'):
+            # log.debug("use: addm_name")
+            queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
+        if sel_opts.get('tkn_branch'):
+            # log.debug("use: tkn_branch")
+            queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
+        if sel_opts.get('change_user'):
+            # log.debug("use: change_user")
+            queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
+        if sel_opts.get('pattern_library'):
+            # log.debug("use: pattern_library")
+            queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
+
+        queryset = tst_status_selector(queryset, sel_opts)
         # log.info(f" <=TestHistoryDigestTodayView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
         return queryset
 
@@ -471,6 +536,9 @@ class TestHistoryDigestDailyView(DayArchiveView):
         queryset = tst_status_selector(queryset, sel_opts)
         # log.debug(f" <=TestHistoryDigestDailyView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
         return queryset
+
+# Dev Test History Digest WeekEnd:
+
 
 
 # Cases

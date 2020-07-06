@@ -14,12 +14,25 @@
 {% load intro_selections %}
 {% load user_groups %}
 {% block content %}
+
+    {% if 'tests_last' in request.path %}
+        {% url 'tests_last' as tests_digest_url %}
+    {% elif 'test_history_digest_today' in request.path %}
+        {% url 'test_history_digest_today' as tests_digest_url %}
+    {% elif 'test_history_digest_day' in request.path %}
+        {% url 'test_history_digest_day' year=next_day|date:'Y' month=next_day|date:'b' day=next_day|date:'d' as tests_digest_url %}
+    {% else %}
+        {% url 'tests_last' as tests_digest_url %}
+    {% endif %}
+
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-actions-modal-toast.css' %}"/>
     {% dynamical_selector_compose '' 'selector_str' %}
     {% dynamical_selector_compose 'tkn_branch' 'selector_tkn_branch' %}
     {% dynamical_selector_compose 'tst_status' 'selector_tst_status' %}
     {% dynamical_selector_compose 'addm_name' 'selector_addm_name' %}
+    {% dynamical_selector_compose 'pattern_library' 'selector_pattern_library' %}
+    {% dynamical_selector_compose 'change_user' 'selector_change_user' %}
     <!-- Toast draw here -->
     <div id="toastStack" aria-live="assertive" aria-atomic="true" style="position: absolute;z-index: 1">
         <!-- Position it -->
@@ -82,15 +95,63 @@
                         {% endif %}
                     </a>
                     <!-- Choose branch -->
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownTknBranch">
-                        <a class="dropdown-item" href="{% url 'tests_last' %}?tkn_branch=tkn_main;{{ selector_tkn_branch }}">{% select_icon 'git-branch' 20 'right' 0.4 %}TKN MAIN</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'tests_last' %}?tkn_branch=tkn_ship;{{ selector_tkn_branch }}">{% select_icon 'git-merge' 20 'right' 0.4 %}TKN SHIP</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'tests_last' %}?{{ selector_tkn_branch }}">{% select_icon 'git-commit' 20 'right' 0.4 %}BOTH</a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownTknBranch">
+                        <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?tkn_branch=tkn_main;{{ selector_tkn_branch }}">{% select_icon 'git-branch' 20 'right' 0.4 %}TKN MAIN</a>
+                        <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?tkn_branch=tkn_ship;{{ selector_tkn_branch }}">{% select_icon 'git-merge' 20 'right' 0.4 %}TKN SHIP</a>
+                        <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?{{ selector_tkn_branch }}">{% select_icon 'git-commit' 20 'right' 0.4 %}BOTH</a>
                     </div>
                 </nav>
             </div>
+
+            <!-- Change LIBRARY here: -->
+            <div class="digest-pattern_library">
+                <nav class="nav-item dropdown">
+                    <a class="btn btn-sm btn-outline-info dropdown-toggle" href="#" id="navbarDropdownPatternLibrary" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if selector.pattern_library %}{{ selector.pattern_library }}
+                        {% else %}All
+                        {% endif %}
+                    </a>
+                    <!-- Choose log level -->
+                    <div class="dropdown-menu dropdown-menu-right dropdown-pattern_library" aria-labelledby="navbarDropdownPatternLibrary">
+                        <a class="nav-link text-dark nav-pattern_library" href="{{tests_digest_url}}?{{ selector_pattern_library }}"><i class="fas fa-undo"></i> Show all</a>
+                        {% for lib_item in pattern_library_qs %}
+                            <a class="nav-link text-dark nav-pattern_library {% is_active 'pattern_library' lib_item.pattern_library 'badge-light' 'badge-secondary' %}"
+                               href="{{tests_digest_url}}?pattern_library={{ lib_item.pattern_library }};{{ selector_pattern_library }}">
+                                {% if lib_item.pattern_library == 'BLADE_ENCLOSURE' %}<i class="fas fa-tape"></i>
+                                {% elif lib_item.pattern_library == 'CLOUD' %}<i class="fas fa-cloud"></i>
+                                {% elif lib_item.pattern_library == 'CORE' %}<i class="fas fa-cube"></i>
+                                {% elif lib_item.pattern_library == 'LOAD_BALANCER' %}<i class="fas fa-balance-scale"></i>
+                                {% elif lib_item.pattern_library == 'MANAGEMENT_CONTROLLERS' %}<i class="fas fa-truck-loading"></i>
+                                {% elif lib_item.pattern_library == 'NETWORK' %}<i class="fas fa-network-wired"></i>
+                                {% elif lib_item.pattern_library == 'STORAGE' %}<i class="fas fa-hdd"></i>
+                                {% elif lib_item.pattern_library == 'SYSTEM' %}<i class="fab fa-centos"></i>
+                                {% else %}<i class="fas fa-file"></i>
+                                {% endif %}{{ lib_item.pattern_library }} ({{ lib_item.total }})
+                            </a>
+                        {% endfor %}
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Change USER here: -->
+            <div class="digest-change_user">
+                <nav class="nav-item dropdown">
+                    <a class="btn btn-sm btn-outline-info dropdown-toggle" href="#" id="navbarDropdownChangeUser" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if selector.change_user %}{{ selector.change_user }}
+                        {% else %}All
+                        {% endif %}
+                    </a>
+                    <!-- Choose log level -->
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownChangeUser">
+                        <a class="nav-link text-dark nav-change_user" href="{{tests_digest_url}}?{{ selector_change_user }}"><i class="fas fa-undo"></i> Show all</a>
+                        {% for change_user in change_user_qs %}
+                            <a class="nav-link text-dark nav-change_user {% is_active 'change_user' change_user.change_user 'badge-light' 'badge-secondary' %}"
+                               href="{{tests_digest_url}}?change_user={{ change_user.change_user }};{{ selector_change_user }}">{{ change_user.change_user }} ({{ change_user.total }})</a>
+                        {% endfor %}
+                    </div>
+                </nav>
+            </div>
+
             <div class="selection-state">
                 {% if selector.addm_name %}
                     <a class="btn btn-sm btn-outline-light disabled"><i class="fas fa-compress-arrows-alt"></i> Static: {{ selector.addm_name }}</a>
@@ -133,17 +194,12 @@
                 </a>
                 <!-- Choose log level -->
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownLogLvl">
-                    <a class="nav-link text-danger" href="{% url 'tests_last' %}?tst_status=notpass;{{selector_tst_status}}"><i class="fas fa-bug"></i> Not Pass</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="nav-link text-danger" href="{% url 'tests_last' %}?tst_status=fail;{{selector_tst_status}}"><i class="fas fa-bug"></i> Fail</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="nav-link text-warning" href="{% url 'tests_last' %}?tst_status=error;{{selector_tst_status}}"><i class="fas fa-exclamation-circle"></i> Error</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="nav-link text-info" href="{% url 'tests_last' %}?tst_status=skip;{{selector_tst_status}}"><i class="fas fa-step-forward"></i> Skip</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="nav-link text-success" href="{% url 'tests_last' %}?tst_status=pass;{{selector_tst_status}}"><i class="far fa-check-circle"></i> Passed</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="nav-link active" href="{% url 'tests_last' %}?{{ selector_tst_status }}"><i class="fas fa-vials"></i> All</a>
+                    <a class="nav-link nav-log_lvl text-danger" href="{{tests_digest_url}}?tst_status=notpass;{{selector_tst_status}}"><i class="fas fa-bug"></i> Not Pass</a>
+                    <a class="nav-link nav-log_lvl text-danger" href="{{tests_digest_url}}?tst_status=fail;{{selector_tst_status}}"><i class="fas fa-bug"></i> Fail</a>
+                    <a class="nav-link nav-log_lvl text-warning" href="{{tests_digest_url}}?tst_status=error;{{selector_tst_status}}"><i class="fas fa-exclamation-circle"></i> Error</a>
+                    <a class="nav-link nav-log_lvl text-info" href="{{tests_digest_url}}?tst_status=skip;{{selector_tst_status}}"><i class="fas fa-step-forward"></i> Skip</a>
+                    <a class="nav-link nav-log_lvl text-success" href="{{tests_digest_url}}?tst_status=pass;{{selector_tst_status}}"><i class="far fa-check-circle"></i> Passed</a>
+                    <a class="nav-link nav-log_lvl active" href="{{tests_digest_url}}?{{ selector_tst_status }}"><i class="fas fa-vials"></i> All</a>
                 </div>
             </nav>
         </div>
@@ -157,7 +213,8 @@
             <nav>
                 <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
                 {% for addm_actual in addm_names %}
-                    <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% endif %}" id="{{addm_actual.addm_name}}-tab" href="{% url 'tests_last' %}?addm_name={{addm_actual.addm_name}};{{ selector_addm_name }}">{{addm_actual.addm_name}}</a>
+                    <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% endif %}" id="{{addm_actual.addm_name}}-tab" href="{
+                            {tests_digest_url}}?addm_name={{addm_actual.addm_name}};{{ selector_addm_name }}">{{addm_actual.addm_name}}</a>
                 {% endfor %}
                 </div>
             </nav>
@@ -203,7 +260,7 @@
                 <a class="nav-link" href="{% url 'addm_digest' %}">ADDM Digest</a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="{% url 'tests_last' %}?{{ selector_str }}">Tests Digest</a>
+                <a class="nav-link" href="{{tests_digest_url}}?{{ selector_str }}">Tests Digest</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link disabled">{% if not "None" in selector.tst_status %}{{ selector.tst_status }}{% else %}All{% endif %}</a>

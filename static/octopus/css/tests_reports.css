@@ -147,8 +147,39 @@ th     { background:#eee; }
 /*Change branch here*/
 .digest-branch {
     padding-left: 10px;
-
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 0.8em;
 }
+.dropdown-branch {
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 0.8em;
+}
+
+.digest-pattern_library {
+    padding-left: 10px;
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 0.8em;
+}
+.nav-pattern_library{
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 0.8em;
+}
+
+.dropdown-pattern_library{
+    min-width: 18rem!important;
+}
+
+.digest-change_user {
+    padding-left: 10px;
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 0.8em;
+}
+.nav-change_user{
+    padding: .1rem 1rem;
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 0.8em;
+}
+
 /*Digest levels breadcrumbs*/
 .digest-breadcrumbs {
     padding-left: 10px;
@@ -167,6 +198,13 @@ th     { background:#eee; }
 /*Navbar right part content*/
 .digest-test-log-levels {
     padding-left: 10px;
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 0.8em;
+}
+
+.nav-log_lvl {
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 0.8em;
 }
 
 /*General report container*/
