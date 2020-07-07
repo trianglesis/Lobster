@@ -297,6 +297,7 @@ class DevAdminViews:
         task_added = TPatternRoutine.t_patt_routines.apply_async(
             args=[t_tag],
             kwargs={
+                # "test_method": "test009_test_history_digest_day",
                 "test_class": "SimpleTest",
                 "test_module": "octotests.tests.test_views_requests"
             },
