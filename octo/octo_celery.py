@@ -15,7 +15,7 @@ from kombu import Exchange
 # set the default Django settings module for the 'celery' program.
 if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octo.win_settings')
-    print("Celery use 'octo.win_settings'!!!")
+    print("WARNING: Celery use 'octo.win_settings'!!!")
     backend = conf_cred.cred['wsl_backend']
     result_backend = conf_cred.cred['wsl_result_backend']
 

@@ -10,7 +10,7 @@ if __name__ == "__main__":
         print("Load prod octo.settings")
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.settings")
     else:
-        print("LOADING DEVELOPMENT SETTINGS - octo.win_settings!!!")
+        print("WARNING: LOADING DEVELOPMENT SETTINGS - octo.win_settings!!!")
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.win_settings")
 
     try:
