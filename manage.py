@@ -9,6 +9,7 @@ if __name__ == "__main__":
     if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.settings")
     else:
+        print("LOADING DEVELOPMENT SETTINGS!!!")
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.win_settings")
 
     try:
