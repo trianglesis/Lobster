@@ -80,7 +80,6 @@ CACHES = {
     }
 }
 
-CACHALOT_TIMEOUT = 60 * 30
 
 ROOT_URLCONF = 'octo.urls'
 
