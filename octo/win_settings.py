@@ -89,7 +89,7 @@ CACHES = {
     }
 }
 
-CACHALOT_TIMEOUT = 60 * 30
+CACHALOT_TIMEOUT = 60 * 1
 
 DEBUG_TOOLBAR_PANELS = [
     # 'debug_toolbar.panels.versions.VersionsPanel',
