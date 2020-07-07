@@ -19,6 +19,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView
 from django.views.generic.edit import UpdateView, CreateView
+
+
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -434,6 +436,8 @@ class TestHistoryDigestTodayView(TodayArchiveView):
     """
     PLAN: Should show digest as usual, but locked to today's date, it could possible be used as default digest
     but with historical browsing past\future. Can be detailed by statuses, branch - as usual TestLast Digest view?
+    TODO: Use: https://stackoverflow.com/questions/4631865/caching-query-results-in-django
+
     """
     __url_path = '/octo_tku_patterns/test_history_digest_today/'
     # model = TestHistoryDigestDaily

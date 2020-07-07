@@ -15,15 +15,13 @@ Including another URLconf
 """
 
 from django.conf.urls import include, url
-# from django.urls import path
-# from django.views.generic.base import TemplateView
-# from octo.octo_serializers import router
+from django.urls import path
 
 from django.contrib import admin
 from octo.views import *
 
-# from octo_tku_patterns.views import Reports
-# from octo_tku_upload.views import ViewTKU
+from django.conf import settings
+
 
 urlpatterns = [
     # Home
@@ -66,3 +64,8 @@ urlpatterns = [
 
 ]
 
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
