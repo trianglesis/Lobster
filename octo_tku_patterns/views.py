@@ -450,6 +450,7 @@ class TestHistoryDigestTodayView(TodayArchiveView):
     allow_empty = True
     template_name = 'digests/tests_last.html'
     sel_opts = False
+    context_object_name = 'tests_digest'
 
     def get_context_data(self, **kwargs):
         # Get unique addm names based on table latest run:

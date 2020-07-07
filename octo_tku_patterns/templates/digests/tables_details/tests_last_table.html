@@ -29,7 +29,7 @@
         </thead>
         <tbody class="table-shrink">
         <!-- ADDM table rows in cycle: -->
-        {% for test in object_list|dictsortreversed:'test_date_time' %}
+        {% for test in tests_digest|dictsortreversed:'test_date_time' %}
             {% if test.addm_name == var_addm_name or not var_addm_name %}
                 <tr>
                     {% if "tests_last" in request.path and not user.is_anonymous %}
