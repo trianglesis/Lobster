@@ -14,12 +14,16 @@ from django.db.models import Q, Count, Max
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
+
 from django.utils import timezone
-from django.utils.decorators import method_decorator
+
+from django.core.cache import cache, caches
+
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView
 from django.views.generic.edit import UpdateView, CreateView
 
+from django.utils.decorators import method_decorator
 
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -445,7 +449,7 @@ class TestHistoryDigestTodayView(TodayArchiveView):
     allow_future = True
     allow_empty = True
     template_name = 'digests/tests_last.html'
-    context_object_name = 'tests_digest'
+    sel_opts = False
 
     def get_context_data(self, **kwargs):
         # Get unique addm names based on table latest run:
@@ -473,32 +477,38 @@ class TestHistoryDigestTodayView(TodayArchiveView):
                 pattern_library_qs=pattern_library_qs,
                 change_user_qs=change_user_qs,
             )
+            # log.warning(f"Context: {context}")
+            # for k,v in context.items():
+            #     log.warning(f"Context {k}: {v}")
+            # log.warning(f"Context object_list: {context['object_list'].count()} \n {context['object_list'].query}")
+            # context = cache.get_or_set('TestHistoryDigestTodayView', context)
             return context
 
     def get_queryset(self):
-        log.info("Exec TestHistoryDigestTodayView.get_queryset")
-        # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
-        sel_opts = compose_selector(self.request.GET)
-        if sel_opts.get("test_type"):
-            queryset = TestHistoryDigestDaily.objects.filter(test_type__exact=sel_opts.get("test_type"))
+        if not self.sel_opts:
+            self.sel_opts = compose_selector(self.request.GET)
+
+        if self.sel_opts.get("test_type"):
+            queryset = TestHistoryDigestDaily.objects.filter(test_type__exact=self.sel_opts.get("test_type"))
         else:
             queryset = TestHistoryDigestDaily.objects.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
 
-        if sel_opts.get('addm_name'):
+        if self.sel_opts.get('addm_name'):
             # log.debug("use: addm_name")
-            queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
-        if sel_opts.get('tkn_branch'):
+            queryset = queryset.filter(addm_name__exact=self.sel_opts.get('addm_name'))
+        if self.sel_opts.get('tkn_branch'):
             # log.debug("use: tkn_branch")
-            queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
-        if sel_opts.get('change_user'):
+            queryset = queryset.filter(tkn_branch__exact=self.sel_opts.get('tkn_branch'))
+        if self.sel_opts.get('change_user'):
             # log.debug("use: change_user")
-            queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
-        if sel_opts.get('pattern_library'):
+            queryset = queryset.filter(change_user__exact=self.sel_opts.get('change_user'))
+        if self.sel_opts.get('pattern_library'):
             # log.debug("use: pattern_library")
-            queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
+            queryset = queryset.filter(pattern_library__exact=self.sel_opts.get('pattern_library'))
 
-        queryset = tst_status_selector(queryset, sel_opts)
-        # log.info(f" <=TestHistoryDigestTodayView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
+        queryset = tst_status_selector(queryset, self.sel_opts)
+        # log.info(f" <=TestHistoryDigestTodayView=>: {queryset.count()}\n{queryset.explain()}\n{queryset.query}")
+
         return queryset
 
 # Test History Digest Daily View:

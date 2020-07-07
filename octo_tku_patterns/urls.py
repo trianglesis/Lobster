@@ -7,6 +7,8 @@ from django.urls import path
 
 from octo_tku_patterns.views import *
 
+from django.views.decorators.cache import cache_page
+
 
 urlpatterns = [
     # TESTS RUN:
@@ -62,6 +64,7 @@ urlpatterns = [
     path('test_history_today/', TestHistoryTodayArchiveView.as_view(), name="test_history_archive_today"),
 
     # Test History Digest daily view:
+    # path('test_history_digest_today/', cache_page(60*60, key_prefix="test_history_digest_today")(TestHistoryDigestTodayView.as_view()), name="test_history_digest_today"),
     path('test_history_digest_today/', TestHistoryDigestTodayView.as_view(), name="test_history_digest_today"),
     # Example: /2018/nov/10/
     path('test_history_digest_day/<int:year>/<str:month>/<int:day>/', TestHistoryDigestDailyView.as_view(), name="test_history_digest_day"),

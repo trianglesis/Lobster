@@ -213,8 +213,7 @@
             <nav>
                 <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
                 {% for addm_actual in addm_names %}
-                    <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% endif %}" id="{{addm_actual.addm_name}}-tab" href="{
-                            {tests_digest_url}}?addm_name={{addm_actual.addm_name}};{{ selector_addm_name }}">{{addm_actual.addm_name}}</a>
+                    <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% endif %}" id="{{addm_actual.addm_name}}-tab" href="{{tests_digest_url}}?addm_name={{addm_actual.addm_name}};{{ selector_addm_name }}">{{addm_actual.addm_name}}</a>
                 {% endfor %}
                 </div>
             </nav>

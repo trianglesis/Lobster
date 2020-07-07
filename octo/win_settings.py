@@ -15,6 +15,7 @@ import sys
 import logging
 import socket
 from octo.config_cred import cred
+
 log = logging.getLogger("octo.octologger")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -36,11 +37,16 @@ CURR_HOSTNAME = socket.getfqdn()
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()), socket.gethostname()]
 log.debug(f"ALLOWED HOSTS: {ALLOWED_HOSTS}")
 
+
 INTERNAL_IPS = [
     # ...
     '127.0.0.1',
     # ...
 ]
+
+# if DEBUG:
+#     import memcache_toolbar.panels.memcache
+#     import memcache_toolbar.panels.pylibmc
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
@@ -77,24 +83,35 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
 DEBUG_TOOLBAR_PANELS = [
-    'debug_toolbar.panels.versions.VersionsPanel',
+    # 'debug_toolbar.panels.versions.VersionsPanel',
     'debug_toolbar.panels.timer.TimerPanel',
     'debug_toolbar.panels.settings.SettingsPanel',
     'debug_toolbar.panels.headers.HeadersPanel',
     'debug_toolbar.panels.request.RequestPanel',
     'debug_toolbar.panels.sql.SQLPanel',
-    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
     'debug_toolbar.panels.templates.TemplatesPanel',
     'debug_toolbar.panels.cache.CachePanel',
     'debug_toolbar.panels.signals.SignalsPanel',
     'debug_toolbar.panels.logging.LoggingPanel',
-    'debug_toolbar.panels.redirects.RedirectsPanel',
+    # 'debug_toolbar.panels.redirects.RedirectsPanel',
     'debug_toolbar.panels.profiling.ProfilingPanel',
     'cachalot.panels.CachalotPanel',
 ]
+
 
 ROOT_URLCONF = 'octo.urls'
 
