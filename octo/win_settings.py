@@ -39,14 +39,8 @@ log.debug(f"ALLOWED HOSTS: {ALLOWED_HOSTS}")
 
 
 INTERNAL_IPS = [
-    # ...
     '127.0.0.1',
-    # ...
 ]
-
-# if DEBUG:
-#     import memcache_toolbar.panels.memcache
-#     import memcache_toolbar.panels.pylibmc
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
