@@ -15,13 +15,16 @@ from kombu import Exchange
 # set the default Django settings module for the 'celery' program.
 if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octo.win_settings')
+    print("Celery use 'octo.win_settings'!!!")
     backend = conf_cred.cred['wsl_backend']
     result_backend = conf_cred.cred['wsl_result_backend']
 
 else:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octo.settings')
+    print("Celery use 'octo.settings'!!!")
     backend = conf_cred.cred['backend']
     result_backend = conf_cred.cred['result_backend']
+
 # Setup django project
 django.setup()
 # curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
