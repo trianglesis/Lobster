@@ -7,9 +7,10 @@ from octo import settings
 if __name__ == "__main__":
 
     if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
+        print("Load prod octo.settings")
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.settings")
     else:
-        print("LOADING DEVELOPMENT SETTINGS!!!")
+        print("LOADING DEVELOPMENT SETTINGS - octo.win_settings!!!")
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.win_settings")
 
     try:
