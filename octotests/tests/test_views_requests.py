@@ -1,6 +1,10 @@
+
+import logging
 import unittest
 from django.test import Client
 from datetime import date, datetime, timedelta
+
+log = logging.getLogger("octo.octologger")
 
 class SimpleTest(unittest.TestCase):
     def setUp(self):
@@ -13,14 +17,17 @@ class SimpleTest(unittest.TestCase):
         self.assertTrue(login)
 
     def test002_main_page(self):
+        log.info("Running: test002_main_page")
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
     def test003_addm_digest(self):
+        log.info("Running: test003_addm_digest")
         response = self.client.get('/octo_tku_patterns/addm_digest/')
         self.assertEqual(response.status_code, 200)
 
     def test004_tests_last(self):
+        log.info("Running: test004_tests_last")
         # Non pass
         response = self.client.get('/octo_tku_patterns/tests_last/', {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'})
         self.assertEqual(response.status_code, 200)
@@ -39,6 +46,7 @@ class SimpleTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test005_test_history_digest_today(self):
+        log.info("Running: test005_test_history_digest_today")
         response = self.client.get('/octo_tku_patterns/test_history_digest_today/', {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'})
         self.assertEqual(response.status_code, 200)
         response = self.client.get('/octo_tku_patterns/test_history_digest_today/', {'tkn_branch': 'tkn_ship', 'tst_status': 'notpass'})
@@ -47,14 +55,17 @@ class SimpleTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test008_tku_workbench(self):
+        log.info("Running: test008_tku_workbench")
         response = self.client.get('/octo_tku_upload/tku_workbench/')
         self.assertEqual(response.status_code, 200)
 
     def test007_upload_today(self):
+        log.info("Running: test007_upload_today")
         response = self.client.get('/octo_tku_upload/upload_today/')
         self.assertEqual(response.status_code, 200)
 
     def test008_test_cases(self):
+        log.info("Running: test008_test_cases")
         response = self.client.get('/octo_tku_patterns/test_cases/')
         self.assertEqual(response.status_code, 200)
         response = self.client.get('/octo_tku_patterns/test_cases/', {'tkn_branch': 'tkn_main',})
@@ -77,6 +88,7 @@ class SimpleTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test009_test_history_digest_day(self):
+        log.info("Running: test009_test_history_digest_day")
         now = datetime.now()
         year = now.strftime('%Y')
         month = now.strftime('%b')
@@ -87,22 +99,22 @@ class SimpleTest(unittest.TestCase):
 
         test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day}'
         response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
-        print(response.redirect_chain)
+        log.info(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
 
         test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day_1}'
         response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
-        print(response.redirect_chain)
+        log.info(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
 
         test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day_2}'
         response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
-        print(response.redirect_chain)
+        log.info(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
 
         test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day_3}'
         response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
-        print(response.redirect_chain)
+        log.info(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
 
 
