@@ -17,5 +17,5 @@ def is_member(context, group):
 @register.simple_tag(takes_context=True)
 def is_user_perm(context, perm):
     user = context['user']
-    log.debug(f"User permission: {user}:{perm} - {user.has_perm(perm)}")
+    # log.debug(f"User permission: {user}:{perm} - {user.has_perm(perm)}")
     user.has_perm(perm)

@@ -1,5 +1,6 @@
 import unittest
 from django.test import Client
+from datetime import date, datetime, timedelta
 
 class SimpleTest(unittest.TestCase):
     def setUp(self):
@@ -73,6 +74,35 @@ class SimpleTest(unittest.TestCase):
         response = self.client.get('/octo_tku_patterns/test_cases/', {'pattern_library': 'STORAGE'})
         self.assertEqual(response.status_code, 200)
         response = self.client.get('/octo_tku_patterns/test_cases/', {'pattern_library': 'MANAGEMENT_CONTROLLERS'})
+        self.assertEqual(response.status_code, 200)
+
+    def test009_test_history_digest_day(self):
+        now = datetime.now()
+        year = now.strftime('%Y')
+        month = now.strftime('%b')
+        day = now.strftime('%d')
+        day_1 = (now - timedelta(days=1)).strftime('%d')
+        day_2 = (now - timedelta(days=2)).strftime('%d')
+        day_3 = (now - timedelta(days=3)).strftime('%d')
+
+        test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day}'
+        response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
+        print(response.redirect_chain)
+        self.assertEqual(response.status_code, 200)
+
+        test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day_1}'
+        response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
+        print(response.redirect_chain)
+        self.assertEqual(response.status_code, 200)
+
+        test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day_2}'
+        response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
+        print(response.redirect_chain)
+        self.assertEqual(response.status_code, 200)
+
+        test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day_3}'
+        response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
+        print(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
 
 
