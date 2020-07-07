@@ -55,7 +55,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         :return:
         """
         self.branch = 'tkn_main'
-        date_from = now - datetime.timedelta(days=int(730))
+        date_from = now - datetime.timedelta(days=int(90))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.excluded_group()
@@ -70,7 +70,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         :return:
         """
         self.branch = 'tkn_ship'
-        date_from = now - datetime.timedelta(days=int(730))
+        date_from = now - datetime.timedelta(days=int(90))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])
         self.excluded_group()
@@ -103,7 +103,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         :return:
         """
         self.branch = 'tkn_main'
-        date_from = now - datetime.timedelta(days=int(730))
+        date_from = now - datetime.timedelta(days=int(90))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -123,7 +123,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         :return:
         """
         self.branch = 'tkn_ship'
-        date_from = now - datetime.timedelta(days=int(730))
+        date_from = now - datetime.timedelta(days=int(90))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -181,7 +181,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         :return:
         """
         self.branch = 'tkn_main'
-        date_from = now - datetime.timedelta(days=int(730))
+        date_from = now - datetime.timedelta(days=int(90))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -201,7 +201,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         :return:
         """
         self.branch = 'tkn_ship'
-        date_from = now - datetime.timedelta(days=int(730))
+        date_from = now - datetime.timedelta(days=int(90))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -222,7 +222,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_main'
-        date_from = now - datetime.timedelta(days=int(730))
+        date_from = now - datetime.timedelta(days=int(90))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -242,7 +242,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         """
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_ship'
-        date_from = now - datetime.timedelta(days=int(730))
+        date_from = now - datetime.timedelta(days=int(90))
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
@@ -307,7 +307,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
     def test_999_local_debug(self):
-        date_from = now - datetime.timedelta(days=int(730))
+        date_from = now - datetime.timedelta(days=int(90))
         self.silent_on(True)
         self.fake_run_on(True)
         # self.wipe_logs_on(False)
