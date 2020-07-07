@@ -12,15 +12,13 @@ from django.db.models import Q
 from octo_adm.user_operations import UserCheck
 from octo_tku_patterns.model_views import TestLatestDigestAll
 from octo_tku_patterns.models import TestLast, TestCases
+from octo_tku_patterns.tasks import TPatternRoutine
 
-from octo_tku_upload.models import UploadTestsNew, TkuPackagesNew
+from octo_tku_upload.models import UploadTestsNew
 
-from octo.win_settings import SITE_DOMAIN, SITE_SHORT_NAME
+from octo.win_settings import SITE_DOMAIN
 
 from run_core.models import Options
-
-from octo.helpers.tasks_run import Runner
-from octo.tasks import TSupport
 
 # Python logger
 import logging
@@ -287,3 +285,22 @@ class DevAdminViews:
         else:
             log.info('Do not send any!')
             return HttpResponse('Do not send any!')
+
+
+    @staticmethod
+    @permission_required('run_core.superuser', login_url='/unauthorized_banner/')
+    def view_request_tests(request):
+
+        t_tag = f'tag=t_test_prep;user_name={request.user.username};'
+        t_queue = 'w_routines@tentacle.dq2'
+        t_routing_key = 'routines.TRoutine.t_test_prep'
+        task_added = TPatternRoutine.t_patt_routines.apply_async(
+            args=[t_tag],
+            kwargs={
+                "test_class": "SimpleTest",
+                "test_module": "octotests.tests.test_views_requests"
+            },
+            queue=t_queue,
+            routing_key=t_routing_key,
+        )
+        return HttpResponse(task_added.id)

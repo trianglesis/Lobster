@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^failed_pattern_test_user_daily_digest', DevViews.failed_pattern_test_user_daily_digest, name='failed_pattern_test_user_daily_digest'),
     url(r'^overall_pattern_test_library_daily_digest', DevViews.overall_pattern_test_library_daily_digest, name='overall_pattern_test_library_daily_digest'),
     url(r'^upload_daily_fails', DevViews.upload_daily_fails, name='upload_daily_fails'),
+    url(r'^view_request_tests', DevViews.view_request_tests, name='view_request_tests'),
 
     ]
