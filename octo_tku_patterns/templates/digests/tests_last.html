@@ -13,7 +13,6 @@
 {% load template_simplify %}
 {% load intro_selections %}
 {% load user_groups %}
-{% load cache %}
 {% block content %}
     {% if 'tests_last' in request.path %}
         {% url 'tests_last' as tests_digest_url %}
@@ -114,7 +113,6 @@
                     <!-- Choose log level -->
                     <div class="dropdown-menu dropdown-menu-right dropdown-pattern_library" aria-labelledby="navbarDropdownPatternLibrary">
                         <a class="nav-link text-dark nav-pattern_library" href="{{tests_digest_url}}?{{ selector_pattern_library }}"><i class="fas fa-undo"></i> Show all</a>
-                        {% cache 500 pattern_library_qs request.get_full_path %}
                         {% for lib_item in pattern_library_qs %}
                             <a class="nav-link text-dark nav-pattern_library {% is_active 'pattern_library' lib_item.pattern_library 'badge-light' 'badge-secondary' %}"
                                href="{{tests_digest_url}}?pattern_library={{ lib_item.pattern_library }};{{ selector_pattern_library }}">
@@ -130,7 +128,6 @@
                                 {% endif %}{{ lib_item.pattern_library }} ({{ lib_item.total }})
                             </a>
                         {% endfor %}
-                        {% endcache %}
                     </div>
                 </nav>
             </div>
@@ -146,12 +143,10 @@
                     <!-- Choose log level -->
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownChangeUser">
                         <a class="nav-link text-dark nav-change_user" href="{{tests_digest_url}}?{{ selector_change_user }}"><i class="fas fa-undo"></i> Show all</a>
-                        {% cache 500 change_user_qs request.get_full_path %}
                         {% for change_user in change_user_qs %}
                             <a class="nav-link text-dark nav-change_user {% is_active 'change_user' change_user.change_user 'badge-light' 'badge-secondary' %}"
                                href="{{tests_digest_url}}?change_user={{ change_user.change_user }};{{ selector_change_user }}">{{ change_user.change_user }} ({{ change_user.total }})</a>
                         {% endfor %}
-                        {% endcache %}
                     </div>
                 </nav>
             </div>

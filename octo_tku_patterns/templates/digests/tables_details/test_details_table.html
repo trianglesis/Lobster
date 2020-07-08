@@ -1,5 +1,4 @@
 {% load static %}
-{% load cache%}
 {% load tz %}
 {% load humanize %}
 {% load template_simplify %}
@@ -20,7 +19,6 @@
                 </thead>
                 <tbody>
                 <!-- ADDM table rows in cycle: -->
-                {% cache 60 test_detail request.get_full_path %}
                 {% for test in test_detail|dictsortreversed:'test_date_time' %}
                     {% if test.addm_name == var_addm_name or not var_addm_name %}
                         <tr>
@@ -80,7 +78,6 @@
                         </tr>
                     {% endif %}
                 {% endfor %}
-                {% endcache %}
                 </tbody>
                 <tfoot>
                 <!-- ADDM table foot: -->

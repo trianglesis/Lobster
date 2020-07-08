@@ -244,6 +244,43 @@
             <span>No tests for current query</span>
         {% endif %}
         </div>
+        <div class="found-test-history-items">
+            {% if search_results.tests_history %}
+            {% with search_results.tests_history as test_details %}
+                <span class="badge badge-primary badge-pill">Test history items found (last 500)</span>
+                <span class="badge badge-info">Overall: {{ search_results.tests_history.count }}</span>
+                <!-- Choose addm -->
+                <nav>
+                    <div class="nav nav-tabs nav-justified" id="test-items-nav-tab" role="tablist">
+                        <!-- Draw each tab based on count of unique addm_names  -->
+                        {% for addm_actual in addm_names %}
+                            <a class="nav-item nav-link badge-light {% if selector.addm_name == addm_actual.addm_name %}active{% elif forloop.counter == 1 %}active{% else %}{% endif %}"
+                               title="{{ addm_actual.addm_name }}"
+                               id="{{addm_actual.addm_name}}-tab-test-items" data-toggle="tab"
+                               href="#{{ addm_actual.addm_name }}-test-items" role="tab"
+                               aria-controls="{{ addm_actual.addm_name }}-test-items"
+                               aria-selected="{% if selector.addm_name == addm_actual.addm_name %}true{% elif forloop.counter == 1 %}true{% else %}false{% endif %}">{{ addm_actual.addm_name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </nav>
+                <div class="tab-content" id="test-items-nav-tabContent">
+                    <!-- Draw each tab content based on count of unique addm_names  -->
+                    {% for addm_actual in addm_names %}
+                        <div class="tab-pane {% if selector.addm_name == addm_actual.addm_name %}fade show active{% elif forloop.counter == 1 %}fade show active{% endif %}"
+                             title="{{ addm_actual.addm_name }}"
+                             id="{{ addm_actual.addm_name }}-test-items"
+                             role="tabpanel"
+                             aria-labelledby="{{ addm_actual.addm_name }}">
+                            {% include 'digests/tables_details/test_details_table.html' with var_addm_name=addm_actual.addm_name test_detail=test_details %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endwith %}
+        {% else %}
+            <span>No tests in history for current query</span>
+        {% endif %}
+        </div>
     </div>
     <!-- Navbar bottom fixed -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">

@@ -31,13 +31,13 @@
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
+            {% cache 120 user_tests request.user.username %}
             {% regroup objects.user_tests|dictsortreversed:'addm_name' by addm_name as user_tests_by_addm_name %}
             <div class="tab-pane fade show active" id="user-tests" role="tabpanel" aria-labelledby="user-tests-tab">
                 <span class="badge badge-info">Overall user tests: {{ objects.user_tests|length }}</span>
                 <!-- ADDM Tabs based on grouper name -->
                 <nav>
                     <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-                        {% cache 120 user_tests_by_addm_name request.user.username %}
                         {% for user_test_by_addm_group in user_tests_by_addm_name %}
                             <!-- Draw each tab based on count of unique addm_names  -->
                             <a class="nav-item nav-link badge-light {% if forloop.counter == 1 %}active{% else %}{% endif %}"
@@ -48,12 +48,10 @@
                                aria-selected="{% if selector.addm_name == user_test_by_addm_group.grouper %}true{% elif forloop.counter == 1 %}true{% else %}false{% endif %}">{{ user_test_by_addm_group.grouper }}
                             </a>
                         {% endfor %}
-                        {% endcache %}
                     </div>
                 </nav>
                 <!-- ADDM Tabs CONTENT based on grouper name -->
                 <div class="tab-content" id="nav-tabContent">
-                    {% cache 120 user_tests_by_addm_name request.user.username %}
                     {% for user_test_by_addm_group in user_tests_by_addm_name %}
                         <div class="tab-pane {% if forloop.counter == 1 %}fade show active{% else %}{% endif %}"
                              title="{{ user_test_by_addm_group.grouper }}"
@@ -65,9 +63,9 @@
                             </div>
                         </div>
                     {% endfor %}
-                    {% endcache %}
                 </div>
             </div>
+            {% endcache %}
             <div class="tab-pane fade" id="user-cases" role="tabpanel" aria-labelledby="user-cases-tab">
                 <span class="badge badge-info">Overall user cases: {{ objects.user_cases|length }}</span>
                 <div class="cases-table">

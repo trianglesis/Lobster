@@ -7,7 +7,6 @@
     {% endif %}
 {% endblock %}
 {% load static %}
-{% load cache %}
 {% load i18n %}
 {% load tz %}
 {% load humanize %}
@@ -46,7 +45,6 @@
                         <i class="fas fa-undo"></i>
                         <a class="badge {% is_active 'pattern_library' None 'badge-light' 'badge-dark' %}"
                            href="{% url 'test_cases' %}?{{ selector_pattern_library }}">All</a></li>
-                    {% cache 60 pattern_library_qs selector_str %}
                     {% for lib_item in pattern_library_qs %}
                         <li class="list-group-item border-light">
                         {% if lib_item.pattern_library == 'BLADE_ENCLOSURE' %}<i class="fas fa-tape"></i>
@@ -62,31 +60,6 @@
                         <a class="badge {% is_active 'pattern_library' lib_item.pattern_library 'badge-light' 'badge-dark' %}"
                            href="{% url 'test_cases' %}?pattern_library={{ lib_item.pattern_library }};{{ selector_lib_item }}">{{ lib_item.pattern_library }} ({{ lib_item.total }})</a></li>
                     {% endfor %}
-                    {% endcache %}
-{#                    <li class="list-group-item border-light"><i class="fas fa-tape"></i>#}
-{#                        <a class="badge {% is_active 'pattern_library' 'BLADE_ENCLOSURE' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?pattern_library=BLADE_ENCLOSURE;{{ selector_pattern_library }}">BLADE_ENCLOSURE</a></li>#}
-{#                    <li class="list-group-item border-light"><i class="fas fa-cloud"></i>#}
-{#                        <a class="badge {% is_active 'pattern_library' 'CLOUD' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?pattern_library=CLOUD;{{ selector_pattern_library }}">CLOUD</a></li>#}
-{#                    <li class="list-group-item border-light"><i class="fas fa-cube"></i>#}
-{#                        <a class="badge {% is_active 'pattern_library' 'CORE' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?pattern_library=CORE;{{ selector_pattern_library }}">CORE</a></li>#}
-{#                    <li class="list-group-item border-light"><i class="fas fa-balance-scale"></i>#}
-{#                        <a class="badge {% is_active 'pattern_library' 'LOAD_BALANCER' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?pattern_library=LOAD_BALANCER;{{ selector_pattern_library }}">LOAD_BALANCER</a></li>#}
-{#                    <li class="list-group-item border-light"><i class="fas fa-truck-loading"></i>#}
-{#                        <a class="badge {% is_active 'pattern_library' 'MANAGEMENT_CONTROLLERS' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?pattern_library=MANAGEMENT_CONTROLLERS;{{ selector_pattern_library }}">MANAGEMENT_CONTROLLERS</a></li>#}
-{#                    <li class="list-group-item border-light"><i class="fas fa-network-wired"></i>#}
-{#                        <a class="badge {% is_active 'pattern_library' 'NETWORK' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?pattern_library=NETWORK;{{ selector_pattern_library }}">NETWORK</a></li>#}
-{#                    <li class="list-group-item border-light"><i class="fas fa-hdd"></i>#}
-{#                        <a class="badge {% is_active 'pattern_library' 'STORAGE' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?pattern_library=STORAGE;{{ selector_pattern_library }}">STORAGE</a></li>#}
-{#                    <li class="list-group-item border-light"><i class="fab fa-centos"></i>#}
-{#                        <a class="badge {% is_active 'pattern_library' 'SYSTEM' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?pattern_library=SYSTEM;{{ selector_pattern_library }}">SYSTEM</a></li>#}
                 </ul>
             </div>
             <div class="card border-light card-autosize">
@@ -119,7 +92,6 @@
                         <i class="fas fa-undo"></i>
                         <a class="badge {% is_active 'test_type' None 'badge-light' 'badge-dark' %}"
                            href="{% url 'test_cases' %}?{{ selector_test_type }}">All</a></li>
-                    {% cache 60 test_type_qs selector_str %}
                     {% for test_type in test_type_qs %}
                         <li class="list-group-item border-light">
                         {% if test_type.test_type == 'tku_patterns' %}<i class="fas fa-scroll"></i>
@@ -132,19 +104,6 @@
                         <a class="badge {% is_active 'test_type' test_type.test_type 'badge-light' 'badge-dark' %}"
                            href="{% url 'test_cases' %}?test_type={{ test_type.test_type }};{{ selector_test_type }}">{{ test_type.test_type }} ({{ test_type.total }})</a></li>
                     {% endfor %}
-                    {% endcache %}
-{#                    <li class="list-group-item border-light">#}
-{#                        <i class="fas fa-scroll"></i>#}
-{#                        <a class="badge {% is_active 'test_type' 'tku_patterns' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?test_type=tku_patterns;{{ selector_test_type }}">tku_patterns</a></li>#}
-{#                    <li class="list-group-item border-light">#}
-{#                        <i class="fab fa-python"></i>#}
-{#                        <a class="badge {% is_active 'test_type' 'main_python' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?test_type=main_python;{{ selector_test_type }}">main_python</a></li>#}
-{#                    <li class="list-group-item border-light">#}
-{#                        <i class="fas fa-plug"></i>#}
-{#                        <a class="badge {% is_active 'test_type' 'octo_tests' 'badge-light' 'badge-dark' %}"#}
-{#                           href="{% url 'test_cases' %}?test_type=octo_tests;{{ selector_test_type }}">(TBA) octo_tests</a></li>#}
                 </ul>
             </div>
         </div>
@@ -170,7 +129,6 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% cache 60 test_cases request.get_full_path %}
                 {% for case in test_cases %}
                     {% with case as tooltip_txt %}
                     <tr>
@@ -241,7 +199,6 @@
                     </tr>
                     {% endwith %}
                 {% endfor %}
-                {% endcache %}
                 </tbody>
             </table>
         </div>
