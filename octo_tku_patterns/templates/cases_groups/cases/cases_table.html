@@ -172,13 +172,13 @@
                             {% comment %}{{ pattern.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}{% endcomment %}
                         </td>
                         <td id="test_cases_group" class="row-txt-center-sm">
-                            {% if case.related_test_cases %}
-                                {% for group in case.related_test_cases.all %}
-                                    <a class="badge badge-info" {% popover 'hover' 'bottom' None 'Go to group' %}
-                                       href="{% url 'test_cases_group' pk=group.id %}">{{ group.title }}
-                                    </a><br>
-                                {% endfor %}
-                            {% endif %}
+{#                            {% if case.related_test_cases %}#}
+{#                                {% for group in case.related_test_cases.all %}#}
+{#                                    <a class="badge badge-info" {% popover 'hover' 'bottom' None 'Go to group' %}#}
+{#                                       href="{% url 'test_cases_group' pk=group.id %}">{{ group.title }}#}
+{#                                    </a><br>#}
+{#                                {% endfor %}#}
+{#                            {% endif %}#}
                         </td>
                         <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
                         <td id="actions" class="actions_button">

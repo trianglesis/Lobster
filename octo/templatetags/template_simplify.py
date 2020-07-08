@@ -143,9 +143,10 @@ def tooltip_case(toggle, placement, case):
     <div class='test_time_weight'><span>{{case.test_time_weight}}</span></div>
     <div class='test_py_path_template'><span class='sm-txt'>{{case.test_py_path_template}}</span></div>
     <div class='test_dir_path_template'><span class='sm-txt'>{{case.test_dir_path_template}}</span></div>
-    <div class='related_test_cases'><span class='sm-txt'>{% if case.related_test_cases %}{% for group in case.related_test_cases.all %}{{ group.title }}, {% endfor %}{% endif %}</span></div>
     "
     ''')
+    # TOO RECURSIVE!
+    # <div class='related_test_cases'><span class='sm-txt'>{% if case.related_test_cases %}{% for group in case.related_test_cases.all %}{{ group.title }}, {% endfor %}{% endif %}</span></div>
     c = Context(dict(toggle=toggle, placement=placement, case=case))
     return html.render(c)
 
@@ -205,9 +206,10 @@ def tooltip_tku_unittest(toggle, placement, test):
     <div class='time_spent_test'><span>Run: {{test.time_spent_test }}</span></div>
     <div class='test_time_weight'><span>Weight: {{test_case.test_time_weight }}</span></div>
     <div class='test_py_path'><span>{{test.test_py_path}}</span></div>
-    <div class='case_group'><span>{% if test_case.related_test_cases %}{% for group in test_case.related_test_cases.all %}{{ group.title }}, {% endfor %}{% endif %}</span></div>
     "
     ''')
+    # TOO RECURSIVE!
+    # <div class='case_group'><span>{% if test_case.related_test_cases %}{% for group in test_case.related_test_cases.all %}{{ group.title }}, {% endfor %}{% endif %}</span></div>
     c = Context(dict(toggle=toggle, placement=placement, test=test, test_case=test_case[0]))
     return html.render(c)
 

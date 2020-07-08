@@ -12,7 +12,7 @@ User = get_user_model()
 
 
 class TestCasesSerializer(serializers.ModelSerializer):
-    case_group = serializers.SerializerMethodField()
+    # case_group = serializers.SerializerMethodField()
 
     class Meta:
         model = TestCases
@@ -39,13 +39,13 @@ class TestCasesSerializer(serializers.ModelSerializer):
             'test_time_weight',
             'created_time',
             # Methods
-            'case_group',
+            # 'case_group',
         )
 
-    @staticmethod
-    def get_case_group(obj):
-        serializer = TestCasesDetailsSerializer(obj.related_test_cases, many=True)
-        return serializer.data
+    # @staticmethod
+    # def get_case_group(obj):
+    #     serializer = TestCasesDetailsSerializer(obj.related_test_cases, many=True)
+    #     return serializer.data
 
 
 class TestCasesDetailsSerializer(serializers.ModelSerializer):

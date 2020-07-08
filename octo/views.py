@@ -3,10 +3,12 @@ Pages views for main site pages.
 Main data, just render pages.
 
 """
+from hashlib import blake2b
 from django.template import loader
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 
+from django.core.cache import cache, caches
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
@@ -29,6 +31,28 @@ import logging
 log = logging.getLogger("octo.octologger")
 
 
+def cache_query(model_query, cache_key=None, ttl=300):
+    """
+
+    :param ttl: cache living time
+    :param model_query: django model qyesyset.query - will be used to generate hash
+    :param cache_key: optional str - to distinguish cache_hashed in human readable format
+    :return:
+    """
+
+    hashed_query = blake2b(f'{model_query.query}'.encode('utf-8')).hexdigest()
+    if cache_key:
+        hashed_query = f'{cache_key}_{hashed_query}'
+    query_result = cache.get(hashed_query)
+    if query_result is None:
+        log.debug(f'Caching {hashed_query}')
+        cache.set(hashed_query, model_query, ttl)
+        return model_query
+    else:
+        log.debug(f'Get from cache {hashed_query}')
+        return query_result
+
+
 class MainPage(TemplateView):
     template_name = 'main/mainpage_widgets.html'
     context_object_name = 'objects'
@@ -43,7 +67,7 @@ class MainPage(TemplateView):
 
     def get_queryset(self):
         # UserCheck().logator(self.request, 'info', "<=MainPage=> Main page queries")
-        addm_digest = AddmDigest.objects.all()
+        addm_digest = cache_query(AddmDigest.objects.all(), "MainPage", 120)
         upload_tests = TKUUpdateWorkbenchView.get_queryset(self)
         # log.debug("upload_tests: %s", upload_tests)
         tests_top_main = TestLast.objects.filter(time_spent_test__isnull=False, tkn_branch__exact='tkn_main').order_by('-time_spent_test')

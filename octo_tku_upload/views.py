@@ -3,7 +3,9 @@ OCTO ADM - pages and widgets and functions.
 """
 import logging
 from datetime import datetime
+from hashlib import blake2b
 
+from django.core.cache import cache, caches
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -25,6 +27,32 @@ from octo_tku_upload.tasks import TUploadExec
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'SITE_DOMAIN', None)
+
+def cache_query(model_query, cache_key=None, ttl=300):
+    """
+
+    :param ttl: cache living time
+    :param model_query: django model qyesyset.query - will be used to generate hash
+    :param cache_key: optional str - to distinguish cache_hashed in human readable format
+    :return:
+    """
+
+    try:
+        hashed_query = blake2b(f'{model_query.query}'.encode('utf-8')).hexdigest()
+    except AttributeError:
+        # In case, when query is a result str?
+        hashed_query = blake2b(f'{model_query}'.encode('utf-8')).hexdigest()
+
+    if cache_key:
+        hashed_query = f'{cache_key}_{hashed_query}'
+    query_result = cache.get(hashed_query)
+    if query_result is None:
+        log.debug(f'Caching {hashed_query}')
+        cache.set(hashed_query, model_query, ttl)
+        return model_query
+    else:
+        log.debug(f'Get from cache {hashed_query}')
+        return query_result
 
 
 # Classical views requests, keep them here for some time.
@@ -137,43 +165,43 @@ class TKUUpdateWorkbenchView(TemplateView):
 
         # Select packages for workbench:
         packages_qs = TkuPackagesNew.objects.all()
-        max_released = packages_qs.filter(tku_type__exact='released_tkn').latest('tku_type', 'updated_at')
-        max_ga = packages_qs.filter(tku_type__exact='ga_candidate').latest('tku_type', 'updated_at')
-        max_cont_main = packages_qs.filter(tku_type__exact='tkn_main_continuous').latest('tku_type', 'updated_at')
-        max_cont_ship = packages_qs.filter(tku_type__exact='tkn_ship_continuous').latest('tku_type', 'updated_at')
+        max_released = cache_query(packages_qs.filter(tku_type__exact='released_tkn').latest('tku_type', 'updated_at'), 'TKUUpdateWorkbenchView', 60)
+        max_ga = cache_query(packages_qs.filter(tku_type__exact='ga_candidate').latest('tku_type', 'updated_at'), 'TKUUpdateWorkbenchView', 60)
+        max_cont_main = cache_query(packages_qs.filter(tku_type__exact='tkn_main_continuous').latest('tku_type', 'updated_at'), 'TKUUpdateWorkbenchView', 60)
+        max_cont_ship = cache_query(packages_qs.filter(tku_type__exact='tkn_ship_continuous').latest('tku_type', 'updated_at'), 'TKUUpdateWorkbenchView', 60)
 
         # Select most latest tests dates and package type for workbench:
         tests_qs = UploadTestsNew.objects.all()
 
-        latest_cont_ship = tests_qs.filter(
+        latest_cont_ship = cache_query(tests_qs.filter(
             Q(mode_key__exact='tkn_ship_continuous_install') |
             Q(mode_key__exact='tkn_ship_continuous.fresh.step_1')
         ).values('test_date_time', 'package_type').latest(
-            'test_date_time')
+            'test_date_time'), 'TKUUpdateWorkbenchView', 60)
 
-        latest_cont_main = tests_qs.filter(
+        latest_cont_main = cache_query(tests_qs.filter(
             Q(mode_key__exact='tkn_main_continuous_install') |
             Q(mode_key__exact='tkn_main_continuous.fresh.step_1')
         ).values('test_date_time', 'package_type').latest(
-            'test_date_time')
+            'test_date_time'), 'TKUUpdateWorkbenchView', 60)
 
-        latest_ga_fresh = tests_qs.filter(
+        latest_ga_fresh = cache_query(tests_qs.filter(
             Q(mode_key__exact='ga_candidate_install') |
             Q(mode_key__exact='ga_candidate.fresh.step_1')
         ).values('test_date_time', 'package_type').latest(
-            'test_date_time')
+            'test_date_time'), 'TKUUpdateWorkbenchView', 60)
 
-        latest_ga_upgrade = tests_qs.filter(
+        latest_ga_upgrade = cache_query(tests_qs.filter(
             Q(mode_key__exact='ga_candidate_install_step_2') |
             Q(mode_key__exact='ga_candidate.update.step_2')
         ).values('test_date_time', 'package_type').latest(
-            'test_date_time')
+            'test_date_time'), 'TKUUpdateWorkbenchView', 60)
 
-        latest_ga_prep = tests_qs.filter(
+        latest_ga_prep = cache_query(tests_qs.filter(
             Q(mode_key__exact='released_tkn_install_step_1') |
             Q(mode_key__exact='released_tkn.update.step_1')
         ).values('test_date_time', 'package_type').latest(
-            'test_date_time')
+            'test_date_time'), 'TKUUpdateWorkbenchView', 60)
 
         # Uncomment when ready:
         # product_content_ship = tests_qs.filter(
@@ -187,32 +215,32 @@ class TKUUpdateWorkbenchView(TemplateView):
         #     'test_date_time')
 
         # Now select package type upload tests with related dates from above:`
-        upload_cont_ship = tests_qs.filter(
+        upload_cont_ship = cache_query(tests_qs.filter(
             Q(mode_key__exact='tkn_ship_continuous_install') |
             Q(mode_key__exact='tkn_ship_continuous.fresh.step_1'),
             test_date_time__gte=latest_cont_ship['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
-        )
+        ), 'TKUUpdateWorkbenchView', 60)
 
-        upload_cont_main = tests_qs.filter(
+        upload_cont_main = cache_query(tests_qs.filter(
             Q(mode_key__exact='tkn_main_continuous_install') |
             Q(mode_key__exact='tkn_main_continuous.fresh.step_1'),
             test_date_time__gte=latest_cont_main['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
-        )
-        upload_ga_fresh = tests_qs.filter(
+        ), 'TKUUpdateWorkbenchView', 60)
+        upload_ga_fresh = cache_query(tests_qs.filter(
             Q(mode_key__exact='ga_candidate_install') |
             Q(mode_key__exact='ga_candidate.fresh.step_1'),
             test_date_time__gte=latest_ga_fresh['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
-        )
-        upload_ga_upgrade = tests_qs.filter(
+        ), 'TKUUpdateWorkbenchView', 60)
+        upload_ga_upgrade = cache_query(tests_qs.filter(
             Q(mode_key__exact='ga_candidate_install_step_2') |
             Q(mode_key__exact='ga_candidate.update.step_2'),
             test_date_time__gte=latest_ga_upgrade['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
-        )
-        upload_ga_prep = tests_qs.filter(
+        ), 'TKUUpdateWorkbenchView', 60)
+        upload_ga_prep = cache_query(tests_qs.filter(
             Q(mode_key__exact='released_tkn_install_step_1') |
             Q(mode_key__exact='released_tkn.update.step_1'),
             test_date_time__gte=latest_ga_upgrade['test_date_time'].replace(hour=0, minute=0, second=0, microsecond=0)
-        )
+        ), 'TKUUpdateWorkbenchView', 60)
 
         # upload_product_content_ship = tests_qs.filter(
         #     mode_key__exact='tkn_ship_continuous.fresh.step_1.TKU-Product-Content',
