@@ -35,7 +35,9 @@ DEBUG = True
 
 CURR_HOSTNAME = socket.getfqdn()
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()), socket.gethostname()]
-log.debug(f"ALLOWED HOSTS: {ALLOWED_HOSTS}")
+
+log.warning(f"WE'RE on DEBUG setting now! {__name__}")
+log.warning(f"ALLOWED HOSTS: {ALLOWED_HOSTS}")
 
 
 INTERNAL_IPS = [
@@ -89,7 +91,6 @@ CACHES = {
     }
 }
 
-CACHALOT_TIMEOUT = 60 * 1
 
 DEBUG_TOOLBAR_PANELS = [
     # 'debug_toolbar.panels.versions.VersionsPanel',
