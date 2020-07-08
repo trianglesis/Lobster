@@ -7,6 +7,7 @@
     {% endif %}
 {% endblock %}
 {% load static %}
+{% load cache %}
 {% load i18n %}
 {% load tz %}
 {% load humanize %}
@@ -45,7 +46,7 @@
                         <i class="fas fa-undo"></i>
                         <a class="badge {% is_active 'pattern_library' None 'badge-light' 'badge-dark' %}"
                            href="{% url 'test_cases' %}?{{ selector_pattern_library }}">All</a></li>
-
+                    {% cache 60 pattern_library_qs selector_str %}
                     {% for lib_item in pattern_library_qs %}
                         <li class="list-group-item border-light">
                         {% if lib_item.pattern_library == 'BLADE_ENCLOSURE' %}<i class="fas fa-tape"></i>
@@ -61,7 +62,7 @@
                         <a class="badge {% is_active 'pattern_library' lib_item.pattern_library 'badge-light' 'badge-dark' %}"
                            href="{% url 'test_cases' %}?pattern_library={{ lib_item.pattern_library }};{{ selector_lib_item }}">{{ lib_item.pattern_library }} ({{ lib_item.total }})</a></li>
                     {% endfor %}
-
+                    {% endcache %}
 {#                    <li class="list-group-item border-light"><i class="fas fa-tape"></i>#}
 {#                        <a class="badge {% is_active 'pattern_library' 'BLADE_ENCLOSURE' 'badge-light' 'badge-dark' %}"#}
 {#                           href="{% url 'test_cases' %}?pattern_library=BLADE_ENCLOSURE;{{ selector_pattern_library }}">BLADE_ENCLOSURE</a></li>#}
@@ -118,6 +119,7 @@
                         <i class="fas fa-undo"></i>
                         <a class="badge {% is_active 'test_type' None 'badge-light' 'badge-dark' %}"
                            href="{% url 'test_cases' %}?{{ selector_test_type }}">All</a></li>
+                    {% cache 60 test_type_qs selector_str %}
                     {% for test_type in test_type_qs %}
                         <li class="list-group-item border-light">
                         {% if test_type.test_type == 'tku_patterns' %}<i class="fas fa-scroll"></i>
@@ -130,7 +132,7 @@
                         <a class="badge {% is_active 'test_type' test_type.test_type 'badge-light' 'badge-dark' %}"
                            href="{% url 'test_cases' %}?test_type={{ test_type.test_type }};{{ selector_test_type }}">{{ test_type.test_type }} ({{ test_type.total }})</a></li>
                     {% endfor %}
-
+                    {% endcache %}
 {#                    <li class="list-group-item border-light">#}
 {#                        <i class="fas fa-scroll"></i>#}
 {#                        <a class="badge {% is_active 'test_type' 'tku_patterns' 'badge-light' 'badge-dark' %}"#}
@@ -168,6 +170,7 @@
                 </tr>
                 </thead>
                 <tbody>
+                {% cache 60 test_cases request.get_full_path %}
                 {% for case in test_cases %}
                     {% with case as tooltip_txt %}
                     <tr>
@@ -238,6 +241,7 @@
                     </tr>
                     {% endwith %}
                 {% endfor %}
+                {% endcache %}
                 </tbody>
             </table>
         </div>

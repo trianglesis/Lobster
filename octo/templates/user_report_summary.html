@@ -1,6 +1,7 @@
 {% extends "main/main.html" %}
 {% block page_title %}
 {% endblock %}
+{% load cache %}
 {% block content %}
     {% load static %}
     {% load template_simplify %}
@@ -36,6 +37,7 @@
                 <!-- ADDM Tabs based on grouper name -->
                 <nav>
                     <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+                        {% cache 120 user_tests_by_addm_name request.user.username %}
                         {% for user_test_by_addm_group in user_tests_by_addm_name %}
                             <!-- Draw each tab based on count of unique addm_names  -->
                             <a class="nav-item nav-link badge-light {% if forloop.counter == 1 %}active{% else %}{% endif %}"
@@ -46,10 +48,12 @@
                                aria-selected="{% if selector.addm_name == user_test_by_addm_group.grouper %}true{% elif forloop.counter == 1 %}true{% else %}false{% endif %}">{{ user_test_by_addm_group.grouper }}
                             </a>
                         {% endfor %}
+                        {% endcache %}
                     </div>
                 </nav>
                 <!-- ADDM Tabs CONTENT based on grouper name -->
                 <div class="tab-content" id="nav-tabContent">
+                    {% cache 120 user_tests_by_addm_name request.user.username %}
                     {% for user_test_by_addm_group in user_tests_by_addm_name %}
                         <div class="tab-pane {% if forloop.counter == 1 %}fade show active{% else %}{% endif %}"
                              title="{{ user_test_by_addm_group.grouper }}"
@@ -61,6 +65,7 @@
                             </div>
                         </div>
                     {% endfor %}
+                    {% endcache %}
                 </div>
             </div>
             <div class="tab-pane fade" id="user-cases" role="tabpanel" aria-labelledby="user-cases-tab">
@@ -86,6 +91,7 @@
                     </tr>
                     </thead>
                     <tbody>
+                    {% cache 120 objects.user_cases request.user.username %}
                     {% for case in objects.user_cases %}
                         {% with case as tooltip_txt %}
                         <tr>
@@ -152,6 +158,7 @@
                         </tr>
                         {% endwith %}
                     {% endfor %}
+                    {% endcache %}
                     </tbody>
                 </table>
                 </div>

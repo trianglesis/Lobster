@@ -6,6 +6,7 @@ Input requests - output pages with some results.
 # Python logger
 import logging
 import datetime
+from hashlib import blake2b
 
 from celery.result import AsyncResult
 from django import forms
@@ -173,11 +174,21 @@ class SearchCasesAndLogs(ListView):
             | Q(change_review__icontains=query)
             | Q(change_ticket__icontains=query)
         )
+        queryset_history_digest = TestHistoryDigestDaily.objects.filter(
+            Q(pattern_folder_name__icontains=query)
+            | Q(test_py_path__icontains=query)
+            | Q(change__icontains=query)
+            | Q(change_desc__icontains=query)
+            | Q(change_user__icontains=query)
+            | Q(change_review__icontains=query)
+            | Q(change_ticket__icontains=query)
+        )
 
         queryset = dict(
             cases=queryset_cases,
             tests_last=queryset_last,
             tests_last_digest=queryset_last_digest,
+            tests_history_digest=queryset_history_digest,
         )
         return queryset
 
@@ -220,21 +231,24 @@ class TestLastDigestListView(ListView):
     def get_context_data(self, **kwargs):
         # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_context_data")
         # Get unique addm names based on table latest run:
-        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
-        # log.debug("TestLastDigestListView addm_names explain \n%s", addm_names.explain())
+        addm_names = cache.get_or_set('addm_names',
+                                      AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
 
-        # Possible test types select
-        test_type_qs = TestLatestDigestAll.objects.filter(
-            test_type__isnull=False
-        ).values('test_type').annotate(total=Count('test_type')).order_by('test_type')
+        test_type_qs = cache.get_or_set('test_type_qs',
+                                        TestLatestDigestAll.objects.filter(
+                                            test_type__isnull=False).values('test_type').annotate(
+                                            total=Count('test_type')).order_by('test_type'))
         # Possible patt test libraries select
-        pattern_library_qs = TestLatestDigestAll.objects.filter(
-            pattern_library__isnull=False
-        ).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library')
+        pattern_library_qs = cache.get_or_set('pattern_library_qs',
+                                              TestLatestDigestAll.objects.filter(
+                                                  pattern_library__isnull=False).values('pattern_library').annotate(
+                                                  total=Count('pattern_library')).order_by('pattern_library'))
         # Possible users select?
-        change_user_qs = TestLatestDigestAll.objects.filter(
-            change_user__isnull=False
-        ).values('change_user').annotate(total=Count('change_user')).order_by('change_user')
+        change_user_qs = cache.get_or_set('change_user_qs',
+                                          TestLatestDigestAll.objects.filter(
+                                              change_user__isnull=False).values('change_user').annotate(
+                                              total=Count('change_user')).order_by('change_user'))
+
 
         if self.request.method == 'GET':
             # log.debug("METHOD: GET - show test cases digest")
@@ -247,6 +261,16 @@ class TestLastDigestListView(ListView):
                 pattern_library_qs=pattern_library_qs,
                 change_user_qs=change_user_qs,
             )
+            hashed_query = blake2b(f'{context["object_list"].query}'.encode('utf-8')).hexdigest()
+            cache_hashed = f'{self.__url_path}_{hashed_query}'
+            tests_digest = cache.get(cache_hashed)
+            if tests_digest is None:
+                log.info(f'Caching {cache_hashed}')
+                cache.set(cache_hashed, context['tests_digest'], 500)
+            else:
+                log.info(f'Get from cache {cache_hashed}')
+                context['tests_digest'] = tests_digest
+
             return context
 
     def get_queryset(self):
@@ -293,6 +317,11 @@ class TestLastSingleDetailedListView(ListView):
             # log.debug("<=TestLastSingleDetailedListView=> METHOD: GET - show tests items")
             context = super(TestLastSingleDetailedListView, self).get_context_data(**kwargs)
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            test_detail = cache.get('test_detail')
+            if test_detail is None:
+                cache.set('test_detail', context['test_detail'], 60)
+            else:
+                context['test_detail'] = test_detail
             return context
 
     def get_queryset(self):
@@ -330,6 +359,11 @@ class TestItemSingleHistoryListView(ListView):
         if self.request.method == 'GET':
             # log.debug("<=TestItemSingleHistoryListView=> METHOD: GET - show single test case item tests")
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            test_detail = cache.get('test_detail')
+            if test_detail is None:
+                cache.set('test_detail', context['test_detail'], 60)
+            else:
+                context['test_detail'] = test_detail
             return context
 
     def get_queryset(self):
@@ -356,11 +390,15 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
     template_name = 'digests/tests_history_day.html'
     context_object_name = 'test_detail'
 
-
     def get_context_data(self, **kwargs):
         UserCheck().logator(self.request, 'info', "<=TestHistoryArchiveIndexView=> test history index")
         context = super(TestHistoryArchiveIndexView, self).get_context_data(**kwargs)
         context.update(selector=compose_selector(self.request.GET), selector_str='')
+        test_detail = cache.get('test_detail')
+        if test_detail is None:
+            cache.set('test_detail', context['test_detail'], 60)
+        else:
+            context['test_detail'] = test_detail
         return context
 
     def get_queryset(self):
@@ -397,6 +435,11 @@ class TestHistoryDayArchiveView(DayArchiveView):
         if self.request.method == 'GET':
             context = super(TestHistoryDayArchiveView, self).get_context_data(**kwargs)
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            test_detail = cache.get('test_detail')
+            if test_detail is None:
+                cache.set('test_detail', context['test_detail'], 60)
+            else:
+                context['test_detail'] = test_detail
             return context
 
     def get_queryset(self):
@@ -426,6 +469,11 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
         UserCheck().logator(self.request, 'info', "<=TestHistoryTodayArchiveView=> test history today")
         context = super(TestHistoryTodayArchiveView, self).get_context_data(**kwargs)
         context.update(selector=compose_selector(self.request.GET), selector_str='')
+        test_detail = cache.get('test_detail')
+        if test_detail is None:
+            cache.set('test_detail', context['test_detail'], 60)
+        else:
+            context['test_detail'] = test_detail
         return context
 
     def get_queryset(self):
@@ -444,7 +492,7 @@ class TestHistoryDigestTodayView(TodayArchiveView):
 
     """
     __url_path = '/octo_tku_patterns/test_history_digest_today/'
-    # model = TestHistoryDigestDaily
+    model = TestHistoryDigestDaily
     date_field = "test_date_time"
     allow_future = True
     allow_empty = True
@@ -454,19 +502,23 @@ class TestHistoryDigestTodayView(TodayArchiveView):
 
     def get_context_data(self, **kwargs):
         # Get unique addm names based on table latest run:
-        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
+        addm_names = cache.get_or_set('addm_names',
+                                      AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
 
-        test_type_qs = TestLatestDigestAll.objects.filter(
-            test_type__isnull=False
-        ).values('test_type').annotate(total=Count('test_type')).order_by('test_type')
+        test_type_qs = cache.get_or_set('test_type_qs',
+                                        TestLatestDigestAll.objects.filter(
+                                            test_type__isnull=False).values('test_type').annotate(
+                                            total=Count('test_type')).order_by('test_type'))
         # Possible patt test libraries select
-        pattern_library_qs = TestLatestDigestAll.objects.filter(
-            pattern_library__isnull=False
-        ).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library')
+        pattern_library_qs = cache.get_or_set('pattern_library_qs',
+                                              TestLatestDigestAll.objects.filter(
+                                                  pattern_library__isnull=False).values('pattern_library').annotate(
+                                                  total=Count('pattern_library')).order_by('pattern_library'))
         # Possible users select?
-        change_user_qs = TestLatestDigestAll.objects.filter(
-            change_user__isnull=False
-        ).values('change_user').annotate(total=Count('change_user')).order_by('change_user')
+        change_user_qs = cache.get_or_set('change_user_qs',
+                                          TestLatestDigestAll.objects.filter(
+                                              change_user__isnull=False).values('change_user').annotate(
+                                              total=Count('change_user')).order_by('change_user'))
 
         if self.request.method == 'GET':
             context = super(TestHistoryDigestTodayView, self).get_context_data(**kwargs)
@@ -478,11 +530,19 @@ class TestHistoryDigestTodayView(TodayArchiveView):
                 pattern_library_qs=pattern_library_qs,
                 change_user_qs=change_user_qs,
             )
-            # log.warning(f"Context: {context}")
             # for k,v in context.items():
             #     log.warning(f"Context {k}: {v}")
-            # log.warning(f"Context object_list: {context['object_list'].count()} \n {context['object_list'].query}")
-            # context = cache.get_or_set('TestHistoryDigestTodayView', context)
+
+            hashed_query = blake2b(f'{context["object_list"].query}'.encode('utf-8')).hexdigest()
+            cache_hashed = f'{self.__url_path}_{hashed_query}'
+            tests_digest = cache.get(cache_hashed)
+            if tests_digest is None:
+                log.info(f'Caching {cache_hashed}')
+                cache.set(cache_hashed, context['tests_digest'], 500)
+            else:
+                log.info(f'Get from cache {cache_hashed}')
+                context['tests_digest'] = tests_digest
+
             return context
 
     def get_queryset(self):
@@ -506,7 +566,6 @@ class TestHistoryDigestTodayView(TodayArchiveView):
         if self.sel_opts.get('pattern_library'):
             # log.debug("use: pattern_library")
             queryset = queryset.filter(pattern_library__exact=self.sel_opts.get('pattern_library'))
-
         queryset = tst_status_selector(queryset, self.sel_opts)
         # log.info(f" <=TestHistoryDigestTodayView=>: {queryset.count()}\n{queryset.explain()}\n{queryset.query}")
 
@@ -525,12 +584,24 @@ class TestHistoryDigestDailyView(DayArchiveView):
     def get_context_data(self, **kwargs):
         # UserCheck().logator(self.request, 'info', "<=TestHistoryDigestDailyView=> get_context_data")
         # Get unique addm names based on table latest run:
-        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
+        addm_names = cache.get_or_set('addm_names',
+                                      AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         # log.debug("TestHistoryDigestDailyView addm_names explain \n%s", addm_names.explain())
         if self.request.method == 'GET':
             # log.debug("METHOD: GET - show test cases digest")
             context = super(TestHistoryDigestDailyView, self).get_context_data(**kwargs)
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+
+            hashed_query = blake2b(f'{context["object_list"].query}'.encode('utf-8')).hexdigest()
+            cache_hashed = f'{self.__url_path}_{hashed_query}'
+            tests_digest = cache.get(cache_hashed)
+            if tests_digest is None:
+                log.info(f'Caching {cache_hashed}')
+                cache.set(cache_hashed, context['tests_digest'], 500)
+            else:
+                log.info(f'Get from cache {cache_hashed}')
+                context['tests_digest'] = tests_digest
+
             return context
 
     def get_queryset(self):
@@ -562,20 +633,22 @@ class TestCasesListView(ListView):
     model = TestCases
     context_object_name = 'test_cases'
     template_name = 'cases_groups/cases/cases_table.html'
-    paginate_by = 100
+    paginate_by = 500
 
     def get_context_data(self, **kwargs):
         # UserCheck().logator(self.request, 'info', "<=TestCasesListView=> test cases table context")
         context = super(TestCasesListView, self).get_context_data(**kwargs)
         debug = self.request.GET.get('debug', False)
 
-        test_type_qs = TestCases.objects.filter(
-            test_type__isnull=False
-        ).values('test_type').annotate(total=Count('test_type')).order_by('test_type')
+        test_type_qs = cache.get_or_set('test_type_qs',
+                                        TestCases.objects.filter(
+                                            test_type__isnull=False).values('test_type').annotate(
+                                            total=Count('test_type')).order_by('test_type'))
 
-        pattern_library_qs = TestCases.objects.filter(
-            pattern_library__isnull=False
-        ).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library')
+        pattern_library_qs = cache.get_or_set('pattern_library_qs',
+                                              TestCases.objects.filter(
+                                                  pattern_library__isnull=False).values('pattern_library').annotate(
+                                                  total=Count('pattern_library')).order_by('pattern_library'))
 
         context.update(
             selector=compose_selector(self.request.GET),
@@ -584,6 +657,11 @@ class TestCasesListView(ListView):
             pattern_library_qs=pattern_library_qs,
             debug=debug,
         )
+        test_cases = cache.get('test_cases')
+        if test_cases is None:
+            cache.set('test_cases', context['test_cases'], 60)
+        else:
+            context['test_cases'] = test_cases
         return context
 
     def get_queryset(self):

@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'octo_tku_patterns',
     'dev_site',
     'django_ftpserver',
-    'cachalot',
+    # 'cachalot',
 ]
 
 MIDDLEWARE = [

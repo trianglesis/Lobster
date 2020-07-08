@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load template_simplify %}
 {% load user_groups %}
+{% load cache %}
 {% block content %}
     {% spaceless %}
     <!-- ADDM logs table content: -->
@@ -29,6 +30,7 @@
         </thead>
         <tbody class="table-shrink">
         <!-- ADDM table rows in cycle: -->
+{#        {% cache 60 tests_digest request.get_full_path %}#}
         {% for test in tests_digest|dictsortreversed:'test_date_time' %}
             {% if test.addm_name == var_addm_name or not var_addm_name %}
                 <tr>
@@ -90,6 +92,7 @@
                 </tr>
             {% endif %}
         {% endfor %}
+{#        {% endcache %}#}
         </tbody>
     <tfoot>
         {% if "tests_last" in request.path and not user.is_anonymous %}

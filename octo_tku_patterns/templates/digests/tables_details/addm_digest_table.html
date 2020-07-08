@@ -1,4 +1,5 @@
 {% load static %}
+{% load cache %}
 {% load template_simplify %}
 {% block content %}
     <!-- ADDM logs table content: -->
@@ -22,6 +23,7 @@
             </thead>
             <tbody>
             <!-- ADDM table rows in cycle: -->
+            {% cache 60 addm_digest request.get_full_path %}
             {% for addm in addm_digest|dictsortreversed:"addm_v_int" %}
                 {% if addm.tkn_branch == var_branch or not var_branch %}
                     <tr>
@@ -72,6 +74,7 @@
                     </tr>
                 {% endif %}
             {% endfor %}
+            {% endcache %}
             </tbody>
         </table>
     </div>

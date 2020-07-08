@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'octo_tku_patterns',
     'dev_site',
     'django_ftpserver',
-    'cachalot',
+    # 'cachalot',
     'debug_toolbar',
 ]
 
@@ -106,7 +106,7 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.logging.LoggingPanel',
     # 'debug_toolbar.panels.redirects.RedirectsPanel',
     'debug_toolbar.panels.profiling.ProfilingPanel',
-    'cachalot.panels.CachalotPanel',
+    # 'cachalot.panels.CachalotPanel',
 ]
 
 
