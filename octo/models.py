@@ -18,11 +18,16 @@ class OctoCacheStore(models.Model):
     hashed = models.CharField(unique=True, max_length=100)
     query = models.TextField(blank=True, null=True)
     ttl = models.IntegerField(blank=True, null=True)
+    created_time = models.DateTimeField(
+        unique=False, auto_now_add=True)
 
     class Meta:
         managed = True
         db_table = 'octo_cache_store'
-
+        indexes = [
+            models.Index(fields=['hashed'], name='item_hashed'),
+            models.Index(fields=['key'], name='item_key'),
+        ]
 
 class CeleryTaskmeta(models.Model):
     task_id = models.CharField(unique=True, max_length=155, blank=True, null=True)
