@@ -83,8 +83,8 @@
                         <th class="center_txt" scope="col">Depot</th>
                         <th class="center_txt" scope="col">t:</th>
                         <th class="center_txt" scope="col">Changed</th>
-                        <th class="center_txt" scope="col">Groups:</th>
-                        <th class="center_txt" scope="col"></th>
+{#                        <th class="center_txt" scope="col">Groups:</th>#}
+{#                        <th class="center_txt" scope="col"></th>#}
                         <th class="center_txt" scope="col">Actions</th>
                     </tr>
                     </thead>
@@ -131,16 +131,17 @@
                                 {{ case.change_time|timezone:"Europe/London"|naturaltime }}
                                 {% comment %}{{ pattern.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}{% endcomment %}
                             </td>
-                            <td class="row-txt-center-sm">
-{#                                {% if case.related_test_cases %}#}
-{#                                    {% for group in case.related_test_cases.all %}#}
-{#                                        <a class="badge badge-info" {% popover 'hover' 'bottom' None 'Go to group' %}#}
-{#                                           href="{% url 'test_cases_group' pk=group.id %}">{{ group.title }}#}
-{#                                        </a><br>#}
-{#                                    {% endfor %}#}
-{#                                {% endif %}#}
-                            </td>
-                            <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
+                            {% comment %}# TODO: Move this work to JS {% endcomment %}
+                            {% comment %}<td class="row-txt-center-sm">
+                                {% if case.related_test_cases %}
+                                    {% for group in case.related_test_cases.all %}
+                                        <a class="badge badge-info" {% popover 'hover' 'bottom' None 'Go to group' %}
+                                           href="{% url 'test_cases_group' pk=group.id %}">{{ group.title }}
+                                        </a><br>
+                                    {% endfor %}
+                                {% endif %}
+                            </td>{% endcomment %}
+                            {% comment %}<td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>{% endcomment %}
                             <td class="actions_button">
                                 <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
                                     data-target="#actionsModal"

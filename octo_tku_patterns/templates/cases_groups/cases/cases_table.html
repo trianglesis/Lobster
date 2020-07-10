@@ -123,8 +123,8 @@
                     <th class="center_txt" scope="col">Depot</th>
                     <th class="center_txt" scope="col">t:</th>
                     <th class="center_txt" scope="col">Changed</th>
-                    <th class="center_txt" scope="col">Groups:</th>
-                    <th class="center_txt" scope="col"></th>
+{#                    <th class="center_txt" scope="col">Groups:</th>#}
+{#                    <th class="center_txt" scope="col"></th>#}
                     <th class="center_txt" scope="col">Actions</th>
                 </tr>
                 </thead>
@@ -166,21 +166,26 @@
                             {% endif %}
                         </td>
                         <td id="case_depot_path" class="small-font align-middle break-all">{{ case.test_case_depot_path }}</td>
+                        {# TODO: Make JS to convert time weight #}
                         <td id="test_time_weight" class="row-txt-left-sm row-txt-center-sm">{% if case.test_time_weight %}{{ case.test_time_weight | f_sec }}{% else %}0{% endif %}</td>
                         <td class="small-font center_txt">
                             {{ case.change_time|timezone:"Europe/London"|naturaltime }}
                             {% comment %}{{ pattern.change_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}{% endcomment %}
                         </td>
-                        <td id="test_cases_group" class="row-txt-center-sm">
-{#                            {% if case.related_test_cases %}#}
-{#                                {% for group in case.related_test_cases.all %}#}
-{#                                    <a class="badge badge-info" {% popover 'hover' 'bottom' None 'Go to group' %}#}
-{#                                       href="{% url 'test_cases_group' pk=group.id %}">{{ group.title }}#}
-{#                                    </a><br>#}
-{#                                {% endfor %}#}
-{#                            {% endif %}#}
-                        </td>
-                        <td class="row-txt-center-sm"><a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a></td>
+                        {% comment %}<td id="test_cases_group" class="row-txt-center-sm">
+                            {# TODO: Make JS to insert here related case group by case id in group attr #}
+                            {% if case.related_test_cases %}
+                                {% for group in case.related_test_cases.all %}
+                                    <a class="badge badge-info" {% popover 'hover' 'bottom' None 'Go to group' %}
+                                       href="{% url 'test_cases_group' pk=group.id %}">{{ group.title }}
+                                    </a><br>
+                                {% endfor %}
+                            {% endif %}
+                        </td>{% endcomment %}
+                        {% comment %}<td class="row-txt-center-sm">
+                            {# TODO: Make JS to draw tooltip #}
+                            <a class="btn btn-sm" {% tooltip_case 'hover' 'left' case %}><i class="far fa-eye"></i></a>
+                        </td>{% endcomment %}
                         <td id="actions" class="actions_button">
                             {% if not user.is_anonymous %}
                             <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
@@ -228,6 +233,7 @@
         - Import methods for test_latest page: Modal and Toast
         - Import general operations module for Modal, Toast, Parsing, REST and other operations.
         - Convert test/cases QuerySet to simple JSON with template tag and serealize.
+        - Load Test Cases Details (groups) as JSON so later we can insert each case related groups by case ID in group
     {% endcomment %}
     {% include 'digests/includes/toast_popup.html' %}
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
@@ -235,6 +241,11 @@
     <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
     <script type="text/javascript">
         let cases_json = {{ test_cases|tku_patterns_json:'TestCases'|safe }};
+    </script>
+    <script type="text/javascript">
+        {% comment %}TODO Grab test cases gropus via REST? {% endcomment %}
+        {% comment %}let cases_groups = {{ test_cases_groups|tku_patterns_json:'TestCasesDetails'|safe }};{% endcomment %}
+        {% comment %}let cases_groups = {{ test_cases_groups|safe }};{% endcomment %}
     </script>
     {% comment %}
         DEBUG PART

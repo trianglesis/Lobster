@@ -12,6 +12,17 @@ from django.db import models
 
 """THOSE ARE ONLY FOR DEBUG:"""
 
+class OctoCacheStore(models.Model):
+    name = models.CharField(blank=True, null=True, max_length=155)
+    key = models.CharField(max_length=155)
+    hashed = models.CharField(unique=True, max_length=100)
+    query = models.TextField(blank=True, null=True)
+    ttl = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'octo_cache_store'
+
 
 class CeleryTaskmeta(models.Model):
     task_id = models.CharField(unique=True, max_length=155, blank=True, null=True)

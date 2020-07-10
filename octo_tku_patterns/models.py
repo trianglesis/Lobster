@@ -181,8 +181,8 @@ class TestCasesDetails(models.Model):
     def __str__(self):
         return '{0} - {1}'.format(self.title, self.author)
 
-    def get_test_cases(self):
-        return f'{self.test_cases.test_type}'
+    # def get_test_cases(self):
+    #     return f'{self.test_cases.test_type}'
 
 
 # For reference.

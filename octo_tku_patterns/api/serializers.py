@@ -12,6 +12,7 @@ User = get_user_model()
 
 
 class TestCasesSerializer(serializers.ModelSerializer):
+    # TOO MANY SQL operations, give this job to JS+JSON
     # case_group = serializers.SerializerMethodField()
 
     class Meta:
@@ -39,9 +40,11 @@ class TestCasesSerializer(serializers.ModelSerializer):
             'test_time_weight',
             'created_time',
             # Methods
+            # TOO MANY SQL operations, give this job to JS+JSON
             # 'case_group',
         )
 
+    # TOO MANY SQL operations, give this job to JS+JSON
     # @staticmethod
     # def get_case_group(obj):
     #     serializer = TestCasesDetailsSerializer(obj.related_test_cases, many=True)
@@ -49,8 +52,9 @@ class TestCasesSerializer(serializers.ModelSerializer):
 
 
 class TestCasesDetailsSerializer(serializers.ModelSerializer):
-    author_username = serializers.SerializerMethodField()
-    test_cases_names = serializers.SerializerMethodField()
+    # TODO: Show test cases IDs so later we can use those as reference for JSON comparison
+    # author_username = serializers.SerializerMethodField()
+    # test_cases_names = serializers.SerializerMethodField()
 
     class Meta:
         # Get author name
@@ -60,24 +64,24 @@ class TestCasesDetailsSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'author',
-            'author_username',
             'test_cases',
-            'test_cases_names',
             'description',
             'pub_date',
             'changed_date',
+            # 'author_username',
+            # 'test_cases_names',
         )
 
-    @staticmethod
-    def get_author_username(obj):
-        return obj.author.username
-
-    @staticmethod
-    def get_test_cases_names(obj):
-        cases_names_list = []
-        for test_case in obj.test_cases.all():
-            cases_names_list.append(f"{test_case.tkn_branch}-{test_case.pattern_folder_name}")
-        return cases_names_list
+    # @staticmethod
+    # def get_author_username(obj):
+    #     return obj.author.username
+    #
+    # @staticmethod
+    # def get_test_cases_names(obj):
+    #     cases_names_list = []
+    #     for test_case in obj.test_cases.all():
+    #         cases_names_list.append(f"{test_case.tkn_branch}-{test_case.pattern_folder_name}")
+    #     return cases_names_list
 
 
 class TestLastSerializer(serializers.ModelSerializer):

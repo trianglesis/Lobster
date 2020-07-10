@@ -25,7 +25,7 @@
         <th>Skip</th>
         <th>Tested</th>
         <th></th>
-        <th></th>
+{#        <th></th>#}
         </thead>
         <tbody class="table-shrink">
         <!-- ADDM table rows in cycle: -->
@@ -74,7 +74,8 @@
                                 data-addm_name="{{ selector.addm_name }}"
                                 data-case_id="{{ test.case_id }}">Actions</button></td>
                         {% endif %}
-                    <td id="tooltip"><a class="btn btn-sm" {% tooltip_tku_test 'hover' 'right' test %}><i class="far fa-eye"></i></a></td>
+                    {% comment %}# TODO: DO not draw tooltip using Gjango - move this work to JS {% endcomment %}
+                    {% comment %}<td id="tooltip"><a class="btn btn-sm" {% tooltip_tku_test 'hover' 'right' test %}><i class="far fa-eye"></i></a></td>{% endcomment %}
                     <td id="change" style="display:none">{{ test.change }}</td>
                     <td id="change_review" style="display:none">{{ test.change_review }}</td>
                     <td id="change_ticket" style="display:none">{{ test.change_ticket }}</td>
