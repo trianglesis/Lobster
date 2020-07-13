@@ -176,3 +176,4 @@ z_DEV/test_999_local_debug.sql
 !.idea/*
 *manage.py
 /manage.py
+/win_manage.py
