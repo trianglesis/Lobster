@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.template import loader
 from django.db.models import Q
 
-from octo.win_settings import SITE_DOMAIN
+from octo.settings import SITE_DOMAIN
 
 from octo_tku_patterns.models import TestLast
 from octo_tku_patterns.model_views import TestLatestDigestAll
