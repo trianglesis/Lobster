@@ -1,17 +1,10 @@
 #!/usr/bin/env python
 import os
 import sys
-import octo.config_cred as conf_cred
-from octo import settings
 
 if __name__ == "__main__":
 
-    if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
-        print("Load prod octo.settings")
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.settings")
-    else:
-        print("WARNING: LOADING DEVELOPMENT SETTINGS - octo.win_settings!!!")
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.win_settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "octo.settings")
 
     try:
         from django.core.management import execute_from_command_line
