@@ -27,21 +27,13 @@ class OctoCache:
         :return:
         """
         ttl = kwargs.get('ttl', 60 * 15)  # Save for 15 minutes. Later change to 1 min?
-        hkey = kwargs.get('hkey', SECRET_KEY)
+        assert hasattr(caching, 'query')
         # TODO: Sep this to different methods for different cases
         try:
-            if hasattr(caching, 'query'):
-                hkey = caching.model.__name__
-                # Change hash base and add model name as secret key to hash
-                h = blake2b(digest_size=50, key=hkey.encode('utf-8'))
-                h.update(f'{caching.query}'.encode('utf-8'))
-                # log.debug(f'Hashed model query with key: {hkey}')
-            elif hasattr(caching, 'encode'):
-                h = blake2b(digest_size=50, key=hkey.encode('utf-8'))
-                h.update(f'{caching}'.encode('utf-8'))
-            else:
-                h = blake2b(digest_size=50, key=hkey.encode('utf-8'))
-                h.update(caching)
+            hkey = caching.model.__name__
+            h = blake2b(digest_size=50, key=hkey.encode('utf-8'))
+            h.update(f'{caching.query}'.encode('utf-8'))
+            # log.debug(f'Hashed model query with key: {hkey}')
         # Here we cannot hash
         except TypeError as e:
             log.error(f"Cannot hash this: {caching} | Error: {e}")
@@ -125,6 +117,8 @@ class OctoCache:
             # cache.delete_many(['a', 'b', 'c'])
             for tb_hash in tb_keys:
                 cache.delete(tb_hash)
+
+        # TODO: Should we also delete row with this cache, or use?
 
 
     # def verify(self, cache_name, sig):
