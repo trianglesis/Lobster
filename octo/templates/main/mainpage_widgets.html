@@ -1,5 +1,5 @@
 {% extends "main/main.html" %}
-{% load cache %}
+{#{% load cache %}#}
 {% load template_simplify %}
 {% block page_title %}
     {% load_host_names as hostnames %}
@@ -49,7 +49,7 @@
                     <table class="table table-shrink table-hover table-sm">
                         <tbody>
                         <!-- Patterns table rows in cycle: -->
-                        {% cache 60 objects.tests_top_main %}
+{#                        {% cache 60 objects.tests_top_main %}#}
                         {% regroup objects.tests_top_main by time_spent_test as long_patt_tests %}
                         {% for long_group in long_patt_tests|slice:'6' %}
                             <tr>
@@ -58,7 +58,7 @@
                                 <td class="text-center table-light text-dark">{{ long_group.list.0.addm_name }}</td>
                             </tr>
                         {% endfor %}
-                        {% endcache %}
+{#                        {% endcache %}#}
                         </tbody>
                     </table>
                 </div>
@@ -71,7 +71,7 @@
                     <table class="table table-shrink table-hover table-sm">
                         <tbody>
                         <!-- Patterns table rows in cycle: -->
-                        {% cache 60 objects.tests_top_ship %}
+{#                        {% cache 60 objects.tests_top_ship %}#}
                         {% regroup objects.tests_top_ship by time_spent_test as long_patt_tests %}
                         {% for long_group in long_patt_tests|slice:'6' %}
                             <tr>
@@ -80,7 +80,7 @@
                                 <td class="text-center table-light text-dark">{{ long_group.list.0.addm_name }}</td>
                             </tr>
                         {% endfor %}
-                        {% endcache %}
+{#                        {% endcache %}#}
                         </tbody>
                     </table>
                 </div>
@@ -99,12 +99,12 @@
                 </div>
                 <div class="card-body card-body-sm">
                     <div class="last-upload-test">
-                        {% cache 120 objects.upload_tests.upload_cont_main %}
+{#                        {% cache 120 objects.upload_tests.upload_cont_main %}#}
                         {% regroup objects.upload_tests.upload_cont_main|dictsortreversed:'addm_name' by tku_type as upload_cont_main %}
                         {% for test_type in upload_cont_main %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
+{#                        {% endcache %}#}
                     </div>
                 </div>
             </div>
@@ -116,12 +116,12 @@
                 </div>
                 <div class="card-body card-body-sm">
                     <div class="last-upload-test">
-                        {% cache 120 objects.upload_tests.upload_cont_ship %}
+{#                        {% cache 120 objects.upload_tests.upload_cont_ship %}#}
                         {% regroup objects.upload_tests.upload_cont_ship|dictsortreversed:'addm_name' by tku_type as upload_cont_ship %}
                         {% for test_type in upload_cont_ship %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
+{#                        {% endcache %}#}
                     </div>
                 </div>
             </div>
@@ -136,12 +136,12 @@
                         <span class="txt-nice">{{ objects.upload_tests.upload_ga_upgrade.0.tku_type }}</span>
                         <span class="txt-monospace">{{ objects.upload_tests.upload_ga_upgrade.0.package_type }}</span>
                         <span class="badge badge-info txt-sm">{{ objects.upload_tests.upload_ga_upgrade.0.mode_key }}</span>
-                        {% cache 120 objects.upload_tests.upload_ga_upgrade %}
+{#                        {% cache 120 objects.upload_tests.upload_ga_upgrade %}#}
                         {% regroup objects.upload_tests.upload_ga_upgrade|dictsortreversed:'addm_name' by tku_type as upload_ga_upgrade %}
                         {% for test_type in upload_ga_upgrade %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
+{#                        {% endcache %}#}
                     </div>
                 </div>
             </div>
@@ -156,12 +156,12 @@
                         <span class="txt-nice">{{ objects.upload_tests.upload_ga_fresh.0.tku_type }}</span>
                         <span class="txt-monospace">{{ objects.upload_tests.upload_ga_fresh.0.package_type }}</span>
                         <span class="badge badge-info txt-sm">{{ objects.upload_tests.upload_ga_fresh.0.mode_key }}</span>
-                        {% cache 120 objects.upload_tests.upload_ga_fresh %}
+{#                        {% cache 120 objects.upload_tests.upload_ga_fresh %}#}
                         {% regroup objects.upload_tests.upload_ga_fresh|dictsortreversed:'addm_name' by tku_type as upload_ga_fresh %}
                         {% for test_type in upload_ga_fresh %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
+{#                        {% endcache %}#}
                     </div>
                 </div>
             </div>
@@ -170,12 +170,12 @@
             <div class="card bg-light border-light">
                 <div class="card-body card-body-sm">
                     <div class="last-upload-test step-1">
-                        {% cache 120 objects.upload_tests.upload_ga_prep %}
+{#                        {% cache 120 objects.upload_tests.upload_ga_prep %}#}
                         {% regroup objects.upload_tests.upload_ga_prep|dictsortreversed:'addm_name' by tku_type as upload_ga_prep %}
                         {% for test_type in upload_ga_prep %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
+{#                        {% endcache %}#}
                         <span class="txt-nice">{{ objects.upload_tests.upload_ga_prep.0.tku_type }}</span>
                         <span class="txt-monospace">{{ objects.upload_tests.upload_ga_prep.0.package_type }}</span>
                         <span class="badge badge-info txt-sm">{{ objects.upload_tests.upload_ga_prep.0.mode_key }}</span>
