@@ -5,7 +5,7 @@ from run_core.models import Options
 from django.template import loader
 from django.db.models import Q
 
-from octo.win_settings import SITE_DOMAIN
+from octo.settings import SITE_DOMAIN
 
 from octo_tku_upload.models import UploadTestsNew
 

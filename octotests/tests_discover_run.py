@@ -5,7 +5,7 @@ import unittest
 import subprocess
 from unittest import TestSuite
 
-from octo.win_settings import BASE_DIR
+from octo.settings import BASE_DIR
 import octo.config_cred as conf_cred
 from octo import settings
 
@@ -30,7 +30,7 @@ class TestRunnerLoc:
 
         # Set the ENV:
         my_env = os.environ.copy()
-        my_env['DJANGO_SETTINGS_MODULE'] = 'octo.win_settings'
+        my_env['DJANGO_SETTINGS_MODULE'] = 'octo.settings'
 
         # Save results here:
         run_results = []

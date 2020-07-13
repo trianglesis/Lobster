@@ -32,7 +32,7 @@ from octo_tku_patterns.model_views import TestLatestDigestAll
 import json
 from pprint import pformat, pprint
 
-from octo.win_settings import SITE_DOMAIN, SITE_SHORT_NAME
+from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
 
 # Python logger
 import logging
