@@ -16,7 +16,7 @@ from octo_tku_patterns.tasks import TPatternRoutine
 
 from octo_tku_upload.models import UploadTestsNew
 
-from octo.win_settings import SITE_DOMAIN
+from octo.settings import SITE_DOMAIN
 
 from run_core.models import Options
 
