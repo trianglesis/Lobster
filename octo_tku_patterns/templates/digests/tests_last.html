@@ -13,6 +13,7 @@
 {% load template_simplify %}
 {% load intro_selections %}
 {% load user_groups %}
+{% load cache %}
 {% block content %}
     {% if 'tests_last' in request.path %}
         {% url 'tests_last' as tests_digest_url %}
@@ -169,6 +170,7 @@
                 {% endif %}
             </div>
             <!-- Change test log level browse: -->
+            {% cache 500 log_level %}
             <nav class="nav-item dropdown">
                 <a class="btn btn-sm btn-outline-info dropdown-toggle" href="#" id="navbarDropdownLogLvl" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {% if selector.tst_status == 'notpass' %}
@@ -201,6 +203,7 @@
                     <a class="nav-link nav-log_lvl active" href="{{tests_digest_url}}?{{ selector_tst_status }}"><i class="fas fa-vials"></i> All</a>
                 </div>
             </nav>
+            {% endcache %}
         </div>
     {% endspaceless %}
     </nav>

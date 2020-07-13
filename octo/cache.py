@@ -3,6 +3,11 @@ from hashlib import blake2b
 from hmac import compare_digest
 
 from django.core.cache import cache, caches
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+
+from octo_tku_patterns.models import TestLast, TestHistory, TestCases
+
 
 from octo.models import OctoCacheStore
 
@@ -26,7 +31,7 @@ class OctoCache:
         https://docs.python.org/3/library/hashlib.html
         :return:
         """
-        ttl = kwargs.get('ttl', 60 * 15)  # Save for 15 minutes. Later change to 1 min?
+        ttl = kwargs.get('ttl', 60 * 5)  # Save for 15 minutes. Later change to 1 min?
         assert hasattr(caching, 'query')
         # TODO: Sep this to different methods for different cases
         try:
@@ -136,3 +141,45 @@ class OctoCache:
     #         # log.debug(f'Yes, this is: {hash_key}:{key} -> {cache.get(key)}')
     #         log.debug(f'Yes, this is: {hash_key}:{key}')
     #         break
+
+
+class OctoSignals:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    @receiver(post_save, sender=TestLast) # the sender is your fix
+    def test_last(sender, instance, created, **kwargs):
+        log.info("Something have post_save in TestLast table!")
+        log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
+
+    @staticmethod
+    @receiver(post_save, sender=TestHistory) # the sender is your fix
+    def test_history(sender, instance, created, **kwargs):
+        log.info("Something have post_save in TestHistory table!")
+        log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
+
+    @staticmethod
+    @receiver(post_save, sender=TestCases) # the sender is your fix
+    def test_cases(sender, instance, created, **kwargs):
+        log.info("Something have post_save in TestCases table!")
+        log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
+
+    @staticmethod
+    @receiver(post_delete, sender=TestLast) # the sender is your fix
+    def test_last(sender, instance, **kwargs):
+        log.info("Something have post_delete in TestLast table!")
+        log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
+
+    @staticmethod
+    @receiver(post_delete, sender=TestHistory) # the sender is your fix
+    def test_history(sender, instance, **kwargs):
+        log.info("Something have post_delete in TestHistory table!")
+        log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
+
+    @staticmethod
+    @receiver(post_delete, sender=TestCases) # the sender is your fix
+    def test_cases(sender, instance, **kwargs):
+        log.info("Something have post_delete in TestCases table!")
+        log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')

@@ -1,7 +1,7 @@
 {% extends "main/main.html" %}
 {% block page_title %}
 {% endblock %}
-{#{% load cache %}#}
+{% load cache %}
 {% block content %}
     {% load static %}
     {% load template_simplify %}
@@ -31,7 +31,7 @@
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
-{#            {% cache 120 user_tests request.user.username %}#}
+            {% cache 120 user_tests request.user.username %}
             {% regroup objects.user_tests|dictsortreversed:'addm_name' by addm_name as user_tests_by_addm_name %}
             <div class="tab-pane fade show active" id="user-tests" role="tabpanel" aria-labelledby="user-tests-tab">
                 <span class="badge badge-info">Overall user tests: {{ objects.user_tests|length }}</span>
@@ -65,7 +65,7 @@
                     {% endfor %}
                 </div>
             </div>
-{#            {% endcache %}#}
+            {% endcache %}
             <div class="tab-pane fade" id="user-cases" role="tabpanel" aria-labelledby="user-cases-tab">
                 <span class="badge badge-info">Overall user cases: {{ objects.user_cases|length }}</span>
                 <div class="cases-table">
@@ -89,7 +89,7 @@
                     </tr>
                     </thead>
                     <tbody>
-{#                    {% cache 120 objects.user_cases request.user.username %}#}
+                    {% cache 120 user_cases objects.user_cases request.user.username %}
                     {% for case in objects.user_cases %}
                         {% with case as tooltip_txt %}
                         <tr>
@@ -157,7 +157,7 @@
                         </tr>
                         {% endwith %}
                     {% endfor %}
-{#                    {% endcache %}#}
+                    {% endcache %}
                     </tbody>
                 </table>
                 </div>
