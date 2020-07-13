@@ -24,7 +24,6 @@
     {% else %}
         {% url 'tests_last' as tests_digest_url %}
     {% endif %}
-
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/elements/test-actions-modal-toast.css' %}"/>
     {% dynamical_selector_compose '' 'selector_str' %}
@@ -58,7 +57,6 @@
                     </div>
                 </nav>
             </div>
-
             <!-- Day browsing -->
             <div class="btn-group btn-group-sm" role="group">
                 {% if previous_day %}
@@ -80,7 +78,6 @@
                     </a>
                 {% endif %}
             </div>
-
             <!-- Change branch here: -->
             <div class="digest-branch">
                 <nav class="nav-item dropdown">
@@ -102,7 +99,7 @@
                     </div>
                 </nav>
             </div>
-
+            {% cache 500 pattern_library_cache pattern_library_qs %}
             <!-- Change LIBRARY here: -->
             <div class="digest-pattern_library">
                 <nav class="nav-item dropdown">
@@ -132,7 +129,8 @@
                     </div>
                 </nav>
             </div>
-
+            {% endcache %}
+            {% cache 500 users_cache change_user_qs %}
             <!-- Change USER here: -->
             <div class="digest-change_user">
                 <nav class="nav-item dropdown">
@@ -151,7 +149,7 @@
                     </div>
                 </nav>
             </div>
-
+            {% endcache %}
             <div class="selection-state">
                 {% if selector.addm_name %}
                     <a class="btn btn-sm btn-outline-light disabled"><i class="fas fa-compress-arrows-alt"></i> Static: {{ selector.addm_name }}</a>

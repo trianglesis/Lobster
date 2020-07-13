@@ -7,7 +7,10 @@ from django.template import loader
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 
+from django.views.decorators.vary import vary_on_headers
+from django.views.decorators.cache import cache_control
 from django.utils.decorators import method_decorator
+
 from django.contrib.auth.decorators import login_required
 
 from rest_framework.views import APIView
@@ -29,36 +32,37 @@ import logging
 log = logging.getLogger("octo.octologger")
 
 
-
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=3600), name='dispatch')
 class MainPage(TemplateView):
     template_name = 'main/mainpage_widgets.html'
     context_object_name = 'objects'
 
     def get_context_data(self, **kwargs):
-        # UserCheck().logator(self.request, 'info', "<=MainPage=> Main page")
         context = super(MainPage, self).get_context_data(**kwargs)
         context.update(
             objects=self.get_queryset(),
         )
+        # Use main_page, because it's url /
+        # context['objects'] = OctoCache().cache_context(context["objects"], hkey='MainPage')
         return context
 
     def get_queryset(self):
-        # UserCheck().logator(self.request, 'info', "<=MainPage=> Main page queries")
         addm_digest = OctoCache().cache_query(AddmDigest.objects.all())
-        upload_tests = TKUUpdateWorkbenchView.get_queryset(self)
-        # log.debug("upload_tests: %s", upload_tests)
-        tests_top_main = OctoCache().cache_query(TestLast.objects.filter(time_spent_test__isnull=False, tkn_branch__exact='tkn_main').order_by('-time_spent_test'))
-        tests_top_ship = OctoCache().cache_query(TestLast.objects.filter(time_spent_test__isnull=False, tkn_branch__exact='tkn_ship').order_by('-time_spent_test'))
+
+        test_last_run = OctoCache().cache_query(TestLast.objects.filter(time_spent_test__isnull=False))
+
         selections = dict(
-            upload_tests = upload_tests,
+            upload_tests = TKUUpdateWorkbenchView.get_queryset(self),
             addm_digest = addm_digest,
-            tests_top_main = tests_top_main,
-            tests_top_ship = tests_top_ship,
+            tests_top_main = test_last_run.filter(tkn_branch__exact='tkn_main').order_by('-time_spent_test'),
+            tests_top_ship = test_last_run.filter(tkn_branch__exact='tkn_ship').order_by('-time_spent_test'),
         )
         return selections
 
-
 @method_decorator(login_required, name='dispatch')
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=3600), name='dispatch')
 class UserMainPage(TemplateView):
     template_name = 'user_report_summary.html'
     context_object_name = 'objects'
@@ -73,13 +77,9 @@ class UserMainPage(TemplateView):
     def get_queryset(self):
         change_user = self.request.GET.get('change_user', None)
         if change_user:
-            # get User patterns\cases digest shortly
-            user_cases_tests_digest = TestLastDigestListView.get_queryset(self)
-            # get User cases
-            user_cases = TestCasesListView.get_queryset(self)
             selections = dict(
-                user_tests = user_cases_tests_digest,
-                user_cases = user_cases,
+                user_tests = TestLastDigestListView.get_queryset(self),
+                user_cases = TestCasesListView.get_queryset(self),
             )
             return selections
         return []

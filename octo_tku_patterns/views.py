@@ -15,6 +15,9 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
 
+from django.views.decorators.vary import vary_on_headers
+from django.views.decorators.cache import cache_control
+
 from django.utils import timezone
 
 from django.views.generic import TemplateView, ListView, DetailView
@@ -221,7 +224,7 @@ class AddmDigestListView(ListView):
 class TestLastDigestListView(ListView):
     __url_path = '/octo_tku_patterns/tests_last/'
     template_name = 'digests/tests_last.html'
-    # context_object_name = 'tests_digest'
+    context_object_name = 'tests_digest'
     # Check if this is useful case to have queryset loaded on view class init:
 
     def get_context_data(self, **kwargs):
@@ -243,33 +246,33 @@ class TestLastDigestListView(ListView):
                 test_type_qs=test_type_qs,
                 pattern_library_qs=pattern_library_qs,
                 change_user_qs=change_user_qs,
+                # TODO: maybe serizlize it here? Not in template&
+                tests_digest_json='tests_digest_json',
             )
-            context['tests_digest'] = OctoCache().cache_query(context["object_list"])
             return context
 
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
+
+        queryset = OctoCache().cache_query(TestLatestDigestAll.objects.all())
+
         if sel_opts.get("test_type"):
-            queryset = TestLatestDigestAll.objects.filter(test_type__exact=sel_opts.get("test_type"))
+            queryset = queryset.filter(test_type__exact=sel_opts.get("test_type"))
         else:
-            queryset = TestLatestDigestAll.objects.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
+            queryset = queryset.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
 
         if sel_opts.get('addm_name'):
-            # log.debug("use: addm_name")
             queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
         if sel_opts.get('tkn_branch'):
-            # log.debug("use: tkn_branch")
             queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
         if sel_opts.get('change_user'):
-            # log.debug("use: change_user")
             queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
         if sel_opts.get('pattern_library'):
-            # log.debug("use: pattern_library")
             queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
 
         queryset = tst_status_selector(queryset, sel_opts)
         # log.debug(f"TestLastDigestListView queryset explain {queryset.explain()}\n{queryset.query}\n{queryset}")
-        queryset = OctoCache().cache_query(queryset)
+        # queryset = OctoCache().cache_query(queryset)
         return queryset
 
 
@@ -288,7 +291,6 @@ class TestLastSingleDetailedListView(ListView):
             # log.debug("<=TestLastSingleDetailedListView=> METHOD: GET - show tests items")
             context = super(TestLastSingleDetailedListView, self).get_context_data(**kwargs)
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
-            context['test_detail'] = OctoCache().cache_query(context["object_list"])
             return context
 
     def get_queryset(self):
@@ -320,7 +322,6 @@ class TestItemSingleHistoryListView(ListView):
 
         if self.request.method == 'GET':
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
-            context['test_detail'] = OctoCache().cache_query(context["object_list"])
             return context
 
     def get_queryset(self):
@@ -351,7 +352,6 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
         UserCheck().logator(self.request, 'info', "<=TestHistoryArchiveIndexView=> test history index")
         context = super(TestHistoryArchiveIndexView, self).get_context_data(**kwargs)
         context.update(selector=compose_selector(self.request.GET), selector_str='')
-        context['test_detail'] = OctoCache().cache_query(context["object_list"])
         return context
 
     def get_queryset(self):
@@ -385,7 +385,6 @@ class TestHistoryDayArchiveView(DayArchiveView):
         if self.request.method == 'GET':
             context = super(TestHistoryDayArchiveView, self).get_context_data(**kwargs)
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
-            context['test_detail'] = OctoCache().cache_query(context["object_list"])
             return context
 
     def get_queryset(self):
@@ -415,7 +414,6 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
         UserCheck().logator(self.request, 'info', "<=TestHistoryTodayArchiveView=> test history today")
         context = super(TestHistoryTodayArchiveView, self).get_context_data(**kwargs)
         context.update(selector=compose_selector(self.request.GET), selector_str='')
-        context['test_detail'] = OctoCache().cache_query(context["object_list"])
         return context
 
     def get_queryset(self):
@@ -460,7 +458,6 @@ class TestHistoryDigestTodayView(TodayArchiveView):
             )
             # for k,v in context.items():
             #     log.warning(f"Context {k}: {v}")
-            context['tests_digest'] = OctoCache().cache_query(context["object_list"])
             return context
 
     def get_queryset(self):
@@ -505,7 +502,6 @@ class TestHistoryDigestDailyView(DayArchiveView):
             # log.debug("METHOD: GET - show test cases digest")
             context = super(TestHistoryDigestDailyView, self).get_context_data(**kwargs)
             context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
-            context['tests_digest'] = OctoCache().cache_query(context["object_list"])
             return context
 
     def get_queryset(self):
@@ -542,6 +538,7 @@ class TestCasesListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(TestCasesListView, self).get_context_data(**kwargs)
         debug = self.request.GET.get('debug', False)
+
         test_type_qs = OctoCache().cache_query(TestCases.objects.filter(test_type__isnull=False).values('test_type').annotate(total=Count('test_type')).order_by('test_type'))
         pattern_library_qs = OctoCache().cache_query(TestCases.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library'))
 
@@ -553,7 +550,6 @@ class TestCasesListView(ListView):
             pattern_library_qs=pattern_library_qs,
             debug=debug,
         )
-        context['test_cases'] = OctoCache().cache_query(context["object_list"])
         log.debug("Context ready to render!")
         return context
 
@@ -564,7 +560,8 @@ class TestCasesListView(ListView):
 
         # log.info(f'sel_opts {sel_opts}')
         # Can be sorted by: branch, library, user, change number, test_type, review, JIRA, maybe: group
-        queryset = TestCases.objects.all()
+        queryset = OctoCache().cache_query(TestCases.objects.all())
+
         if sel_opts.get('test_type'):
             queryset = queryset.filter(test_type__exact=sel_opts.get('test_type'))
         if sel_opts.get('tkn_branch'):
@@ -594,6 +591,8 @@ class TestCaseDetailView(DetailView):
 
 
 # Cases groups
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=3600), name='dispatch')
 class TestCasesUpdateView(UpdateView):
     __url_path = '/octo_tku_patterns/test_case/change/<int:pk>/'
     template_name = 'cases_groups/cases/case_update_create.html'

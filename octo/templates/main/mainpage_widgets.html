@@ -21,6 +21,7 @@
                 <h2>Pattern tests</h2>
             </div>
         </div>
+        {% cache 60 tests_top_main addm_digest %}
         {% with objects.addm_digest as addm_digest %}
             <div class="grid-col-1">
                 <div class="card bg-light border-light">
@@ -43,13 +44,14 @@
                 </div>
             </div>
         {% endwith %}
+        {% endcache %}
+        {% cache 300 tests_top_main objects.tests_top_main %}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
                 <div class="card-body card-body-sm">
                     <table class="table table-shrink table-hover table-sm">
                         <tbody>
                         <!-- Patterns table rows in cycle: -->
-                        {% cache 60 tests_top_main objects.tests_top_main %}
                         {% regroup objects.tests_top_main by time_spent_test as long_patt_tests %}
                         {% for long_group in long_patt_tests|slice:'6' %}
                             <tr>
@@ -58,20 +60,20 @@
                                 <td class="text-center table-light text-dark">{{ long_group.list.0.addm_name }}</td>
                             </tr>
                         {% endfor %}
-                        {% endcache %}
                         </tbody>
                     </table>
                 </div>
                 <div class="card-footer card-header-shrink txt-nice">"TKN Main" longest tests</div>
             </div>
         </div>
+        {% endcache %}
+        {% cache 300 tests_top_ship objects.tests_top_ship %}
         <div class="grid-col-2">
             <div class="card bg-light border-light">
                 <div class="card-body card-body-sm">
                     <table class="table table-shrink table-hover table-sm">
                         <tbody>
                         <!-- Patterns table rows in cycle: -->
-                        {% cache 60 tests_top_ship objects.tests_top_ship %}
                         {% regroup objects.tests_top_ship by time_spent_test as long_patt_tests %}
                         {% for long_group in long_patt_tests|slice:'6' %}
                             <tr>
@@ -80,18 +82,19 @@
                                 <td class="text-center table-light text-dark">{{ long_group.list.0.addm_name }}</td>
                             </tr>
                         {% endfor %}
-                        {% endcache %}
                         </tbody>
                     </table>
                 </div>
                 <div class="card-footer card-header-shrink txt-nice">"TKN Ship" longest tests</div>
             </div>
         </div>
+        {% endcache %}
         <div class="grid-col-3">
             <div class="alert alert-light" role="alert">
                 <h2>TKU tests</h2>
             </div>
         </div>
+        {% cache 300 upload_cont_main objects.upload_tests.upload_cont_main %}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
                 <div class="card-header card-footer-shrink txt-nice">
@@ -99,16 +102,16 @@
                 </div>
                 <div class="card-body card-body-sm">
                     <div class="last-upload-test">
-                        {% cache 120 upload_cont_main objects.upload_tests.upload_cont_main %}
                         {% regroup objects.upload_tests.upload_cont_main|dictsortreversed:'addm_name' by tku_type as upload_cont_main %}
                         {% for test_type in upload_cont_main %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
                     </div>
                 </div>
             </div>
         </div>
+        {% endcache %}
+        {% cache 300 upload_cont_ship objects.upload_tests.upload_cont_ship %}
         <div class="grid-col-2">
             <div class="card bg-light border-light">
                 <div class="card-header card-footer-shrink txt-nice">
@@ -116,16 +119,16 @@
                 </div>
                 <div class="card-body card-body-sm">
                     <div class="last-upload-test">
-                        {% cache 120 upload_cont_ship objects.upload_tests.upload_cont_ship %}
                         {% regroup objects.upload_tests.upload_cont_ship|dictsortreversed:'addm_name' by tku_type as upload_cont_ship %}
                         {% for test_type in upload_cont_ship %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
                     </div>
                 </div>
             </div>
         </div>
+        {% endcache %}
+        {% cache 300 upload_ga_upgrade objects.upload_tests.upload_ga_upgrade %}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
                 <div class="card-header card-footer-shrink txt-nice">
@@ -136,16 +139,16 @@
                         <span class="txt-nice">{{ objects.upload_tests.upload_ga_upgrade.0.tku_type }}</span>
                         <span class="txt-monospace">{{ objects.upload_tests.upload_ga_upgrade.0.package_type }}</span>
                         <span class="badge badge-info txt-sm">{{ objects.upload_tests.upload_ga_upgrade.0.mode_key }}</span>
-                        {% cache 120 upload_ga_upgrade objects.upload_tests.upload_ga_upgrade %}
                         {% regroup objects.upload_tests.upload_ga_upgrade|dictsortreversed:'addm_name' by tku_type as upload_ga_upgrade %}
                         {% for test_type in upload_ga_upgrade %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
                     </div>
                 </div>
             </div>
         </div>
+        {% endcache %}
+        {% cache 300 upload_ga_fresh objects.upload_tests.upload_ga_fresh %}
         <div class="grid-col-2">
             <div class="card bg-light border-light">
                 <div class="card-header card-footer-shrink txt-nice">
@@ -156,26 +159,24 @@
                         <span class="txt-nice">{{ objects.upload_tests.upload_ga_fresh.0.tku_type }}</span>
                         <span class="txt-monospace">{{ objects.upload_tests.upload_ga_fresh.0.package_type }}</span>
                         <span class="badge badge-info txt-sm">{{ objects.upload_tests.upload_ga_fresh.0.mode_key }}</span>
-                        {% cache 120 upload_ga_fresh objects.upload_tests.upload_ga_fresh %}
                         {% regroup objects.upload_tests.upload_ga_fresh|dictsortreversed:'addm_name' by tku_type as upload_ga_fresh %}
                         {% for test_type in upload_ga_fresh %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
                     </div>
                 </div>
             </div>
         </div>
+        {% endcache %}
+        {% cache 300 upload_ga_prep objects.upload_tests.upload_ga_prep %}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
                 <div class="card-body card-body-sm">
                     <div class="last-upload-test step-1">
-                        {% cache 120 upload_ga_prep objects.upload_tests.upload_ga_prep %}
                         {% regroup objects.upload_tests.upload_ga_prep|dictsortreversed:'addm_name' by tku_type as upload_ga_prep %}
                         {% for test_type in upload_ga_prep %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
-                        {% endcache %}
                         <span class="txt-nice">{{ objects.upload_tests.upload_ga_prep.0.tku_type }}</span>
                         <span class="txt-monospace">{{ objects.upload_tests.upload_ga_prep.0.package_type }}</span>
                         <span class="badge badge-info txt-sm">{{ objects.upload_tests.upload_ga_prep.0.mode_key }}</span>
@@ -186,6 +187,7 @@
                 </div>
             </div>
         </div>
+        {% endcache %}
         <div class="grid-col-3">
             <div class="alert alert-light" role="alert">
                 <h2>Octopus jobs</h2>
@@ -204,7 +206,7 @@
                     </div>
                     <div class="col-4 col-md-2">
                         <div class="card bg-light border-light">
-                            <div class="card-body card-body-sm">{% worker_queues_short %}</div>
+                            <div class="card-body card-body-sm">{% comment %}{% worker_queues_short %}{% endcomment %}</div>
                             <div class="card-footer card-footer-shrink txt-nice">
                                 Workers status
                             </div>
@@ -214,130 +216,6 @@
             </div>
         </div>
         <div class="foot-space grid-col-3"></div>
-        {% comment %}{# TEST DIGEST #}
-        <div class="main-page-addm-digest">
-            <div class="row">
-                {% with objects.addm_digest as addm_digest %}
-                    <div class="col-sm-6 col-shrink">
-                        <div class="card bg-light border-light">
-                            <div class="card-body card-body-sm">
-                                {% include 'digests/tables_details/addm_digest_table.html' with var_branch='tkn_main' %}
-                            </div>
-                            <div class="card-footer card-footer-shrink txt-nice">{% select_icon 'git-branch' 26 'right' 0.4 %}"TKN Main" pattern test digest</div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-shrink">
-                        <div class="card bg-light border-light">
-                            <div class="card-body card-body-sm">
-                                {% include 'digests/tables_details/addm_digest_table.html' with var_branch='tkn_ship' %}
-                            </div>
-                            <div class="card-footer card-footer-shrink txt-nice">{% select_icon 'git-merge' 26 'right' 0.4 %}"TKN Ship" pattern test digest</div>
-                        </div>
-                    </div>
-                {% endwith %}
-            </div>
-        </div>
-        {# TKU UPLOAD CONTINUOUS DIGEST#}
-        <div class="main-page-upload-cont-digest">
-            <div class="row tku-upload-latest">
-                <div class="col-sm-6 col-shrink">
-                    <div class="card bg-light border-light">
-                        <div class="card-body card-body-sm">
-                            <div class="last-upload-test">
-                                {% regroup objects.upload_tests.upload_cont_main|dictsortreversed:'addm_name' by tku_type as upload_cont_main %}
-                                {% for test_type in upload_cont_main %}
-                                    {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="card-footer card-footer-shrink txt-nice">{% select_icon 'git-branch' 26 'right' 0.4 %}Latest upload test continuous "TKN Main" branch: {{ objects.upload_tests.latest_cont_main.test_date_time }}</div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-shrink">
-                    <div class="card bg-light border-light">
-                        <div class="card-body card-body-sm">
-                            <div class="last-upload-test">
-                                {% regroup objects.upload_tests.upload_cont_ship|dictsortreversed:'addm_name' by tku_type as upload_cont_ship %}
-                                {% for test_type in upload_cont_ship %}
-                                    {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="card-footer card-footer-shrink txt-nice">{% select_icon 'git-merge' 26 'right' 0.4 %}Latest upload test continuous "TKN Ship" branch: : {{ objects.upload_tests.latest_cont_ship.test_date_time }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {# TKU UPLOAD GA DIGEST#}
-        <div class="main-page-upload-ga-digest">
-            <div class="row tku-upload-latest">
-                <div class="col-sm-6 col-shrink">
-                    <div class="card bg-light border-light">
-                        <div class="card-body card-body-sm">
-                            <div class="last-upload-test step-2">
-                                <span class="txt-nice">{{ objects.upload_tests.upload_ga_upgrade.0.tku_type }}</span>
-                                <span class="txt-monospace">{{ objects.upload_tests.upload_ga_upgrade.0.package_type }}</span>
-                                <span class="badge badge-info txt-sm">{{ objects.upload_tests.upload_ga_upgrade.0.mode_key }}</span>
-                                {% regroup objects.upload_tests.upload_ga_upgrade|dictsortreversed:'addm_name' by tku_type as upload_ga_upgrade %}
-                                {% for test_type in upload_ga_upgrade %}
-                                    {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
-                                {% endfor %}
-                            </div>
-                            <div class="last-upload-test step-1">
-                                <span class="txt-nice">{{ objects.upload_tests.upload_ga_prep.0.tku_type }}</span>
-                                <span class="txt-monospace">{{ objects.upload_tests.upload_ga_prep.0.package_type }}</span>
-                                <span class="badge badge-info txt-sm">{{ objects.upload_tests.upload_ga_prep.0.mode_key }}</span>
-                                {% regroup objects.upload_tests.upload_ga_prep|dictsortreversed:'addm_name' by tku_type as upload_ga_prep %}
-                                {% for test_type in upload_ga_prep %}
-                                    {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="card-footer card-footer-shrink txt-nice">Latest upload test GA "upgrade": {{ objects.upload_tests.latest_ga_upgrade.test_date_time }}</div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-shrink">
-                    <div class="card bg-light border-light">
-                        <div class="card-body card-body-sm">
-                            <div class="last-upload-test">
-                                <span class="txt-nice">{{ objects.upload_tests.upload_ga_fresh.0.tku_type }}</span>
-                                <span class="txt-monospace">{{ objects.upload_tests.upload_ga_fresh.0.package_type }}</span>
-                                <span class="badge badge-info txt-sm">{{ objects.upload_tests.upload_ga_fresh.0.mode_key }}</span>
-                                {% regroup objects.upload_tests.upload_ga_fresh|dictsortreversed:'addm_name' by tku_type as upload_ga_fresh %}
-                                {% for test_type in upload_ga_fresh %}
-                                    {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="card-footer card-footer-shrink txt-nice">Latest upload test GA "fresh": {{ objects.upload_tests.latest_ga_fresh.test_date_time }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {# CRON AND CELERY STATUS#}
-        <div class="workers-cron">
-            <div class="row card text-center border-secondary">
-                <div class="card-body card-body-sm">
-                    <div class="row no-gutters">
-                        <div class="col-12 col-sm-6 col-md-8">
-                            <div class="card bg-light border-light">
-                                <div class="card-body card-body-sm">{% cron_tasks_short_new %}</div>
-                                <div class="card-footer card-footer-shrink txt-nice">Cron tasks for today {% now "Y-m-d" %}</div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <div class="card bg-light border-light">
-                                <div class="card-body card-body-sm">{% worker_queues_short %}</div>
-                                <div class="card-footer card-footer-shrink txt-nice">Workers status</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <small class="text-muted">Last updated 3 mins ago</small>
-                </div>
-            </div>
-        </div>{% endcomment %}
     </div>
     <!-- Navbar bottom fixed -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">

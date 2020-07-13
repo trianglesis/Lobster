@@ -2,6 +2,9 @@
 from hashlib import blake2b
 from hmac import compare_digest
 
+# from MySQLdb._exceptions import IntegrityError
+from django.db.utils import IntegrityError
+
 from django.core.cache import cache, caches
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
@@ -45,7 +48,19 @@ class OctoCache:
             raise Exception(e)
 
         hashed = h.hexdigest()
-        return self.get_or_set(hashed, caching, ttl, hkey)
+        return self._get_or_set(hashed, caching, ttl, hkey)
+
+    def cache_context(self, caching, hkey, **kwargs):
+        ttl = kwargs.get('ttl', 60 * 3)
+        try:
+            h = blake2b(digest_size=50)
+            h.update(hkey.encode('utf-8'))
+        # Here we cannot hash
+        except TypeError as e:
+            log.error(f"Cannot hash this: {caching} | Error: {e}")
+            raise Exception(e)
+        hashed = h.hexdigest()
+        return self._get_or_set(hashed, caching, ttl, hkey)
 
     def cache_iterable(self, caching, **kwargs):
         ttl = kwargs.get('ttl', 60 * 15)  # Save for 15 minutes. Later change to 1 min?
@@ -58,6 +73,8 @@ class OctoCache:
         except TypeError as e:
             log.error(f"Cannot hash this: {caching} | Error: {e}")
             raise Exception(e)
+        hashed = h.hexdigest()
+        return self._get_or_set(hashed, caching, ttl, hkey)
 
     def cache_other(self, caching, **kwargs):
         ttl = kwargs.get('ttl', 60 * 15)  # Save for 15 minutes. Later change to 1 min?
@@ -69,8 +86,10 @@ class OctoCache:
         except TypeError as e:
             log.error(f"Cannot hash this: {caching} | Error: {e}")
             raise Exception(e)
+        hashed = h.hexdigest()
+        return self._get_or_set(hashed, caching, ttl, hkey)
 
-    def get_or_set(self, hashed, caching, ttl, hkey):
+    def _get_or_set(self, hashed, caching, ttl, hkey):
         cached = cache.get(hashed)
         if cached is None:
             cache.set(hashed, caching, ttl)
@@ -85,16 +104,22 @@ class OctoCache:
             sql_query = caching.query
             kwargs.update(query=str(sql_query).encode('utf-8'))
         try:
-            updated, created = OctoCacheStore.objects.update_or_create(
+            # TODO: Do not update if exist anyway?
+            _, created = OctoCacheStore.objects.update_or_create(
                 hashed=kwargs.get('hashed'),
                 defaults=dict(**kwargs),
             )
             if created:
-                log.info('Saving new cache-hash')
-            # if updated:
-            #     log.info('We have this already.')
+                log.debug(f"Cache table updated: {kwargs}")
+            # log.debug(f'Query kw: {kwargs}')
+            # cache_save = OctoCacheStore(**kwargs)
+            # cache_save.save()
+            # if cache_save:
+            #     log.info(f'Saving new cache-hash {kwargs}')
+        except IntegrityError as e:
+            log.warning(f'IntegrityError output: {type(e)} {e}')
         except Exception as e:
-            msg = f"<=save_cache_hash_db=> get_all_files: Error: {e}"
+            msg = f"<=save_cache_hash_db=> Error: {e}"
             print(msg)
             raise Exception(msg)
 
