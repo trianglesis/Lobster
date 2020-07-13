@@ -91,8 +91,8 @@ class OctoCache:
             )
             if created:
                 log.info('Saving new cache-hash')
-            if updated:
-                log.info('We have this already.')
+            # if updated:
+            #     log.info('We have this already.')
         except Exception as e:
             msg = f"<=save_cache_hash_db=> get_all_files: Error: {e}"
             print(msg)
