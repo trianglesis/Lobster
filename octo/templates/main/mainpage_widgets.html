@@ -21,7 +21,7 @@
                 <h2>Pattern tests</h2>
             </div>
         </div>
-        {% cache 60 tests_top_main addm_digest %}
+        {% cache 60 tests_top_main objects.addm_digest %}
         {% with objects.addm_digest as addm_digest %}
             <div class="grid-col-1">
                 <div class="card bg-light border-light">
@@ -45,14 +45,14 @@
             </div>
         {% endwith %}
         {% endcache %}
-        {% cache 300 tests_top_main objects.tests_top_main %}
+        {% cache 60 * 30 tests_top_main objects.tests_top_main %}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
                 <div class="card-body card-body-sm">
                     <table class="table table-shrink table-hover table-sm">
                         <tbody>
                         <!-- Patterns table rows in cycle: -->
-                        {% regroup objects.tests_top_main by time_spent_test as long_patt_tests %}
+                        {% regroup objects.tests_top_main by pattern_folder_name as long_patt_tests %}
                         {% for long_group in long_patt_tests|slice:'6' %}
                             <tr>
                                 <td class="text-left table-light text-dark">{{ long_group.list.0.pattern_library }}/{{ long_group.list.0.pattern_folder_name }}</td>
@@ -67,14 +67,14 @@
             </div>
         </div>
         {% endcache %}
-        {% cache 300 tests_top_ship objects.tests_top_ship %}
+        {% cache 60 * 30 tests_top_ship objects.tests_top_ship %}
         <div class="grid-col-2">
             <div class="card bg-light border-light">
                 <div class="card-body card-body-sm">
                     <table class="table table-shrink table-hover table-sm">
                         <tbody>
                         <!-- Patterns table rows in cycle: -->
-                        {% regroup objects.tests_top_ship by time_spent_test as long_patt_tests %}
+                        {% regroup objects.tests_top_ship by pattern_folder_name as long_patt_tests %}
                         {% for long_group in long_patt_tests|slice:'6' %}
                             <tr>
                                 <td class="text-left table-light text-dark">{{ long_group.list.0.pattern_library }}/{{ long_group.list.0.pattern_folder_name }}</td>

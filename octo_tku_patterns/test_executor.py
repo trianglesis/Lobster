@@ -8,6 +8,7 @@ WIll use same logic from TPL IDE Automation.
 import logging
 import os
 import re
+import datetime
 from time import time
 
 import octo.config_cred as conf_cred
@@ -170,7 +171,10 @@ class TestExecutor:
                                                  user_email=user_email,
                                                  test_item=test_item,
                                                  addm_item=addm_item,
-                                                 time_spent_test=str(time_spent_test))
+                                                 # TODO: Fix to DurationField
+                                                 time_spent_test=str(time_spent_test),
+                                                 # time_spent_test=datetime.timedelta(seconds=time_spent_test),
+                                                 )
             # Close previously opened SSH:
             ssh.close()
             # Put test results into a thread queue output:

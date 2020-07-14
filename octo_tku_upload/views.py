@@ -134,52 +134,49 @@ class TKUUpdateWorkbenchView(TemplateView):
         return context
 
     def get_queryset(self):
-        # UserCheck().logator(self.request, 'info', "<=TKUUpdateWorkbenchView=> TKU Workbench queries")
-
         # Select packages for workbench:
-
-        packages_qs = OctoCache().cache_query(TkuPackagesNew.objects.all())
+        packages_qs = TkuPackagesNew.objects.all()
 
         max_released = packages_qs.filter(tku_type__exact='released_tkn')
-        max_released = max_released.latest('tku_type', 'updated_at')
+        max_released = OctoCache().cache_item(max_released.latest('tku_type', 'updated_at'), hkey='max_released', ttl=60*30)
 
         max_ga = packages_qs.filter(tku_type__exact='ga_candidate')
-        max_ga = max_ga.latest('tku_type', 'updated_at')
+        max_ga = OctoCache().cache_item(max_ga.latest('tku_type', 'updated_at'), hkey='max_ga', ttl=60*30)
 
         max_cont_main = packages_qs.filter(tku_type__exact='tkn_main_continuous')
-        max_cont_main = max_cont_main.latest('tku_type', 'updated_at')
+        max_cont_main = OctoCache().cache_item(max_cont_main.latest('tku_type', 'updated_at'), hkey='max_cont_main', ttl=60*30)
 
         max_cont_ship = packages_qs.filter(tku_type__exact='tkn_ship_continuous')
-        max_cont_ship = max_cont_ship.latest('tku_type', 'updated_at')
+        max_cont_ship = OctoCache().cache_item(max_cont_ship.latest('tku_type', 'updated_at'), hkey='max_cont_ship', ttl=60*30)
 
 
         # Select most latest tests dates and package type for workbench:
-        tests_qs = OctoCache().cache_query(UploadTestsNew.objects.all())
+        tests_qs = UploadTestsNew.objects.all()
 
         latest_cont_ship = tests_qs.filter(
             Q(mode_key__exact='tkn_ship_continuous_install') |
             Q(mode_key__exact='tkn_ship_continuous.fresh.step_1')).values('test_date_time', 'package_type')
-        latest_cont_ship = latest_cont_ship.latest('test_date_time')
+        latest_cont_ship = OctoCache().cache_item(latest_cont_ship.latest('test_date_time'), hkey='latest_cont_ship', ttl=60*30)
 
         latest_cont_main = tests_qs.filter(
             Q(mode_key__exact='tkn_main_continuous_install') |
             Q(mode_key__exact='tkn_main_continuous.fresh.step_1')).values('test_date_time', 'package_type')
-        latest_cont_main = latest_cont_main.latest('test_date_time')
+        latest_cont_main = OctoCache().cache_item(latest_cont_main.latest('test_date_time'), hkey='latest_cont_main', ttl=60*30)
 
         latest_ga_fresh = tests_qs.filter(
             Q(mode_key__exact='ga_candidate_install') |
             Q(mode_key__exact='ga_candidate.fresh.step_1')).values('test_date_time', 'package_type')
-        latest_ga_fresh = latest_ga_fresh.latest('test_date_time')
+        latest_ga_fresh = OctoCache().cache_item(latest_ga_fresh.latest('test_date_time'), hkey='latest_ga_fresh', ttl=60*30)
 
         latest_ga_upgrade = tests_qs.filter(
             Q(mode_key__exact='ga_candidate_install_step_2') |
             Q(mode_key__exact='ga_candidate.update.step_2')).values('test_date_time', 'package_type')
-        latest_ga_upgrade = latest_ga_upgrade.latest('test_date_time')
+        latest_ga_upgrade = OctoCache().cache_item(latest_ga_upgrade.latest('test_date_time'), hkey='latest_ga_upgrade', ttl=60*30)
 
         latest_ga_prep = tests_qs.filter(
             Q(mode_key__exact='released_tkn_install_step_1') |
             Q(mode_key__exact='released_tkn.update.step_1')).values('test_date_time', 'package_type')
-        latest_ga_prep = latest_ga_prep.latest('test_date_time')
+        latest_ga_prep = OctoCache().cache_item(latest_ga_prep.latest('test_date_time'), hkey='latest_ga_prep', ttl=60*30)
 
         # Uncomment when ready:
         # product_content_ship = tests_qs.filter(
@@ -245,11 +242,11 @@ class TKUUpdateWorkbenchView(TemplateView):
             latest_ga_upgrade=latest_ga_upgrade,
             latest_ga_prep=latest_ga_prep,
             # Latest upload test logs for selected dates
-            upload_cont_ship=upload_cont_ship,
-            upload_cont_main=upload_cont_main,
-            upload_ga_fresh=upload_ga_fresh,
-            upload_ga_upgrade=upload_ga_upgrade,
-            upload_ga_prep=upload_ga_prep,
+            upload_cont_ship=OctoCache().cache_query(upload_cont_ship, ttl=60*30),
+            upload_cont_main=OctoCache().cache_query(upload_cont_main, ttl=60*30),
+            upload_ga_fresh=OctoCache().cache_query(upload_ga_fresh, ttl=60*30),
+            upload_ga_upgrade=OctoCache().cache_query(upload_ga_upgrade, ttl=60*30),
+            upload_ga_prep=OctoCache().cache_query(upload_ga_prep, ttl=60*30),
             # Test logs for product content update:
             upload_product_content_ship=upload_product_content_ship,
             upload_product_content_main=upload_product_content_main,

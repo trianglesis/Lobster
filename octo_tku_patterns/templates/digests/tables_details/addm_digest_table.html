@@ -1,8 +1,6 @@
 {% load static %}
-{% load cache %}
 {% load template_simplify %}
 {% block content %}
-    {% cache 60 addm_digest_cache addm_digest %}
     <!-- ADDM logs table content: -->
     <div class="addm-digest-table-container">
         <table class="table table-shrink table-bordered table-hover table-responsive-sm">
@@ -77,6 +75,5 @@
             </tbody>
         </table>
     </div>
-    {% endcache %}
 {% endblock %}
 

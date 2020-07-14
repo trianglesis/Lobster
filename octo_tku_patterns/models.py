@@ -37,6 +37,7 @@ class TestLast(models.Model):
     addm_ip = models.CharField(max_length=20, blank=True, null=True)
     # Time & date details:
     # TODO: https://docs.djangoproject.com/en/3.0/ref/models/fields/#durationfield later next round.
+    # TODO: Change for timeField?
     time_spent_test = models.DecimalField(max_digits=19, decimal_places=10, blank=True, null=True)
     # Left it in ITC by default, then will convert to UK or UA:
     test_date_time = models.DateTimeField(unique=False, auto_now_add=True)
@@ -83,6 +84,7 @@ class TestHistory(models.Model):
     addm_ip = models.CharField(max_length=20, blank=True, null=True)
     # Time & date details:
     # TODO: https://docs.djangoproject.com/en/3.0/ref/models/fields/#durationfield later next round.
+    # TODO: Change for timeField?
     time_spent_test = models.DecimalField(max_digits=19, decimal_places=10, blank=True, null=True)
     # Left it in ITC by default, then will convert to UK or UA:
     test_date_time = models.DateTimeField(unique=False, auto_now_add=True)

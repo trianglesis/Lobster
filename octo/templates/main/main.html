@@ -33,6 +33,7 @@
 {% load user_groups %}
 {% load template_simplify %}
 {% load intro_selections %}
+{% load cache %}
 {% is_user_perm 'run_core.test_run' as test_run %}
 {#    <p>user: {{ user }}</p>#}
 {#    <p>user.profile: {{ user.profile }}</p>#}
@@ -42,6 +43,7 @@
 
     <!-- Nav bar: -->
     <!--suppress SpellCheckingInspection -->
+    {% cache 500 site_upper_nav request.user.username %}
     <nav class="navbar navbar-expand-lg {% if hostnames.LOBSTER_SITE_DOMAIN in request.get_host %}navbar-dark bg-danger{% elif hostnames.OCTOPUS_SITE_DOMAIN in request.get_host %}navbar-light bg-light{% else %}navbar-dark bg-warning{% endif %} sticky-top">
     <!-- Brand button and place for logo: -->
     <a class="navbar-brand" href="{% url 'home' %}">{% if hostnames.LOBSTER_SITE_DOMAIN in request.get_host %}Lobster{% elif hostnames.OCTOPUS_SITE_DOMAIN in request.get_host %}Octopus{% else %}Local{% endif %}</a>
@@ -146,6 +148,7 @@
         </div>
     </div>
     </nav>
+    {% endcache %}
 {# KEEP COMMENTTED #}
 {#    {% if SUBJECT %}#}
 {#        <div class="alert alert-warning alert-dismissible fade show" role="alert">#}

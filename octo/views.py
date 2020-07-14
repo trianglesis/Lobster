@@ -3,6 +3,8 @@ Pages views for main site pages.
 Main data, just render pages.
 
 """
+import datetime
+
 from django.template import loader
 from django.http import HttpResponse
 from django.views.generic import TemplateView
@@ -32,8 +34,8 @@ import logging
 log = logging.getLogger("octo.octologger")
 
 
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=3600), name='dispatch')
+# @method_decorator(vary_on_headers('Cookie'), name='dispatch')
+# @method_decorator(cache_control(max_age=3600), name='dispatch')
 class MainPage(TemplateView):
     template_name = 'main/mainpage_widgets.html'
     context_object_name = 'objects'
@@ -49,20 +51,21 @@ class MainPage(TemplateView):
 
     def get_queryset(self):
         addm_digest = OctoCache().cache_query(AddmDigest.objects.all())
-
-        test_last_run = OctoCache().cache_query(TestLast.objects.filter(time_spent_test__isnull=False))
+        test_last_q = TestLast.objects.filter(time_spent_test__isnull=False, time_spent_test__gte=60*60)
+        tests_top_main = test_last_q.filter(tkn_branch__exact='tkn_main').order_by('-time_spent_test')
+        tests_top_ship = test_last_q.filter(tkn_branch__exact='tkn_ship').order_by('-time_spent_test')
 
         selections = dict(
             upload_tests = TKUUpdateWorkbenchView.get_queryset(self),
             addm_digest = addm_digest,
-            tests_top_main = test_last_run.filter(tkn_branch__exact='tkn_main').order_by('-time_spent_test'),
-            tests_top_ship = test_last_run.filter(tkn_branch__exact='tkn_ship').order_by('-time_spent_test'),
+            tests_top_main = tests_top_main,
+            tests_top_ship = tests_top_ship,
         )
         return selections
 
 @method_decorator(login_required, name='dispatch')
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=3600), name='dispatch')
+# @method_decorator(vary_on_headers('Cookie'), name='dispatch')
+# @method_decorator(cache_control(max_age=3600), name='dispatch')
 class UserMainPage(TemplateView):
     template_name = 'user_report_summary.html'
     context_object_name = 'objects'

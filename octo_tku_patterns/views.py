@@ -28,8 +28,10 @@ from django.utils.decorators import method_decorator
 
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer, TestHistoryDigestDailySerializer, TestCasesSerializer
 
 from octo.api.serializers import CeleryTaskmetaSerializer
 from octo.cache import OctoCache
@@ -230,11 +232,18 @@ class TestLastDigestListView(ListView):
     def get_context_data(self, **kwargs):
         # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_context_data")
         # Get unique addm names based on table latest run:
-        addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        addm_names = OctoCache().cache_query(
+            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct(), ttl=60*30)
         # TODO: Use regroup for this on page, or move to JS work:
-        test_type_qs = OctoCache().cache_query(TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(total=Count('test_type')).order_by('test_type'))
-        pattern_library_qs = OctoCache().cache_query(TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library'))
-        change_user_qs = OctoCache().cache_query(TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(total=Count('change_user')).order_by('change_user'))
+        test_type_qs = OctoCache().cache_query(
+            TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(
+                total=Count('test_type')).order_by('test_type'), ttl=60*30)
+        pattern_library_qs = OctoCache().cache_query(
+            TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
+                total=Count('pattern_library')).order_by('pattern_library'), ttl=60*5)
+        change_user_qs = OctoCache().cache_query(
+            TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(
+                total=Count('change_user')).order_by('change_user'), ttl=60*30)
 
         if self.request.method == 'GET':
             # log.debug("METHOD: GET - show test cases digest")
@@ -246,15 +255,18 @@ class TestLastDigestListView(ListView):
                 test_type_qs=test_type_qs,
                 pattern_library_qs=pattern_library_qs,
                 change_user_qs=change_user_qs,
-                # TODO: maybe serizlize it here? Not in template&
-                tests_digest_json='tests_digest_json',
+                tests_digest_json='',
             )
+
+            tests_digest_json = JSONRenderer().render(TestLatestDigestAllSerializer(context["object_list"], many=True).data).decode('utf-8')
+            context['tests_digest_json'] = OctoCache().cache_item(tests_digest_json, hkey='TestLatestDigestAll')
+            # context['tests_digest'] = OctoCache().cache_query(context['tests_digest'])
             return context
 
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
 
-        queryset = OctoCache().cache_query(TestLatestDigestAll.objects.all())
+        queryset = TestLatestDigestAll.objects.all()
 
         if sel_opts.get("test_type"):
             queryset = queryset.filter(test_type__exact=sel_opts.get("test_type"))
@@ -270,7 +282,7 @@ class TestLastDigestListView(ListView):
         if sel_opts.get('pattern_library'):
             queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
 
-        queryset = tst_status_selector(queryset, sel_opts)
+        queryset = OctoCache().cache_query(tst_status_selector(queryset, sel_opts))
         # log.debug(f"TestLastDigestListView queryset explain {queryset.explain()}\n{queryset.query}\n{queryset}")
         # queryset = OctoCache().cache_query(queryset)
         return queryset
@@ -455,9 +467,12 @@ class TestHistoryDigestTodayView(TodayArchiveView):
                 test_type_qs=test_type_qs,
                 pattern_library_qs=pattern_library_qs,
                 change_user_qs=change_user_qs,
+                tests_digest_json='',
             )
             # for k,v in context.items():
             #     log.warning(f"Context {k}: {v}")
+            context['tests_digest_json'] = OctoCache().cache_item(TestHistoryDigestDailySerializer(
+                context["object_list"], many=True).data, hkey='TestHistoryDigestDaily')
             return context
 
     def get_queryset(self):
@@ -532,7 +547,7 @@ class TestCasesListView(ListView):
     __url_path = '/octo_tku_patterns/test_cases/'
     # model = TestCases
     template_name = 'cases_groups/cases/cases_table.html'
-    # context_object_name = 'test_cases'
+    context_object_name = 'test_cases'
     paginate_by = 300
 
     def get_context_data(self, **kwargs):
@@ -548,9 +563,16 @@ class TestCasesListView(ListView):
             selector_str='',
             test_type_qs=test_type_qs,
             pattern_library_qs=pattern_library_qs,
+            test_cases_json='',
             debug=debug,
         )
         log.debug("Context ready to render!")
+
+        test_cases_json = JSONRenderer().render(TestCasesSerializer(context["test_cases"], many=True).data).decode('utf-8')
+        context['test_cases_json'] = OctoCache().cache_item(test_cases_json, hkey='TestCases')
+
+        # context['test_cases'] = OctoCache().cache_query(context['test_cases'])
+
         return context
 
     def get_queryset(self):
@@ -560,7 +582,7 @@ class TestCasesListView(ListView):
 
         # log.info(f'sel_opts {sel_opts}')
         # Can be sorted by: branch, library, user, change number, test_type, review, JIRA, maybe: group
-        queryset = OctoCache().cache_query(TestCases.objects.all())
+        queryset = TestCases.objects.all()
 
         if sel_opts.get('test_type'):
             queryset = queryset.filter(test_type__exact=sel_opts.get('test_type'))
@@ -574,7 +596,7 @@ class TestCasesListView(ListView):
             queryset = queryset.filter(change_ticket__exact=sel_opts.get('change_ticket'))
         if sel_opts.get('pattern_library'):
             queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
-        return queryset
+        return OctoCache().cache_query(queryset)
 
 
 class TestCaseDetailView(DetailView):
