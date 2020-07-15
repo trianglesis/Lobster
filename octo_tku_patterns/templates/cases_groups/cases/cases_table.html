@@ -241,20 +241,15 @@
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
     <script src="{% static 'octopus/js/user-test-run/user_space-modals-toasts.js' %}"></script>
     <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
-    <script type="text/javascript" data-model-name="casesJSONSerializeREST">
-        {#let cases_json = {{ test_cases|tku_patterns_json:'TestCases'|safe }};#}
-    </script>
     <script type="text/javascript" data-model-name="casesJSONView">
         let cases_json = {{ test_cases_json|safe }};
-    </script>
-    <script type="text/javascript">
-        {% comment %}TODO Grab test cases gropus via REST? {% endcomment %}
-        {% comment %}let cases_groups = {{ test_cases_groups|tku_patterns_json:'TestCasesDetails'|safe }};{% endcomment %}
-        {% comment %}let cases_groups = {{ test_cases_groups|safe }};{% endcomment %}
     </script>
     {% comment %}
         DEBUG PART
     {% endcomment %}
+{#    <script type="text/javascript" data-model-name="casesJSONSerializeREST">#}
+        {#let cases_json = {{ test_cases|tku_patterns_json:'TestCases'|safe }};#}
+{#    </script>#}
     {% if debug %}
         <p>TODO:</p>
         <ul>

@@ -64,7 +64,7 @@ class OctoCache:
         if cached is None:
             if settings.DEV:
                 if hasattr(caching, 'query'):
-                    log.debug(f"Caching: {hashed} - \n{caching} \n{caching.query}")
+                    # log.debug(f"Caching: {hashed} - \n{caching} \n{caching.query}")
                     log.debug(f"Set: {hashed}")
                 else:
                     log.debug(f"Set: {hashed}")

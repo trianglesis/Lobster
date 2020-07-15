@@ -69,7 +69,9 @@
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{% url 'tests_last' %}?tkn_branch=tkn_main;tst_status=notpass;">{% select_icon 'git-branch' 24 'right' 0.2 %}Tests report Main</a>
                     <a class="dropdown-item" href="{% url 'tests_last' %}?tkn_branch=tkn_ship;tst_status=notpass;">{% select_icon 'git-merge' 24 'right' 0.2 %}Tests report Ship</a>
-                    <a class="dropdown-item" href="{% url 'test_history_digest_today' %}?tkn_branch=tkn_main;tst_status=notpass;">{% select_icon 'git-branch' 24 'right' 0.2 %}History today</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'test_history_digest_today' %}?tkn_branch=tkn_main;tst_status=notpass;">{% select_icon 'git-branch' 24 'right' 0.2 %}History today digest</a>
+                    <a class="dropdown-item" href="{% url 'test_history_archive_today' %}?tkn_branch=tkn_main;tst_status=notpass;">{% select_icon 'git-branch' 24 'right' 0.2 %}History today log</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{% url 'tests_last' %}?test_type=product_content">{% select_icon 'file-code-24' 24 'right' 0.2 %}Product Content</a>
                     <div class="dropdown-divider"></div>

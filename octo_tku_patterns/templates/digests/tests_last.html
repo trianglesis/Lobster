@@ -299,14 +299,16 @@
     <script src="{% static 'octopus/js/user-test-run/test_last-modals-toasts.js' %}"></script>
     <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
     <!-- Load test JSON -->
-    <script type="text/javascript">
+    <script type="text/javascript" data-model-name="testsDigestJSONView">
         let tests_digest_json = {{ tests_digest_json|safe }};
-        {% comment %}{% if "test_history_digest_today" in request.path %}
+    </script>
+    {% comment %}<script type="text/javascript">
+        {% if "test_history_digest_today" in request.path %}
             let tests_digest_json = {{ tests_digest|tku_patterns_json:'TestHistoryDigestDaily'|safe }};
         {% else %}
             let tests_digest_json = {{ tests_digest|tku_patterns_json:'TestLatestDigestAll'|safe }};
-        {% endif %}{% endcomment %}
-    </script>
+        {% endif %}
+    </script>{% endcomment %}
     {% comment %}
         DEBUG PART
     {% endcomment %}

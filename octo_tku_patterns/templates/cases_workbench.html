@@ -42,14 +42,20 @@
                         <div class="btn-support-text">Latest sets of test:</div>
                         <div class="text-center evenly-flex interval">
                             {% now 'Y' as year %}{% now 'b' as month %}{% now 'd' as day %}
+{#                            <a tabindex="0" role="button" class="btn btn-outline-dark"#}
+{#                               data-toggle="hover" data-placement="top" title="Failed last day test details all!"#}
+{#                               data-content="Failed tests in detailed test logs view. Browse-able by days."#}
+{#                               href="{% url 'test_history_archive_day' year=year month=month day=day %}?tst_status=notpass">{% select_icon 'issue-reopened' 20 'right' 0.2 %}Last day history (detailed)#}
+{#                            </a>#}
                             <a tabindex="0" role="button" class="btn btn-outline-dark"
                                data-toggle="hover" data-placement="top" title="Failed last day test details all!"
-                               data-content="Failed tests in detailed test logs view. Browse-able by days."
-                               href="{% url 'test_history_archive_day' year=year month=month day=day %}?tst_status=notpass">{% select_icon 'issue-reopened' 20 'right' 0.2 %}Last day history (detailed)
+                               data-content="All test logs from history - for today"
+                               href="{% url 'test_history_archive_today' %}?tst_status=notpass">{% select_icon 'issue-reopened' 20 'right' 0.2 %}Last day history logs
                             </a>
                             <a tabindex="0" role="button" class="btn btn-outline-dark"
                                data-toggle="hover" data-placement="top" title="Failed last day digest"
-                               data-content="Failed tests in digest view. Browse-able by days." href="{% url 'test_history_digest_today' %}?tkn_branch=tkn_main;tst_status=notpass;">{% select_icon 'git-branch' 24 'right' 0.2 %}History today</a>
+                               data-content="Failed tests in digest view. Browse-able by days."
+                               href="{% url 'test_history_digest_today' %}?tkn_branch=tkn_main;tst_status=notpass;">{% select_icon 'issue-reopened' 20 'right' 0.2 %}History today digest</a>
                             {% comment %}
                             {# Tries select tests digest as for latest tests, but from history table. So looong, that is better not to use now.#}
                             <a tabindex="0" role="button" class="btn btn-outline-dark"

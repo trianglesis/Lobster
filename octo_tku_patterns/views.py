@@ -31,7 +31,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer, TestHistoryDigestDailySerializer, TestCasesSerializer
+from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer, TestHistoryDigestDailySerializer, \
+    TestCasesSerializer, TestHistorySerializer
 
 from octo.api.serializers import CeleryTaskmetaSerializer
 from octo.cache import OctoCache
@@ -66,7 +67,6 @@ class Reports:
         count = request.GET.get('count', 20)
 
         tests_top_sort = TestLast.objects.filter(time_spent_test__isnull=False).order_by('-time_spent_test')
-        log.debug(f"tests_top_sort: {tests_top_sort}")
 
         try:
             top = int(count)
@@ -121,19 +121,14 @@ def compose_selector(request_data):
 
 def tst_status_selector(queryset, sel_opts):
     if sel_opts.get('tst_status') == 'pass':
-        # log.debug("use: pass_only")
         queryset = queryset.filter(fails__lte=0, error__lte=0)
     elif sel_opts.get('tst_status') == 'fail':
-        # log.debug("use: fail_only")
         queryset = queryset.filter(fails__gte=1)
     elif sel_opts.get('tst_status') == 'notpass':
-        # log.debug("use: not_pass_only")
         queryset = queryset.filter(Q(fails__gte=1) | Q(error__gte=1))
     elif sel_opts.get('tst_status') == 'error':
-        # log.debug("use: error_only")
         queryset = queryset.filter(error__gte=1)
     elif sel_opts.get('tst_status') == 'skip':
-        # log.debug("use: skip_only")
         queryset = queryset.filter(skipped__gte=1)
     # # TODO: Add selector for anything NOT as above!
     # elif sel_opts.get('tst_status') == 'else':
@@ -230,7 +225,6 @@ class TestLastDigestListView(ListView):
     # Check if this is useful case to have queryset loaded on view class init:
 
     def get_context_data(self, **kwargs):
-        # UserCheck().logator(self.request, 'info', "<=TestLastDigestListView=> get_context_data")
         # Get unique addm names based on table latest run:
         addm_names = OctoCache().cache_query(
             AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct(), ttl=60*30)
@@ -246,7 +240,6 @@ class TestLastDigestListView(ListView):
                 total=Count('change_user')).order_by('change_user'), ttl=60*30)
 
         if self.request.method == 'GET':
-            # log.debug("METHOD: GET - show test cases digest")
             context = super(TestLastDigestListView, self).get_context_data(**kwargs)
             context.update(
                 selector=compose_selector(self.request.GET),
@@ -258,9 +251,9 @@ class TestLastDigestListView(ListView):
                 tests_digest_json='',
             )
 
-            tests_digest_json = JSONRenderer().render(TestLatestDigestAllSerializer(context["object_list"], many=True).data).decode('utf-8')
-            context['tests_digest_json'] = OctoCache().cache_item(tests_digest_json, hkey='TestLatestDigestAll')
             context['tests_digest'] = OctoCache().cache_query(context['tests_digest'])
+            context['tests_digest_json'] = JSONRenderer().render(
+                TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8')
             return context
 
     def get_queryset(self):
@@ -299,8 +292,11 @@ class TestLastSingleDetailedListView(ListView):
                 selector_str='',
                 addm_names=addm_names,
                 # HERE: Adding JSON for JS operations
+                tests_digest_json='',
             )
             context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
+            context['tests_digest_json'] = JSONRenderer().render(
+                TestLatestDigestAllSerializer(context['test_detail'], many=True).data).decode('utf-8')
             return context
 
     def get_queryset(self):
@@ -333,8 +329,11 @@ class TestItemSingleHistoryListView(ListView):
                 selector=compose_selector(self.request.GET),
                 selector_str='',
                 addm_names=addm_names,
+                tests_digest_json='',
             )
             context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
+            context['tests_digest_json'] = JSONRenderer().render(
+                TestHistorySerializer(context['test_detail'], many=True).data).decode('utf-8')
             return context
 
     def get_queryset(self):
@@ -364,7 +363,7 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
             selector=compose_selector(self.request.GET),
             selector_str='',
         )
-        context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
+        context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 30)
         return context
 
     def get_queryset(self):
@@ -428,13 +427,12 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestHistoryTodayArchiveView=> test history today")
         context = super(TestHistoryTodayArchiveView, self).get_context_data(**kwargs)
         context.update(
             selector=compose_selector(self.request.GET),
             selector_str='',
         )
-        context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
+        context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 30)
         return context
 
     def get_queryset(self):
@@ -476,8 +474,6 @@ class TestHistoryDigestTodayView(TodayArchiveView):
                 change_user_qs=change_user_qs,
                 tests_digest_json='',
             )
-            # for k,v in context.items():
-            #     log.warning(f"Context {k}: {v}")
             context['tests_digest_json'] = OctoCache().cache_item(TestHistoryDigestDailySerializer(
                 context["object_list"], many=True).data, hkey='TestHistoryDigestDaily')
             context['tests_digest'] = OctoCache().cache_query(context['tests_digest'], ttl=60 * 15)
@@ -493,16 +489,12 @@ class TestHistoryDigestTodayView(TodayArchiveView):
             queryset = TestHistoryDigestDaily.objects.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
 
         if self.sel_opts.get('addm_name'):
-            # log.debug("use: addm_name")
             queryset = queryset.filter(addm_name__exact=self.sel_opts.get('addm_name'))
         if self.sel_opts.get('tkn_branch'):
-            # log.debug("use: tkn_branch")
             queryset = queryset.filter(tkn_branch__exact=self.sel_opts.get('tkn_branch'))
         if self.sel_opts.get('change_user'):
-            # log.debug("use: change_user")
             queryset = queryset.filter(change_user__exact=self.sel_opts.get('change_user'))
         if self.sel_opts.get('pattern_library'):
-            # log.debug("use: pattern_library")
             queryset = queryset.filter(pattern_library__exact=self.sel_opts.get('pattern_library'))
         queryset = tst_status_selector(queryset, self.sel_opts)
         return queryset
@@ -520,9 +512,16 @@ class TestHistoryDigestDailyView(DayArchiveView):
     def get_context_data(self, **kwargs):
         addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         if self.request.method == 'GET':
-            # log.debug("METHOD: GET - show test cases digest")
             context = super(TestHistoryDigestDailyView, self).get_context_data(**kwargs)
-            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            context.update(
+                selector=compose_selector(self.request.GET),
+                selector_str='',
+                addm_names=addm_names,
+                tests_digest_json='',
+            )
+            context['tests_digest'] = OctoCache().cache_query(context['tests_digest'], ttl=60 * 20)
+            context['tests_digest_json'] = JSONRenderer().render(
+                TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8')
             return context
 
     def get_queryset(self):
@@ -530,13 +529,10 @@ class TestHistoryDigestDailyView(DayArchiveView):
         queryset = TestHistoryDigestDaily.objects.all()
 
         if sel_opts.get('addm_name'):
-            # log.debug("use: addm_name")
             queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
         if sel_opts.get('tkn_branch'):
-            # log.debug("use: tkn_branch")
             queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
         if sel_opts.get('change_user'):
-            # log.debug("use: change_user")
             queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
 
         queryset = tst_status_selector(queryset, sel_opts)
@@ -615,7 +611,6 @@ class TestCaseDetailView(DetailView):
     model = TestCases
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestCaseDetailView=> test case view")
         context = super(TestCaseDetailView, self).get_context_data(**kwargs)
         context['now'] = timezone.now()
         return context
@@ -654,7 +649,6 @@ class TestCasesUpdateView(UpdateView):
     template_name_suffix = '_update_form'
 
     def get_form(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestCaseDetailView=> test case update")
         form = super(TestCasesUpdateView, self).get_form()
         form.fields['change_desc'].widget = forms.widgets.Textarea(attrs={'rows': 10, 'cols': 80})
         form.fields['pattern_folder_path'].widget = forms.widgets.TextInput(attrs={'size': 90})
@@ -671,7 +665,6 @@ class TestCasesUpdateView(UpdateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.save()
-        UserCheck().logator(self.request, 'warning', f"<=TestCaseDetailView=> test case update save: {post}")
         return redirect('test_case', pk=post.pk)
 
 
@@ -684,7 +677,6 @@ class TestCasesDetailsListView(ListView):
     paginate_by = 50
 
     def get_queryset(self):
-        UserCheck().logator(self.request, 'info', "<=TestCasesDetailsListView=> test case list view")
         queryset = TestCasesDetails.objects.all().order_by('-changed_date')
         return queryset
 
@@ -696,7 +688,6 @@ class TestCasesDetailsDetailView(DetailView):
     model = TestCasesDetails
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestCasesDetailsDetailView=> test case group view")
         context = super(TestCasesDetailsDetailView, self).get_context_data(**kwargs)
         context['now'] = timezone.now()
         return context
@@ -718,7 +709,6 @@ class TestCasesDetailsUpdateView(UpdateView):
     template_name_suffix = '_update_form'
 
     def get_form(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestCasesDetailsListView=> test case edit view")
         form = super(TestCasesDetailsUpdateView, self).get_form()
         form.fields['title'].widget = forms.widgets.TextInput(
             attrs={'class': 'form-control', 'id': 'title', 'type': 'text'})
@@ -733,7 +723,6 @@ class TestCasesDetailsUpdateView(UpdateView):
         post.title = post.title.replace(' ', '_').lower()
         post.save()
         form.save_m2m()
-        UserCheck().logator(self.request, 'info', "<=TestCasesDetailsUpdateView=> test case group update")
         return redirect('test_cases_group', pk=post.pk)
 
 
@@ -753,7 +742,6 @@ class TestCasesDetailsCreateView(CreateView):
     template_name_suffix = '_update_form'
 
     def get_form(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestCasesDetailsListView=> test case create view")
         form = super(TestCasesDetailsCreateView, self).get_form()
         form.fields['title'].widget = forms.widgets.TextInput(attrs={'class': 'form-control', 'id': 'title', 'type': 'text'})
         form.fields['description'].widget = forms.widgets.Textarea(attrs={'class': 'form-control', 'id': 'description', 'type': 'text', 'rows': 5})
@@ -765,7 +753,6 @@ class TestCasesDetailsCreateView(CreateView):
         post.title = post.title.replace(' ', '_').lower()
         post.save()
         form.save_m2m()
-        UserCheck().logator(self.request, 'info', "<=TestCasesDetailsUpdateView=> test case group create")
         return redirect('test_cases_group', pk=post.pk)
 
 

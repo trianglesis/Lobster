@@ -55,7 +55,7 @@ urlpatterns = [
     # JUST FOR DEV
     # Test History day view:
     # Latest by date - today as default!
-    url('test_history_index/', TestHistoryArchiveIndexView.as_view(), name="test_history_index_archive"),
+    url('test_history_index/', TestHistoryArchiveIndexView.as_view(), name="test_history_index_archive_all"),
     # Example: /2018/nov/10/
     path('test_history_day/<int:year>/<str:month>/<int:day>/', TestHistoryDayArchiveView.as_view(), name="test_history_archive_day"),
     # Test History Today view:
