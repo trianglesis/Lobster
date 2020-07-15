@@ -40,7 +40,6 @@ class OctoCache:
         try:
             h = blake2b(digest_size=50)
             h.update(f'{caching.query}'.encode('utf-8'))
-        # Here we cannot hash
         except TypeError as e:
             log.error(f"Cannot hash this: {caching} | Error: {e}")
             raise Exception(e)
@@ -52,7 +51,6 @@ class OctoCache:
         try:
             h = blake2b(digest_size=50)
             h.update(hkey.encode('utf-8'))
-        # Here we cannot hash
         except TypeError as e:
             log.error(f"Cannot hash this: {caching} | Error: {e}")
             raise Exception(e)
@@ -62,14 +60,8 @@ class OctoCache:
     def _get_or_set(self, hashed, caching, ttl, hkey):
         cached = self.cache.get(hashed)
         if cached is None:
-            if settings.DEV:
-                if hasattr(caching, 'query'):
-                    # log.debug(f"Caching: {hashed} - \n{caching} \n{caching.query}")
-                    log.debug(f"Set: {hashed}")
-                else:
-                    log.debug(f"Set: {hashed}")
-
             self.cache.set(hashed, caching, ttl)
+            log.debug(f"Set: {hashed}")
             if settings.DEV:
                 log.debug(f"And get: {hashed}")
             got = self.cache.get(hashed)

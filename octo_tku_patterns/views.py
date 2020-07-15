@@ -15,14 +15,13 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
 
-from django.views.decorators.vary import vary_on_headers
-from django.views.decorators.cache import cache_control
-
 from django.utils import timezone
 
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView
 from django.views.generic.edit import UpdateView, CreateView
+from django.views.decorators.vary import vary_on_headers
+from django.views.decorators.cache import cache_control
 
 from django.utils.decorators import method_decorator
 
@@ -46,7 +45,6 @@ from octo_tku_patterns.tasks import TPatternRoutine
 
 
 log = logging.getLogger("octo.octologger")
-
 
 class Reports:
     """
@@ -210,6 +208,8 @@ class TKNCasesWorkbenchView(TemplateView):
 
 # Test reports:
 # ADDM Digest summary:
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *10), name='dispatch')
 class AddmDigestListView(ListView):
     __url_path = '/octo_tku_patterns/addm_digest/'
     model = AddmDigest
@@ -218,6 +218,8 @@ class AddmDigestListView(ListView):
 
 
 # Pattern Digest or Cases Digest summary:
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *5), name='dispatch')
 class TestLastDigestListView(ListView):
     __url_path = '/octo_tku_patterns/tests_last/'
     template_name = 'digests/tests_last.html'
@@ -276,6 +278,8 @@ class TestLastDigestListView(ListView):
 
 
 # Test last table - show single(or all with status) test results for test.py
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *5), name='dispatch')
 class TestLastSingleDetailedListView(ListView):
     __url_path = '/octo_tku_patterns/test_details/'
     template_name = 'digests/test_details.html'
@@ -306,6 +310,8 @@ class TestLastSingleDetailedListView(ListView):
 
 
 # Test history table - show single test.py unit historical runs.
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *5), name='dispatch')
 class TestItemSingleHistoryListView(ListView):
     __url_path = '/octo_tku_patterns/test_item_history/'
     """
@@ -344,6 +350,8 @@ class TestItemSingleHistoryListView(ListView):
 
 
 # Test History Latest View:
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *10), name='dispatch')
 class TestHistoryArchiveIndexView(ArchiveIndexView):
     """
     This will show INDEX of everything in TestHistory.
@@ -374,6 +382,8 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
         return queryset
 
 # Test History Daily View:
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *10), name='dispatch')
 class TestHistoryDayArchiveView(DayArchiveView):
     """
     It will show detailed test logs for selected day.
@@ -412,6 +422,8 @@ class TestHistoryDayArchiveView(DayArchiveView):
 
 
 # Test History Today View:
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *30), name='dispatch')
 class TestHistoryTodayArchiveView(TodayArchiveView):
     """
     Such as TestHistoryDayArchiveView but with no specified date, use default as today.
@@ -441,6 +453,8 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
         return queryset
 
 # Test History Digest Today View:
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *30), name='dispatch')
 class TestHistoryDigestTodayView(TodayArchiveView):
     """
     PLAN: Should show digest as usual, but locked to today's date, it could possible be used as default digest
@@ -474,6 +488,7 @@ class TestHistoryDigestTodayView(TodayArchiveView):
                 change_user_qs=change_user_qs,
                 tests_digest_json='',
             )
+            # NOTE: This should be auto-cache-able, so apache do not kill request on timeout
             context['tests_digest_json'] = OctoCache().cache_item(TestHistoryDigestDailySerializer(
                 context["object_list"], many=True).data, hkey='TestHistoryDigestDaily')
             context['tests_digest'] = OctoCache().cache_query(context['tests_digest'], ttl=60 * 15)
@@ -500,6 +515,8 @@ class TestHistoryDigestTodayView(TodayArchiveView):
         return queryset
 
 # Test History Digest Daily View:
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *30), name='dispatch')
 class TestHistoryDigestDailyView(DayArchiveView):
     __url_path = '/octo_tku_patterns/test_history_digest_day/'
     # model = TestHistoryDigestDaily
@@ -543,6 +560,8 @@ class TestHistoryDigestDailyView(DayArchiveView):
 
 
 # Cases
+@method_decorator(vary_on_headers('Cookie'), name='dispatch')
+@method_decorator(cache_control(max_age=60 *10), name='dispatch')
 class TestCasesListView(ListView):
     __url_path = '/octo_tku_patterns/test_cases/'
     model = TestCases
@@ -571,6 +590,7 @@ class TestCasesListView(ListView):
             test_cases_json='',
             debug=debug,
         )
+        # NOTE: This check may be resolving the query. It's fast, but check later.
         if context['test_cases']:
             context['test_cases'] = OctoCache().cache_query(context['test_cases'], ttl=60 * 5)
             context['test_cases_json'] = JSONRenderer().render(TestCasesSerializer(context["test_cases"], many=True).data).decode('utf-8')
