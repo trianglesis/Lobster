@@ -13,7 +13,12 @@ $(document).ready(function () {
 $(document).ready(function () {
     $('#actionsModal').on('show.bs.modal', function (event) {
         let button = getButtonFromEvent(event);  // Get some context values from modal button 'Actions'
-        relCases = makeCaseTestDataSet(cases_json, button.data('case_id'), button.data('test_py_path'));
+
+        if (button.data('case_id')) {
+            relCases = makeCaseTestDataSet(cases_json, button.data('case_id'), button.data('test_py_path'));
+        } else {
+            throw new Error('actionsModal Button has no data attributes!')
+        }
         let modal = document.getElementById("actionsModal");
 
         // Fill modal body with divs:

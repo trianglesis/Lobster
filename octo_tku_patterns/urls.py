@@ -55,7 +55,7 @@ urlpatterns = [
     # JUST FOR DEV
     # Test History day view:
     # Latest by date - today as default!
-    path('test_history_index/', TestHistoryArchiveIndexView.as_view(), name="test_history_index_archive"),
+    url('test_history_index/', TestHistoryArchiveIndexView.as_view(), name="test_history_index_archive"),
     # Example: /2018/nov/10/
     path('test_history_day/<int:year>/<str:month>/<int:day>/', TestHistoryDayArchiveView.as_view(), name="test_history_archive_day"),
     # Test History Today view:
@@ -65,9 +65,5 @@ urlpatterns = [
     path('test_history_digest_today/', TestHistoryDigestTodayView.as_view(), name="test_history_digest_today"),
     # Example: /2018/nov/10/
     path('test_history_digest_day/<int:year>/<str:month>/<int:day>/', TestHistoryDigestDailyView.as_view(), name="test_history_digest_day"),
-
-    # DEV
-    path('mail_test_added_dev/', dev_mail_user_test, name="mail_test_added_dev"),
-
 
 ]

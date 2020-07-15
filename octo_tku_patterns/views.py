@@ -260,19 +260,16 @@ class TestLastDigestListView(ListView):
 
             tests_digest_json = JSONRenderer().render(TestLatestDigestAllSerializer(context["object_list"], many=True).data).decode('utf-8')
             context['tests_digest_json'] = OctoCache().cache_item(tests_digest_json, hkey='TestLatestDigestAll')
-            # context['tests_digest'] = OctoCache().cache_query(context['tests_digest'])
+            context['tests_digest'] = OctoCache().cache_query(context['tests_digest'])
             return context
 
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
-
         queryset = TestLatestDigestAll.objects.all()
-
         if sel_opts.get("test_type"):
             queryset = queryset.filter(test_type__exact=sel_opts.get("test_type"))
         else:
             queryset = queryset.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
-
         if sel_opts.get('addm_name'):
             queryset = queryset.filter(addm_name__exact=sel_opts.get('addm_name'))
         if sel_opts.get('tkn_branch'):
@@ -281,10 +278,7 @@ class TestLastDigestListView(ListView):
             queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
         if sel_opts.get('pattern_library'):
             queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
-
-        queryset = OctoCache().cache_query(tst_status_selector(queryset, sel_opts))
-        # log.debug(f"TestLastDigestListView queryset explain {queryset.explain()}\n{queryset.query}\n{queryset}")
-        # queryset = OctoCache().cache_query(queryset)
+        queryset = tst_status_selector(queryset, sel_opts)
         return queryset
 
 
@@ -292,23 +286,26 @@ class TestLastDigestListView(ListView):
 class TestLastSingleDetailedListView(ListView):
     __url_path = '/octo_tku_patterns/test_details/'
     template_name = 'digests/test_details.html'
-    context_object_name = 'test_detail'
     model = TestLast
+    context_object_name = 'test_detail'
     allow_empty = True
 
     def get_context_data(self, **kwargs):
         addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
-
         if self.request.method == 'GET':
-            # log.debug("<=TestLastSingleDetailedListView=> METHOD: GET - show tests items")
             context = super(TestLastSingleDetailedListView, self).get_context_data(**kwargs)
-            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            context.update(
+                selector=compose_selector(self.request.GET),
+                selector_str='',
+                addm_names=addm_names,
+                # HERE: Adding JSON for JS operations
+            )
+            context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
             return context
 
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
         queryset = PatternsDjangoTableOper.sel_dynamical(TestLast, sel_opts=sel_opts)
-        # log.debug("<=TestLastSingleDetailedListView=> selected len: %s query: \n%s", queryset.count(), queryset.query)
         return queryset
 
 
@@ -331,18 +328,19 @@ class TestItemSingleHistoryListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(TestItemSingleHistoryListView, self).get_context_data(**kwargs)
         addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
-
         if self.request.method == 'GET':
-            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            context.update(
+                selector=compose_selector(self.request.GET),
+                selector_str='',
+                addm_names=addm_names,
+            )
+            context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
             return context
 
     def get_queryset(self):
-        # UserCheck().logator(self.request, 'info', "<=TestItemSingleHistoryListView=> test cases table queryset")
         sel_opts = compose_selector(self.request.GET)
-        # sel_opts.pop('tst_status')
+        # Select by: branch, pattern_lib, pattern_folder, tst_calss, tst_name
         queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
-        # queryset = tst_status_selector(queryset, sel_opts)
-        # log.debug("TestItemSingleHistoryListView queryset explain \n%s", queryset.explain())
         return queryset
 
 
@@ -361,18 +359,19 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
-        UserCheck().logator(self.request, 'info', "<=TestHistoryArchiveIndexView=> test history index")
         context = super(TestHistoryArchiveIndexView, self).get_context_data(**kwargs)
-        context.update(selector=compose_selector(self.request.GET), selector_str='')
+        context.update(
+            selector=compose_selector(self.request.GET),
+            selector_str='',
+        )
+        context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
         return context
 
     def get_queryset(self):
-        date = datetime.date.today()
-        log.info(f"day - {date} previous_day - {self.get_previous_day(date)} next_day - {self.get_next_day(date)} previous_month - {self.get_previous_month(date)} next_month - {self.get_next_month(date)}")
-        # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
+        # date = datetime.date.today()
+        # log.info(f"day - {date} previous_day - {self.get_previous_day(date)} next_day - {self.get_next_day(date)} previous_month - {self.get_previous_month(date)} next_month - {self.get_next_month(date)}")
         sel_opts = compose_selector(self.request.GET)
         queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
-        log.debug(f" <=TestHistoryArchiveIndexView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
         return queryset
 
 # Test History Daily View:
@@ -386,24 +385,30 @@ class TestHistoryDayArchiveView(DayArchiveView):
     """
     __url_path = '/octo_tku_patterns/test_history_day/<int:year>/<str:month>/<int:day>/'
     model = TestHistory
+    queryset = TestHistory.objects.all()
     date_field = "test_date_time"
     allow_future = True
     allow_empty = True
     template_name = 'digests/tests_history_day.html'
     context_object_name = 'test_detail'
+    paginate_by = 500
 
     def get_context_data(self, **kwargs):
         addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         if self.request.method == 'GET':
             context = super(TestHistoryDayArchiveView, self).get_context_data(**kwargs)
-            context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
+            context.update(
+                selector=compose_selector(self.request.GET),
+                selector_str='',
+                addm_names=addm_names,
+            )
+            if context['test_detail']:
+                context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
             return context
 
     def get_queryset(self):
-        # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
         sel_opts = compose_selector(self.request.GET)
-        queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
-        log.info(f" <=TestHistoryDayArchiveView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
+        queryset = PatternsDjangoTableOper.sel_dynamical(self.model, sel_opts=sel_opts)
         return queryset
 
 
@@ -425,14 +430,16 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
     def get_context_data(self, **kwargs):
         UserCheck().logator(self.request, 'info', "<=TestHistoryTodayArchiveView=> test history today")
         context = super(TestHistoryTodayArchiveView, self).get_context_data(**kwargs)
-        context.update(selector=compose_selector(self.request.GET), selector_str='')
+        context.update(
+            selector=compose_selector(self.request.GET),
+            selector_str='',
+        )
+        context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
         return context
 
     def get_queryset(self):
-        # UserCheck().logator(self.request, 'info', "<=TestHistoryDayArchiveView=> test cases table queryset")
         sel_opts = compose_selector(self.request.GET)
         queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
-        log.info(f" <=TestHistoryTodayArchiveView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
         return queryset
 
 # Test History Digest Today View:
@@ -473,6 +480,7 @@ class TestHistoryDigestTodayView(TodayArchiveView):
             #     log.warning(f"Context {k}: {v}")
             context['tests_digest_json'] = OctoCache().cache_item(TestHistoryDigestDailySerializer(
                 context["object_list"], many=True).data, hkey='TestHistoryDigestDaily')
+            context['tests_digest'] = OctoCache().cache_query(context['tests_digest'], ttl=60 * 15)
             return context
 
     def get_queryset(self):
@@ -497,8 +505,6 @@ class TestHistoryDigestTodayView(TodayArchiveView):
             # log.debug("use: pattern_library")
             queryset = queryset.filter(pattern_library__exact=self.sel_opts.get('pattern_library'))
         queryset = tst_status_selector(queryset, self.sel_opts)
-        # log.info(f" <=TestHistoryDigestTodayView=>: {queryset.count()}\n{queryset.explain()}\n{queryset.query}")
-
         return queryset
 
 # Test History Digest Daily View:
@@ -520,7 +526,6 @@ class TestHistoryDigestDailyView(DayArchiveView):
             return context
 
     def get_queryset(self):
-        # UserCheck().logator(self.request, 'info', "<=TestHistoryDigestDailyView=> get_queryset")
         sel_opts = compose_selector(self.request.GET)
         queryset = TestHistoryDigestDaily.objects.all()
 
@@ -535,7 +540,6 @@ class TestHistoryDigestDailyView(DayArchiveView):
             queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
 
         queryset = tst_status_selector(queryset, sel_opts)
-        # log.debug(f" <=TestHistoryDigestDailyView=>: {queryset.count}\n{queryset.explain()}\n{queryset.query}")
         return queryset
 
 # Dev Test History Digest WeekEnd:
@@ -545,17 +549,22 @@ class TestHistoryDigestDailyView(DayArchiveView):
 # Cases
 class TestCasesListView(ListView):
     __url_path = '/octo_tku_patterns/test_cases/'
-    # model = TestCases
+    model = TestCases
+    queryset = TestCases.objects.all()
     template_name = 'cases_groups/cases/cases_table.html'
     context_object_name = 'test_cases'
-    paginate_by = 300
+    paginate_by = 600
 
     def get_context_data(self, **kwargs):
         context = super(TestCasesListView, self).get_context_data(**kwargs)
         debug = self.request.GET.get('debug', False)
 
-        test_type_qs = OctoCache().cache_query(TestCases.objects.filter(test_type__isnull=False).values('test_type').annotate(total=Count('test_type')).order_by('test_type'))
-        pattern_library_qs = OctoCache().cache_query(TestCases.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library'))
+        test_type_qs = OctoCache().cache_query(
+            TestCases.objects.filter(test_type__isnull=False).values('test_type').annotate(
+                total=Count('test_type')).order_by('test_type'))
+        pattern_library_qs = OctoCache().cache_query(
+            TestCases.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
+                total=Count('pattern_library')).order_by('pattern_library'))
 
         # TODO: Get test cases groups by REST
         context.update(
@@ -566,37 +575,37 @@ class TestCasesListView(ListView):
             test_cases_json='',
             debug=debug,
         )
-        log.debug("Context ready to render!")
-
-        test_cases_json = JSONRenderer().render(TestCasesSerializer(context["test_cases"], many=True).data).decode('utf-8')
-        context['test_cases_json'] = OctoCache().cache_item(test_cases_json, hkey='TestCases')
-
-        # context['test_cases'] = OctoCache().cache_query(context['test_cases'])
-
+        if context['test_cases']:
+            context['test_cases'] = OctoCache().cache_query(context['test_cases'], ttl=60 * 5)
+            context['test_cases_json'] = JSONRenderer().render(TestCasesSerializer(context["test_cases"], many=True).data).decode('utf-8')
         return context
 
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
-        # sel_opts.pop('tst_status')
-        # queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)
+        sel_opts.pop('tst_status')
+        queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)
 
-        # log.info(f'sel_opts {sel_opts}')
+        if sel_opts.pop('last_days') == '90':
+            key_group = TestCasesDetails.objects.get(title__exact='key')
+            included = key_group.test_cases.values('id')
+            key_cases = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)
+            key_cases = key_cases.filter(id__in=included)
+            queryset = queryset | key_cases
+
         # Can be sorted by: branch, library, user, change number, test_type, review, JIRA, maybe: group
-        queryset = TestCases.objects.all()
-
-        if sel_opts.get('test_type'):
-            queryset = queryset.filter(test_type__exact=sel_opts.get('test_type'))
-        if sel_opts.get('tkn_branch'):
-            queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
-        if sel_opts.get('change_user'):
-            queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
-        if sel_opts.get('change_review'):
-            queryset = queryset.filter(change_review__exact=sel_opts.get('change_review'))
-        if sel_opts.get('change_ticket'):
-            queryset = queryset.filter(change_ticket__exact=sel_opts.get('change_ticket'))
-        if sel_opts.get('pattern_library'):
-            queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
-        return OctoCache().cache_query(queryset)
+        # if sel_opts.get('test_type'):
+        #     queryset = queryset.filter(test_type__exact=sel_opts.get('test_type'))
+        # if sel_opts.get('tkn_branch'):
+        #     queryset = queryset.filter(tkn_branch__exact=sel_opts.get('tkn_branch'))
+        # if sel_opts.get('change_user'):
+        #     queryset = queryset.filter(change_user__exact=sel_opts.get('change_user'))
+        # if sel_opts.get('change_review'):
+        #     queryset = queryset.filter(change_review__exact=sel_opts.get('change_review'))
+        # if sel_opts.get('change_ticket'):
+        #     queryset = queryset.filter(change_ticket__exact=sel_opts.get('change_ticket'))
+        # if sel_opts.get('pattern_library'):
+        #     queryset = queryset.filter(pattern_library__exact=sel_opts.get('pattern_library'))
+        return queryset
 
 
 class TestCaseDetailView(DetailView):
@@ -825,35 +834,6 @@ class TestCaseRunTestREST(APIView):
 
 
 # DEVELOPMENT VIEWS:
-
-def dev_mail_user_test(request):
-    __url_path = '/octo_tku_patterns/mail_test_added_dev/'
-    from octo_tku_patterns.models import TestCases
-    test_item = TestCases.objects.filter(id='115').values()
-    test_item = test_item[0]
-
-    from octo.helpers.tasks_helpers import TMail
-    mode = request.GET.get('mode', 'init')
-
-    if mode == 'init':
-        mail_opts = {'mode': 'init', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
-                     'user_email': 'oleksandr_danylchenko_cw@bmc.com'}
-    elif mode == 'start':
-        mail_opts = {'mode': 'start', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
-                     'user_email': 'oleksandr_danylchenko_cw@bmc.com', 'test_item': test_item}
-    elif mode == 'finish':
-        mail_opts = {'mode': 'finish', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
-                     'user_email': 'oleksandr_danylchenko_cw@bmc.com', 'test_item': test_item}
-    elif mode == 'fail':
-        mail_opts = {'mode': 'fail', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
-                     'user_email': 'oleksandr_danylchenko_cw@bmc.com', 'test_item': test_item}
-    else:
-        mail_opts = {'mode': 'init', 'request': {'test_mode': ['test_by_id'], 'wipe': ['1'], 'cases_ids': ['115']},
-                     'user_email': 'oleksandr_danylchenko_cw@bmc.com'}
-
-    mail_html = TMail().user_test(mail_opts)
-    return HttpResponse(mail_html)
-
 
 ## View for teams:
 class AddmDigestListViewTeams(ListView):

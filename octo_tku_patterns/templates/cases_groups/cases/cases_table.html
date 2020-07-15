@@ -81,8 +81,10 @@
                         <a class="badge {% is_active 'last_days' '360' 'badge-light' 'badge-dark' %}"
                            href="{% url 'test_cases' %}?last_days=360;{{ selector_last_days }}">Last year</a></li>
                     <li class="list-group-item border-light"><i class="fas fa-moon"></i>
-                        <a class="badge {% is_active 'last_days' '730' 'badge-light' 'badge-dark' %}"
-                           href="{% url 'test_cases' %}?last_days=730;{{ selector_last_days }}">Night routine (TBA)</a></li>
+                        <a class="badge {% is_active 'last_days' '90' 'badge-light' 'badge-dark' %}"
+                           data-toggle="hover" data-placement="top" title="Selected for night test"
+                           data-content="Will use changes for latest 90 days AND all patterns from KEY group."
+                           href="{% url 'test_cases' %}?last_days=90;{{ selector_last_days }}">Night run</a></li>
                 </ul>
             </div>
             <div class="card border-light card-autosize">
@@ -239,8 +241,10 @@
     {% include 'digests/includes/test_actions_modal_dynamic.html' %}
     <script src="{% static 'octopus/js/user-test-run/user_space-modals-toasts.js' %}"></script>
     <script src="{% static 'octopus/js/user-test-run/action-operations.js' %}"></script>
-    <script type="text/javascript">
+    <script type="text/javascript" data-model-name="casesJSONSerializeREST">
         {#let cases_json = {{ test_cases|tku_patterns_json:'TestCases'|safe }};#}
+    </script>
+    <script type="text/javascript" data-model-name="casesJSONView">
         let cases_json = {{ test_cases_json|safe }};
     </script>
     <script type="text/javascript">

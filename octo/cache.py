@@ -2,7 +2,8 @@
 from hashlib import blake2b
 from hmac import compare_digest
 
-# from MySQLdb._exceptions import IntegrityError
+from django.conf import settings
+from django.db.models.query import EmptyResultSet
 from django.db.utils import IntegrityError
 
 from django.core.cache import caches, cache
@@ -26,7 +27,6 @@ class OctoCache:
 
     def __init__(self):
         """Init something useful on import"""
-        self.cached = []
         self.cache = cache
 
     def cache_query(self, caching, **kwargs):
@@ -62,19 +62,17 @@ class OctoCache:
     def _get_or_set(self, hashed, caching, ttl, hkey):
         cached = self.cache.get(hashed)
         if cached is None:
-            if hasattr(caching, 'query'):
-                # log.debug(f"Caching: {hashed} - \n{caching} \n{caching.query}")
-                log.debug(f"Set: {hashed}")
-            else:
-                log.debug(f"Set: {hashed}")
+            if settings.DEV:
+                if hasattr(caching, 'query'):
+                    log.debug(f"Caching: {hashed} - \n{caching} \n{caching.query}")
+                    log.debug(f"Set: {hashed}")
+                else:
+                    log.debug(f"Set: {hashed}")
 
             self.cache.set(hashed, caching, ttl)
-
-
-            log.debug(f"And get: {hashed}")
+            if settings.DEV:
+                log.debug(f"And get: {hashed}")
             got = self.cache.get(hashed)
-            # log.debug(f"Cached-get: {got}")
-
             self.save_cache_hash_db(hashed=hashed, caching=caching, key=hkey, ttl=ttl)
             return got
         else:
@@ -92,12 +90,16 @@ class OctoCache:
                 hashed=kwargs.get('hashed'),
                 defaults=dict(**kwargs),
             )
-            # if updated:
-            #     log.info(f'Updating cache-hash {kwargs}')
-            # if created:
-            #     log.info(f'Saving new cache-hash {kwargs}')
+            # if settings.DEV:
+            #     if updated:
+            #         log.info(f'Updating cache-hash {kwargs}')
+            #     if created:
+            #         log.info(f'Saving new cache-hash {kwargs}')
         except IntegrityError as e:
             log.warning(f'IntegrityError output: {type(e)} {e}')
+        except EmptyResultSet as e:
+            log.info(f"Probably an empty query to cache: {e}")
+            pass
         except Exception as e:
             msg = f"<=save_cache_hash_db=> Error: {e}"
             print(msg)
@@ -105,48 +107,6 @@ class OctoCache:
 
     def delete_cahe(self, **kwargs):
         hashed=kwargs.get('hashed')
-        key=kwargs.get('key')
-        name=kwargs.get('name')
-
-        # if hashed:
-        #     log.info("Deleting cache by hash only.")
-        #     cache.delete(hashed)
-        #
-        # if key:
-        #     log.info("Deleting cache by key and all related!")
-        #     tb_keys = OctoCacheStore.objects.filter(key__exact=key).values('hashed')
-        #     # TODO: Or https://docs.djangoproject.com/en/3.0/topics/cache/#django.core.caches.cache.delete_many
-        #     # cache.delete_many(['a', 'b', 'c'])
-        #     for tb_hash in tb_keys:
-        #         cache.delete(tb_hash)
-        #
-        # if name:
-        #     log.info("Deleting cache by key and all related!")
-        #     tb_keys = OctoCacheStore.objects.filter(name__exact=name).values('hashed')
-        #     # TODO: Or https://docs.djangoproject.com/en/3.0/topics/cache/#django.core.caches.cache.delete_many
-        #     # cache.delete_many(['a', 'b', 'c'])
-        #     for tb_hash in tb_keys:
-        #         cache.delete(tb_hash)
-        #
-        # # TODO: Should we also delete row with this cache, or use?
-
-
-    # def verify(self, cache_name, sig):
-    #     """Only for check!"""
-    #     h = blake2b(digest_size=20, key=SECRET_KEY.encode('utf-8'))
-    #     h.update(f'{cache_name}'.encode("utf-8"))
-    #     hashed = h.hexdigest()
-    #     return compare_digest(hashed, sig)
-    #
-    # def get_cached(self, hash_key):
-    #     all_cache = CACHED
-    #     # hash_key = f'{hash_key.encode("utf-8")}'
-    #     for key in all_cache:
-    #         self.verify(hash_key, key)
-    #         # log.debug(f'Yes, this is: {hash_key}:{key} -> {cache.get(key)}')
-    #         log.debug(f'Yes, this is: {hash_key}:{key}')
-    #         break
-
 
 class OctoSignals:
 
