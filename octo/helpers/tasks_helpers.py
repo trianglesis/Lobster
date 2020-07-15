@@ -21,9 +21,6 @@ from django.conf import settings
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from billiard.exceptions import WorkerLostError
 
-import octo.config_cred as conf_cred
-from octo import settings
-
 from octo.helpers.tasks_mail_send import Mails
 from run_core.models import Options, MailsTexts, TestOutputs
 from octo_tku_patterns.models import TestLast, TestCases
@@ -86,7 +83,7 @@ def exception(function):
                 log.error("Task Exception: %s", item_sort)
             except TypeError:
                 log.error("Task Exception: %s", error_d)
-            if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
+            if settings.DEV:
                 TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             raise Exception(e)
 

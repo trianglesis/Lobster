@@ -7,13 +7,13 @@ from __future__ import absolute_import, unicode_literals
 import os
 import django
 import octo.config_cred as conf_cred
-from octo import settings
+from django.conf import settings
 
 from celery import Celery
 from kombu import Exchange
 
 # set the default Django settings module for the 'celery' program.
-if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
+if settings.DEV:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octo.win_settings')
     print("WARNING: Celery use 'octo.win_settings'!!!")
     backend = conf_cred.cred['wsl_backend']

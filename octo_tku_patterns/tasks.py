@@ -16,9 +16,7 @@ import logging
 import os
 
 from django.db.models.query import QuerySet
-
-import octo.config_cred as conf_cred
-from octo import settings
+from django.conf import settings
 
 from octo.helpers.tasks_helpers import TMail
 from octo.helpers.tasks_helpers import exception
@@ -197,7 +195,7 @@ class TaskPrepare:
         Should always be fake run!
         :return:
         """
-        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:  # Always fake run on local test env:
+        if settings.DEV:  # Always fake run on local test env:
             self.fake_run = True
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL options: %s", self.options)
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL request: %s", self.request)
@@ -531,7 +529,7 @@ class TaskPrepare:
         log.debug(f"Initial addm_group: {addm_group}")
 
         if not self.fake_run:
-            if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
+            if settings.DEV:
                 addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
             else:
                 log.info("Skipping workers check on local dev.")

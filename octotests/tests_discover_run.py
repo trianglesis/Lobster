@@ -6,8 +6,7 @@ import subprocess
 from unittest import TestSuite
 
 from octo.settings import BASE_DIR
-import octo.config_cred as conf_cred
-from octo import settings
+from django.conf import settings
 
 log = logging.getLogger("octo.octologger")
 
@@ -37,7 +36,7 @@ class TestRunnerLoc:
         cmd_list = []
 
         # DEV: Set paths to test and working dir:
-        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
+        if settings.DEV:
             if "KBP1" in settings.CURR_HOSTNAME:
                 wsl_path = '/mnt/d/Projects/PycharmProjects/lobster'
                 octo_core = wsl_path

@@ -7,8 +7,7 @@ import pytz
 
 try:
     from octotests import octo_tests
-    import octo.config_cred as conf_cred
-    from octo import settings
+    from django.conf import settings
     from run_core.models import Options
 except ModuleNotFoundError:
     import octotests.octo_tests
@@ -263,6 +262,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         print(f"Selected cases for rerun: {cases_q.count()}")
         # For each of selected assign worker and add test task:
         for test_item in cases_q:
+            # May select wrong branch group?
             self.select_addm_group()
             if self.addm_set:
                 # Sync test data to ADDM
@@ -284,6 +284,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         print(f"Selected cases for rerun: {cases_q.count()}")
         # For each of selected assign worker and add test task:
         for test_item in cases_q:
+            # May select wrong branch group?
             self.select_addm_group()
             if self.addm_set:
                 # Sync test data to ADDM
@@ -334,10 +335,10 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         #     disables__isnull=True).values().order_by('addm_group')
         # self.run_case()
 
-        if conf_cred.DEV_HOST not in settings.CURR_HOSTNAME:
+        if not settings.DEV:
             print("PROD MACHINE")
         else:
-            print(f"DEV MACHINE {conf_cred.DEV_HOST} curr host {settings.CURR_HOSTNAME}")
+            print(f"DEV MACHINE! curr host {settings.CURR_HOSTNAME}")
 
 
 if __name__ == "__main__":

@@ -24,8 +24,7 @@ import paramiko
 from django.db.models.query import QuerySet
 from paramiko import SSHClient
 
-import octo.config_cred as conf_cred
-from octo import settings
+from django.conf import settings
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_run import Runner
 from run_core.models import AddmDev, ADDMCommands
@@ -413,7 +412,7 @@ class ADDMStaticOperations:
         # TODO: Return simply the group without ping, verification and occupy.
         if fake_run:
             return addm_group_l
-        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
+        if settings.DEV:
             return addm_group_l
 
         if isinstance(addm_group_l, list):

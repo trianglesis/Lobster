@@ -11,8 +11,7 @@ import re
 import datetime
 from time import time
 
-import octo.config_cred as conf_cred
-from octo import settings
+from django.conf import settings
 
 from octo.helpers.tasks_helpers import exception
 from octo_tku_patterns.models import TestLast, TestHistory
@@ -41,7 +40,7 @@ class TestExecutor:
         # TODO: We may want to save who run this test?
         self.user_email = ''
 
-        if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
+        if settings.DEV:
             self.p4_workspace = "d:{}perforce".format(os.sep)
         else:
             self.p4_workspace = "/home/user/TH_Octopus/perforce"

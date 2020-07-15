@@ -31,6 +31,7 @@ SECRET_KEY = cred['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+DEV = False
 
 CURR_HOSTNAME = socket.getfqdn()
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()), socket.gethostname()]
