@@ -36,11 +36,9 @@ from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer, Tes
 from octo.api.serializers import CeleryTaskmetaSerializer
 from octo.cache import OctoCache
 from octo.models import CeleryTaskmeta
-from octo_adm.user_operations import UserCheck
-from octo_tku_patterns.api.serializers import TestCasesDetailsSerializer
 from octo_tku_patterns.model_views import *
 from octo_tku_patterns.models import TestLast, TestHistory, TestCases, TestCasesDetails
-from octo_tku_patterns.table_oper import PatternsDjangoTableOper, PatternsDjangoModelRaw
+from octo_tku_patterns.table_oper import PatternsDjangoTableOper
 from octo_tku_patterns.tasks import TPatternRoutine
 
 
