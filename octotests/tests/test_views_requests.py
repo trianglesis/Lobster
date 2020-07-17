@@ -1,10 +1,10 @@
-
 import logging
 import unittest
 from django.test import Client
 from datetime import date, datetime, timedelta
 
 log = logging.getLogger("octo.octologger")
+
 
 class SimpleTest(unittest.TestCase):
     def setUp(self):
@@ -15,80 +15,145 @@ class SimpleTest(unittest.TestCase):
         )
         login = self.client.login(username='test', password='rQBzX5SveIokyF0uci5A')
         self.assertTrue(login)
+        self.tkn_branches = [
+            'tkn_main',
+            'tkn_ship',
+        ]
+        self.test_statuses = [
+            'pass',
+            'fail',
+            'notpass',
+            'error',
+            'skip',
+        ]
+        self.addm_names = [
+            'custard_cream',
+            'double_decker',
+            'fish_finger',
+        ]
+        self.pattern_libraries = [
+            'BLADE_ENCLOSURE',
+            'CLOUD',
+            'CORE',
+            'DBDETAILS',
+            'LOAD_BALANCER',
+            'MANAGEMENT_CONTROLLERS',
+            'MIDDLEWAREDETAILS',
+            'NETWORK',
+            'STORAGE',
+            'SYSTEM',
+        ]
 
-    def test002_main_page(self):
-        log.info("Running: test002_main_page")
+    def test001_main_page(self):
+        """
+        Testing main page load and cache
+        :return:
+        """
+        log.info("Running: test001_main_page")
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
-    def test003_addm_digest(self):
-        log.info("Running: test003_addm_digest")
+    def test001_addm_digest(self):
+        """
+        ADDM Digest load and cache
+        :return:
+        """
+        log.info("Running: test001_addm_digest")
         response = self.client.get('/octo_tku_patterns/addm_digest/')
         self.assertEqual(response.status_code, 200)
 
-    def test004_tests_last(self):
-        log.info("Running: test004_tests_last")
-        # Non pass
-        response = self.client.get('/octo_tku_patterns/tests_last/', {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/tests_last/', {'tkn_branch': 'tkn_ship', 'tst_status': 'notpass'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/tests_last/', {'tst_status': 'notpass'})
-        self.assertEqual(response.status_code, 200)
-        #  All
-        response = self.client.get('/octo_tku_patterns/tests_last/', {'tkn_branch': 'tkn_main'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/tests_last/', {'tkn_branch': 'tkn_ship'})
-        self.assertEqual(response.status_code, 200)
-
-
-        response = self.client.get('/octo_tku_patterns/tests_last/', {'test_type': 'product_content'})
-        self.assertEqual(response.status_code, 200)
-
-    def test005_test_history_digest_today(self):
-        log.info("Running: test005_test_history_digest_today")
-        response = self.client.get('/octo_tku_patterns/test_history_digest_today/', {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_history_digest_today/', {'tkn_branch': 'tkn_ship', 'tst_status': 'notpass'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_history_digest_today/', {'tst_status': 'notpass'})
-        self.assertEqual(response.status_code, 200)
-
-    def test008_tku_workbench(self):
-        log.info("Running: test008_tku_workbench")
+    def test001_tku_workbench(self):
+        """
+        Workbench of TKU Uploads
+        :return:
+        """
+        log.info("Running: test001_tku_workbench")
         response = self.client.get('/octo_tku_upload/tku_workbench/')
         self.assertEqual(response.status_code, 200)
 
-    def test007_upload_today(self):
+    def test001_upload_today(self):
+        """
+        TKU Upload today page test and cache
+        :return:
+        """
         log.info("Running: test007_upload_today")
         response = self.client.get('/octo_tku_upload/upload_today/')
         self.assertEqual(response.status_code, 200)
 
+    def test002_tests_last(self):
+        """
+        Get most common views on tests_last for different branches and all test statuses
+        Those are dynamical views all ADDMs on one, but template and JS sorting.
+        Maybe do not load a LIBRARY related, usually it does not so needed for users to be so fast.
+        :return:
+        """
+        log.info("Running: test004_tests_last")
+        pages = 0
+        for branch in self.tkn_branches:
+            for status in self.test_statuses:
+                response = self.client.get('/octo_tku_patterns/tests_last/',
+                                           {'tkn_branch': branch, 'tst_status': status})
+                self.assertEqual(response.status_code, 200)
+                pages += 1
+        log.info(f'Tested {pages} pages.')
+
+    def test003_test_details(self):
+        """
+        Get most common views on /octo_tku_patterns/test_details
+        Most pages which opens when clicking on count of passed,failed,errored tests
+        :return:
+        """
+        pages = 0
+        for branch in self.tkn_branches:
+            for addm_name in self.addm_names:
+                for status in self.test_statuses:
+                    response = self.client.get(
+                        '/octo_tku_patterns/test_details/',
+                        {'tkn_branch': branch, 'addm_name': addm_name, 'tst_status': status})
+                    self.assertEqual(response.status_code, 200)
+                    pages += 1
+        log.info(f'Tested {pages} pages.')
+
+    def test004_test_history_digest_today(self):
+        """
+        Hostory digest today - test and generate cache for branches and most useful test statuses, not passed, skipped or all.
+        :return:
+        """
+        log.info("Running: test005_test_history_digest_today")
+        pages = 0
+        for branch in self.tkn_branches:
+            for status in ['fail', 'notpass', 'error', ]:
+                response = self.client.get('/octo_tku_patterns/test_history_digest_today/',
+                                           {'tkn_branch': branch, 'tst_status': status})
+                self.assertEqual(response.status_code, 200)
+                pages += 1
+        log.info(f'Tested {pages} pages.')
+
     def test008_test_cases(self):
+        """
+        Test cases view - load both branches and all libraries. Then load a night run query.
+        :return:
+        """
         log.info("Running: test008_test_cases")
+        pages = 0
         response = self.client.get('/octo_tku_patterns/test_cases/')
         self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_cases/', {'tkn_branch': 'tkn_main',})
+        pages += 1
+        for branch in self.tkn_branches:
+            for library in self.pattern_libraries:
+                response = self.client.get('/octo_tku_patterns/test_cases/',
+                                           {'tkn_branch': branch, 'pattern_library': library})
+                self.assertEqual(response.status_code, 200)
+                pages += 1
+        # Load view for night test run:
+        response = self.client.get('/octo_tku_patterns/test_cases/', {'last_days': 90})
         self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_cases/', {'tkn_branch': 'tkn_ship',})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_cases/', {'pattern_library': 'BLADE_ENCLOSURE'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_cases/', {'pattern_library': 'CLOUD'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_cases/', {'pattern_library': 'CORE'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_cases/', {'pattern_library': 'LOAD_BALANCER'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_cases/', {'pattern_library': 'NETWORK'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_cases/', {'pattern_library': 'STORAGE'})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/octo_tku_patterns/test_cases/', {'pattern_library': 'MANAGEMENT_CONTROLLERS'})
-        self.assertEqual(response.status_code, 200)
+        pages += 1
+        log.info(f'Tested {pages} pages.')
 
     def test009_test_history_digest_day(self):
         log.info("Running: test009_test_history_digest_day")
+        pages = 0
         now = datetime.now()
         year = now.strftime('%Y')
         month = now.strftime('%b')
@@ -97,25 +162,15 @@ class SimpleTest(unittest.TestCase):
         day_2 = (now - timedelta(days=2)).strftime('%d')
         day_3 = (now - timedelta(days=3)).strftime('%d')
 
-        test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day}'
-        response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
-        log.info(response.redirect_chain)
-        self.assertEqual(response.status_code, 200)
-
-        test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day_1}'
-        response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
-        log.info(response.redirect_chain)
-        self.assertEqual(response.status_code, 200)
-
-        test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day_2}'
-        response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
-        log.info(response.redirect_chain)
-        self.assertEqual(response.status_code, 200)
-
-        test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{day_3}'
-        response = self.client.get(test_url, {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'}, follow=True)
-        log.info(response.redirect_chain)
-        self.assertEqual(response.status_code, 200)
+        for branch in self.tkn_branches:
+            for _day in [day, day_1, day_2, day_3]:
+                test_url = f'/octo_tku_patterns/test_history_digest_day/{year}/{month}/{_day}'
+                attrs = {'tkn_branch': branch, 'tst_status': 'notpass'}
+                response = self.client.get(test_url, attrs, follow=True)
+                self.assertEqual(response.status_code, 200)
+                log.info(response.redirect_chain)
+                pages += 1
+        log.info(f'Tested {pages} pages.')
 
 
 if __name__ == "__main__":

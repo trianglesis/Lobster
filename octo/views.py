@@ -31,11 +31,12 @@ from octo.helpers.tasks_oper import TasksOperations
 
 # Python logger
 import logging
+
 log = logging.getLogger("octo.octologger")
 
 
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 10), name='dispatch')
 class MainPage(TemplateView):
     template_name = 'main/mainpage_widgets.html'
     context_object_name = 'objects'
@@ -51,21 +52,22 @@ class MainPage(TemplateView):
 
     def get_queryset(self):
         addm_digest = OctoCache().cache_query(AddmDigest.objects.all())
-        test_last_q = TestLast.objects.filter(time_spent_test__isnull=False, time_spent_test__gte=60*60)
+        test_last_q = TestLast.objects.filter(time_spent_test__isnull=False, time_spent_test__gte=60 * 60)
         tests_top_main = test_last_q.filter(tkn_branch__exact='tkn_main').order_by('-time_spent_test')
         tests_top_ship = test_last_q.filter(tkn_branch__exact='tkn_ship').order_by('-time_spent_test')
 
         selections = dict(
-            upload_tests = TKUUpdateWorkbenchView.get_queryset(self),
-            addm_digest = addm_digest,
-            tests_top_main = tests_top_main,
-            tests_top_ship = tests_top_ship,
+            upload_tests=TKUUpdateWorkbenchView.get_queryset(self),
+            addm_digest=addm_digest,
+            tests_top_main=tests_top_main,
+            tests_top_ship=tests_top_ship,
         )
         return selections
 
+
 @method_decorator(login_required, name='dispatch')
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 10), name='dispatch')
 class UserMainPage(TemplateView):
     template_name = 'user_report_summary.html'
     context_object_name = 'objects'
@@ -81,8 +83,8 @@ class UserMainPage(TemplateView):
         change_user = self.request.GET.get('change_user', None)
         if change_user:
             selections = dict(
-                user_tests = TestLastDigestListView.get_queryset(self),
-                user_cases = TestCasesListView.get_queryset(self),
+                user_tests=TestLastDigestListView.get_queryset(self),
+                user_cases=TestCasesListView.get_queryset(self),
             )
             return selections
         return []
@@ -109,7 +111,7 @@ def request_access(request):
     Mails.short(subject='User {} has requested access to {}'.format(user_name, came_from),
                 body='User {} has requested access to {}\n{}'.format(user_name, came_from, user_string))
 
-    widgets = dict(SUBJECT = 'Request submitted. You asked for access to: {}'.format(came_from))
+    widgets = dict(SUBJECT='Request submitted. You asked for access to: {}'.format(came_from))
     return HttpResponse(page_widgets.render(widgets, request))
 
 
@@ -123,7 +125,7 @@ class CeleryWorkersStatusREST(APIView):
         if not workers_list:
             workers_list = TasksOperations().workers_enabled
             workers_list = workers_list.get('option_value', '').split(',')
-        workers_list = [worker+'@tentacle' for worker in workers_list]
+        workers_list = [worker + '@tentacle' for worker in workers_list]
 
         inspected = TasksOperations().check_active_reserved_short(workers_list, tasks_body)
         # inspected = [

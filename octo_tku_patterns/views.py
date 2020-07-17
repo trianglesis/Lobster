@@ -31,7 +31,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer, TestHistoryDigestDailySerializer, \
-    TestCasesSerializer, TestHistorySerializer
+    TestCasesSerializer, TestHistorySerializer, TestLastSerializer
 
 from octo.api.serializers import CeleryTaskmetaSerializer
 from octo.cache import OctoCache
@@ -186,7 +186,8 @@ class SearchCasesAndLogs(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(SearchCasesAndLogs, self).get_context_data(**kwargs)
-        addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        addm_names = OctoCache().cache_query(
+            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         context.update(selector=compose_selector(self.request.GET), selector_str='', addm_names=addm_names)
         return context
 
@@ -227,17 +228,17 @@ class TestLastDigestListView(ListView):
     def get_context_data(self, **kwargs):
         # Get unique addm names based on table latest run:
         addm_names = OctoCache().cache_query(
-            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct(), ttl=60*30)
+            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         # TODO: Use regroup for this on page, or move to JS work:
         test_type_qs = OctoCache().cache_query(
             TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(
-                total=Count('test_type')).order_by('test_type'), ttl=60*30)
+                total=Count('test_type')).order_by('test_type'))
         pattern_library_qs = OctoCache().cache_query(
             TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
-                total=Count('pattern_library')).order_by('pattern_library'), ttl=60*5)
+                total=Count('pattern_library')).order_by('pattern_library'))
         change_user_qs = OctoCache().cache_query(
             TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(
-                total=Count('change_user')).order_by('change_user'), ttl=60*30)
+                total=Count('change_user')).order_by('change_user'))
 
         if self.request.method == 'GET':
             context = super(TestLastDigestListView, self).get_context_data(**kwargs)
@@ -251,9 +252,12 @@ class TestLastDigestListView(ListView):
                 tests_digest_json='',
             )
 
-            context['tests_digest'] = OctoCache().cache_query(context['tests_digest'])
-            context['tests_digest_json'] = JSONRenderer().render(
-                TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8')
+            context['tests_digest'] = OctoCache().cache_query(
+                context['tests_digest'])
+            context['tests_digest_json'] = OctoCache().cache_item(
+                JSONRenderer().render(
+                TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8'),
+                hkey='TestLastDigestListView_tests_digest_json', key='TestLast')
             return context
 
     def get_queryset(self):
@@ -286,7 +290,8 @@ class TestLastSingleDetailedListView(ListView):
     allow_empty = True
 
     def get_context_data(self, **kwargs):
-        addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        addm_names = OctoCache().cache_query(
+            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         if self.request.method == 'GET':
             context = super(TestLastSingleDetailedListView, self).get_context_data(**kwargs)
             context.update(
@@ -296,9 +301,12 @@ class TestLastSingleDetailedListView(ListView):
                 # HERE: Adding JSON for JS operations
                 tests_digest_json='',
             )
-            context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
-            context['tests_digest_json'] = JSONRenderer().render(
-                TestLatestDigestAllSerializer(context['test_detail'], many=True).data).decode('utf-8')
+            context['test_detail'] = OctoCache().cache_query(
+                context['test_detail'])
+            context['tests_digest_json'] = OctoCache().cache_item(
+                JSONRenderer().render(
+                TestLastSerializer(context['test_detail'], many=True).data).decode('utf-8'),
+                hkey='TestLastSingleDetailedListView_tests_digest_json', key='TestLast')
             return context
 
     def get_queryset(self):
@@ -327,7 +335,8 @@ class TestItemSingleHistoryListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(TestItemSingleHistoryListView, self).get_context_data(**kwargs)
-        addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        addm_names = OctoCache().cache_query(
+            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         if self.request.method == 'GET':
             context.update(
                 selector=compose_selector(self.request.GET),
@@ -335,9 +344,12 @@ class TestItemSingleHistoryListView(ListView):
                 addm_names=addm_names,
                 tests_digest_json='',
             )
-            context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
-            context['tests_digest_json'] = JSONRenderer().render(
-                TestHistorySerializer(context['test_detail'], many=True).data).decode('utf-8')
+            context['test_detail'] = OctoCache().cache_query(
+                context['test_detail'])
+            context['tests_digest_json'] = OctoCache().cache_item(
+                JSONRenderer().render(
+                TestHistorySerializer(context['test_detail'], many=True).data).decode('utf-8'),
+                hkey='TestItemSingleHistoryListView_digest_json', key='TestHistory')
             return context
 
     def get_queryset(self):
@@ -369,7 +381,8 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
             selector=compose_selector(self.request.GET),
             selector_str='',
         )
-        context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 30)
+        context['test_detail'] = OctoCache().cache_query(
+            context['test_detail'])
         return context
 
     def get_queryset(self):
@@ -401,7 +414,8 @@ class TestHistoryDayArchiveView(DayArchiveView):
     paginate_by = 500
 
     def get_context_data(self, **kwargs):
-        addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        addm_names = OctoCache().cache_query(
+            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         if self.request.method == 'GET':
             context = super(TestHistoryDayArchiveView, self).get_context_data(**kwargs)
             context.update(
@@ -410,7 +424,8 @@ class TestHistoryDayArchiveView(DayArchiveView):
                 addm_names=addm_names,
             )
             if context['test_detail']:
-                context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 5)
+                context['test_detail'] = OctoCache().cache_query(
+                    context['test_detail'])
             return context
 
     def get_queryset(self):
@@ -442,7 +457,8 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
             selector=compose_selector(self.request.GET),
             selector_str='',
         )
-        context['test_detail'] = OctoCache().cache_query(context['test_detail'], ttl=60 * 30)
+        context['test_detail'] = OctoCache().cache_query(
+            context['test_detail'])
         return context
 
     def get_queryset(self):
@@ -470,10 +486,17 @@ class TestHistoryDigestTodayView(TodayArchiveView):
     context_object_name = 'tests_digest'
 
     def get_context_data(self, **kwargs):
-        addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
-        test_type_qs = OctoCache().cache_query(TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(total=Count('test_type')).order_by('test_type'))
-        pattern_library_qs = OctoCache().cache_query(TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(total=Count('pattern_library')).order_by('pattern_library'))
-        change_user_qs = OctoCache().cache_query(TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(total=Count('change_user')).order_by('change_user'))
+        addm_names = OctoCache().cache_query\
+            (AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        test_type_qs = OctoCache().cache_query\
+            (TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(
+                total=Count('test_type')).order_by('test_type'))
+        pattern_library_qs = OctoCache().cache_query\
+            (TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
+                total=Count('pattern_library')).order_by('pattern_library'))
+        change_user_qs = OctoCache().cache_query\
+            (TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(
+                total=Count('change_user')).order_by('change_user'))
 
         if self.request.method == 'GET':
             context = super(TestHistoryDigestTodayView, self).get_context_data(**kwargs)
@@ -487,9 +510,12 @@ class TestHistoryDigestTodayView(TodayArchiveView):
                 tests_digest_json='',
             )
             # NOTE: This should be auto-cache-able, so apache do not kill request on timeout
-            context['tests_digest_json'] = OctoCache().cache_item(TestHistoryDigestDailySerializer(
-                context["object_list"], many=True).data, hkey='TestHistoryDigestDaily')
-            context['tests_digest'] = OctoCache().cache_query(context['tests_digest'], ttl=60 * 15)
+            context['tests_digest'] = OctoCache().cache_query(
+                context['tests_digest'])
+            context['tests_digest_json'] = OctoCache().cache_item(
+                TestHistoryDigestDailySerializer(
+                context["object_list"], many=True).data,
+                hkey='TestHistoryDigestTodayView_tests_digest_json', key='TestHistory')
             return context
 
     def get_queryset(self):
@@ -525,7 +551,8 @@ class TestHistoryDigestDailyView(DayArchiveView):
     context_object_name = 'tests_digest'
 
     def get_context_data(self, **kwargs):
-        addm_names = OctoCache().cache_query(AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        addm_names = OctoCache().cache_query(
+            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         if self.request.method == 'GET':
             context = super(TestHistoryDigestDailyView, self).get_context_data(**kwargs)
             context.update(
@@ -534,9 +561,12 @@ class TestHistoryDigestDailyView(DayArchiveView):
                 addm_names=addm_names,
                 tests_digest_json='',
             )
-            context['tests_digest'] = OctoCache().cache_query(context['tests_digest'], ttl=60 * 20)
-            context['tests_digest_json'] = JSONRenderer().render(
-                TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8')
+            context['tests_digest'] = OctoCache().cache_query(
+                context['tests_digest'])
+            context['tests_digest_json'] = OctoCache().cache_item(
+                JSONRenderer().render(
+                TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8'),
+                hkey='TestHistoryDigestDailyView_tests_digest_json', key='TestHistory')
             return context
 
     def get_queryset(self):
@@ -562,8 +592,8 @@ class TestHistoryDigestDailyView(DayArchiveView):
 @method_decorator(cache_control(max_age=60 *10), name='dispatch')
 class TestCasesListView(ListView):
     __url_path = '/octo_tku_patterns/test_cases/'
-    model = TestCases
-    queryset = TestCases.objects.all()
+    # model = TestCases
+    # queryset = TestCases.objects.all()
     template_name = 'cases_groups/cases/cases_table.html'
     context_object_name = 'test_cases'
     paginate_by = 600
@@ -590,8 +620,11 @@ class TestCasesListView(ListView):
         )
         # NOTE: This check may be resolving the query. It's fast, but check later.
         if context['test_cases']:
-            context['test_cases'] = OctoCache().cache_query(context['test_cases'], ttl=60 * 5)
-            context['test_cases_json'] = JSONRenderer().render(TestCasesSerializer(context["test_cases"], many=True).data).decode('utf-8')
+            context['test_cases'] = OctoCache().cache_query(
+                context['test_cases'])
+            context['test_cases_json'] = OctoCache().cache_item(
+                JSONRenderer().render(TestCasesSerializer(context["test_cases"], many=True).data).decode('utf-8'),
+                hkey='TestCasesListView_tests_test_cases_json', key='TestCases')
         return context
 
     def get_queryset(self):

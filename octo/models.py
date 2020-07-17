@@ -18,6 +18,7 @@ class OctoCacheStore(models.Model):
     hashed = models.CharField(unique=True, max_length=100)
     query = models.TextField(blank=True, null=True)
     ttl = models.IntegerField(blank=True, null=True)
+    counter = models.IntegerField(default=0)
     created_time = models.DateTimeField(
         unique=False, auto_now_add=True)
 
