@@ -9,8 +9,9 @@ from typing import Dict, List, Any
 
 from celery.utils.log import get_task_logger
 from django.db.models import Max
+from django.contrib.auth.models import User
 
-from octo.helpers.tasks_helpers import exception
+from octo.helpers.tasks_helpers import exception, db_logger
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
 # Celery
@@ -20,7 +21,7 @@ from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.test_executor import UploadTestExec
 from octotests.tests_discover_run import TestRunnerLoc
 from run_core.local_operations import LocalDownloads
-from run_core.models import AddmDev
+from run_core.models import AddmDev, RoutinesLog
 from octo_tku_upload.digests import TKUEmailDigest
 
 
@@ -40,6 +41,9 @@ SEC_1 = 1
 
 _LH_ = '<=UploadTaskPrepare=>'
 
+def log_save(kwargs):
+    routine_log = RoutinesLog(**kwargs)
+    routine_log.save()
 
 # noinspection PyUnusedLocal,PyUnusedLocal
 class TUploadExec:
@@ -47,6 +51,8 @@ class TUploadExec:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_upload_routines',
               soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+    @db_logger
+    @exception
     def t_upload_routines(t_tag, **kwargs):
         """
         Can run routines tasks as test methods from unit test case class.
@@ -61,40 +67,51 @@ class TUploadExec:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_tku_upload_test_new',
               soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+    @db_logger
     @exception
     def t_upload_test(t_tag, **kwargs):
+        """General task for upload test"""
         return UploadTaskPrepare(**kwargs).run_tku_upload()
 
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
+    @db_logger
     @exception
     def t_tku_sync(t_tag, **kwargs):
+        """Sync TKU Packages with WGET"""
         return LocalDownloads().wget_tku_build_hub_option(**kwargs)
 
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.TUploadExec.t_parse_tku',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
+    @db_logger
     @exception
     def t_parse_tku(t_tag, **kwargs):
+        """Parse synced TKU packages in local FS after WGET"""
         log.debug("Tag: %s, kwargs %s", t_tag, kwargs)
         return LocalDownloads().only_parse_tku(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @db_logger
     @exception
     def t_upload_unzip(t_tag, **kwargs):
+        """Unzip TKU packages on selected ADDMs into TEMP folder"""
         return UploadTestExec().upload_unzip_threads(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+    @db_logger
     @exception
     def t_tku_install(t_tag, **kwargs):
+        """ Execute TKU install command after TKU packages were unzipped in TEMP folder."""
         return UploadTestExec().install_tku_threads(**kwargs)
 
 class MailDigests:
 
     @staticmethod
+    @exception
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_upload_digest',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
     def t_upload_digest(t_tag, **kwargs):
@@ -167,6 +184,7 @@ class UploadTaskPrepare:
         self.select_addm()
         # 4. For each package&addm version do SOMETHING:
         self.tku_run_steps()
+        self.log_db()
         return self.tasks_added
 
     def wget_run(self):
@@ -183,6 +201,7 @@ class UploadTaskPrepare:
             self.tasks_added.append(task)
             if TasksOperations().task_wait_success(task, 't_tku_sync_option'):
                 self.tku_downloaded = True
+                self.log_db(task_name=subject, description=body)
             # Wait for task to finish!
         else:
             self.tku_downloaded = True
@@ -328,6 +347,7 @@ class UploadTaskPrepare:
             'snapRevert': 'pathToSnapshotReveringProcedure',
             'powerOff': 'pathToPowerOffProcedure'
         }
+        # self.log_db(t_args=mode, description='VCenter VM preparations')
 
     def addm_prepare(self, step_k):
         """
@@ -474,3 +494,20 @@ class UploadTaskPrepare:
         for step_k, step_package in packages.items():
             for pack in step_package:
                 log.info(f'{step_k} package: {pack.tku_type} -> {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} ')
+
+    def log_db(self, **kwargs):
+        task_name = kwargs.get('task_name', f'Upload test - {self.__class__.__name__}')
+        user = kwargs.get('user', User.objects.filter(email__exact=self.user_email).first())
+        t_kwargs = kwargs.get('t_kwargs', self.data)
+        t_start_time = kwargs.get('t_start_time', self.start_time)
+        description = kwargs.get('description', 'TKU Upload test')
+
+        kwargs = {
+            'task_name': task_name,
+            'user': user,
+            't_kwargs': t_kwargs,
+            't_start_time': t_start_time,
+            'description': description,
+        }
+        routine_log = RoutinesLog(**kwargs)
+        routine_log.save()

@@ -48,8 +48,15 @@ class Mails:
             subject = txt.format('No Subject added', ' - ', curr_hostname)
 
         msg = f"mail_html={mail_html} body={body} subject={subject} send_to={send_to} send_cc={send_cc}"
+
         if fake_run:
+            # Fake run, but send email:
             log.debug('Sending short email confirmation: \n\t%s', (subject, send_to, send_cc))
+        elif settings.DEV:
+            # Probably a fake run, but on local dev - so do not send emails? Somehow this could be switchable, so I can test email locally!
+            log.info(f'FAKE: Dev settings: {settings.DEV} Sending short email confirmation: \n\t{subject} {send_to} {send_cc}')
+            return msg
+
         else:
             connection = mail.get_connection()
             connection.open()

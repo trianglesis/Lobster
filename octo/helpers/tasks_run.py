@@ -6,7 +6,8 @@ from octo.tasks import TSupport
 from octo.helpers.tasks_oper import TasksOperations
 
 import octo.config_cred as conf_cred
-from octo import settings
+from django.conf import settings
+# from octo import settings
 
 # Python logger
 import logging
@@ -70,8 +71,7 @@ class Runner:
         if t_task_time_limit:
             task_options.update(task_time_limit=t_task_time_limit)
 
-        # TODO: Overriding on local
-        # if conf_cred.DEV_HOST in settings.CURR_HOSTNAME:
+        # if settings.DEV:
         #     fake_run = True
 
         # Do not really send a task if fake=True
@@ -80,6 +80,7 @@ class Runner:
         else:
             to_sleep = kwargs.get('to_sleep', 10)
             task_options.update(to_sleep=to_sleep, to_debug=to_debug)
+            log.debug(f'Fake task items: {task_options}')
             return TSupport.fake_task.apply_async(
                 args=[f'Fake task run: t_args: {t_args}; sleep {to_sleep}; debug {to_debug}'],
                 kwargs=task_options,

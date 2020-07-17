@@ -15,11 +15,12 @@ import datetime
 import logging
 import os
 
+from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.conf import settings
 
 from octo.helpers.tasks_helpers import TMail
-from octo.helpers.tasks_helpers import exception
+from octo.helpers.tasks_helpers import exception, db_logger, db_log_f
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
 from octo.octo_celery import app
@@ -32,7 +33,7 @@ from octo_tku_patterns.digests import TestDigestMail
 from octotests.tests_discover_run import TestRunnerLoc
 from run_core.addm_operations import ADDMStaticOperations
 from run_core.local_operations import LocalPatternsP4Parse
-from run_core.models import AddmDev
+from run_core.models import AddmDev, RoutinesLog, UserAdprod
 from run_core.p4_operations import PerforceOperations
 
 log = logging.getLogger("octo.octologger")
@@ -57,6 +58,8 @@ class TPatternRoutine:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_patt_routines',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @db_logger
+    @exception
     def t_patt_routines(t_tag, **kwargs):
         """
         Can run routines tasks as test methods from unit test case class.
@@ -71,11 +74,17 @@ class TPatternRoutine:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_test_prep',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @db_logger
     @exception
     def t_test_prep(t_tag, **kwargs):
+        """
+        User test execution task.
+        :param t_tag:
+        :param kwargs: view object from request.
+        :return:
+        """
         log.warning("<=TPatternRoutine=> RUN TaskPrepare.run_tku_patterns %s", t_tag)
         TaskPrepare(kwargs['obj']).run_tku_patterns()
-
 
 class TPatternExecTest:
 
@@ -86,7 +95,6 @@ class TPatternExecTest:
     def t_test_exec_threads(t_tag, **kwargs):
         log.debug("t_tag: %s", t_tag)
         return TestExecutor().test_run_threads(**kwargs)
-
 
 class TPatternParse:
 
@@ -110,19 +118,22 @@ class TPatternParse:
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_p4_sync_force',
               soft_time_limit=MIN_20, task_time_limit=MIN_40)
+    @db_logger
     @exception
     def t_p4_sync_force(t_tag, depot_path):
+        """Perforce workspace sync force"""
         log.debug("t_tag: %s", t_tag)
         return PerforceOperations().sync_force(depot_path)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_pattern_weight_index',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @db_logger
     @exception
     def t_pattern_weight_index(t_tag, last_days=30, addm_name='custard_cream'):
+        """Calculate pattern time weight on previous execution time"""
         log.debug("t_tag: %s", t_tag)
         PatternTestExecCases.patterns_weight_compute(last_days, addm_name)
-
 
 class PatternTestExecCases:
 
@@ -137,7 +148,6 @@ class PatternTestExecCases:
         patterns_weight = LocalDB.history_weight(last_days=last_days, addm_name=addm_name)
         # Insert sorted in TKU Patterns table:
         LocalDB.insert_patt_weight(patterns_weight)
-
 
 class TaskPrepare:
 
@@ -163,6 +173,7 @@ class TaskPrepare:
         # Define fake run:
         self.fake_run = False
         self.fake_fun()
+        self.user = User.objects.get(username__exact=self.user_name)
 
         # Get user and mail:
         self.start_time = datetime.datetime.now()
@@ -226,6 +237,7 @@ class TaskPrepare:
     def run_tku_patterns(self):
         """
         Method to run 'tku_patterns' tests.
+        Run preparations and tasks to complete user test.
         :return:
         """
         self.task_tag_generate()
@@ -509,6 +521,7 @@ class TaskPrepare:
                     self.test_exec(addm_set, test_item)
                     # 7.3 Add mail task after one test, so it show when one test was finished.
                     self.mail_status(mail_opts=dict(mode='finish', test_item=test_item, addm_set=addm_set))
+                    # 8 Save log when test task finished, disregard any results:
             else:
                 log.debug("<=TaskPrepare=> This branch had no selected tests to run: '%s'", branch_k)
 
@@ -526,18 +539,19 @@ class TaskPrepare:
         from octo_tku_patterns.user_test_balancer import WorkerGetAvailable
         branch_w = WorkerGetAvailable.branched_w(tkn_branch)
         addm_group = branch_w[0]
+        if settings.DEV:
+            log.info(f"Use local dev group. {settings.DEV}")
+            addm_group = 'alpha'
         log.debug(f"Initial addm_group: {addm_group}")
-
         if not self.fake_run:
             if settings.DEV:
-                addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
+                log.info(f"Skipping workers check on local dev. {settings.DEV}")
             else:
-                log.info("Skipping workers check on local dev.")
+                addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
         log.debug("<=TaskPrepare=> Got an available addm_group: '%s'", addm_group)
         return addm_group
 
     def addm_set_select(self, addm_group=None):
-        # TODO: Return only JSON-friendly and required for test run values (passwords could not be excluded =( )
         queryset = AddmDev.objects.all()
         if self.options.get('addm_group'):
             log.info("<=TaskPrepare=> ADDM_GROUP from request params: '%s'", self.options.get('addm_group'))
@@ -593,7 +607,7 @@ class TaskPrepare:
         if not self.silent:
             log.info("<=TaskPrepare=> Mail sending, mode: %s", mode)
             if mail_opts.get('test_item') and mail_opts.get('addm_set'):
-                addm = mail_opts.get('addm_set').first()
+                addm = mail_opts.pop('addm_set').first()  # Do not put QuerySet into task kwargs!
                 test_item = mail_opts.get('test_item')
 
                 mail_r_key = f'{addm["addm_group"]}.TSupport.t_user_mail.{mode}.TSupport.t_user_test'
@@ -601,7 +615,7 @@ class TaskPrepare:
                         f'test_py_path={test_item["test_py_path"]}'
 
                 # TODO: Change to
-                Runner.fire_t(TSupport.t_user_test, fake_run=self.fake_run, t_args=[t_tag],
+                Runner.fire_t(TSupport.t_user_test, fake_run=False, t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
                               t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
             elif mode == 'init':
@@ -652,24 +666,27 @@ class TaskPrepare:
             user_name=self.user_name,
             refresh=self.request.get('refresh'),
         )
-        # log.debug("<=TaskPrepare=> User test user_test_add: \n%s", t_tag_d)
+        log.debug("<=TaskPrepare=> User test user_test_add: \n%s", t_tag_d)
         self.t_tag = t_tag_d
 
     def test_and_addm_check(self, addm_set, test_item):
         if not addm_set or not test_item:
             self.mail_status(mail_opts=dict(mode='fail', test_item=test_item))
 
-
 class MailDigests:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_user_digest',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @db_logger
     def t_user_digest(t_tag, **kwargs):
+        """User test digest mail send task"""
         TestDigestMail().failed_pattern_test_user_daily_digest(**kwargs)
 
     @staticmethod
+    @db_logger
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_lib_digest',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
     def t_lib_digest(t_tag, **kwargs):
+        """ Team test digest by patt LIBRARY send task"""
         TestDigestMail().all_pattern_test_team_daily_digest(**kwargs)

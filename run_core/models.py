@@ -129,7 +129,7 @@ class RoutinesLog(models.Model):
 
     task_name = models.CharField(max_length=255)  # Name of task - to group by kind of tasks
     # TODO: Add foreign key to user instance?
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
+    user = models.CharField(max_length=60, blank=True, null=True)
 
     t_args = models.TextField(blank=True, null=True)  # task args for debug
     t_kwargs = models.TextField(blank=True, null=True)  # task kwargs for debug
@@ -143,7 +143,7 @@ class RoutinesLog(models.Model):
 
     t_start_time = models.DateTimeField(null=True)
     t_finish_time = models.DateTimeField(null=True)
-    t_est_time = models.DurationField()  # datetime.timedelta(days =-1, seconds = 68400)
+    t_est_time = models.DurationField(blank=True, null=True)  # datetime.timedelta(days =-1, seconds = 68400)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -158,7 +158,7 @@ class ServicesLog(models.Model):
     """
     task_name = models.CharField(max_length=255)  # Name of task - to group by kind of tasks
     # TODO: Add foreign key to user instance?
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
+    user = models.CharField(max_length=60, blank=True, null=True)
 
     t_args = models.TextField(blank=True, null=True)  # task args for debug
     t_kwargs = models.TextField(blank=True, null=True)  # task kwargs for debug
@@ -172,7 +172,7 @@ class ServicesLog(models.Model):
 
     t_start_time = models.DateTimeField(null=True)
     t_finish_time = models.DateTimeField(null=True)
-    t_est_time = models.DurationField()  # datetime.timedelta(days =-1, seconds = 68400)
+    t_est_time = models.DurationField(blank=True, null=True)  # datetime.timedelta(days =-1, seconds = 68400)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

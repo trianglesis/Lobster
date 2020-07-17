@@ -5,34 +5,30 @@ Decorator and helpers for tasks, like:
 - parse outputs, etc
 
 """
-import os
-import sys
 import datetime
-import traceback
-
-from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
 import functools
-from time import sleep
-from collections import OrderedDict
-
-from django.template import loader
-from django.conf import settings
-from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
-from billiard.exceptions import WorkerLostError
-
-from octo.helpers.tasks_mail_send import Mails
-from run_core.models import Options, MailsTexts, TestOutputs
-from octo_tku_patterns.models import TestLast, TestCases
-from octo_tku_patterns.model_views import TestLatestDigestAll
-
 import json
-from pprint import pformat, pprint
-
-from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
-
 # Python logger
 import logging
+import sys
+import traceback
+from pprint import pformat
+from time import sleep
+
+from billiard.exceptions import WorkerLostError
+from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.template import loader
+from django.utils import timezone
+
+from octo.helpers.tasks_mail_send import Mails
+from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
+from octo_tku_patterns.model_views import TestLatestDigestAll
+from octo_tku_patterns.models import TestLast, TestCases
+from run_core.models import Options, MailsTexts, TestOutputs, RoutinesLog
+
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
 
@@ -41,6 +37,7 @@ def exception(function):
     """
     A decorator that wraps the passed in function and logs exceptions should one occur
     """
+
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
 
@@ -84,10 +81,70 @@ def exception(function):
             except TypeError:
                 log.error("Task Exception: %s", error_d)
             if settings.DEV:
-                TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
+                log.info(
+                    f'Exceptions into DEV mode {settings.DEV}: do not send mail log on task fail! {function} {exc_more} {args} {kwargs}')
+                # TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             raise Exception(e)
 
     return wrapper
+
+
+def db_logger(function):
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        if settings.DEV:
+            log.debug(f'DB Logger task {function.__name__} opts: {args}, {kwargs}')
+        start = datetime.datetime.now()
+        opt_kwargs = {
+            'task_name': f'{function.__name__}',
+            'user': 'task_wrapper',
+            't_args': args,
+            't_kwargs': kwargs,
+            't_start_time': start,
+            'description': f'{function.__doc__}',
+        }
+        run = function(*args, **kwargs)
+        finish = datetime.datetime.now()
+        est = finish - start
+        opt_kwargs.update(
+            t_finish_time=finish,
+            t_est_time=est
+        )
+        routine_log = RoutinesLog(**opt_kwargs)
+        routine_log.save()
+        return run
+    return wrapper
+
+
+def db_log_f(option=None):
+    def decorator(function):
+        if settings.DEV:
+            log.debug(f"<=db_log_f=> {function}")
+        @functools.wraps(function)
+        def wrapper(*args, **kwargs):
+            if settings.DEV:
+                log.debug(f'DB Logger function {function.__name__} opts: {args}, {kwargs}')
+            start = datetime.datetime.now()
+            opt_kwargs = {
+                'task_name': f'{function.__name__}',
+                'user': 'function_wrapper',
+                't_args': args,
+                't_kwargs': kwargs,
+                't_start_time': start,
+                'description': f'{function.__doc__}',
+            }
+            run = function(*args, **kwargs)
+            finish = datetime.datetime.now()
+            est = finish - start
+            opt_kwargs.update(
+                t_finish_time=finish,
+                t_est_time=est
+            )
+            routine_log = RoutinesLog(**opt_kwargs)
+            routine_log.save()
+            return run
+        return wrapper
+    return decorator
 
 
 class TMail:
@@ -129,14 +186,6 @@ class TMail:
                f'\n\t - occurred in: {function.__module__}.{function.__name__}'
 
         Mails.short(subject=subject, body=body, send_to=[user_email], send_cc=[self.m_service])
-        kwargs_d = dict(
-            option_key=f'{function.__module__}.{function.__name__}',
-            option_value=e,
-            description=f'{mails_txt.subject} \n\t args: {_args} \n\t kwargs: {_kwargs}',
-        )
-        log.error(kwargs_d)
-        test_out = TestOutputs(**kwargs_d)
-        test_out.save()
 
     def long_r(self, **mail_kwargs):
         """
@@ -204,11 +253,17 @@ class TMail:
                             module=function.__module__,
                             err=err)
 
-        mail_details = dict(SUBJECT = subj_txt, TASK_DETAILS=task_details)
+        mail_details = dict(SUBJECT=subj_txt, TASK_DETAILS=task_details)
         mail_html = task_limit.render(mail_details)
         Mails.short(mail_html=mail_html, subject=subj_txt, send_to=user_email, send_cc=self.m_service)
 
     def user_test(self, mail_opts):
+        """
+        Send mails during user test run. Stages: init, start, finish.
+        Finish stage will include test results.
+        :param mail_opts:
+        :return:
+        """
         test_added = loader.get_template('service/emails/statuses/test_added.html')
         mode = mail_opts.get('mode')  # Mode decision
         request = mail_opts.get('request')  # Initial stage
@@ -237,10 +292,12 @@ class TMail:
         tests_digest = []
         if mode == 'finish':
             test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
-            tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name')
+            tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by(
+                '-addm_name')
             # Compose raw log and attach to email:
-            test_logs = TestLast.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by('-addm_name').distinct()
-            log_html = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN,))
+            test_logs = TestLast.objects.filter(test_py_path__exact=test_item['test_py_path']).order_by(
+                '-addm_name').distinct()
+            log_html = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN, ))
 
         # Cases can be selected by attribute names, last days, date from or by id
         # Depending on those options - compose different subjects for 'init' mail

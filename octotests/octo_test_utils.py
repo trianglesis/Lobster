@@ -260,13 +260,6 @@ class PatternTestUtils(unittest.TestCase):
             queryset_query=self.queryset.query,
         )
         log.info(msg)
-        kwargs_d = dict(
-            option_key=f'NightTestRoutine.{self.branch}',
-            option_value=msg,
-            description=f'Night test routine executed.',
-        )
-        test_out = TestOutputs(**kwargs_d)
-        test_out.save()
         return msg
 
     def put_test_cases_short(self, test_item):
