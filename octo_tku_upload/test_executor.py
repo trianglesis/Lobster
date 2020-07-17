@@ -101,7 +101,7 @@ class UploadTestExec:
 
         subject = f"TKU_Upload_routines | upload_preparations | {step_k} |  {addm_group} | Executed!"
         body = f"ADDM group: {addm_group}\ntest_mode: {test_mode}\nstep_k: {step_k}\npreps: {preps}"
-        Mails.short(subject=subject, body=body, send_to=[user_email])
+        # Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'upload_preparations CMD: {preps} mail: {body}'
 
     @exception
@@ -158,7 +158,7 @@ class UploadTestExec:
         body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
                f"\n\ttku_type: {pack.tku_type}, \n\tpackage_type: {pack.package_type}, \n\tstart_time: {start_time}, " \
                f"\n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
-        Mails.short(subject=subject, body=body, send_to=[user_email])
+        # Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'upload_unzip_threads Took {time() - ts} {body}'
 
     @exception
