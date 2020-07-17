@@ -293,7 +293,7 @@ class PatternTestUtils(unittest.TestCase):
             t_tag = f'tag=t_addm_rsync_threads;addm_group={_addm_group};user_name={self.user_name};' \
                     f'fake={self.fake_run};command_k={operation_cmd.command_key};'
             t_kwargs = dict(addm_set=addm_item, operation_cmd=operation_cmd)
-            Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
+            Runner.fire_t(TaskADDMService.t_addm_cmd_thread, fake_run=self.fake_run,
                           t_queue=f'{_addm_group}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
@@ -356,7 +356,7 @@ class PatternTestUtils(unittest.TestCase):
     def finish_mail(self, _addm_group):
         if not self.silent:
             self.mail_kwargs.update(mode='fin')
-            Runner.fire_t(TSupport.t_long_mail, fake_run=self.fake_run,
+            Runner.fire_t(TSupport.t_long_mail, fake_run=False,
                           t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[self.mail_task_arg],
                           t_kwargs=self.mail_kwargs,

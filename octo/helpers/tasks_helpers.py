@@ -244,7 +244,8 @@ class TMail:
             description='Night test routine finishing email.',
             t_kwargs=mail_kwargs,
             input=mail_details,
-            t_finish_time=datetime.datetime.now(tz=timezone.utc) - start_time,
+            t_finish_time=datetime.datetime.now(tz=timezone.utc),
+            t_est_time=datetime.datetime.now(tz=timezone.utc) - start_time,
         )
         service_log = ServicesLog(**log_kwargs)
         service_log.save()

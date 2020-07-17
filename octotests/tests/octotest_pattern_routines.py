@@ -219,6 +219,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         Use only locked ADDMs for the current branch!
         :return:
         """
+        # TODO: Revert back!
+        self.fake_run_on(True)
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(90))
@@ -228,7 +230,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
         self.key_group()                                                                # 2
         self.excluded_group()                                                           # 4
-        self.wipe_logs_on(True)
+        self.wipe_logs_on(False)
         self.run_case()
 
     def test_015_night_routine_ship_options_addm(self):
@@ -309,7 +311,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def test_999_local_debug(self):
         date_from = now - datetime.timedelta(days=int(10))
-        self.silent_on(True)
+        self.silent_on(False)
         self.fake_run_on(True)
         self.wipe_logs_on(False)
         self.branch = 'tkn_main'
