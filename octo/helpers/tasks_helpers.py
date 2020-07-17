@@ -27,7 +27,7 @@ from octo.helpers.tasks_mail_send import Mails
 from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
 from octo_tku_patterns.model_views import TestLatestDigestAll
 from octo_tku_patterns.models import TestLast, TestCases
-from run_core.models import Options, MailsTexts, TestOutputs, RoutinesLog
+from run_core.models import Options, MailsTexts, TestOutputs, RoutinesLog, ServicesLog
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
@@ -94,7 +94,7 @@ def db_logger(function):
     def wrapper(*args, **kwargs):
         if settings.DEV:
             log.debug(f'DB Logger task {function.__name__} opts: {args}, {kwargs}')
-        start = datetime.datetime.now()
+        start = datetime.datetime.now(tz=timezone.utc)
         opt_kwargs = {
             'task_name': f'{function.__name__}',
             'user': 'task_wrapper',
@@ -104,7 +104,7 @@ def db_logger(function):
             'description': f'{function.__doc__}',
         }
         run = function(*args, **kwargs)
-        finish = datetime.datetime.now()
+        finish = datetime.datetime.now(tz=timezone.utc)
         est = finish - start
         opt_kwargs.update(
             t_finish_time=finish,
@@ -124,7 +124,7 @@ def db_log_f(option=None):
         def wrapper(*args, **kwargs):
             if settings.DEV:
                 log.debug(f'DB Logger function {function.__name__} opts: {args}, {kwargs}')
-            start = datetime.datetime.now()
+            start = datetime.datetime.now(tz=timezone.utc)
             opt_kwargs = {
                 'task_name': f'{function.__name__}',
                 'user': 'function_wrapper',
@@ -134,7 +134,7 @@ def db_log_f(option=None):
                 'description': f'{function.__doc__}',
             }
             run = function(*args, **kwargs)
-            finish = datetime.datetime.now()
+            finish = datetime.datetime.now(tz=timezone.utc)
             est = finish - start
             opt_kwargs.update(
                 t_finish_time=finish,
@@ -237,6 +237,17 @@ class TMail:
                         mail_html=mail_html)
         else:
             return mail_html
+
+        log_kwargs = dict(
+            task_name='NightRoutine',
+            user='OctoTest',
+            description='Night test routine finishing email.',
+            t_kwargs=mail_kwargs,
+            input=mail_details,
+            t_finish_time=datetime.datetime.now(tz=timezone.utc) - start_time,
+        )
+        service_log = ServicesLog(**log_kwargs)
+        service_log.save()
 
     def t_fail(self, function, err, *args, **kwargs):
         log.error("<=Task helpers=> %s", '({}) : ({}) Task failed!'.format(curr_hostname, function.__name__))

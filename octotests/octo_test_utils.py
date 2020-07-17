@@ -20,7 +20,7 @@ from octo_tku_patterns.tasks import TPatternExecTest
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.tasks import UploadTaskPrepare
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
-from run_core.models import AddmDev, TestOutputs
+from run_core.models import AddmDev, TestOutputs, ServicesLog
 from octo_tku_patterns.tasks import TaskPrepare
 
 log = logging.getLogger("octo.octologger")
@@ -320,6 +320,16 @@ class PatternTestUtils(unittest.TestCase):
                       t_args=[self.mail_task_arg],
                       t_kwargs=self.mail_kwargs,
                       t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
+        log_kwargs = dict(
+            task_name='NightRoutine',
+            description='Night test routine starting email.',
+            user=self.user_name,
+            input=self.mail_kwargs,
+            t_start_time=datetime.datetime.now(tz=timezone.utc),
+            raw=f'{self.queryset.query}'.encode("utf-8"),
+        )
+        service_log = ServicesLog(**log_kwargs)
+        service_log.save()
 
     def run_cases_router(self, addm_tests, _addm_group, addm_item):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """

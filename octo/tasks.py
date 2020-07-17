@@ -92,7 +92,7 @@ class TSupport:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport.fake_task',
               soft_time_limit=HOURS_2, task_time_limit=HOURS_2+900)
-    @db_logger
+    # @db_logger
     @exception
     def fake_task(t_tag, **kwargs):
         """
