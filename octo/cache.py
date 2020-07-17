@@ -131,8 +131,14 @@ class OctoCache:
         """
         cached_items = OctoCacheStore.objects.all()
         cached_items = cached_items.filter(key__in=keys)
+
+        # for cache_item in cached_items:
+        #     log.info(f"This would be deleted - hits: {cache_item.counter}\nhash: {cache_item.hashed}\nquery: {cache_item.query}")
+
         cached_values = cached_items.values_list('hashed', flat=True)
-        log.debug(f"About to delete cache for keys: {cached_values}")
+
+        # log.debug(f"About to delete cache for keys: {cached_values}")
+
         cache.delete_many(cached_values)
         self.delete_cache_item_row(cached_items)
 
@@ -142,10 +148,10 @@ class OctoCache:
         :param cached_items:
         :return:
         """
-        gt_one = cached_items.filter(counter__gt=1)
-        log.debug(f"Common cache queries save: {gt_one.values_list('key', 'counter')}")
+        # gt_one = cached_items.filter(counter__gt=1)
         lte_one = cached_items.filter(counter__lte=1)
-        log.debug(f"Rare cache queries save: {lte_one.values_list('key', 'counter')}")
+        # log.debug(f"Common cache queries save: {gt_one.values_list('key', 'counter')}")
+        # log.debug(f"Rare cache queries save: {lte_one.values_list('key', 'counter')}")
         lte_one.delete()
 
     def select_and_verify(self, model, keys=None):
@@ -212,32 +218,32 @@ class OctoSignals:
     @staticmethod
     @receiver(post_save, sender=TestLast)  # the sender is your fix
     def test_last_save(sender, instance, created, **kwargs):
-        log.info("post_save in TestLast table!")
-        log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
+        # log.info("post_save in TestLast table!")
+        # log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=TestLast, keys=OctoSignals().test_last)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last)
 
     @staticmethod
     @receiver(post_save, sender=TestHistory)  # the sender is your fix
     def test_history_save(sender, instance, created, **kwargs):
-        log.info("post_save in TestHistory table!")
-        log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
+        # log.info("post_save in TestHistory table!")
+        # log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=TestHistory, keys=OctoSignals().test_history)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().test_history)
 
     @staticmethod
     @receiver(post_save, sender=TestCases)  # the sender is your fix
     def test_cases_save(sender, instance, created, **kwargs):
-        log.info("post_save in TestCases table!")
-        log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
+        # log.info("post_save in TestCases table!")
+        # log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=TestCases, keys=OctoSignals().test_cases)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().test_cases)
 
     @staticmethod
     @receiver(post_save, sender=UploadTestsNew)  # the sender is your fix
     def tku_upload_test_save(sender, instance, created, **kwargs):
-        log.info("post_save in TestCases table!")
-        log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
+        # log.info("post_save in TestCases table!")
+        # log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=UploadTestsNew, keys=OctoSignals().upload_tests)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().upload_tests)
 
@@ -245,31 +251,31 @@ class OctoSignals:
     @staticmethod
     @receiver(post_delete, sender=TestLast)  # the sender is your fix
     def test_last_delete(sender, instance, **kwargs):
-        log.info("post_delete in TestLast table!")
-        log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
+        # log.info("post_delete in TestLast table!")
+        # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=TestLast, keys=OctoSignals().test_last)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last)
 
     @staticmethod
     @receiver(post_delete, sender=TestHistory)  # the sender is your fix
     def test_history_delete(sender, instance, **kwargs):
-        log.info("post_delete in TestHistory table!")
-        log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
+        # log.info("post_delete in TestHistory table!")
+        # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=TestHistory, keys=OctoSignals().test_history)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().test_history)
 
     @staticmethod
     @receiver(post_delete, sender=TestCases)  # the sender is your fix
     def test_cases_delete(sender, instance, **kwargs):
-        log.info("post_delete in TestCases table!")
-        log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
+        # log.info("post_delete in TestCases table!")
+        # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=TestCases, keys=OctoSignals().test_cases)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().test_cases)
 
     @staticmethod
     @receiver(post_delete, sender=UploadTestsNew)  # the sender is your fix
     def tku_upload_test_delete(sender, instance, **kwargs):
-        log.info("post_delete in TestCases table!")
-        log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
+        # log.info("post_delete in TestCases table!")
+        # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=UploadTestsNew, keys=OctoSignals().upload_tests)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().upload_tests)
