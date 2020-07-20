@@ -10,6 +10,7 @@ from django.core.cache import caches, cache
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
+from octo_tku_patterns.model_views import TestLatestDigestAll, AddmDigest
 from octo_tku_patterns.models import TestLast, TestHistory, TestCases
 from octo_tku_upload.models import UploadTestsNew, TkuPackagesNew
 
@@ -123,7 +124,7 @@ class OctoCache:
         # log.debug(f"Hashed comparison: {hashed} with {hashed}")
         return compare_digest(hash, hashed)
 
-    def delete_cache_on_signal(self, keys=None):
+    def delete_cache_on_signal(self, keys=None, models=None):
         """
         Just delete all cache by keys, no regret,
         :param keys:
@@ -131,16 +132,10 @@ class OctoCache:
         """
         cached_items = OctoCacheStore.objects.all()
         cached_items = cached_items.filter(key__in=keys)
-
-        # for cache_item in cached_items:
-        #     log.info(f"This would be deleted - hits: {cache_item.counter}\nhash: {cache_item.hashed}\nquery: {cache_item.query}")
-
         cached_values = cached_items.values_list('hashed', flat=True)
-
-        # log.debug(f"About to delete cache for keys: {cached_values}")
-
         cache.delete_many(cached_values)
         self.delete_cache_item_row(cached_items)
+        self.create_new_cache(cached_items, models)
 
     def delete_cache_item_row(self, cached_items):
         """
@@ -148,11 +143,29 @@ class OctoCache:
         :param cached_items:
         :return:
         """
-        # gt_one = cached_items.filter(counter__gt=1)
         lte_one = cached_items.filter(counter__lte=1)
-        # log.debug(f"Common cache queries save: {gt_one.values_list('key', 'counter')}")
-        # log.debug(f"Rare cache queries save: {lte_one.values_list('key', 'counter')}")
         lte_one.delete()
+
+    def create_new_cache(self, cached_items, models):
+        """
+        Making a RAW query cache. Need consider about escaping anything such as params
+        :param cached_items:
+        :return:
+        """
+        gt_one = cached_items.filter(counter__gt=1)
+        cached_queries = gt_one.values('query', 'key')
+        for _model in models:
+            log.debug(f'Model name {_model.__name__}')
+        # Make threading or something like that?
+        for _query in cached_queries:
+            if _query['query']:
+                q = eval(_query['query'])
+                query = q.decode('utf-8')
+                for _model in models:
+                    if _model.__name__ == _query['key']:
+                        log.debug(f'Recaching model {_model.__name__} == {_query["key"]}')
+                        OctoCache().cache_query(_model.objects.raw(query))
+
 
     def select_and_verify(self, model, keys=None):
         """
@@ -213,6 +226,7 @@ class OctoSignals:
         self.test_history = ['TestHistory', 'TestHistoryDigestDaily']
         self.test_cases = ['TestCases']
         self.upload_tests = ['UploadTestsNew', 'TkuPackagesNew']
+        self.test_last_models = [AddmDigest, TestLast, TestLatestDigestAll]
 
     # SAVE:
     @staticmethod
@@ -221,7 +235,7 @@ class OctoSignals:
         # log.info("post_save in TestLast table!")
         # log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=TestLast, keys=OctoSignals().test_last)
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last)
+        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().test_last_models)
 
     @staticmethod
     @receiver(post_save, sender=TestHistory)  # the sender is your fix
@@ -254,7 +268,7 @@ class OctoSignals:
         # log.info("post_delete in TestLast table!")
         # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
         # OctoCache().select_and_verify(model=TestLast, keys=OctoSignals().test_last)
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last)
+        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().test_last_models)
 
     @staticmethod
     @receiver(post_delete, sender=TestHistory)  # the sender is your fix
