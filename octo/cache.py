@@ -1,23 +1,22 @@
+# Python logger
+import logging
 from hashlib import blake2b
 from hmac import compare_digest
 
 from django.conf import settings
+from django.core.cache import cache
 from django.db.models.query import EmptyResultSet
+from django.db.models.signals import post_save, pre_delete
 from django.db.utils import IntegrityError
-from django.db.models import F
-
-from django.core.cache import caches, cache
-from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from octo_tku_patterns.model_views import TestLatestDigestAll, AddmDigest
-from octo_tku_patterns.models import TestLast, TestHistory, TestCases
-from octo_tku_upload.models import UploadTestsNew, TkuPackagesNew
-
+from octo.helpers.tasks_run import Runner
 from octo.models import OctoCacheStore
-
-# Python logger
-import logging
+from octo_tku_patterns.model_views import AddmDigest, TestLatestDigestAll
+from octo_tku_patterns.models import TestLast, TestHistory, TestCases
+from octo_tku_patterns.tasks import TPatternRoutine
+from octo_tku_upload.models import UploadTestsNew, TkuPackagesNew
+from octotests.tests_discover_run import TestRunnerLoc
 
 log = logging.getLogger("octo.octologger")
 
@@ -75,9 +74,9 @@ class OctoCache:
         cached = self.cache.get(hashed)
         if cached is None:
             self.cache.set(hashed, caching, ttl)
-            log.debug(f"Set: {hashed}")
+            log.debug(f"Set:\t\t{hashed}")
             if settings.DEV:
-                log.debug(f"And get: {hashed}")
+                log.debug(f"And get:\t{hashed}")
             got = self.cache.get(hashed)
             self.save_cache_hash_db(hashed=hashed, caching=caching, key=hkey, ttl=ttl)
             return got
@@ -90,16 +89,17 @@ class OctoCache:
         caching = kwargs.pop('caching')
         if hasattr(caching, 'query'):
             sql_query = caching.query
+            # log.info(f'RAW QUERY: {caching.query.__str__()}')
             kwargs.update(query=str(sql_query).encode('utf-8'))
         try:
             updated, created = OctoCacheStore.objects.update_or_create(
                 hashed=kwargs.get('hashed'),
                 defaults=dict(**kwargs),
             )
-            log.debug(f"Counter {updated.counter}")
+            # log.debug(f"Counter {updated.counter}")
             # updated.counter = F('counter') + updated.counter + 1
             updated.counter += 1
-            log.debug(f"Updated {updated.counter}")
+            # log.debug(f"Updated {updated.counter}")
             updated.save()
             # if settings.DEV:
             #     if updated:
@@ -124,7 +124,7 @@ class OctoCache:
         # log.debug(f"Hashed comparison: {hashed} with {hashed}")
         return compare_digest(hash, hashed)
 
-    def delete_cache_on_signal(self, keys=None, models=None):
+    def delete_cache_on_signal(self, keys=None, models=None, views=None):
         """
         Just delete all cache by keys, no regret,
         :param keys:
@@ -135,7 +135,8 @@ class OctoCache:
         cached_values = cached_items.values_list('hashed', flat=True)
         cache.delete_many(cached_values)
         self.delete_cache_item_row(cached_items)
-        self.create_new_cache(cached_items, models)
+        # NOTE: We have fine method to recreate cache automatically right now, but this is fine.
+        # self.create_new_cache(cached_items, models)
 
     def delete_cache_item_row(self, cached_items):
         """
@@ -146,16 +147,16 @@ class OctoCache:
         lte_one = cached_items.filter(counter__lte=1)
         lte_one.delete()
 
-    def create_new_cache(self, cached_items, models):
+    def _create_new_cache(self, cached_items, models):
         """
         Making a RAW query cache. Need consider about escaping anything such as params
         :param cached_items:
         :return:
         """
-        gt_one = cached_items.filter(counter__gt=1)
+        gt_one = cached_items.filter(counter__gt=3)
         cached_queries = gt_one.values('query', 'key')
-        for _model in models:
-            log.debug(f'Model name {_model.__name__}')
+        # for _model in models:
+        #     log.debug(f'Model name {_model.__name__}')
         # Make threading or something like that?
         for _query in cached_queries:
             if _query['query']:
@@ -163,11 +164,10 @@ class OctoCache:
                 query = q.decode('utf-8')
                 for _model in models:
                     if _model.__name__ == _query['key']:
-                        log.debug(f'Recaching model {_model.__name__} == {_query["key"]}')
+                        # log.debug(f'Recaching model {_model.__name__} == {_query["key"]}')
                         OctoCache().cache_query(_model.objects.raw(query))
 
-
-    def select_and_verify(self, model, keys=None):
+    def _select_and_verify(self, model, keys=None):
         """
         Select all related to model cached items and delete their caches.
         Later re-made caches for most used ones by counter
@@ -195,12 +195,12 @@ class OctoCache:
                     # verifying = OctoCache().verify(query, cached_item.hashed)
                     # if verifying:
                     #     log.info(f"Cache sig OK: {verifying}")
-                        # RE-EXECUTE query and put it into the cache again!
-                        # NOTE: Cannot replace the cached query, because here it's a RawQuerySet, while we need QuerySet
-                        # IDEA: Refer to related test item and just execute local test task?
-                        # OctoCache().cache_query(model.objects.raw(query))
-                        # qs = model.objects.all()
-                        # OctoCache().cache_query(qs.extra(query))
+                    # RE-EXECUTE query and put it into the cache again!
+                    # NOTE: Cannot replace the cached query, because here it's a RawQuerySet, while we need QuerySet
+                    # IDEA: Refer to related test item and just execute local test task?
+                    # OctoCache().cache_query(model.objects.raw(query))
+                    # qs = model.objects.all()
+                    # OctoCache().cache_query(qs.extra(query))
                     # else:
                     #     log.error(f"Query hash is diff for this query: '{query}' != hash '{cached_item.hashed}'")
                 # For any query which hit count is less then 1, means it was requested only once, this is not common.
@@ -219,6 +219,21 @@ class OctoCache:
                 cached_item.delete()
                 log.info("This cache item have no query - just deleted!")
 
+    def task_re_cache(self, test_methods):
+        for test in test_methods:
+            kwargs = {
+                "test_method": test,
+                "test_class": "AdvancedViews",
+                "test_module": "octotests.tests.test_views_requests"
+            }
+            tag = f'AdvancedViews.{test}'
+            Runner.fire_t(
+                TPatternRoutine.t_patt_routines,
+                t_args=[tag],
+                t_kwargs=kwargs,
+                t_routing_key=tag)
+
+
 class OctoSignals:
 
     def __init__(self):
@@ -227,69 +242,50 @@ class OctoSignals:
         self.test_cases = ['TestCases']
         self.upload_tests = ['UploadTestsNew', 'TkuPackagesNew']
         self.test_last_models = [AddmDigest, TestLast, TestLatestDigestAll]
+        self.test_history_models = [TestHistory]
+        self.tku_tests_models = [UploadTestsNew, TkuPackagesNew]
 
     # SAVE:
     @staticmethod
-    @receiver(post_save, sender=TestLast)  # the sender is your fix
+    @receiver(post_save, sender=TestLast)
     def test_last_save(sender, instance, created, **kwargs):
-        # log.info("post_save in TestLast table!")
-        # log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
-        # OctoCache().select_and_verify(model=TestLast, keys=OctoSignals().test_last)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().test_last_models)
+        OctoCache().task_re_cache(
+            test_methods=['test001_main_page', 'test001_addm_digest', 'test002_tests_last', 'test003_test_details'])
 
     @staticmethod
-    @receiver(post_save, sender=TestHistory)  # the sender is your fix
-    def test_history_save(sender, instance, created, **kwargs):
-        # log.info("post_save in TestHistory table!")
-        # log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
-        # OctoCache().select_and_verify(model=TestHistory, keys=OctoSignals().test_history)
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_history)
-
-    @staticmethod
-    @receiver(post_save, sender=TestCases)  # the sender is your fix
+    @receiver(post_save, sender=TestCases)
     def test_cases_save(sender, instance, created, **kwargs):
-        # log.info("post_save in TestCases table!")
-        # log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
-        # OctoCache().select_and_verify(model=TestCases, keys=OctoSignals().test_cases)
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_cases)
+        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=[TestCases])
+        OctoCache().task_re_cache(
+            test_methods=['test002_test_cases'])
 
     @staticmethod
-    @receiver(post_save, sender=UploadTestsNew)  # the sender is your fix
+    @receiver(post_save, sender=UploadTestsNew)
     def tku_upload_test_save(sender, instance, created, **kwargs):
-        # log.info("post_save in TestCases table!")
-        # log.debug(f'Args: {sender} {instance} {created} kwargs: {kwargs}')
-        # OctoCache().select_and_verify(model=UploadTestsNew, keys=OctoSignals().upload_tests)
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().upload_tests)
+        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().tku_tests_models)
+        OctoCache().task_re_cache(
+            test_methods=['test001_main_page', 'test001_tku_workbench', 'test001_upload_today'])
 
     # DELETE
     @staticmethod
-    @receiver(post_delete, sender=TestLast)  # the sender is your fix
+    @receiver(pre_delete, sender=TestLast)
     def test_last_delete(sender, instance, **kwargs):
-        # log.info("post_delete in TestLast table!")
         # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
-        # OctoCache().select_and_verify(model=TestLast, keys=OctoSignals().test_last)
         OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().test_last_models)
+        OctoCache().task_re_cache(
+            test_methods=['test001_main_page', 'test001_addm_digest', 'test002_tests_last', 'test003_test_details'])
 
     @staticmethod
-    @receiver(post_delete, sender=TestHistory)  # the sender is your fix
-    def test_history_delete(sender, instance, **kwargs):
-        # log.info("post_delete in TestHistory table!")
-        # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
-        # OctoCache().select_and_verify(model=TestHistory, keys=OctoSignals().test_history)
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_history)
-
-    @staticmethod
-    @receiver(post_delete, sender=TestCases)  # the sender is your fix
+    @receiver(pre_delete, sender=TestCases)
     def test_cases_delete(sender, instance, **kwargs):
-        # log.info("post_delete in TestCases table!")
-        # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
-        # OctoCache().select_and_verify(model=TestCases, keys=OctoSignals().test_cases)
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_cases)
+        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=[TestCases])
+        OctoCache().task_re_cache(
+            test_methods=['test002_test_cases'])
 
     @staticmethod
-    @receiver(post_delete, sender=UploadTestsNew)  # the sender is your fix
+    @receiver(pre_delete, sender=UploadTestsNew)
     def tku_upload_test_delete(sender, instance, **kwargs):
-        # log.info("post_delete in TestCases table!")
-        # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
-        # OctoCache().select_and_verify(model=UploadTestsNew, keys=OctoSignals().upload_tests)
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().upload_tests)
+        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().tku_tests_models)
+        OctoCache().task_re_cache(
+            test_methods=['test001_main_page', 'test001_tku_workbench', 'test001_upload_today'])

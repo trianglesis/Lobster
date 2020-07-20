@@ -23,5 +23,5 @@ if __name__ == "__main__":
         "test_class": "OctoTestCaseUpload",
         "test_module": "octotests.tests.octotest_upload_tku"
     }
-    # run_routine = TestRunnerLoc().run_subprocess(**upload_r)
+    run_routine = TestRunnerLoc().run_subprocess(**upload_r)
 

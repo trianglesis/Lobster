@@ -222,10 +222,11 @@ class AddmDigestListView(ListView):
 class TestLastDigestListView(ListView):
     __url_path = '/octo_tku_patterns/tests_last/'
     template_name = 'digests/tests_last.html'
-    context_object_name = 'tests_digest'
+    # context_object_name = 'tests_digest'
     # Check if this is useful case to have queryset loaded on view class init:
 
     def get_context_data(self, **kwargs):
+        context = super(TestLastDigestListView, self).get_context_data(**kwargs)
         # Get unique addm names based on table latest run:
         addm_names = OctoCache().cache_query(
             AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
@@ -240,25 +241,23 @@ class TestLastDigestListView(ListView):
             TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(
                 total=Count('change_user')).order_by('change_user'))
 
-        if self.request.method == 'GET':
-            context = super(TestLastDigestListView, self).get_context_data(**kwargs)
-            context.update(
-                selector=compose_selector(self.request.GET),
-                selector_str='',
-                addm_names=addm_names,
-                test_type_qs=test_type_qs,
-                pattern_library_qs=pattern_library_qs,
-                change_user_qs=change_user_qs,
-                tests_digest_json='',
-            )
+        context.update(
+            selector=compose_selector(self.request.GET),
+            selector_str='',
+            addm_names=addm_names,
+            test_type_qs=test_type_qs,
+            pattern_library_qs=pattern_library_qs,
+            change_user_qs=change_user_qs,
+            tests_digest_json='',
+        )
 
-            context['tests_digest'] = OctoCache().cache_query(
-                context['tests_digest'])
-            context['tests_digest_json'] = OctoCache().cache_item(
-                JSONRenderer().render(
-                TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8'),
-                hkey='TestLastDigestListView_tests_digest_json', key='TestLast')
-            return context
+        context['tests_digest'] = OctoCache().cache_query(
+            context['object_list'])
+        context['tests_digest_json'] = OctoCache().cache_item(
+            JSONRenderer().render(
+            TestLatestDigestAllSerializer(context['object_list'], many=True).data).decode('utf-8'),
+            hkey='TestLastDigestListView_tests_digest_json', key='TestLast')
+        return context
 
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
