@@ -258,10 +258,11 @@ class AdvancedViews(TestCase):
         view = UploadTestTodayArchiveView()
         request = self.request.get('/octo_tku_upload/upload_today/')
         view.setup(request)
-        querysets = view.get_queryset()
-        OctoCache().cache_query(querysets)
+        queryset = view.get_queryset()
+        OctoCache().cache_query(queryset)
         view.get(request)
 
+    @unittest.skip('Skip when have two separate tests for branches!')
     def test002_tests_last(self):
         """
         Get most common views on tests_last for different branches and all test statuses
@@ -277,13 +278,56 @@ class AdvancedViews(TestCase):
                 request = self.request.get('/octo_tku_patterns/tests_last/',
                                            {'tkn_branch': branch, 'tst_status': status})
                 view.setup(request)
-                querysets = view.get_queryset()
-                OctoCache().cache_query(querysets)
+                queryset = view.get_queryset()
+                OctoCache().cache_query(queryset)
                 # view.options(request)
                 view.get(request)
                 pages += 1
         log.info(f'Tested {pages} pages.')
 
+    def test002_tests_last_tkn_main(self):
+        """
+        Get most common views on tests_last for different branches and all test statuses
+        Those are dynamical views all ADDMs on one, but template and JS sorting.
+        Maybe do not load a LIBRARY related, usually it does not so needed for users to be so fast.
+        :return:
+        """
+        log.info("Running: test002_tests_last_tkn_main")
+        pages = 0
+        view = TestLastDigestListView()
+        for status in self.test_statuses:
+            request = self.request.get('/octo_tku_patterns/tests_last/',
+                                       {'tkn_branch': 'tkn_main', 'tst_status': status})
+            view.setup(request)
+            queryset = view.get_queryset()
+            OctoCache().cache_query(queryset)
+            # view.options(request)
+            view.get(request)
+            pages += 1
+        log.info(f'Tested {pages} pages.')
+
+    def test002_tests_last_tkn_ship(self):
+        """
+        Get most common views on tests_last for different branches and all test statuses
+        Those are dynamical views all ADDMs on one, but template and JS sorting.
+        Maybe do not load a LIBRARY related, usually it does not so needed for users to be so fast.
+        :return:
+        """
+        log.info("Running: test002_tests_last_tkn_ship")
+        pages = 0
+        view = TestLastDigestListView()
+        for status in self.test_statuses:
+            request = self.request.get('/octo_tku_patterns/tests_last/',
+                                       {'tkn_branch': 'tkn_ship', 'tst_status': status})
+            view.setup(request)
+            queryset = view.get_queryset()
+            OctoCache().cache_query(queryset)
+            # view.options(request)
+            view.get(request)
+            pages += 1
+        log.info(f'Tested {pages} pages.')
+
+    @unittest.skip('Skip when have two separate tests for branches!')
     def test003_test_details(self):
         """
         Get most common views on /octo_tku_patterns/test_details
@@ -300,10 +344,52 @@ class AdvancedViews(TestCase):
                         '/octo_tku_patterns/test_details/',
                         {'tkn_branch': branch, 'addm_name': addm_name, 'tst_status': status})
                     view.setup(request)
-                    querysets = view.get_queryset()
-                    OctoCache().cache_query(querysets)
+                    queryset = view.get_queryset()
+                    OctoCache().cache_query(queryset)
                     view.get(request)
                     pages += 1
+        log.info(f'Tested {pages} pages.')
+
+    def test003_test_details_tkn_main(self):
+        """
+        Get most common views on /octo_tku_patterns/test_details
+        Most pages which opens when clicking on count of passed,failed,errored tests
+        :return:
+        """
+        log.info("Running: test003_test_details_tkn_main")
+        pages = 0
+        view = TestLastSingleDetailedListView()
+        for addm_name in self.addm_names:
+            for status in self.test_statuses:
+                request = self.request.get(
+                    '/octo_tku_patterns/test_details/',
+                    {'tkn_branch': 'tkn_main', 'addm_name': addm_name, 'tst_status': status})
+                view.setup(request)
+                queryset = view.get_queryset()
+                OctoCache().cache_query(queryset)
+                view.get(request)
+                pages += 1
+        log.info(f'Tested {pages} pages.')
+
+    def test003_test_details_tkn_ship(self):
+        """
+        Get most common views on /octo_tku_patterns/test_details
+        Most pages which opens when clicking on count of passed,failed,errored tests
+        :return:
+        """
+        log.info("Running: test003_test_details_tkn_ship")
+        pages = 0
+        view = TestLastSingleDetailedListView()
+        for addm_name in self.addm_names:
+            for status in self.test_statuses:
+                request = self.request.get(
+                    '/octo_tku_patterns/test_details/',
+                    {'tkn_branch': 'tkn_ship', 'addm_name': addm_name, 'tst_status': status})
+                view.setup(request)
+                queryset = view.get_queryset()
+                OctoCache().cache_query(queryset)
+                view.get(request)
+                pages += 1
         log.info(f'Tested {pages} pages.')
 
     def test002_test_cases(self):
@@ -317,8 +403,8 @@ class AdvancedViews(TestCase):
         # Solo
         request = self.request.get('/octo_tku_patterns/test_cases/')
         view.setup(request)
-        querysets = view.get_queryset()
-        OctoCache().cache_query(querysets)
+        queryset = view.get_queryset()
+        OctoCache().cache_query(queryset)
         view.get(request)
         pages += 1
         # With args
@@ -327,15 +413,15 @@ class AdvancedViews(TestCase):
                 request = self.request.get('/octo_tku_patterns/test_cases/',
                                            {'tkn_branch': branch, 'pattern_library': library})
                 view.setup(request)
-                querysets = view.get_queryset()
-                OctoCache().cache_query(querysets)
+                queryset = view.get_queryset()
+                OctoCache().cache_query(queryset)
                 view.get(request)
                 pages += 1
         # Load view for night test run:
         request = self.request.get('/octo_tku_patterns/test_cases/', {'last_days': 90})
         view.setup(request)
-        querysets = view.get_queryset()
-        OctoCache().cache_query(querysets)
+        queryset = view.get_queryset()
+        OctoCache().cache_query(queryset)
         view.get(request)
         pages += 1
         log.info(f'Tested {pages} pages.')
@@ -353,8 +439,8 @@ class AdvancedViews(TestCase):
                 request = self.request.get('/octo_tku_patterns/test_history_digest_today/',
                                            {'tkn_branch': branch, 'tst_status': status})
                 view.setup(request)
-                querysets = view.get_queryset()
-                OctoCache().cache_query(querysets)
+                queryset = view.get_queryset()
+                OctoCache().cache_query(queryset)
                 view.get(request)
                 pages += 1
         log.info(f'Tested {pages} pages.')
@@ -377,8 +463,8 @@ class AdvancedViews(TestCase):
                 attrs = {'tkn_branch': branch, 'tst_status': 'notpass'}
                 request = self.request.get(test_url, attrs, follow=True)
                 view.setup(request)
-                querysets = view.get_queryset()
-                OctoCache().cache_query(querysets)
+                queryset = view.get_queryset()
+                OctoCache().cache_query(queryset)
                 # view.get(request)
                 pages += 1
         log.info(f'Tested {pages} pages.')

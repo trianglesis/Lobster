@@ -2,6 +2,7 @@
 import logging
 from hashlib import blake2b
 from hmac import compare_digest
+import datetime
 
 from django.conf import settings
 from django.core.cache import cache
@@ -19,6 +20,15 @@ from octo_tku_upload.models import UploadTestsNew
 log = logging.getLogger("octo.octologger")
 
 SECRET_KEY = 'DefaultKeyResetEverything'
+
+
+def working_hours():
+    now = datetime.datetime.now().replace(second=0, microsecond=0)
+    morning = now.replace(hour=7)
+    evening = now.replace(hour=18)
+    if now > morning and now < evening:
+        return True
+    return False
 
 
 class OctoCache:
@@ -72,14 +82,14 @@ class OctoCache:
         cached = self.cache.get(hashed)
         if cached is None:
             self.cache.set(hashed, caching, ttl)
-            log.debug(f"Set:\t\t{hashed}")
-            if settings.DEV:
-                log.debug(f"And get:\t{hashed}")
+            # log.debug(f"Set:\t\t{hashed}")
+            # if settings.DEV:
+                # log.debug(f"And get:\t{hashed}")
             got = self.cache.get(hashed)
             self.save_cache_hash_db(hashed=hashed, caching=caching, key=hkey, ttl=ttl)
             return got
         else:
-            log.debug(f"Get: {hashed}")
+            # log.debug(f"Get: {hashed}")
             return cached
 
     @staticmethod
@@ -113,14 +123,6 @@ class OctoCache:
             msg = f"<=save_cache_hash_db=> Error: {e}"
             print(msg)
             raise Exception(msg)
-
-    def verify(self, comparing, hashed):
-        """Only for check!"""
-        h = blake2b(digest_size=50)
-        h.update(f'{comparing}'.encode("utf-8"))
-        hash = h.hexdigest()
-        # log.debug(f"Hashed comparison: {hashed} with {hashed}")
-        return compare_digest(hash, hashed)
 
     def delete_cache_on_signal(self, keys=None, models=None):
         """
@@ -162,7 +164,16 @@ class OctoCache:
     def cache_operation(self, keys, methods):
         # NOTE: Do not run at non-working hours
         self.delete_cache_on_signal(keys=keys)
-        self.task_re_cache(test_methods=methods)
+        if working_hours():
+            self.task_re_cache(test_methods=methods)
+
+    def _verify(self, comparing, hashed):
+        """Only for check!"""
+        h = blake2b(digest_size=50)
+        h.update(f'{comparing}'.encode("utf-8"))
+        hash = h.hexdigest()
+        # log.debug(f"Hashed comparison: {hashed} with {hashed}")
+        return compare_digest(hash, hashed)
 
     def _create_new_cache(self, cached_items, models):
         """
@@ -238,13 +249,13 @@ class OctoCache:
 
 
 test_last = ['AddmDigest', 'TestLast', 'TestLatestDigestAll']
-test_last_t = ['test001_main_page', 'test001_addm_digest', 'test002_tests_last', 'test003_test_details']
 
 test_cases = ['TestCases']
 test_cases_t = ['test002_test_cases']
 
 upload_tests = ['UploadTestsNew', 'TkuPackagesNew']
 upload_tests_t = ['test001_main_page', 'test001_tku_workbench', 'test001_upload_today']
+
 
 
 class OctoSignals:
@@ -256,6 +267,14 @@ class OctoSignals:
     @staticmethod
     @receiver(post_save, sender=TestLast)
     def test_last_save(sender, instance, created, **kwargs):
+        test_last_t = ['test001_main_page', 'test001_addm_digest']
+        if hasattr(instance, 'tkn_branch'):
+            if instance.tkn_branch == 'tkn_main':
+                test_last_t.extend(('test002_tests_last_tkn_main', 'test003_test_details_tkn_main'))
+            elif instance.tkn_branch == 'tkn_ship':
+                test_last_t.extend(('test002_tests_last_tkn_ship', 'test003_test_details_tkn_ship'))
+            else:
+                log.error('No branch in deleted item?! OctoSignals')
         OctoCache().cache_operation(keys=test_last, methods=test_last_t)
 
     @staticmethod
@@ -272,7 +291,15 @@ class OctoSignals:
     @staticmethod
     @receiver(post_delete, sender=TestLast)
     def test_last_delete(sender, instance, **kwargs):
-        # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
+        log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
+        test_last_t = ['test001_main_page', 'test001_addm_digest',]
+        if hasattr(instance, 'tkn_branch'):
+            if instance.tkn_branch == 'tkn_main':
+                test_last_t.extend(('test002_tests_last_tkn_main', 'test003_test_details_tkn_main'))
+            elif instance.tkn_branch == 'tkn_ship':
+                test_last_t.extend(('test002_tests_last_tkn_ship', 'test003_test_details_tkn_ship'))
+            else:
+                log.error('No branch in deleted item?! OctoSignals')
         OctoCache().cache_operation(keys=test_last, methods=test_last_t)
 
     @staticmethod
