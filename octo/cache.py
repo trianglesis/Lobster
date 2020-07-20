@@ -6,17 +6,15 @@ from hmac import compare_digest
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models.query import EmptyResultSet
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, pre_delete, post_delete
 from django.db.utils import IntegrityError
 from django.dispatch import receiver
 
 from octo.helpers.tasks_run import Runner
 from octo.models import OctoCacheStore
-from octo_tku_patterns.model_views import AddmDigest, TestLatestDigestAll
-from octo_tku_patterns.models import TestLast, TestHistory, TestCases
+from octo_tku_patterns.models import TestLast, TestCases
 from octo_tku_patterns.tasks import TPatternRoutine
-from octo_tku_upload.models import UploadTestsNew, TkuPackagesNew
-from octotests.tests_discover_run import TestRunnerLoc
+from octo_tku_upload.models import UploadTestsNew
 
 log = logging.getLogger("octo.octologger")
 
@@ -124,7 +122,7 @@ class OctoCache:
         # log.debug(f"Hashed comparison: {hashed} with {hashed}")
         return compare_digest(hash, hashed)
 
-    def delete_cache_on_signal(self, keys=None, models=None, views=None):
+    def delete_cache_on_signal(self, keys=None, models=None):
         """
         Just delete all cache by keys, no regret,
         :param keys:
@@ -144,8 +142,27 @@ class OctoCache:
         :param cached_items:
         :return:
         """
-        lte_one = cached_items.filter(counter__lte=1)
+        lte_one = cached_items.filter(counter__lte=2)
         lte_one.delete()
+
+    def task_re_cache(self, test_methods):
+        for test in test_methods:
+            kwargs = {
+                "test_method": test,
+                "test_class": "AdvancedViews",
+                "test_module": "octotests.tests.test_views_requests"
+            }
+            tag = f'AdvancedViews.{test}'
+            Runner.fire_t(
+                TPatternRoutine.t_patt_routines,
+                t_args=[tag],
+                t_kwargs=kwargs,
+                t_routing_key=tag)
+
+    def cache_operation(self, keys, methods):
+        # NOTE: Do not run at non-working hours
+        self.delete_cache_on_signal(keys=keys)
+        self.task_re_cache(test_methods=methods)
 
     def _create_new_cache(self, cached_items, models):
         """
@@ -219,73 +236,51 @@ class OctoCache:
                 cached_item.delete()
                 log.info("This cache item have no query - just deleted!")
 
-    def task_re_cache(self, test_methods):
-        for test in test_methods:
-            kwargs = {
-                "test_method": test,
-                "test_class": "AdvancedViews",
-                "test_module": "octotests.tests.test_views_requests"
-            }
-            tag = f'AdvancedViews.{test}'
-            Runner.fire_t(
-                TPatternRoutine.t_patt_routines,
-                t_args=[tag],
-                t_kwargs=kwargs,
-                t_routing_key=tag)
+
+test_last = ['AddmDigest', 'TestLast', 'TestLatestDigestAll']
+test_last_t = ['test001_main_page', 'test001_addm_digest', 'test002_tests_last', 'test003_test_details']
+
+test_cases = ['TestCases']
+test_cases_t = ['test002_test_cases']
+
+upload_tests = ['UploadTestsNew', 'TkuPackagesNew']
+upload_tests_t = ['test001_main_page', 'test001_tku_workbench', 'test001_upload_today']
 
 
 class OctoSignals:
-
-    def __init__(self):
-        self.test_last = ['AddmDigest', 'TestLast', 'TestLatestDigestAll']
-        self.test_history = ['TestHistory', 'TestHistoryDigestDaily']
-        self.test_cases = ['TestCases']
-        self.upload_tests = ['UploadTestsNew', 'TkuPackagesNew']
-        self.test_last_models = [AddmDigest, TestLast, TestLatestDigestAll]
-        self.test_history_models = [TestHistory]
-        self.tku_tests_models = [UploadTestsNew, TkuPackagesNew]
+    """
+    https://docs.djangoproject.com/en/3.0/ref/signals/
+    """
 
     # SAVE:
     @staticmethod
     @receiver(post_save, sender=TestLast)
     def test_last_save(sender, instance, created, **kwargs):
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().test_last_models)
-        OctoCache().task_re_cache(
-            test_methods=['test001_main_page', 'test001_addm_digest', 'test002_tests_last', 'test003_test_details'])
+        OctoCache().cache_operation(keys=test_last, methods=test_last_t)
 
     @staticmethod
     @receiver(post_save, sender=TestCases)
     def test_cases_save(sender, instance, created, **kwargs):
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=[TestCases])
-        OctoCache().task_re_cache(
-            test_methods=['test002_test_cases'])
+        OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
 
     @staticmethod
     @receiver(post_save, sender=UploadTestsNew)
     def tku_upload_test_save(sender, instance, created, **kwargs):
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().tku_tests_models)
-        OctoCache().task_re_cache(
-            test_methods=['test001_main_page', 'test001_tku_workbench', 'test001_upload_today'])
+        OctoCache().cache_operation(keys=upload_tests, methods=upload_tests_t)
 
     # DELETE
     @staticmethod
-    @receiver(pre_delete, sender=TestLast)
+    @receiver(post_delete, sender=TestLast)
     def test_last_delete(sender, instance, **kwargs):
         # log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().test_last_models)
-        OctoCache().task_re_cache(
-            test_methods=['test001_main_page', 'test001_addm_digest', 'test002_tests_last', 'test003_test_details'])
+        OctoCache().cache_operation(keys=test_last, methods=test_last_t)
 
     @staticmethod
-    @receiver(pre_delete, sender=TestCases)
+    @receiver(post_delete, sender=TestCases)
     def test_cases_delete(sender, instance, **kwargs):
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=[TestCases])
-        OctoCache().task_re_cache(
-            test_methods=['test002_test_cases'])
+        OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
 
     @staticmethod
-    @receiver(pre_delete, sender=UploadTestsNew)
+    @receiver(post_delete, sender=UploadTestsNew)
     def tku_upload_test_delete(sender, instance, **kwargs):
-        OctoCache().delete_cache_on_signal(keys=OctoSignals().test_last, models=OctoSignals().tku_tests_models)
-        OctoCache().task_re_cache(
-            test_methods=['test001_main_page', 'test001_tku_workbench', 'test001_upload_today'])
+        OctoCache().cache_operation(keys=upload_tests, methods=upload_tests_t)
