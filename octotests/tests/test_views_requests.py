@@ -433,6 +433,7 @@ class AdvancedViews(TestCase):
                 pages += 1
         log.info(f'Tested {pages} pages.')
 
+    unittest.skip("Too long for cache and request =(")
     def test004_test_history_digest_day(self):
         """
         Too slow?
