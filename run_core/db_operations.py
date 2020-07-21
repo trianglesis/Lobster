@@ -72,6 +72,8 @@ class DBServicing:
             Q(tst_status__iregex='unexpected success') |
             Q(tst_status__iregex='expected failure') |
             Q(tst_status__iregex=r"skipped\s+") |
+            Q(tst_status__iregex=r"Traceback\s+") |
+            Q(tst_status__iregex=r"CORBA\.") |
             Q(tst_status__iregex=r"testutils\.MY_dml_test_utils")
         ).defer()
         if unwanted_query.count() > 0:

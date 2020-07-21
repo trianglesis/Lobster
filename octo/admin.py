@@ -409,9 +409,10 @@ class TestLastAdmin(admin.ModelAdmin):
         'test_date_time'
     )
 
-    list_filter = ('tkn_branch', 'pattern_library', 'addm_name', 'addm_group')
+    list_filter = ('tkn_branch', 'pattern_library', 'addm_name', 'addm_group', 'tst_status')
 
-    search_fields = ('pattern_library', 'pattern_folder_name', 'test_py_path', 'tst_status')
+    search_fields = ('pattern_library', 'pattern_folder_name', 'test_py_path',
+                     'tst_name', 'tst_status')
 
     fieldsets = (
         (None, {
@@ -539,7 +540,7 @@ class TestHistoryAdmin(admin.ModelAdmin):
             )
         }),
     )
-    list_per_page = 100
+    list_per_page = 20
 
 
 # UPLOAD:
