@@ -122,7 +122,7 @@ class SimpleTest(unittest.TestCase):
                     pages += 1
         log.info(f'Tested {pages} pages.')
 
-    unittest.skip("Too long for cache and request =( !")
+    @unittest.skip("Too long for cache and request =( !")
     def test004_test_history_digest_today(self):
         """
         Hostory digest today - test and generate cache for branches and most useful test statuses, not passed, skipped or all.
@@ -160,7 +160,7 @@ class SimpleTest(unittest.TestCase):
         pages += 1
         log.info(f'Tested {pages} pages.')
 
-    unittest.skip("Too long for cache and request =( !")
+    @unittest.skip("Too long for cache and request =( !")
     def test009_test_history_digest_day(self):
         log.info("Running: test009_test_history_digest_day")
         pages = 0
@@ -416,7 +416,7 @@ class AdvancedViews(TestCase):
         pages += 1
         log.info(f'Tested {pages} pages.')
 
-    unittest.skip("Too long for cache and request =( !")
+    @unittest.skip("Too long for cache and request =( !")
     def test004_test_history_digest_today(self):
         """
         Hostory digest today - test and generate cache for branches and most useful test statuses, not passed, skipped or all.
@@ -436,7 +436,7 @@ class AdvancedViews(TestCase):
                 pages += 1
         log.info(f'Tested {pages} pages.')
 
-    unittest.skip("Too long for cache and request =( !")
+    @unittest.skip("Too long for cache and request =( !")
     def test004_test_history_digest_day(self):
         """
         Too slow?
