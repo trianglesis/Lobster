@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), sock
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if cred['LOBSTER_SITE_DOMAIN'] in ALLOWED_HOSTS:
+    log.info(f"Debug mode is active on Lobster host {ALLOWED_HOSTS}")
     DEBUG = True
     DEV = True
 else:

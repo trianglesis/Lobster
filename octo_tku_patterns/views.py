@@ -212,9 +212,13 @@ class TKNCasesWorkbenchView(TemplateView):
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class AddmDigestListView(ListView):
     __url_path = '/octo_tku_patterns/addm_digest/'
-    model = AddmDigest
+    # model = AddmDigest
     template_name = 'digests/addm_digest.html'
     context_object_name = 'addm_digest'
+
+    def get_queryset(self):
+        queryset = OctoCache().cache_query(AddmDigest.objects.all())
+        return queryset
 
 
 # Pattern Digest or Cases Digest summary:

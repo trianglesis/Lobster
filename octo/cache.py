@@ -38,12 +38,6 @@ class OctoCache:
         """Init something useful on import"""
         self.cache = cache
 
-    def _cache_query(self, caching, **kwargs):
-        return caching
-
-    def _cache_item(self, caching, **kwargs):
-        return caching
-
     def cache_query(self, caching, **kwargs):
         """
         Make a cache of most callable queries, save everything in cache for 5 hrs or more.
@@ -57,7 +51,8 @@ class OctoCache:
         try:
             h = blake2b(digest_size=50)
             # h.update(caching.query.encode('utf-8'))
-            h.update(str(caching.query).encode())
+            # NOTE: Consider to add length attribute to hash? Or another anchor?
+            h.update(str(caching.query).encode('utf-8'))
         except TypeError as e:
             log.error(f"Cannot hash this: {caching} | Error: {e}")
             raise Exception(e)
@@ -86,17 +81,21 @@ class OctoCache:
         return self._get_or_set(hashed, caching, ttl, key)
 
     def _get_or_set(self, hashed, caching, ttl, hkey):
+        """
+        Get cache, of set new is get returns None
+        :param hashed: hashed key or sql query itself.
+        :param caching: object to be saved in cache
+        :param ttl: time to live for cached
+        :param hkey: key to save in table, will be used to select all related to one model caches and delete on signal
+        :return:
+        """
         cached = self.cache.get(hashed)
         if cached is None:
             self.cache.set(hashed, caching, ttl)
-            # log.debug(f"Set:\t\t{hashed}")
-            # if settings.DEV:
-                # log.debug(f"And get:\t{hashed}")
             got = self.cache.get(hashed)
             self.save_cache_hash_db(hashed=hashed, caching=caching, key=hkey, ttl=ttl)
             return got
         else:
-            # log.debug(f"Get: {hashed}")
             return cached
 
     @staticmethod
@@ -104,23 +103,14 @@ class OctoCache:
         caching = kwargs.pop('caching')
         if hasattr(caching, 'query'):
             sql_query = caching.query
-            # log.info(f'RAW QUERY: {caching.query.__str__()}')
             kwargs.update(query=str(sql_query).encode('utf-8'))
         try:
             updated, created = OctoCacheStore.objects.update_or_create(
                 hashed=kwargs.get('hashed'),
                 defaults=dict(**kwargs),
             )
-            # log.debug(f"Counter {updated.counter}")
-            # updated.counter = F('counter') + updated.counter + 1
             updated.counter += 1
-            # log.debug(f"Updated {updated.counter}")
             updated.save()
-            # if settings.DEV:
-            #     if updated:
-            #         log.info(f'Updating cache-hash {kwargs}')
-            #     if created:
-            #         log.info(f'Saving new cache-hash {kwargs}')
         except IntegrityError as e:
             log.warning(f'IntegrityError output: {type(e)} {e}')
         except EmptyResultSet as e:
@@ -141,20 +131,18 @@ class OctoCache:
         cached_items = cached_items.filter(key__in=keys)
         cached_values = cached_items.values_list('hashed', flat=True)
         cache.delete_many(cached_values)
-        self.delete_cache_item_row(cached_items)
+        # NOTE: Delete cache ROW only in case, when we do not want to re-execute RAW SQL,
+        #  Now RAW SQL exec is impossible to do, so it's disabled until I find a way.
+        # self.delete_cache_item_row(cached_items)
         # NOTE: We have fine method to recreate cache automatically right now, but this is fine.
         # self.create_new_cache(cached_items, models)
 
-    def delete_cache_item_row(self, cached_items):
+    def task_re_cache(self, test_methods):
         """
-        Clean cached table from rare queries to keep only most commonly used.
-        :param cached_items:
+        Task to run view tests, this will automatically re-cache most common views on model signals.
+        :param test_methods:
         :return:
         """
-        lte_one = cached_items.filter(counter__lte=2)
-        lte_one.delete()
-
-    def task_re_cache(self, test_methods):
         for test in test_methods:
             kwargs = {
                 "test_method": test,
@@ -169,22 +157,34 @@ class OctoCache:
                 t_routing_key=tag)
 
     def cache_operation(self, keys, methods):
+        """
+        Delete outdated cache - all at once, and then - run simple task as view test to generate some common caches.
+        :param keys:
+        :param methods:
+        :return:
+        """
         self.delete_cache_on_signal(keys=keys)
         # NOTE: Do not run at non-working hours
         if working_hours():
             self.task_re_cache(test_methods=methods)
 
-    def _verify(self, comparing, hashed):
-        """Only for check!"""
-        h = blake2b(digest_size=50)
-        h.update(f'{comparing}'.encode("utf-8"))
-        hash = h.hexdigest()
-        # log.debug(f"Hashed comparison: {hashed} with {hashed}")
-        return compare_digest(hash, hashed)
+    def delete_cache_item_row(self, cached_items):
+        """
+        Clean cached table from rare queries to keep only most commonly used.
+        This should be executed when we have a RAW SQL execution mechanism. It should left only most common queries.
+        Later those queries may be executed as RAW SQL on selected model, but currently it's impossible to do.
+        Method wil be here as a reminder,
+        :param cached_items:
+        :return:
+        """
+        lte_one = cached_items.filter(counter__lte=2)
+        lte_one.delete()
 
     def _create_new_cache(self, cached_items, models):
         """
         Making a RAW query cache. Need consider about escaping anything such as params
+        Now we can't ru RAW SQL on models. because SQL code is not escaped properly,
+        Escaping it in manual manner will break the initial way of caching.
         :param cached_items:
         :return:
         """
@@ -201,58 +201,6 @@ class OctoCache:
                     if _model.__name__ == _query['key']:
                         # log.debug(f'Recaching model {_model.__name__} == {_query["key"]}')
                         OctoCache().cache_query(_model.objects.raw(query))
-
-    def _select_and_verify(self, model, keys=None):
-        """
-        Select all related to model cached items and delete their caches.
-        Later re-made caches for most used ones by counter
-        :param model:
-        :param keys:
-        :return:
-        """
-        if keys is None:
-            keys = []
-        cached_items = OctoCacheStore.objects.all()
-        cached_items = cached_items.filter(key__in=keys)
-        for cached_item in cached_items:
-            # IMPORTANT:
-            # When checking we anyway delete all caches from related model to avoid any old cache remains
-            cache.delete(cached_item.hashed)
-            # Now we able to renew cached query if it's item has a raw query in it!
-            if cached_item.query:
-                # Convert b'SELECT' back to actual python b'' string
-                # q = eval(cached_item.query)
-                # For all queries with hit more than once (or more?)
-                if cached_item.counter > 1:
-                    pass
-                    # query = q.decode('utf-8')
-                    # Check query hash from DB and hashed again, to be sure we use the same item for renew
-                    # verifying = OctoCache().verify(query, cached_item.hashed)
-                    # if verifying:
-                    #     log.info(f"Cache sig OK: {verifying}")
-                    # RE-EXECUTE query and put it into the cache again!
-                    # NOTE: Cannot replace the cached query, because here it's a RawQuerySet, while we need QuerySet
-                    # IDEA: Refer to related test item and just execute local test task?
-                    # OctoCache().cache_query(model.objects.raw(query))
-                    # qs = model.objects.all()
-                    # OctoCache().cache_query(qs.extra(query))
-                    # else:
-                    #     log.error(f"Query hash is diff for this query: '{query}' != hash '{cached_item.hashed}'")
-                # For any query which hit count is less then 1, means it was requested only once, this is not common.
-                elif cached_item.counter <= 1:
-                    # log.debug(f'Single {cached_item.counter} query can be deleted! QUERY {q}')
-                    cached_item.delete()
-                # Something...
-                else:
-                    # log.debug(f'Zero {cached_item.counter} query will be deleted! QUERY {q}')
-                    cached_item.delete()
-                # HERE: Run cache delete for the following key ot all keys, and then
-                # we need to re-execute most used queries and save is to cache
-            else:
-                # IDEA: Need to delete detailed queries where users are asking for single tests
-                # - those queries should not be automatically rebuild!
-                cached_item.delete()
-                log.info("This cache item have no query - just deleted!")
 
 
 test_last = ['AddmDigest', 'TestLast', 'TestLatestDigestAll']
