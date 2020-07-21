@@ -53,9 +53,6 @@ class MainPage(TemplateView):
         tests_top_main = test_last_q.filter(tkn_branch__exact='tkn_main').order_by('-time_spent_test')
         tests_top_ship = test_last_q.filter(tkn_branch__exact='tkn_ship').order_by('-time_spent_test')
 
-        log.debug(f'tests_top_main: {tests_top_main.query}')
-        log.debug(f'tests_top_ship: {tests_top_ship.query}')
-
         selections = dict(
             upload_tests=TKUUpdateWorkbenchView.get_queryset(self),
             addm_digest=addm_digest,

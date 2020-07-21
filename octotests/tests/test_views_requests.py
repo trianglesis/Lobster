@@ -122,6 +122,7 @@ class SimpleTest(unittest.TestCase):
                     pages += 1
         log.info(f'Tested {pages} pages.')
 
+    unittest.skip("Too long for cache and request =( !")
     def test004_test_history_digest_today(self):
         """
         Hostory digest today - test and generate cache for branches and most useful test statuses, not passed, skipped or all.
@@ -159,6 +160,7 @@ class SimpleTest(unittest.TestCase):
         pages += 1
         log.info(f'Tested {pages} pages.')
 
+    unittest.skip("Too long for cache and request =( !")
     def test009_test_history_digest_day(self):
         log.info("Running: test009_test_history_digest_day")
         pages = 0
@@ -385,7 +387,7 @@ class AdvancedViews(TestCase):
         Test cases view - load both branches and all libraries. Then load a night run query.
         :return:
         """
-        log.info("Running: test008_test_cases")
+        log.info("Running: test002_test_cases")
         pages = 0
         view = TestCasesListView()
         # Solo
@@ -440,7 +442,7 @@ class AdvancedViews(TestCase):
         Too slow?
         :return:
         """
-        log.info("Running: test009_test_history_digest_day")
+        log.info("Running: test004_test_history_digest_day")
         pages = 0
         now = datetime.now()
         year = now.strftime('%Y')
