@@ -221,6 +221,7 @@ class OctoSignals:
     @staticmethod
     @receiver(post_save, sender=TestLast)
     def test_last_save(sender, instance, created, **kwargs):
+        log.debug(f'<=test_last_save=> Args: {sender} {instance}  kwargs: {kwargs}')
         test_last_t = ['test001_main_page', 'test001_addm_digest']
         if hasattr(instance, 'tkn_branch'):
             if instance.tkn_branch == 'tkn_main':
@@ -247,7 +248,7 @@ class OctoSignals:
     @staticmethod
     @receiver(post_delete, sender=TestLast)
     def test_last_delete(sender, instance, **kwargs):
-        log.debug(f'Args: {sender} {instance}  kwargs: {kwargs}')
+        log.debug(f'<=test_last_delete=> Args: {sender} {instance}  kwargs: {kwargs}')
         test_last_t = ['test001_main_page', 'test001_addm_digest',]
         if hasattr(instance, 'tkn_branch'):
             if instance.tkn_branch == 'tkn_main':
