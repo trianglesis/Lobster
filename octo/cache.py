@@ -46,7 +46,7 @@ class OctoCache:
         https://docs.python.org/3/library/hashlib.html
         :return:
         """
-        ttl = kwargs.get('ttl', 60 * 60 * 5)  # Save for 5 hours.
+        ttl = kwargs.get('ttl', 60 * 5)  # Save for 5 min
         assert hasattr(caching, 'query'), "Can only make cache from django model query!"
         try:
             h = blake2b(digest_size=50)
@@ -68,7 +68,7 @@ class OctoCache:
         :param kwargs:
         :return:
         """
-        ttl = kwargs.get('ttl', 60 * 60 * 5)
+        ttl = kwargs.get('ttl', 60 * 5)
         key = kwargs.get('key', SECRET_KEY)
         # log.debug(f"Caching this: {caching}")
         try:
@@ -234,7 +234,9 @@ class OctoSignals:
     @staticmethod
     @receiver(post_save, sender=TestCases)
     def test_cases_save(sender, instance, created, **kwargs):
-        OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
+        # NOTE: Too many tasks generated!
+        pass
+        # OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
 
     @staticmethod
     @receiver(post_save, sender=UploadTestsNew)
