@@ -35,11 +35,11 @@ DEBUG = True
 DEV = True
 
 CURR_HOSTNAME = socket.getfqdn()
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()), socket.gethostname()]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()),
+                 socket.gethostname()]
 
 log.warning(f"WE'RE on DEBUG setting now! {__name__}")
 log.warning(f"ALLOWED HOSTS: {ALLOWED_HOSTS}")
-
 
 INTERNAL_IPS = [
     '127.0.0.1',
@@ -95,7 +95,6 @@ CACHES = {
     }
 }
 
-
 DEBUG_TOOLBAR_PANELS = [
     # 'debug_toolbar.panels.versions.VersionsPanel',
     'debug_toolbar.panels.timer.TimerPanel',
@@ -111,7 +110,6 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.redirects.RedirectsPanel',
     'debug_toolbar.panels.profiling.ProfilingPanel',
 ]
-
 
 ROOT_URLCONF = 'octo.urls'
 
@@ -198,7 +196,6 @@ REST_FRAMEWORK = {
 
 }
 
-
 # https://docs.djangoproject.com/en/2.0/topics/email/
 EMAIL_HOST = cred['EMAIL_HOST']
 
@@ -237,7 +234,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # https://github.com/maxtepkeev/architect/issues/38
 # https://github.com/celery/django-celery/issues/359

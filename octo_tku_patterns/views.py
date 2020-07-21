@@ -41,8 +41,8 @@ from octo_tku_patterns.models import TestLast, TestHistory, TestCases, TestCases
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
 from octo_tku_patterns.tasks import TPatternRoutine
 
-
 log = logging.getLogger("octo.octologger")
+
 
 class Reports:
     """
@@ -72,7 +72,8 @@ class Reports:
             slice_top = []
             subject = 'Error, cannot convert arg "count" to int: {}'.format(e)
 
-        patterns_contxt = dict(LONG_TESTS=slice_top, MAX_LONG=tests_top_sort, BRANCH=branch, COUNT=count, SUBJECT=subject)
+        patterns_contxt = dict(LONG_TESTS=slice_top, MAX_LONG=tests_top_sort, BRANCH=branch, COUNT=count,
+                               SUBJECT=subject)
         return HttpResponse(patterns_summary.render(patterns_contxt, request))
 
 
@@ -208,7 +209,7 @@ class TKNCasesWorkbenchView(TemplateView):
 # Test reports:
 # ADDM Digest summary:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class AddmDigestListView(ListView):
     __url_path = '/octo_tku_patterns/addm_digest/'
     model = AddmDigest
@@ -218,11 +219,11 @@ class AddmDigestListView(ListView):
 
 # Pattern Digest or Cases Digest summary:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *5), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestLastDigestListView(ListView):
     __url_path = '/octo_tku_patterns/tests_last/'
     template_name = 'digests/tests_last.html'
-    # context_object_name = 'tests_digest'
+    context_object_name = 'tests_digest'
     # Check if this is useful case to have queryset loaded on view class init:
 
     def get_context_data(self, **kwargs):
@@ -255,7 +256,7 @@ class TestLastDigestListView(ListView):
             context['object_list'])
         context['tests_digest_json'] = OctoCache().cache_item(
             JSONRenderer().render(
-            TestLatestDigestAllSerializer(context['object_list'], many=True).data).decode('utf-8'),
+                TestLatestDigestAllSerializer(context['object_list'], many=True).data).decode('utf-8'),
             hkey='TestLastDigestListView_tests_digest_json', key='TestLast')
         return context
 
@@ -280,7 +281,7 @@ class TestLastDigestListView(ListView):
 
 # Test last table - show single(or all with status) test results for test.py
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *5), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestLastSingleDetailedListView(ListView):
     __url_path = '/octo_tku_patterns/test_details/'
     template_name = 'digests/test_details.html'
@@ -304,7 +305,7 @@ class TestLastSingleDetailedListView(ListView):
                 context['test_detail'])
             context['tests_digest_json'] = OctoCache().cache_item(
                 JSONRenderer().render(
-                TestLastSerializer(context['test_detail'], many=True).data).decode('utf-8'),
+                    TestLastSerializer(context['test_detail'], many=True).data).decode('utf-8'),
                 hkey='TestLastSingleDetailedListView_tests_digest_json', key='TestLast')
             return context
 
@@ -316,7 +317,7 @@ class TestLastSingleDetailedListView(ListView):
 
 # Test history table - show single test.py unit historical runs.
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *5), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestItemSingleHistoryListView(ListView):
     __url_path = '/octo_tku_patterns/test_item_history/'
     """
@@ -330,6 +331,7 @@ class TestItemSingleHistoryListView(ListView):
     allow_empty = True
     template_name = 'digests/test_details.html'
     context_object_name = 'test_detail'
+
     # paginate_by = 500
 
     def get_context_data(self, **kwargs):
@@ -347,7 +349,7 @@ class TestItemSingleHistoryListView(ListView):
                 context['test_detail'])
             context['tests_digest_json'] = OctoCache().cache_item(
                 JSONRenderer().render(
-                TestHistorySerializer(context['test_detail'], many=True).data).decode('utf-8'),
+                    TestHistorySerializer(context['test_detail'], many=True).data).decode('utf-8'),
                 hkey='TestItemSingleHistoryListView_digest_json', key='TestHistory')
             return context
 
@@ -360,7 +362,7 @@ class TestItemSingleHistoryListView(ListView):
 
 # Test History Latest View:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestHistoryArchiveIndexView(ArchiveIndexView):
     """
     This will show INDEX of everything in TestHistory.
@@ -391,9 +393,10 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
         queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
         return queryset
 
+
 # Test History Daily View:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestHistoryDayArchiveView(DayArchiveView):
     """
     It will show detailed test logs for selected day.
@@ -435,7 +438,7 @@ class TestHistoryDayArchiveView(DayArchiveView):
 
 # Test History Today View:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *30), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 30), name='dispatch')
 class TestHistoryTodayArchiveView(TodayArchiveView):
     """
     Such as TestHistoryDayArchiveView but with no specified date, use default as today.
@@ -465,9 +468,10 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
         queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
         return queryset
 
+
 # Test History Digest Today View:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *30), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 30), name='dispatch')
 class TestHistoryDigestTodayView(TodayArchiveView):
     """
     PLAN: Should show digest as usual, but locked to today's date, it could possible be used as default digest
@@ -485,15 +489,15 @@ class TestHistoryDigestTodayView(TodayArchiveView):
     context_object_name = 'tests_digest'
 
     def get_context_data(self, **kwargs):
-        addm_names = OctoCache().cache_query\
+        addm_names = OctoCache().cache_query \
             (AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
-        test_type_qs = OctoCache().cache_query\
+        test_type_qs = OctoCache().cache_query \
             (TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(
                 total=Count('test_type')).order_by('test_type'))
-        pattern_library_qs = OctoCache().cache_query\
+        pattern_library_qs = OctoCache().cache_query \
             (TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
                 total=Count('pattern_library')).order_by('pattern_library'))
-        change_user_qs = OctoCache().cache_query\
+        change_user_qs = OctoCache().cache_query \
             (TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(
                 total=Count('change_user')).order_by('change_user'))
 
@@ -513,7 +517,7 @@ class TestHistoryDigestTodayView(TodayArchiveView):
                 context['tests_digest'])
             context['tests_digest_json'] = OctoCache().cache_item(
                 TestHistoryDigestDailySerializer(
-                context["object_list"], many=True).data,
+                    context["object_list"], many=True).data,
                 hkey='TestHistoryDigestTodayView_tests_digest_json', key='TestHistory')
             return context
 
@@ -524,7 +528,8 @@ class TestHistoryDigestTodayView(TodayArchiveView):
         if self.sel_opts.get("test_type"):
             queryset = TestHistoryDigestDaily.objects.filter(test_type__exact=self.sel_opts.get("test_type"))
         else:
-            queryset = TestHistoryDigestDaily.objects.filter(pattern_library__isnull=False, pattern_folder_name__isnull=False)
+            queryset = TestHistoryDigestDaily.objects.filter(pattern_library__isnull=False,
+                                                             pattern_folder_name__isnull=False)
 
         if self.sel_opts.get('addm_name'):
             queryset = queryset.filter(addm_name__exact=self.sel_opts.get('addm_name'))
@@ -537,9 +542,10 @@ class TestHistoryDigestTodayView(TodayArchiveView):
         queryset = tst_status_selector(queryset, self.sel_opts)
         return queryset
 
+
 # Test History Digest Daily View:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *30), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 30), name='dispatch')
 class TestHistoryDigestDailyView(DayArchiveView):
     __url_path = '/octo_tku_patterns/test_history_digest_day/'
     # model = TestHistoryDigestDaily
@@ -564,7 +570,7 @@ class TestHistoryDigestDailyView(DayArchiveView):
                 context['tests_digest'])
             context['tests_digest_json'] = OctoCache().cache_item(
                 JSONRenderer().render(
-                TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8'),
+                    TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8'),
                 hkey='TestHistoryDigestDailyView_tests_digest_json', key='TestHistory')
             return context
 
@@ -582,13 +588,13 @@ class TestHistoryDigestDailyView(DayArchiveView):
         queryset = tst_status_selector(queryset, sel_opts)
         return queryset
 
-# Dev Test History Digest WeekEnd:
 
+# Dev Test History Digest WeekEnd:
 
 
 # Cases
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestCasesListView(ListView):
     __url_path = '/octo_tku_patterns/test_cases/'
     # model = TestCases
@@ -668,7 +674,7 @@ class TestCaseDetailView(DetailView):
 
 # Cases groups
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=3600), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestCasesUpdateView(UpdateView):
     __url_path = '/octo_tku_patterns/test_case/change/<int:pk>/'
     template_name = 'cases_groups/cases/case_update_create.html'
@@ -793,8 +799,10 @@ class TestCasesDetailsCreateView(CreateView):
 
     def get_form(self, **kwargs):
         form = super(TestCasesDetailsCreateView, self).get_form()
-        form.fields['title'].widget = forms.widgets.TextInput(attrs={'class': 'form-control', 'id': 'title', 'type': 'text'})
-        form.fields['description'].widget = forms.widgets.Textarea(attrs={'class': 'form-control', 'id': 'description', 'type': 'text', 'rows': 5})
+        form.fields['title'].widget = forms.widgets.TextInput(
+            attrs={'class': 'form-control', 'id': 'title', 'type': 'text'})
+        form.fields['description'].widget = forms.widgets.Textarea(
+            attrs={'class': 'form-control', 'id': 'description', 'type': 'text', 'rows': 5})
         return form
 
     def form_valid(self, form):

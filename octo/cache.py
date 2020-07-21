@@ -24,10 +24,11 @@ SECRET_KEY = 'DefaultKeyResetEverything'
 
 def working_hours():
     now = datetime.datetime.now().replace(second=0, microsecond=0)
-    morning = now.replace(hour=7)
-    evening = now.replace(hour=18)
+    morning = now.replace(hour=7, minute=0)
+    evening = now.replace(hour=19, minute=0)
     if now > morning and now < evening:
         return True
+    log.info(f"No re-caching during non-working hours! {morning} - {now} - {evening}")
     return False
 
 
@@ -36,6 +37,12 @@ class OctoCache:
     def __init__(self):
         """Init something useful on import"""
         self.cache = cache
+
+    def _cache_query(self, caching, **kwargs):
+        return caching
+
+    def _cache_item(self, caching, **kwargs):
+        return caching
 
     def cache_query(self, caching, **kwargs):
         """
@@ -162,8 +169,8 @@ class OctoCache:
                 t_routing_key=tag)
 
     def cache_operation(self, keys, methods):
-        # NOTE: Do not run at non-working hours
         self.delete_cache_on_signal(keys=keys)
+        # NOTE: Do not run at non-working hours
         if working_hours():
             self.task_re_cache(test_methods=methods)
 
@@ -255,7 +262,6 @@ test_cases_t = ['test002_test_cases']
 
 upload_tests = ['UploadTestsNew', 'TkuPackagesNew']
 upload_tests_t = ['test001_main_page', 'test001_tku_workbench', 'test001_upload_today']
-
 
 
 class OctoSignals:

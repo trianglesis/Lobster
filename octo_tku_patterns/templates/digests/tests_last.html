@@ -213,7 +213,7 @@
             </nav>
             {% include 'digests/tables_details/tests_last_table.html' with var_addm_name=addm_name %}
         {% else %}
-            {% cache 60 * 5 tests_digest_cache tests_digest %}
+{#            {% cache 60 * 5 tests_digest_cache tests_digest selector %}#}
             <!-- DYNAMICAl view tabs. When addm_name is NOT added to request parameters - draw tables for all actual addm_names. -->
             <nav>
                 <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
@@ -241,7 +241,7 @@
                     </div>
                 {% endfor %}
             </div>
-            {% endcache %}
+{#            {% endcache %}#}
         {% endif %}
     </div>
     <!-- Navbar bottom fixed -->

@@ -123,7 +123,7 @@ def upload_case_query_selector(queryset, sel_opts):
 
 # TKU Upload test workbench:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 * 10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TKUUpdateWorkbenchView(TemplateView):
     __url_path = '/octo_tku_upload/tku_workbench/'
     # model = TkuPackagesNew
@@ -281,7 +281,7 @@ class TKUUpdateWorkbenchView(TemplateView):
 
 # TKU packages view:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 * 10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TKUPackagesListView(ListView):
     context_object_name = 'tku_packages'
     template_name = 'packages/packages_index.html'
@@ -303,7 +303,7 @@ class TKUPackagesListView(ListView):
 
 # Test History Latest View:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 * 10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class UploadTestArchiveIndexView(ArchiveIndexView):
     __url_path = '/octo_tku_upload/upload_index/'
     model = UploadTestsNew
@@ -329,7 +329,7 @@ class UploadTestArchiveIndexView(ArchiveIndexView):
 
 # Test History Daily View:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 * 10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class UploadTestDayArchiveView(DayArchiveView):
     __url_path = '/octo_tku_upload/upload_day/<int:year>/<str:month>/<int:day>/'
     # model = UploadTestsNew
@@ -356,7 +356,7 @@ class UploadTestDayArchiveView(DayArchiveView):
 
 # Test History Today View:
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 * 10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class UploadTestTodayArchiveView(TodayArchiveView):
     __url_path = '/octo_tku_upload/upload_today/'
     model = UploadTestsNew

@@ -36,7 +36,7 @@ log = logging.getLogger("octo.octologger")
 
 
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 * 10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class MainPage(TemplateView):
     template_name = 'main/mainpage_widgets.html'
     context_object_name = 'objects'
@@ -67,7 +67,7 @@ class MainPage(TemplateView):
 
 @method_decorator(login_required, name='dispatch')
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 * 10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class UserMainPage(TemplateView):
     template_name = 'user_report_summary.html'
     context_object_name = 'objects'

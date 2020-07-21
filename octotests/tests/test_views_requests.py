@@ -293,18 +293,14 @@ class AdvancedViews(TestCase):
         :return:
         """
         log.info("Running: test002_tests_last_tkn_main")
-        pages = 0
         view = TestLastDigestListView()
-        for status in self.test_statuses:
-            request = self.request.get('/octo_tku_patterns/tests_last/',
-                                       {'tkn_branch': 'tkn_main', 'tst_status': status})
-            view.setup(request)
-            queryset = view.get_queryset()
-            OctoCache().cache_query(queryset)
-            # view.options(request)
-            view.get(request)
-            pages += 1
-        log.info(f'Tested {pages} pages.')
+        request = self.request.get('/octo_tku_patterns/tests_last/',
+                                   {'tkn_branch': 'tkn_main', 'tst_status': 'notpass'})
+        view.setup(request)
+        queryset = view.get_queryset()
+        OctoCache().cache_query(queryset)
+        # view.options(request)
+        view.get(request)
 
     def test002_tests_last_tkn_ship(self):
         """
@@ -314,18 +310,14 @@ class AdvancedViews(TestCase):
         :return:
         """
         log.info("Running: test002_tests_last_tkn_ship")
-        pages = 0
         view = TestLastDigestListView()
-        for status in self.test_statuses:
-            request = self.request.get('/octo_tku_patterns/tests_last/',
-                                       {'tkn_branch': 'tkn_ship', 'tst_status': status})
-            view.setup(request)
-            queryset = view.get_queryset()
-            OctoCache().cache_query(queryset)
-            # view.options(request)
-            view.get(request)
-            pages += 1
-        log.info(f'Tested {pages} pages.')
+        request = self.request.get('/octo_tku_patterns/tests_last/',
+                                   {'tkn_branch': 'tkn_ship', 'tst_status': 'notpass'})
+        view.setup(request)
+        queryset = view.get_queryset()
+        OctoCache().cache_query(queryset)
+        # view.options(request)
+        view.get(request)
 
     @unittest.skip('Skip when have two separate tests for branches!')
     def test003_test_details(self):
@@ -360,15 +352,14 @@ class AdvancedViews(TestCase):
         pages = 0
         view = TestLastSingleDetailedListView()
         for addm_name in self.addm_names:
-            for status in self.test_statuses:
-                request = self.request.get(
-                    '/octo_tku_patterns/test_details/',
-                    {'tkn_branch': 'tkn_main', 'addm_name': addm_name, 'tst_status': status})
-                view.setup(request)
-                queryset = view.get_queryset()
-                OctoCache().cache_query(queryset)
-                view.get(request)
-                pages += 1
+            request = self.request.get(
+                '/octo_tku_patterns/test_details/',
+                {'tkn_branch': 'tkn_main', 'addm_name': addm_name, 'tst_status': 'notpass'})
+            view.setup(request)
+            queryset = view.get_queryset()
+            OctoCache().cache_query(queryset)
+            view.get(request)
+            pages += 1
         log.info(f'Tested {pages} pages.')
 
     def test003_test_details_tkn_ship(self):
@@ -381,15 +372,14 @@ class AdvancedViews(TestCase):
         pages = 0
         view = TestLastSingleDetailedListView()
         for addm_name in self.addm_names:
-            for status in self.test_statuses:
-                request = self.request.get(
-                    '/octo_tku_patterns/test_details/',
-                    {'tkn_branch': 'tkn_ship', 'addm_name': addm_name, 'tst_status': status})
-                view.setup(request)
-                queryset = view.get_queryset()
-                OctoCache().cache_query(queryset)
-                view.get(request)
-                pages += 1
+            request = self.request.get(
+                '/octo_tku_patterns/test_details/',
+                {'tkn_branch': 'tkn_ship', 'addm_name': addm_name, 'tst_status': 'notpass'})
+            view.setup(request)
+            queryset = view.get_queryset()
+            OctoCache().cache_query(queryset)
+            view.get(request)
+            pages += 1
         log.info(f'Tested {pages} pages.')
 
     def test002_test_cases(self):

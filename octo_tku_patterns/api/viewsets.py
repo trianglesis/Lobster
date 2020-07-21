@@ -28,7 +28,7 @@ log = logging.getLogger("octo.octologger")
 
 
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 *5), name='dispatch')
 class TestCasesSerializerViewSet(viewsets.ModelViewSet):
     queryset = TestCases.objects.all().order_by('change_time')
     serializer_class = TestCasesSerializer
@@ -47,7 +47,7 @@ class TestCasesSerializerViewSet(viewsets.ModelViewSet):
 
 
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestCasesDetailsSerializerViewSet(viewsets.ModelViewSet):
     queryset = TestCasesDetails.objects.all().order_by('changed_date')
     serializer_class = TestCasesDetailsSerializer
@@ -56,7 +56,7 @@ class TestCasesDetailsSerializerViewSet(viewsets.ModelViewSet):
 
 
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestLastViewSet(viewsets.ModelViewSet):
     queryset = TestLast.objects.all().order_by('test_date_time')
     serializer_class = TestLastSerializer
@@ -74,7 +74,7 @@ class TestLastViewSet(viewsets.ModelViewSet):
 
 
 @method_decorator(vary_on_headers('Cookie'), name='dispatch')
-@method_decorator(cache_control(max_age=60 *10), name='dispatch')
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestHistoryViewSet(viewsets.ModelViewSet):
     queryset = TestHistory.objects.all().order_by('test_date_time')
     serializer_class = TestHistorySerializer
