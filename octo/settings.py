@@ -29,12 +29,16 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'octo'))
 # noinspection SpellCheckingInspection
 SECRET_KEY = cred['SECRET_KEY']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-DEV = False
-
 CURR_HOSTNAME = socket.getfqdn()
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()), socket.gethostname()]
+
+# SECURITY WARNING: don't run with debug turned on in production!
+if cred['LOBSTER_SITE_DOMAIN'] in ALLOWED_HOSTS:
+    DEBUG = True
+    DEV = True
+else:
+    DEBUG = False
+    DEV = False
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
