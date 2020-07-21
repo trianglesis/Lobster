@@ -35,7 +35,6 @@ import logging
 log = logging.getLogger("octo.octologger")
 
 
-@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class MainPage(TemplateView):
     template_name = 'main/mainpage_widgets.html'
     context_object_name = 'objects'

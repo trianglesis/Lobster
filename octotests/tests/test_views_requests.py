@@ -434,6 +434,10 @@ class AdvancedViews(TestCase):
         log.info(f'Tested {pages} pages.')
 
     def test004_test_history_digest_day(self):
+        """
+        Too slow?
+        :return:
+        """
         log.info("Running: test009_test_history_digest_day")
         pages = 0
         now = datetime.now()

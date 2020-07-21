@@ -93,4 +93,4 @@ class Mails:
                     email.attach(attach_content_name, attach_content, "text/html")
                 email.send()
                 # log.debug("<=MAIL SIMPLE=> Mail txt send")
-        return msg
+        return 'Short mail sent!'

@@ -236,7 +236,7 @@ class TMail:
                         send_cc=mail_kwargs.get('send_cc', self.m_night),
                         mail_html=mail_html)
         else:
-            return mail_html
+            return 'Long mail sent!'
 
         log_kwargs = dict(
             task_name='NightRoutine',
@@ -355,4 +355,4 @@ class TMail:
                     attach_content=log_html,
                     attach_content_name=f'{subject_str}_test_{time_stamp}.html',
                     )
-        return mail_html
+        return 'User test mail sent!'
