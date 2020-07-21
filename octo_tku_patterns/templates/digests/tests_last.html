@@ -62,7 +62,7 @@
                 {% if previous_day %}
                     <a class="btn btn-sm btn-light"
                        href="{% url 'test_history_digest_day' year=previous_day|date:'Y' month=previous_day|date:'b' day=previous_day|date:'d' %}?{{ selector_str }}">
-                        <i class="fas fa-backward"></i> {{ previous_day|date:"F j, Y" }}
+                        <i class="fas fa-backward"></i> {{ previous_day }}
                     </a>
                 {% endif %}
                 {% if day %}

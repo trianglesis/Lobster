@@ -247,8 +247,8 @@ class ServicesLogAdmin(admin.ModelAdmin):
 class OctoCacheStoreAdmin(admin.ModelAdmin):
     fields = (
         (
-            'name',
             'key',
+            'name',
             'hashed',
             'query',
             'ttl',
@@ -258,8 +258,8 @@ class OctoCacheStoreAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = ('created_time',)
-    list_display = ('name', 'key', 'hashed', 'ttl', 'counter', 'created_time',)
-    list_filter = ('name', 'key', 'created_time')
+    list_display = ('key', 'hashed', 'ttl', 'counter', 'created_time', 'name',)
+    list_filter = ('name', 'key', 'created_time',)
     ordering = ('-created_time',)
 
 @admin.register(TestCases)
@@ -505,7 +505,7 @@ class TestHistoryAdmin(admin.ModelAdmin):
         'test_date_time'
     )
 
-    list_filter = ('tkn_branch', 'pattern_library', 'addm_name')
+    list_filter = ('tkn_branch', 'pattern_library', 'addm_name', 'tst_status')
     search_fields = ('pattern_library', 'pattern_folder_name', 'test_py_path',
                      'tst_name', 'tst_status')
 

@@ -286,7 +286,7 @@ class TestLastDigestListView(ListView):
 class TestLastSingleDetailedListView(ListView):
     __url_path = '/octo_tku_patterns/test_details/'
     template_name = 'digests/test_details.html'
-    model = TestLast
+    # model = TestLast
     context_object_name = 'test_detail'
     allow_empty = True
 
@@ -327,11 +327,10 @@ class TestItemSingleHistoryListView(ListView):
             - browse over days
             - change addm tab saving selected day
     """
-    model = TestHistory
+    # model = TestHistory
     allow_empty = True
     template_name = 'digests/test_details.html'
     context_object_name = 'test_detail'
-
     # paginate_by = 500
 
     def get_context_data(self, **kwargs):
@@ -368,7 +367,7 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
     We don't need this kind of detalisations often. Think something interesting here.
     """
     __url_path = '/octo_tku_patterns/test_history_index/'
-    model = TestHistory
+    # model = TestHistory
     date_field = "test_date_time"
     allow_future = True
     allow_empty = True
@@ -404,8 +403,8 @@ class TestHistoryDayArchiveView(DayArchiveView):
         octo_tku_patterns/test_history_day/2020/feb/22/?tst_status=notpass;test_py_path=/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/STORAGE/Celerra/tests/test.py;
     """
     __url_path = '/octo_tku_patterns/test_history_day/<int:year>/<str:month>/<int:day>/'
-    model = TestHistory
-    queryset = TestHistory.objects.all()
+    # model = TestHistory
+    # queryset = TestHistory.objects.all()
     date_field = "test_date_time"
     allow_future = True
     allow_empty = True
@@ -430,7 +429,7 @@ class TestHistoryDayArchiveView(DayArchiveView):
 
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
-        queryset = PatternsDjangoTableOper.sel_dynamical(self.model, sel_opts=sel_opts)
+        queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
         return queryset
 
 
@@ -443,7 +442,7 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
     Cane be specified by selectables and sorting.
     """
     __url_path = '/octo_tku_patterns/test_history_today/'
-    model = TestHistory
+    # model = TestHistory
     date_field = "test_date_time"
     allow_future = True
     allow_empty = True
@@ -476,7 +475,7 @@ class TestHistoryDigestTodayView(TodayArchiveView):
 
     """
     __url_path = '/octo_tku_patterns/test_history_digest_today/'
-    model = TestHistoryDigestDaily
+    # model = TestHistoryDigestDaily
     date_field = "test_date_time"
     allow_future = True
     allow_empty = True
@@ -485,21 +484,22 @@ class TestHistoryDigestTodayView(TodayArchiveView):
     context_object_name = 'tests_digest'
 
     def get_context_data(self, **kwargs):
-        addm_names = OctoCache().cache_query \
-            (AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
-        test_type_qs = OctoCache().cache_query \
-            (TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(
+        addm_names = OctoCache().cache_query(
+            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        test_type_qs = OctoCache().cache_query(
+            TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(
                 total=Count('test_type')).order_by('test_type'))
-        pattern_library_qs = OctoCache().cache_query \
-            (TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
+        pattern_library_qs = OctoCache().cache_query(
+            TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
                 total=Count('pattern_library')).order_by('pattern_library'))
-        change_user_qs = OctoCache().cache_query \
-            (TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(
+        change_user_qs = OctoCache().cache_query(
+            TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(
                 total=Count('change_user')).order_by('change_user'))
 
         if self.request.method == 'GET':
             context = super(TestHistoryDigestTodayView, self).get_context_data(**kwargs)
             context.update(
+                SUBJECT='Test History Digest day',
                 selector=compose_selector(self.request.GET),
                 selector_str='',
                 addm_names=addm_names,
@@ -561,6 +561,7 @@ class TestHistoryDigestDailyView(DayArchiveView):
                 addm_names=addm_names,
                 tests_digest_json='',
             )
+            # log.debug(f"Test digest history day query: {context['object_list'].query}")
             context['tests_digest'] = OctoCache().cache_query(
                 context['tests_digest'])
             context['tests_digest_json'] = OctoCache().cache_item(
@@ -720,7 +721,7 @@ class TestCasesUpdateView(UpdateView):
 class TestCasesDetailsListView(ListView):
     __url_path = '/octo_tku_patterns/test_cases_groups/'
     # queryset = TestCases.objects.all().order_by('-change_time').values()
-    model = TestCasesDetails
+    # model = TestCasesDetails
     context_object_name = 'groups'
     template_name = 'cases_groups/groups/groups_table.html'
     paginate_by = 50

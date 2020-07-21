@@ -19,6 +19,8 @@ from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_oper import WorkerOperations, TasksOperations
 from octo.octo_celery import app
 
+from run_core.db_operations import DBServicing
+
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
@@ -193,3 +195,11 @@ class TInternal:
             # if mail_send:
             #     Mails.short(subject='Expected worker could be busy:', body=msg)
             return msg
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_clean_history',
+              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+    @exception
+    def t_clean_history(t_tag, **kwargs):
+        log.info(f"<=t_clean_history=> {t_tag}, {kwargs}")
+        DBServicing().history_clean(**kwargs)
