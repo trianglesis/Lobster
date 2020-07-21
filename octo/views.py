@@ -44,8 +44,6 @@ class MainPage(TemplateView):
         context.update(
             objects=self.get_queryset(),
         )
-        # Use main_page, because it's url /
-        # context['objects'] = OctoCache().cache_context(context["objects"], hkey='MainPage')
         return context
 
     def get_queryset(self):
