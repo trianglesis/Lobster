@@ -231,17 +231,17 @@ class OctoSignals:
                 log.error('No branch in deleted item?! OctoSignals')
         OctoCache().cache_operation(keys=test_last, methods=test_last_t)
 
-    @staticmethod
-    @receiver(post_save, sender=TestCases)
-    def test_cases_save(sender, instance, created, **kwargs):
-        # NOTE: Too many tasks generated!
-        pass
-        # OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
-
-    @staticmethod
-    @receiver(post_save, sender=UploadTestsNew)
-    def tku_upload_test_save(sender, instance, created, **kwargs):
-        OctoCache().cache_operation(keys=upload_tests, methods=upload_tests_t)
+    # @staticmethod
+    # @receiver(post_save, sender=TestCases)
+    # def test_cases_save(sender, instance, created, **kwargs):
+    #     # NOTE: Too many tasks generated!
+    #     pass
+    #     # OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
+    #
+    # @staticmethod
+    # @receiver(post_save, sender=UploadTestsNew)
+    # def tku_upload_test_save(sender, instance, created, **kwargs):
+    #     OctoCache().cache_operation(keys=upload_tests, methods=upload_tests_t)
 
     # DELETE
     @staticmethod
@@ -258,12 +258,14 @@ class OctoSignals:
                 log.error('No branch in deleted item?! OctoSignals')
         OctoCache().cache_operation(keys=test_last, methods=test_last_t)
 
-    @staticmethod
-    @receiver(post_delete, sender=TestCases)
-    def test_cases_delete(sender, instance, **kwargs):
-        OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
+    # @staticmethod
+    # @receiver(post_delete, sender=TestCases)
+    # def test_cases_delete(sender, instance, **kwargs):
+    #     # NOTE: Too many tasks generated!
+    #     pass
+    #     # OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
 
-    @staticmethod
-    @receiver(post_delete, sender=UploadTestsNew)
-    def tku_upload_test_delete(sender, instance, **kwargs):
-        OctoCache().cache_operation(keys=upload_tests, methods=upload_tests_t)
+    # @staticmethod
+    # @receiver(post_delete, sender=UploadTestsNew)
+    # def tku_upload_test_delete(sender, instance, **kwargs):
+    #     OctoCache().cache_operation(keys=upload_tests, methods=upload_tests_t)
