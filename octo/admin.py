@@ -242,6 +242,26 @@ class ServicesLogAdmin(admin.ModelAdmin):
     list_filter = ('task_name', 'user', 'created_at')
     ordering = ('-created_at',)
 
+
+@admin.register(OctoCacheStore)
+class OctoCacheStoreAdmin(admin.ModelAdmin):
+    fields = (
+        (
+            'name',
+            'key',
+            'hashed',
+            'query',
+            'ttl',
+            'counter',
+            'created_time',
+        )
+    )
+
+    readonly_fields = ('created_time',)
+    list_display = ('name', 'key', 'hashed', 'ttl', 'counter', 'created_time',)
+    list_filter = ('name', 'key', 'created_time')
+    ordering = ('-created_time',)
+
 @admin.register(TestCases)
 class TestCasesAdmin(admin.ModelAdmin):
     """ https://djangobook.com/mdj2-django-admin/ """
