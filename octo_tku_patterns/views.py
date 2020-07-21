@@ -208,7 +208,6 @@ class TKNCasesWorkbenchView(TemplateView):
 
 # Test reports:
 # ADDM Digest summary:
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class AddmDigestListView(ListView):
     __url_path = '/octo_tku_patterns/addm_digest/'
@@ -222,7 +221,6 @@ class AddmDigestListView(ListView):
 
 
 # Pattern Digest or Cases Digest summary:
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestLastDigestListView(ListView):
     __url_path = '/octo_tku_patterns/tests_last/'
@@ -284,7 +282,6 @@ class TestLastDigestListView(ListView):
 
 
 # Test last table - show single(or all with status) test results for test.py
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestLastSingleDetailedListView(ListView):
     __url_path = '/octo_tku_patterns/test_details/'
@@ -320,7 +317,6 @@ class TestLastSingleDetailedListView(ListView):
 
 
 # Test history table - show single test.py unit historical runs.
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestItemSingleHistoryListView(ListView):
     __url_path = '/octo_tku_patterns/test_item_history/'
@@ -365,7 +361,6 @@ class TestItemSingleHistoryListView(ListView):
 
 
 # Test History Latest View:
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestHistoryArchiveIndexView(ArchiveIndexView):
     """
@@ -399,7 +394,6 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
 
 
 # Test History Daily View:
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestHistoryDayArchiveView(DayArchiveView):
     """
@@ -441,7 +435,6 @@ class TestHistoryDayArchiveView(DayArchiveView):
 
 
 # Test History Today View:
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 30), name='dispatch')
 class TestHistoryTodayArchiveView(TodayArchiveView):
     """
@@ -474,7 +467,6 @@ class TestHistoryTodayArchiveView(TodayArchiveView):
 
 
 # Test History Digest Today View:
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 30), name='dispatch')
 class TestHistoryDigestTodayView(TodayArchiveView):
     """
@@ -548,7 +540,6 @@ class TestHistoryDigestTodayView(TodayArchiveView):
 
 
 # Test History Digest Daily View:
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 30), name='dispatch')
 class TestHistoryDigestDailyView(DayArchiveView):
     __url_path = '/octo_tku_patterns/test_history_digest_day/'
@@ -597,7 +588,6 @@ class TestHistoryDigestDailyView(DayArchiveView):
 
 
 # Cases
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestCasesListView(ListView):
     __url_path = '/octo_tku_patterns/test_cases/'
@@ -677,7 +667,6 @@ class TestCaseDetailView(DetailView):
 
 
 # Cases groups
-@method_decorator(vary_on_headers('Cookie'), name='dispatch')
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestCasesUpdateView(UpdateView):
     __url_path = '/octo_tku_patterns/test_case/change/<int:pk>/'

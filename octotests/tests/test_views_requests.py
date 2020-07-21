@@ -262,7 +262,6 @@ class AdvancedViews(TestCase):
         OctoCache().cache_query(queryset)
         view.get(request)
 
-    @unittest.skip('Skip when have two separate tests for branches!')
     def test002_tests_last(self):
         """
         Get most common views on tests_last for different branches and all test statuses
@@ -319,7 +318,6 @@ class AdvancedViews(TestCase):
         # view.options(request)
         view.get(request)
 
-    @unittest.skip('Skip when have two separate tests for branches!')
     def test003_test_details(self):
         """
         Get most common views on /octo_tku_patterns/test_details
