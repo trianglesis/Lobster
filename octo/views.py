@@ -48,9 +48,13 @@ class MainPage(TemplateView):
 
     def get_queryset(self):
         addm_digest = OctoCache().cache_query(AddmDigest.objects.all())
-        test_last_q = TestLast.objects.filter(time_spent_test__isnull=False, time_spent_test__gte=60 * 60)
+        # Test lasts more than 40 minutes.
+        test_last_q = TestLast.objects.filter(time_spent_test__isnull=False, time_spent_test__gte=60 * 40)
         tests_top_main = test_last_q.filter(tkn_branch__exact='tkn_main').order_by('-time_spent_test')
         tests_top_ship = test_last_q.filter(tkn_branch__exact='tkn_ship').order_by('-time_spent_test')
+
+        log.debug(f'tests_top_main: {tests_top_main.query}')
+        log.debug(f'tests_top_ship: {tests_top_ship.query}')
 
         selections = dict(
             upload_tests=TKUUpdateWorkbenchView.get_queryset(self),
