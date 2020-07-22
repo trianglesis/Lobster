@@ -149,7 +149,6 @@ class OctoCache:
         reserved = TasksOperations.tasks_get_active_reserved(workers=['w_routines@tentacle'])['reserved']
         reserved = reserved['w_routines@tentacle']
         planned = []
-        log.debug(f"Resevred tasks {reserved}")
         for task in reserved:
             if task['kwargs'] not in planned:
                 planned.append(task['kwargs'])
@@ -168,8 +167,6 @@ class OctoCache:
                     t_args=[tag],
                     t_kwargs=kwargs,
                     t_routing_key=tag)
-            else:
-                log.info(f"Do not run re-cache task, there is one already in the queue {planned}")
 
 
     def cache_operation(self, keys, methods):
