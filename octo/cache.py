@@ -161,13 +161,14 @@ class OctoCache:
             }
             tag = f'AdvancedViews.{test}'
             if tag not in planned:
+                log.info(f"Task tag is not in planned - run {tag} planned: {planned}")
                 Runner.fire_t(
                     TPatternRoutine.t_patt_routines,
                     t_args=[tag],
                     t_kwargs=kwargs,
                     t_routing_key=tag)
             else:
-                log.info(f"Do not run recache task, there is one already in the queue {planned}")
+                log.info(f"Do not run re-cache task, there is one already in the queue {planned}")
 
 
     def cache_operation(self, keys, methods):
