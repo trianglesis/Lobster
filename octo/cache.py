@@ -151,11 +151,11 @@ class OctoCache:
         active = all_tasks['active']['w_routines@tentacle']
         planned = []
         for task in reserved:
-            if task['args'] not in planned:
-                planned.append(task['args'])
+            if task['args'][0] not in planned:
+                planned.append(task['args'][0])
         for task in active:
-            if task['args'] not in planned:
-                planned.append(task['args'])
+            if task['args'][0] not in planned:
+                planned.append(task['args'][0])
 
         for test in test_methods:
             kwargs = {
