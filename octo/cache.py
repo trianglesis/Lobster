@@ -146,12 +146,16 @@ class OctoCache:
         :return:
         """
         # Do not add same test method, if reserved tasks already have one
-        reserved = TasksOperations.tasks_get_active_reserved(workers=['w_routines@tentacle'])['reserved']
-        reserved = reserved['w_routines@tentacle']
+        all_tasks = TasksOperations.tasks_get_active_reserved(workers=['w_routines@tentacle'])
+        reserved = all_tasks['reserved']['w_routines@tentacle']
+        active = all_tasks['active']['w_routines@tentacle']
         planned = []
         for task in reserved:
-            if task['kwargs'] not in planned:
-                planned.append(task['kwargs'])
+            if task['args'] not in planned:
+                planned.append(task['args'])
+        for task in active:
+            if task['args'] not in planned:
+                planned.append(task['args'])
 
         for test in test_methods:
             kwargs = {
@@ -160,7 +164,7 @@ class OctoCache:
                 "test_module": "octotests.tests.test_views_requests"
             }
             tag = f'AdvancedViews.{test}'
-            if kwargs not in planned:
+            if tag not in planned:
                 log.info(f"Task kwargs is not in planned - run {kwargs} planned: {planned}")
                 Runner.fire_t(
                     TPatternRoutine.t_patt_routines,
