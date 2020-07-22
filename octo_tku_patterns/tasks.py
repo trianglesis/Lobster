@@ -173,7 +173,8 @@ class TaskPrepare:
         # Define fake run:
         self.fake_run = False
         self.fake_fun()
-        self.user = User.objects.get(username__exact=self.user_name)
+        # NOTE:  Fix django.contrib.auth.models.User.DoesNotExist and think why do we need it here?
+        # self.user = User.objects.get(username__exact=self.user_name)
 
         # Get user and mail:
         self.start_time = datetime.datetime.now()
