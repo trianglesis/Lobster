@@ -219,8 +219,6 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         Use only locked ADDMs for the current branch!
         :return:
         """
-        # TODO: Revert back!
-        self.fake_run_on(True)
         self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(90))
