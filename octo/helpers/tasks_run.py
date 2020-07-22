@@ -17,9 +17,11 @@ log = logging.getLogger("octo.octologger")
 class Runner:
 
     @staticmethod
-    def check_task_added():
+    def check_task_added(workers=None):
+        if not workers:
+            workers = []
         all_tasks = []
-        active_reserved = TasksOperations.tasks_get_active_reserved()
+        active_reserved = TasksOperations.tasks_get_active_reserved(workers=workers)
         active = active_reserved.get('active')
         reserved = active_reserved.get('reserved')
         if active:

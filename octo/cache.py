@@ -17,6 +17,8 @@ from octo_tku_patterns.models import TestLast, TestCases
 from octo_tku_patterns.tasks import TPatternRoutine
 from octo_tku_upload.models import UploadTestsNew
 
+from octo.helpers.tasks_oper import TasksOperations
+
 log = logging.getLogger("octo.octologger")
 
 SECRET_KEY = 'DefaultKeyResetEverything'
@@ -143,6 +145,14 @@ class OctoCache:
         :param test_methods:
         :return:
         """
+        # Do not add same test method, if reserved tasks already have one
+        reserved = TasksOperations.tasks_get_active_reserved(workers=['w_routines@tentacle'])['reserved']
+        reserved = reserved['w_routines@tentacle']
+        planned = []
+        for task in reserved:
+            if task['args'][0] not in planned:
+                planned.append(task['args'][0])
+
         for test in test_methods:
             kwargs = {
                 "test_method": test,
@@ -150,11 +160,13 @@ class OctoCache:
                 "test_module": "octotests.tests.test_views_requests"
             }
             tag = f'AdvancedViews.{test}'
-            Runner.fire_t(
-                TPatternRoutine.t_patt_routines,
-                t_args=[tag],
-                t_kwargs=kwargs,
-                t_routing_key=tag)
+            if tag not in planned:
+                Runner.fire_t(
+                    TPatternRoutine.t_patt_routines,
+                    t_args=[tag],
+                    t_kwargs=kwargs,
+                    t_routing_key=tag)
+
 
     def cache_operation(self, keys, methods):
         """
@@ -165,6 +177,7 @@ class OctoCache:
         """
         self.delete_cache_on_signal(keys=keys)
         # NOTE: Do not run at non-working hours
+        # NOTE: Add some counter - so we execute this only when 10 or 100 signals were added?
         if working_hours():
             self.task_re_cache(test_methods=methods)
 
@@ -221,7 +234,7 @@ class OctoSignals:
     @staticmethod
     @receiver(post_save, sender=TestLast)
     def test_last_save(sender, instance, created, **kwargs):
-        log.debug(f'<=test_last_save=> Args: {sender} {instance}  kwargs: {kwargs}')
+        # log.debug(f'<=test_last_save=> Args: {sender} {instance}  kwargs: {kwargs}')
         test_last_t = ['test001_main_page', 'test001_addm_digest']
         if hasattr(instance, 'tkn_branch'):
             if instance.tkn_branch == 'tkn_main':
@@ -248,7 +261,7 @@ class OctoSignals:
     @staticmethod
     @receiver(post_delete, sender=TestLast)
     def test_last_delete(sender, instance, **kwargs):
-        log.debug(f'<=test_last_delete=> Args: {sender} {instance}  kwargs: {kwargs}')
+        # log.debug(f'<=test_last_delete=> Args: {sender} {instance}  kwargs: {kwargs}')
         test_last_t = ['test001_main_page', 'test001_addm_digest',]
         if hasattr(instance, 'tkn_branch'):
             if instance.tkn_branch == 'tkn_main':
