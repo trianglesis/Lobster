@@ -179,3 +179,4 @@ z_DEV/test_999_local_debug.sql
 /win_manage.py
 # Do not push it, now use git
 /static/octicons/
+/static/Font-Awesome/
