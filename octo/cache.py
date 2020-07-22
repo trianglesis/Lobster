@@ -150,8 +150,9 @@ class OctoCache:
         reserved = reserved['w_routines@tentacle']
         planned = []
         for task in reserved:
-            if task['args'][0] not in planned:
-                planned.append(task['args'][0])
+            log.debug(f"Reserved: {task}")
+            if task['args'] not in planned:
+                planned.append(task['args'])
 
         for test in test_methods:
             kwargs = {
