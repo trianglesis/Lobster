@@ -65,7 +65,6 @@ class TKUEmailDigest:
         if tku_type:
             queryset = queryset.filter(tku_type__exact=tku_type)
 
-        log.debug(f'queryset: {queryset.query}')
         if queryset:
             log.debug(f'Sending email with TKU fail upload statuses for {day_sel.strftime("%Y-%m-%d")}!')
             subject = f'Upload status mail: "{status}" type: {tku_type if tku_type else "all"}'
@@ -97,8 +96,8 @@ class TKUEmailDigest:
             t_args = f'TKU_Upload_digest.{status}.mail'
             t_routing_key = 'UserTestsDigest.TSupport.t_short_mail'
             t_queue = 'w_routines@tentacle.dq2'
-            # Runner.fire_t(TSupport.t_short_mail, fake_run=fake_run, to_sleep=2, to_debug=True,
-            #               t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
+            Runner.fire_t(TSupport.t_short_mail, fake_run=fake_run, to_sleep=2, to_debug=True,
+                          t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
         else:
             log.info(f'There are no errors or warnings in TKU Upload for {day_sel.strftime("%Y-%m-%d")}!')
 
