@@ -228,7 +228,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
         self.key_group()                                                                # 2
         self.excluded_group()                                                           # 4
-        self.wipe_logs_on(False)
+        self.wipe_logs_on(True)
         self.run_case()
 
     def test_015_night_routine_ship_options_addm(self):
