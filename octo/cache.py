@@ -151,8 +151,8 @@ class OctoCache:
         planned = []
         for task in reserved:
             log.debug(f"Reserved: {task}")
-            if task['args'] not in planned:
-                planned.append(task['args'])
+            if task['kwargs'] not in planned:
+                planned.append(task['kwargs'])
 
         for test in test_methods:
             kwargs = {
@@ -161,8 +161,8 @@ class OctoCache:
                 "test_module": "octotests.tests.test_views_requests"
             }
             tag = f'AdvancedViews.{test}'
-            if tag not in planned:
-                log.info(f"Task tag is not in planned - run {tag} planned: {planned}")
+            if kwargs not in planned:
+                log.info(f"Task kwargs is not in planned - run {kwargs} planned: {planned}")
                 Runner.fire_t(
                     TPatternRoutine.t_patt_routines,
                     t_args=[tag],

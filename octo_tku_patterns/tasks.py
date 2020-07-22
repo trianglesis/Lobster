@@ -68,7 +68,7 @@ class TPatternRoutine:
         :param kwargs: dict(test_method, test_class, test_module)
         :return:
         """
-        log.info("<=t_patt_routines=> Running task %s", kwargs)
+        log.info(f"<=t_patt_routines=> Running task: {t_tag} kw: {kwargs}", )
         TestRunnerLoc().run_subprocess(**kwargs)
 
     @staticmethod
