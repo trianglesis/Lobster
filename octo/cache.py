@@ -165,7 +165,7 @@ class OctoCache:
             }
             tag = f'AdvancedViews.{test}'
             if tag not in planned:
-                log.info(f"Task kwargs is not in planned - run {kwargs} planned: {planned}")
+                log.info(f"Task kwargs is not in planned - run {tag} planned: {planned}")
                 Runner.fire_t(
                     TPatternRoutine.t_patt_routines,
                     t_args=[tag],
