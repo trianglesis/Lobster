@@ -186,134 +186,134 @@ h2 {
 }
 
 .popover > div.popover-body > div.addm_name {
-    background-image: url('/static/fontawesome/svgs/solid/upload.svg');
+    background-image: url('/Font-Awesome/svgs/solid/upload.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.test_mode {
-    background-image: url('/static/fontawesome/svgs/solid/flask.svg');
+    background-image: url('/Font-Awesome/svgs/solid/flask.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.mode_key {
-    background-image: url('/static/fontawesome/svgs/solid/tag.svg');
+    background-image: url('/Font-Awesome/svgs/solid/tag.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.package_type {
-    background-image: url('/static/fontawesome/svgs/solid/archive.svg');
+    background-image: url('/Font-Awesome/svgs/solid/archive.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.tku_type {
-    background-image: url('/static/fontawesome/svgs/solid/tags.svg');
+    background-image: url('/Font-Awesome/svgs/solid/tags.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.tku_build {
-    background-image: url('/static/fontawesome/svgs/brands/jenkins.svg');
+    background-image: url('/Font-Awesome/svgs/brands/jenkins.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.upload_test_status {
-    background-image: url('/static/octicons/svg/tasklist.svg');
+    background-image: url('/octicons/icons/tasklist-16.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.upload_test_str_stderr {
-    background-image: url('/static/octicons/svg/stop.svg');
+    background-image: url('/octicons/icons/stop-16.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.all_errors {
-    background-image: url('/static/fontawesome/svgs/solid/exclamation-triangle.svg');
+    background-image: url('/Font-Awesome/svgs/solid/exclamation-triangle.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.upload_errors {
-    background-image: url('/static/fontawesome/svgs/solid/exclamation-triangle.svg');
+    background-image: url('/Font-Awesome/svgs/solid/exclamation-triangle.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.all_warnings {
-    background-image: url('/static/fontawesome/svgs/solid/exclamation-circle.svg');
+    background-image: url('/Font-Awesome/svgs/solid/exclamation-circle.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.upload_warnings {
-    background-image: url('/static/fontawesome/svgs/solid/exclamation-circle.svg');
+    background-image: url('/Font-Awesome/svgs/solid/exclamation-circle.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.tested_zips {
-    background-image: url('/static/fontawesome/svgs/solid/file-archive.svg');
+    background-image: url('/Font-Awesome/svgs/solid/file-archive.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.addm_host {
-    background-image: url('/static/fontawesome/svgs/solid/server.svg');
+    background-image: url('/Font-Awesome/svgs/solid/server.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.time_spent_test {
-    background-image: url('/static/fontawesome/svgs/solid/stopwatch.svg');
+    background-image: url('/Font-Awesome/svgs/solid/stopwatch.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.test_date_time {
-    background-image: url('/static/fontawesome/svgs/solid/clock.svg');
+    background-image: url('/Font-Awesome/svgs/solid/clock.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 /* Additional for TKU Package popover */
 .popover > div.popover-body > div.tku_name {
-    background-image: url('/static/fontawesome/svgs/solid/tags.svg');
+    background-image: url('/Font-Awesome/svgs/solid/tags.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.zip_file_md5_digest {
-    background-image: url('/static/fontawesome/svgs/solid/file-archive.svg');
+    background-image: url('/Font-Awesome/svgs/solid/file-archive.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.updated_at {
-    background-image: url('/static/fontawesome/svgs/solid/clock.svg');
+    background-image: url('/Font-Awesome/svgs/solid/clock.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.created_at {
-    background-image: url('/static/fontawesome/svgs/solid/clock.svg');
+    background-image: url('/Font-Awesome/svgs/solid/clock.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.zip_file_path {
-    background-image: url('/static/fontawesome/svgs/solid/folder.svg');
+    background-image: url('/Font-Awesome/svgs/solid/folder.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }
 
 .popover > div.popover-body > div.zip_file_name {
-    background-image: url('/static/fontawesome/svgs/solid/file-archive.svg');
+    background-image: url('/Font-Awesome/svgs/solid/file-archive.svg');
     background-repeat: no-repeat;
     background-size: 1.2em;
 }

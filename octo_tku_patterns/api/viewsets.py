@@ -1,29 +1,19 @@
 
+import logging
+
 from django.utils.decorators import method_decorator
-
-from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
-
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from octo.api.serializers import *
-
 from octo_adm.user_operations import UserCheck
-
-from octo_tku_patterns.models import TestCases, TestCasesDetails, TestLast, TestHistory
 from octo_tku_patterns.api.serializers import TestCasesSerializer, TestCasesDetailsSerializer, \
     TestLastSerializer, TestHistorySerializer
-from octo_tku_patterns.api.mixins import TaskOperMixin
-
+from octo_tku_patterns.models import TestCases, TestCasesDetails, TestLast, TestHistory
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
 from octo_tku_patterns.views import compose_selector
 
-from octo.cache import OctoCache
-from octo.models import CeleryTaskmeta
-from octo.api.serializers import CeleryTaskmetaSerializer
-
-import logging
 log = logging.getLogger("octo.octologger")
 
 

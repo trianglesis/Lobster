@@ -146,7 +146,7 @@
     font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
 }
 .popover > div.popover-body > div.test_case_depot_path {
-    background-image: url('/static/octicons/svg/git-commit.svg');
+    background-image: url('/octicons/icons/git-commit-16.svg');
     background-repeat: no-repeat;
     background-size: 1.5em;
     color: #0c5460;
@@ -154,47 +154,47 @@
     text-align: left !important;
 }
 .popover > div.popover-body > div.pattern_library {
-    background-image: url('/static/octicons/svg/repo.svg');
+    background-image: url('/octicons/icons/repo-16.svg');
     background-repeat: no-repeat;
     background-size: 1em;
 }
 .popover > div.popover-body > div.change_user {
-    background-image: url('/static/octicons/svg/person.svg');
+    background-image: url('/octicons/icons/person-16.svg');
     background-repeat: no-repeat;
     background-size: 1em;
 }
 .popover > div.popover-body > div.change_time {
-    background-image: url('/static/octicons/svg/calendar.svg');
+    background-image: url('/octicons/icons/calendar-16.svg');
     background-repeat: no-repeat;
     background-size: 1em;
 }
 .popover > div.popover-body > div.change_ticket {
-    background-image: url('/static/octicons/svg/issue-closed.svg');
+    background-image: url('/octicons/icons/issue-closed-16.svg');
     background-repeat: no-repeat;
     background-size: 1em;
 }
 .popover > div.popover-body > div.change_desc {
-    background-image: url('/static/octicons/svg/info.svg');;
+    background-image: url('/octicons/icons/info-16.svg');;
     background-repeat: no-repeat;
     background-size: 1em;
 }
 .popover > div.popover-body > div.test_time_weight {
-    background-image: url('/static/octicons/svg/clock.svg');
+    background-image: url('/octicons/icons/clock-16.svg');
     background-repeat: no-repeat;
     background-size: 1em;
 }
 .popover > div.popover-body > div.test_py_path_template {
-    background-image: url('/static/octicons/svg/file-code.svg');;
+    background-image: url('/octicons/icons/file-code-16.svg');;
     background-repeat: no-repeat;
     background-size: 1em;
 }
 .popover > div.popover-body > div.test_dir_path_template {
-    background-image: url('/static/octicons/svg/file-directory.svg');;
+    background-image: url('/octicons/icons/file-directory-16.svg');;
     background-repeat: no-repeat;
     background-size: 1em;
 }
 .popover > div.popover-body > div.related_test_cases {
-    background-image: url('/static/octicons/svg/briefcase.svg');;
+    background-image: url('/octicons/icons/briefcase-16.svg');;
     background-repeat: no-repeat;
     background-size: 1em;
 }

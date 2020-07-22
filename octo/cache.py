@@ -1,23 +1,19 @@
 # Python logger
+import datetime
 import logging
 from hashlib import blake2b
-from hmac import compare_digest
-import datetime
 
-from django.conf import settings
 from django.core.cache import cache
-from django.db.models.query import EmptyResultSet
-from django.db.models.signals import post_save, pre_delete, post_delete
+from django.db.models.signals import post_save, post_delete
 from django.db.utils import IntegrityError
 from django.dispatch import receiver
 
+from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
 from octo.models import OctoCacheStore
 from octo_tku_patterns.models import TestLast, TestCases
 from octo_tku_patterns.tasks import TPatternRoutine
 from octo_tku_upload.models import UploadTestsNew
-
-from octo.helpers.tasks_oper import TasksOperations
 
 log = logging.getLogger("octo.octologger")
 
@@ -115,9 +111,6 @@ class OctoCache:
             updated.save()
         except IntegrityError as e:
             log.warning(f'IntegrityError output: {type(e)} {e}')
-        except EmptyResultSet as e:
-            log.info(f"Probably an empty query to cache: {e}")
-            pass
         except Exception as e:
             msg = f"<=save_cache_hash_db=> Error: {e}"
             print(msg)

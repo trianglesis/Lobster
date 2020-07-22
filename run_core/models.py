@@ -30,7 +30,7 @@ class Options(models.Model):
     option_key = models.CharField(_('option key unique'), max_length=120, unique=True)
     option_value = models.TextField(_('option value'), blank=True, null=True)
     created_at = models.DateTimeField(auto_now=True)
-    private = models.NullBooleanField(_('private value'), null=True)
+    private = models.BooleanField(_('private value'), null=True)
     description = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -48,7 +48,7 @@ class MailsTexts(models.Model):
     description = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now=True)
-    private = models.NullBooleanField(_('private value'), null=True)
+    private = models.BooleanField(_('private value'), null=True)
 
     class Meta:
         managed = True
@@ -62,8 +62,8 @@ class ADDMCommands(models.Model):
     command_key = models.CharField(_('command key unique'), max_length=120, unique=True)
     command_value = models.TextField(_('command value'), blank=True, null=True)
 
-    private = models.NullBooleanField(_('private value'), null=True)
-    interactive = models.NullBooleanField(_('interactive mode'), null=True)
+    private = models.BooleanField(_('private value'), null=True)
+    interactive = models.BooleanField(_('interactive mode'), null=True)
     description = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now=True)
@@ -100,7 +100,7 @@ class AddmDev(models.Model):
     addm_v_int = models.CharField(max_length=20)
     addm_full_version = models.CharField(max_length=20, blank=True, null=True)
     addm_group = models.CharField(max_length=20)
-    disables = models.NullBooleanField(null=True)
+    disables = models.BooleanField(null=True)
     branch_lock = models.CharField(max_length=20)
     description = models.TextField(blank=True, null=True)
     role = models.CharField(max_length=50, blank=True, null=True)

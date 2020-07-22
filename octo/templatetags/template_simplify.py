@@ -55,11 +55,11 @@ def percent_pass_test(test_pass, test_skip, test_all):
 @register.simple_tag()
 def select_branch_icon(branch, size):
     if branch == "tkn_main":
-        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;" src="{% static "octicons/svg/git-branch.svg" %}" alt="branch_main" />')
+        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;" src="{% static "octicons/icons/git-branch-16.svg" %}" alt="branch_main" />')
     elif branch == "tkn_ship":
-        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;" src="{% static "octicons/svg/git-merge.svg" %}" alt="merge_ship" />')
+        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;" src="{% static "octicons/icons/git-merge-16.svg" %}" alt="merge_ship" />')
     else:
-        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;" src="{% static "octicons/svg/repo-forked.svg" %}" alt="unknown_branch" />')
+        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;" src="{% static "octicons/icons/repo-forked-16.svg" %}" alt="unknown_branch" />')
     c = Context(dict(size=size))
     return html.render(c)
 
@@ -67,10 +67,10 @@ def select_branch_icon(branch, size):
 @register.simple_tag()
 def select_icon(icon_name, size, side=None, margin=None):
     if side and margin:
-        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;margin-{{side}}: {{margin}}em;" src="/static/octicons/svg/{{icon_name}}.svg" alt="{{icon_name}}" />')
+        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;margin-{{side}}: {{margin}}em;" src="/static/octicons/icons/{{icon_name}}-16.svg" alt="{{icon_name}}" />')
         c = Context(dict(size=size, side=side, margin=margin, icon_name=icon_name))
     else:
-        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;" src="/static/octicons/svg/{{icon_name}}.svg" alt="{{icon_name}}" />')
+        html = Template('{% load static %}<img style="height:{{size}}px;width:{{size}}px;" src="/static/octicons/icons/{{icon_name}}-16.svg" alt="{{icon_name}}" />')
         c = Context(dict(size=size, icon_name=icon_name))
     return html.render(c)
 
