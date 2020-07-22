@@ -31,7 +31,7 @@ MODAL styles:
 .modal-variables > #tkn_branch {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/octicons/icons/git-branch-16.svg);
+    background-image: url(/static/octicons/icons/git-branch-16.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -41,7 +41,7 @@ MODAL styles:
 .modal-variables > #addm_name {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/Font-Awesome/svgs/solid/server.svg);
+    background-image: url(/static/Font-Awesome/svgs/solid/server.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -50,7 +50,7 @@ MODAL styles:
 .modal-variables > #pattern_library {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/octicons/icons/repo-16.svg);
+    background-image: url(/static/octicons/icons/repo-16.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -60,7 +60,7 @@ MODAL styles:
 .modal-variables > #pattern_folder_name {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/Font-Awesome/svgs/solid/folder-open.svg);
+    background-image: url(/static/Font-Awesome/svgs/solid/folder-open.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -75,7 +75,7 @@ MODAL styles:
 
 .modal-variables > #case_id:before {
     content: 'Case id:';
-    background-image: url(/Font-Awesome/svgs/solid/key.svg);
+    background-image: url(/static/Font-Awesome/svgs/solid/key.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -89,7 +89,7 @@ MODAL styles:
 
 .modal-variables > #id:before {
     content: 'Case id:';
-    background-image: url(/octicons/icons/key-16.svg);
+    background-image: url(/static/octicons/icons/key-16.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -105,7 +105,7 @@ MODAL styles:
 .modal-variables > #tst_class {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/Font-Awesome/svgs/solid/vial.svg);
+    background-image: url(/static/Font-Awesome/svgs/solid/vial.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -116,7 +116,7 @@ MODAL styles:
 .modal-variables > #tst_name {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/Font-Awesome/svgs/solid/vial.svg);
+    background-image: url(/static/Font-Awesome/svgs/solid/vial.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -137,7 +137,7 @@ MODAL styles:
 
 .modal-variables > #change_ticket:before {
     content: 'Change ticket: ';
-    background-image: url(/Font-Awesome/svgs/brands/jira.svg);
+    background-image: url(/static/Font-Awesome/svgs/brands/jira.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -150,7 +150,7 @@ MODAL styles:
 
 .modal-variables > #change_desc:before {
     content: 'Change desc: ';
-    background-image: url(/octicons/icons/note-16.svg);
+    background-image: url(/static/octicons/icons/note-16.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -163,7 +163,7 @@ MODAL styles:
 
 .modal-variables > #change_time:before {
     content: 'Change time: ';
-    background-image: url(/octicons/icons/clock-16.svg);
+    background-image: url(/static/octicons/icons/clock-16.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -176,7 +176,7 @@ MODAL styles:
 
 .modal-variables > #change_review:before {
     content: 'Change review: ';
-    background-image: url(/Font-Awesome/svgs/solid/user-check.svg);
+    background-image: url(/static/Font-Awesome/svgs/solid/user-check.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -189,7 +189,7 @@ MODAL styles:
 
 .modal-variables > #change_user:before {
     content: 'Change user: ';
-    background-image: url(/Font-Awesome/svgs/solid/user.svg);
+    background-image: url(/static/Font-Awesome/svgs/solid/user.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -202,7 +202,7 @@ MODAL styles:
 
 .modal-variables > #change:before {
     content: 'Change: ';
-    background-image: url(/Font-Awesome/svgs/solid/pencil-ruler.svg);
+    background-image: url(/static/Font-Awesome/svgs/solid/pencil-ruler.svg);
     background-repeat: no-repeat;
     background-size: 1em;
     padding-left: 1.4em;
@@ -273,7 +273,7 @@ MODAL styles:
     font-size: 1em;
     font-family: 'Maven Pro', sans-serif;
     font-weight: bold;
-    background-image: url(/octicons/icons/git-commit-16.svg);
+    background-image: url(/static/octicons/icons/git-commit-16.svg);
     background-repeat: no-repeat;
     background-size: 1.2em;
     padding-left: 1.2rem;
@@ -286,7 +286,7 @@ MODAL styles:
     background-repeat: no-repeat;
     background-size: 1.1em;
     padding-left: 1.2rem;
-    background-image: url(/octicons/icons/repo-16.svg);
+    background-image: url(/static/octicons/icons/repo-16.svg);
 }
 
 #testUnitFunction {
@@ -298,7 +298,7 @@ MODAL styles:
     padding-left: 1.2rem;
     /*color: #1f5592cc;*/
     overflow-wrap: break-word;
-    background-image: url(/Font-Awesome/svgs/solid/vial.svg);
+    background-image: url(/static/Font-Awesome/svgs/solid/vial.svg);
 
 }
 
@@ -314,7 +314,7 @@ MODAL styles:
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
     padding-left: 1.2rem;
-    background-image: url(/octicons/icons/key-16.svg);
+    background-image: url(/static/octicons/icons/key-16.svg);
     background-repeat: no-repeat;
     background-size: 1.2em;
     margin: .2em;
@@ -323,7 +323,7 @@ MODAL styles:
 #multiple_cases {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/octicons/icons/list-unordered-16.svg);
+    background-image: url(/static/octicons/icons/list-unordered-16.svg);
     background-repeat: no-repeat;
     background-size: 1.2em;
     padding-left: 1.2rem;
@@ -333,7 +333,7 @@ MODAL styles:
 #test_mode {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/octicons/icons/beaker-16.svg);
+    background-image: url(/static/octicons/icons/beaker-16.svg);
     background-repeat: no-repeat;
     background-size: 1.2em;
     padding-left: 1.2rem;
@@ -343,7 +343,7 @@ MODAL styles:
 #task_id {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/octicons/icons/hubot-16.svg);
+    background-image: url(/static/octicons/icons/hubot-16.svg);
     background-repeat: no-repeat;
     background-size: 1.2em;
     padding-left: 1.2rem;
@@ -363,7 +363,7 @@ MODAL styles:
 .task_status-state {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/octicons/icons/info-16.svg);
+    background-image: url(/static/octicons/icons/info-16.svg);
     font-weight: bolder;
     background-repeat: no-repeat;
     background-size: 1.2em;
@@ -375,7 +375,7 @@ MODAL styles:
     background-color: red;
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/octicons/icons/issue-opened-16.svg);
+    background-image: url(/static/octicons/icons/issue-opened-16.svg);
     font-weight: bolder;
     background-repeat: no-repeat;
     background-size: 1.2em;
@@ -386,7 +386,7 @@ MODAL styles:
 .task_status-queue {
     font-size: .875em;
     font-family: 'Maven Pro', sans-serif;
-    background-image: url(/octicons/icons/check-16.svg);
+    background-image: url(/static/octicons/icons/check-16.svg);
     font-weight: bolder;
     background-repeat: no-repeat;
     background-size: 1.2em;

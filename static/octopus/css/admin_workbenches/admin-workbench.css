@@ -147,13 +147,13 @@
 }
 
 #branch_lock > .tkn_main{
-    background-image: url('/octicons/icons/git-branch-16.svg');
+    background-image: url(/static/octicons/icons/git-branch-16.svg);
     background-repeat: no-repeat;
     background-size: .8em;
     padding-left: 1em;
 }
 #branch_lock > .tkn_ship{
-    background-image: url('/octicons/icons/git-merge-16.svg');
+    background-image: url(/static/octicons/icons/git-merge-16.svg);
     background-repeat: no-repeat;
     background-size: .8em;
     padding-left: 1em;
