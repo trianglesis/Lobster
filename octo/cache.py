@@ -149,8 +149,8 @@ class OctoCache:
         reserved = TasksOperations.tasks_get_active_reserved(workers=['w_routines@tentacle'])['reserved']
         reserved = reserved['w_routines@tentacle']
         planned = []
+        log.debug(f"Resevred tasks {reserved}")
         for task in reserved:
-            log.debug(f"Reserved: {task}")
             if task['kwargs'] not in planned:
                 planned.append(task['kwargs'])
 
