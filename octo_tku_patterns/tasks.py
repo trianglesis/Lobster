@@ -643,16 +643,17 @@ class TaskPrepare:
         if test_item['test_time_weight']:
             test_t_w = round(float(test_item['test_time_weight']))  # TODO: If NoneType - use 0
         else:
-            test_t_w = 1800
+            test_t_w = 60 * 15
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=10, debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
-                      t_kwargs=dict(user_email=self.user_email, user_name=self.user_name, addm_items=list(addm_set), test_item=test_item,
+                      t_kwargs=dict(user_email=self.user_email, user_name=self.user_name, addm_items=list(addm_set),
+                                    test_item=test_item,
                                     test_function=self.test_function),
                       t_routing_key=task_r_key,
-                      t_soft_time_limit=test_t_w+1800,
-                      t_task_time_limit=test_t_w+1200)
+                      t_soft_time_limit=test_t_w + 60 * 20,
+                      t_task_time_limit=test_t_w + 60 * 30)
 
     def task_tag_generate(self):
         """Just make a task tag for this routine"""
