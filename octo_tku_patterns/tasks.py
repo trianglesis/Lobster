@@ -58,7 +58,6 @@ class TPatternRoutine:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_patt_routines',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    @db_logger
     @exception
     def t_patt_routines(t_tag, **kwargs):
         """
@@ -74,7 +73,6 @@ class TPatternRoutine:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_test_prep',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    @db_logger
     @exception
     def t_test_prep(t_tag, **kwargs):
         """
@@ -118,7 +116,6 @@ class TPatternParse:
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_p4_sync_force',
               soft_time_limit=MIN_20, task_time_limit=MIN_40)
-    @db_logger
     @exception
     def t_p4_sync_force(t_tag, depot_path):
         """Perforce workspace sync force"""
@@ -128,7 +125,6 @@ class TPatternParse:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_pattern_weight_index',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    @db_logger
     @exception
     def t_pattern_weight_index(t_tag, last_days=30, addm_name='custard_cream'):
         """Calculate pattern time weight on previous execution time"""
@@ -680,13 +676,11 @@ class MailDigests:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_user_digest',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    @db_logger
     def t_user_digest(t_tag, **kwargs):
         """User test digest mail send task"""
         TestDigestMail().failed_pattern_test_user_daily_digest(**kwargs)
 
     @staticmethod
-    @db_logger
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_lib_digest',
               soft_time_limit=MIN_10, task_time_limit=MIN_20)
     def t_lib_digest(t_tag, **kwargs):

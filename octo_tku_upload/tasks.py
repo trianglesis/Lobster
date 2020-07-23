@@ -41,17 +41,12 @@ SEC_1 = 1
 
 _LH_ = '<=UploadTaskPrepare=>'
 
-def log_save(kwargs):
-    routine_log = RoutinesLog(**kwargs)
-    routine_log.save()
-
 # noinspection PyUnusedLocal,PyUnusedLocal
 class TUploadExec:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_upload_routines',
               soft_time_limit=MIN_90, task_time_limit=HOURS_2)
-    @db_logger
     @exception
     def t_upload_routines(t_tag, **kwargs):
         """
@@ -67,7 +62,6 @@ class TUploadExec:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_tku_upload_test_new',
               soft_time_limit=MIN_90, task_time_limit=HOURS_2)
-    @db_logger
     @exception
     def t_upload_test(t_tag, **kwargs):
         """General task for upload test"""
@@ -76,7 +70,6 @@ class TUploadExec:
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
-    @db_logger
     @exception
     def t_tku_sync(t_tag, **kwargs):
         """Sync TKU Packages with WGET"""
@@ -85,7 +78,6 @@ class TUploadExec:
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.TUploadExec.t_parse_tku',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
-    @db_logger
     @exception
     def t_parse_tku(t_tag, **kwargs):
         """Parse synced TKU packages in local FS after WGET"""
@@ -94,7 +86,6 @@ class TUploadExec:
 
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    @db_logger
     @exception
     def t_upload_unzip(t_tag, **kwargs):
         """Unzip TKU packages on selected ADDMs into TEMP folder"""
@@ -102,7 +93,6 @@ class TUploadExec:
 
     @staticmethod
     @app.task(soft_time_limit=MIN_90, task_time_limit=HOURS_2)
-    @db_logger
     @exception
     def t_tku_install(t_tag, **kwargs):
         """ Execute TKU install command after TKU packages were unzipped in TEMP folder."""
