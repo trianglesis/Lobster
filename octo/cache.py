@@ -176,8 +176,9 @@ class OctoCache:
         self.delete_cache_on_signal(keys=keys)
         # NOTE: Do not run at non-working hours
         # NOTE: Add some counter - so we execute this only when 10 or 100 signals were added?
-        if working_hours():
-            self.task_re_cache(test_methods=methods)
+        # NOTE: Do not re-cache for now
+        # if working_hours():
+        #     self.task_re_cache(test_methods=methods)
 
     def delete_cache_item_row(self, cached_items):
         """
