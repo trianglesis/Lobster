@@ -133,7 +133,6 @@ class UploadTaskPrepare:
         self.silent_run()
 
         # Get user and mail:
-        self.start_time = datetime.datetime.now()
         log.info(f"{_LH_} Prepare tests for user: {self.user_name} - {self.user_email}")
 
         self.package_types = ''
@@ -489,7 +488,7 @@ class UploadTaskPrepare:
         task_name = kwargs.get('task_name', f'Upload test - {self.__class__.__name__}')
         user = kwargs.get('user', User.objects.filter(email__exact=self.user_email).first())
         t_kwargs = kwargs.get('t_kwargs', self.data)
-        t_start_time = kwargs.get('t_start_time', self.start_time)
+        t_start_time = kwargs.get('t_start_time', datetime.datetime.now())
         description = kwargs.get('description', 'TKU Upload test')
 
         kwargs = {
