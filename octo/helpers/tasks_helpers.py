@@ -64,7 +64,7 @@ def exception(function):
             raise Exception(e)
 
         except Exception as e:
-            log.error("Unusual task exception! Check mail or logs for more info.")
+            log.error(f"Unusual task exception! Check mail or logs for more info. {e}")
             exc_type, exc_value, exc_traceback = sys.exc_info()
             sam = traceback.format_exception(exc_type, exc_value, exc_traceback)
             exc_more = f'{e} Task catches the unusual exception. Please check logs or run debug. \n\t - Traceback: {sam}'

@@ -139,6 +139,7 @@ class WorkerGetAvailable:
         actual_w = self.actualize_w(branch_w, excluded_w)
         if actual_w:
             log.debug("<=WorkerGetAvailable=> Actualized w: %s", actual_w)
+            # TODO: Add here all_queues_len = RabbitCheck().queue_count_list(queues_list)
             running_w = self.ping_actual_w(actual_w)
 
             if running_w:

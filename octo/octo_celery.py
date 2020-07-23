@@ -86,17 +86,17 @@ app.conf.update(
     task_create_missing_queues=True,  # By Default  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-create-missing-queues
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#worker-prefetch-multiplier
-    worker_prefetch_multiplier=100,  # Keep 100, to lower RAM consume and keep most in RabbitMQ
+    worker_prefetch_multiplier=1,  # NOTE: Do not rely on celery queue no more, use rabbitmq queues instead!
 
     worker_disable_rate_limits=True,
     worker_concurrency=1,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-concurrency
     worker_lost_wait=4,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-lost-wait
-    worker_max_memory_per_child=120000,  # 120 MB X 10 = 1200 MB
-    worker_max_tasks_per_child=1000,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-max-tasks-per-child
+    worker_max_memory_per_child=1024 * 50,  # 50MB
+    worker_max_tasks_per_child=100,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-max-tasks-per-child
 
     # Useful
     # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-log-format
-    worker_timer_precision=5,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-timer-precision
+    worker_timer_precision=1,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-timer-precision
     worker_enable_remote_control=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-enable-remote-control
     task_send_sent_event=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#task-send-sent-event
     worker_send_task_events=True,  # -E at worker service # http://docs.celeryproject.org/en/latest/userguide/configuration.html#events
@@ -109,7 +109,7 @@ app.conf.update(
     # Setting this to true allows the message to be re-queued instead, so that the task will execute again by the same worker, or another worker.
     task_reject_on_worker_lost=False,  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-reject-on-worker-lost
 
-    broker_pool_limit=None,  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#broker-pool-limit
+    broker_pool_limit=50,  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#broker-pool-limit
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#broker-connection-timeout
     broker_connection_timeout=4,
