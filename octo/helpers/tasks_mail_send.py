@@ -67,7 +67,7 @@ class Mails:
                 from_email = getattr(settings, 'EMAIL_ADDR', None),
                 to         = send_to,
                 cc         = send_cc,
-                bcc        = [admin, ],  # Always send to me.
+                bcc        = admin,  # Always send to me.
                 subject    = subject,
                 body       = body,
                 connection = connection,
