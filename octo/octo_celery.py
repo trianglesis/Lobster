@@ -36,7 +36,7 @@ app = Celery('octo',
              broker=conf_cred.cred['broker'],
 
              # http://docs.celeryproject.org/en/latest/userguide/configuration.html#result-backend
-             backend=backend,
+             # backend=backend,
              )
 
 # Using a string here means the worker doesn't have to serialize
