@@ -29,6 +29,8 @@ from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_run import Runner
 from run_core.models import AddmDev, ADDMCommands
 
+from octo.config_cred import mails
+
 log = logging.getLogger("octo.octologger")
 place = os.path.dirname(os.path.abspath(__file__))
 
@@ -426,7 +428,7 @@ class ADDMStaticOperations:
                 log.error("Some workers may be down: %s - sending email!", worker_up)
                 subject = f'Worker is down, cannot run all other tasks. W: {worker_up}'
                 body = f'Found some workers are DOWN while run (addm_groups_validate) List: {worker_up}'
-                admin = conf_cred.mails['admin']
+                admin = mails['admin']
                 Mails.short(subject=subject, body=body, send_to=[admin])
                 # Nothing else to do here.
                 raise Exception(subject)

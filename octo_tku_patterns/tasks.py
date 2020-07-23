@@ -289,7 +289,9 @@ class TaskPrepare:
         # TODO: Add task for sync to the same routine worker so it only can start next tests after sync was finished?
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_sync = Runner.fire_t(TPatternParse.t_p4_sync,
-                                  fake_run=self.fake_run, t_args=[t_tag], t_queue='w_parsing@tentacle.dq2',
+                                  fake_run=self.fake_run,
+                                  t_args=[t_tag],
+                                  t_queue='w_parsing@tentacle.dq2',
                                   t_routing_key='parsing.perforce.TaskPrepare.sync_depot.TPatternParse.t_p4_sync')
         if not self.fake_run:
             log.debug("<=TaskPrepare=> Start waiting for t_p4_sync...")
@@ -586,6 +588,7 @@ class TaskPrepare:
                 addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
                 t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
                 Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
+                              fake_run=self.fake_run,
                               t_queue=f'{addm["addm_group"]}@tentacle.dq2',
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
@@ -612,9 +615,12 @@ class TaskPrepare:
                         f'test_py_path={test_item["test_py_path"]}'
 
                 # TODO: Change to
-                Runner.fire_t(TSupport.t_user_test, fake_run=False, t_args=[t_tag],
+                Runner.fire_t(TSupport.t_user_test,
+                              fake_run=self.fake_run,
+                              t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
-                              t_queue=addm['addm_group']+'@tentacle.dq2', t_routing_key=mail_r_key)
+                              t_queue=addm['addm_group']+'@tentacle.dq2',
+                              t_routing_key=mail_r_key)
             elif mode == 'init':
                 TMail().user_test(mail_opts)
             else:
@@ -643,9 +649,14 @@ class TaskPrepare:
             test_t_w = 60 * 15
 
         # Test task exec:
-        Runner.fire_t(TPatternExecTest.t_test_exec_threads, fake_run=self.fake_run, to_sleep=10, debug_me=True,
+        Runner.fire_t(TPatternExecTest.t_test_exec_threads,
+                      fake_run=self.fake_run,
+                      to_sleep=10,
+                      debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
-                      t_kwargs=dict(user_email=self.user_email, user_name=self.user_name, addm_items=list(addm_set),
+                      t_kwargs=dict(user_email=self.user_email,
+                                    user_name=self.user_name,
+                                    addm_items=list(addm_set),
                                     test_item=test_item,
                                     test_function=self.test_function),
                       t_routing_key=task_r_key,
