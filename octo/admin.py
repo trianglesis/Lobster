@@ -651,13 +651,34 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
 
 @admin.register(CeleryTaskmeta)
 class CeleryTaskmetaAdmin(admin.ModelAdmin):
-    fields = (
-        ('task_id', 'status',),
-        ('result', 'traceback',),
+    list_display = (
+        'task_id',
+        'status',
+        'result',
         'date_done',
+        'traceback',
+        'name',
+        'args',
+        'kwargs',
+        'worker',
+        'retries',
+        'queue',
     )
-    list_display = ('task_id', 'status', 'date_done')
-    list_filter = ('status', 'date_done')
+    list_filter = ('status', 'date_done', 'name', 'worker', 'queue')
+
+    fields = (
+        'task_id',
+        'status',
+        'result',
+        'date_done',
+        'traceback',
+        'name',
+        'args',
+        'kwargs',
+        'worker',
+        'retries',
+        'queue',
+    )
 
 @admin.register(DjangoContentType)
 class DjangoContentTypeAdmin(admin.ModelAdmin):
@@ -678,6 +699,6 @@ class DjangoMigrationsAdmin(admin.ModelAdmin):
     list_display = ('id', 'app', 'name', 'applied')
     list_filter = ('id', 'app', 'name', 'applied')
 
-admin.site.register(CeleryTasksetmeta)
+# admin.site.register(CeleryTasksetmeta)
 # admin.site.register(FTPUserGroup)
 # admin.site.register(FTPUserAccount)

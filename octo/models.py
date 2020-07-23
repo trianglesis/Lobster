@@ -36,6 +36,12 @@ class CeleryTaskmeta(models.Model):
     result = models.TextField(blank=True, null=True)
     date_done = models.DateTimeField(blank=True, null=True)
     traceback = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    args = models.TextField(blank=True, null=True)
+    kwargs = models.TextField(blank=True, null=True)
+    worker = models.CharField(max_length=45, blank=True, null=True)
+    retries = models.IntegerField(blank=True, null=True)
+    queue = models.CharField(max_length=45, blank=True, null=True)
 
     class Meta:
         managed = False
