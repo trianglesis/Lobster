@@ -83,7 +83,7 @@ def exception(function):
             if settings.DEV:
                 log.info(
                     f'Exceptions into DEV mode {settings.DEV}: do not send mail log on task fail! {function} {exc_more} {args} {kwargs}')
-                # TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
+                TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             raise Exception(e)
 
     return wrapper
