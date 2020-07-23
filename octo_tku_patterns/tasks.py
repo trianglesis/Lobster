@@ -290,6 +290,7 @@ class TaskPrepare:
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_sync = Runner.fire_t(TPatternParse.t_p4_sync,
                                   fake_run=self.fake_run,
+                                  # fake_run=True,
                                   t_args=[t_tag],
                                   t_queue='w_parsing@tentacle.dq2',
                                   t_routing_key='parsing.perforce.TaskPrepare.sync_depot.TPatternParse.t_p4_sync')
@@ -589,6 +590,7 @@ class TaskPrepare:
                 t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
                 Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
                               fake_run=self.fake_run,
+                              # fake_run=True,
                               t_queue=f'{addm["addm_group"]}@tentacle.dq2',
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
@@ -616,6 +618,7 @@ class TaskPrepare:
 
                 # TODO: Change to
                 Runner.fire_t(TSupport.t_user_test,
+                              # fake_run=False,
                               fake_run=self.fake_run,
                               t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
@@ -651,6 +654,7 @@ class TaskPrepare:
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
                       fake_run=self.fake_run,
+                      # fake_run=True,
                       to_sleep=10,
                       debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],

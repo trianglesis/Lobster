@@ -185,7 +185,7 @@ class TMail:
                f'\n\t - key: {mails_txt.mail_key}' \
                f'\n\t - occurred in: {function.__module__}.{function.__name__}'
 
-        Mails.short(subject=subject, body=body, send_to=[user_email], send_cc=[self.m_service])
+        Mails.short(subject=subject, body=body, send_to=[user_email])
 
     def long_r(self, **mail_kwargs):
         """
@@ -233,7 +233,6 @@ class TMail:
             sleep(5)
             Mails.short(subject=mail_details.get('SUBJECT'),
                         send_to=mail_kwargs.get('user_email', self.m_night),
-                        send_cc=mail_kwargs.get('send_cc', self.m_night),
                         mail_html=mail_html)
         else:
             return 'Long mail sent!'
@@ -267,7 +266,7 @@ class TMail:
 
         mail_details = dict(SUBJECT=subj_txt, TASK_DETAILS=task_details)
         mail_html = task_limit.render(mail_details)
-        Mails.short(mail_html=mail_html, subject=subj_txt, send_to=user_email, send_cc=self.m_service)
+        Mails.short(mail_html=mail_html, subject=subj_txt, send_to=user_email)
 
     def user_test(self, mail_opts):
         """
@@ -350,7 +349,6 @@ class TMail:
         time_stamp = datetime.datetime.now(tz=timezone.utc).strftime('%Y-%m-%d_%H-%M')
         Mails.short(subject=mode_context[mode].get('subject'),
                     send_to=[user_email],
-                    send_cc=mail_opts.get('send_cc', self.m_user_test),
                     mail_html=mail_html,
                     attach_content=log_html,
                     attach_content_name=f'{subject_str}_test_{time_stamp}.html',

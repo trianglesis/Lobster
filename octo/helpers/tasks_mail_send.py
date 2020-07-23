@@ -32,17 +32,18 @@ class Mails:
         body = mail_args.get('body', False)  # When nothing to render - send just plain text
         subject = mail_args.get('subject', False)  # When nothing to render - send just plain text
 
-        send_to = mail_args.get('send_to', mails['admin'])  # Send to me, if None.
-        send_cc = mail_args.get('send_cc', [])
-        bcc = mail_args.get('bcc', [])
+        send_to = mail_args.get('send_to', [mails['admin']])  # Send to me, if None.
+        send_cc = mail_args.get('send_cc', [mails['admin']])
+        bcc     = mail_args.get('bcc',     [mails['admin']])
+
         attach_file = mail_args.get('attach_file', '')
         attach_content = mail_args.get('attach_content', '')
         attach_content_name = mail_args.get('attach_content_name', 'octopus.html')
 
+        log.debug(f' send_to: {send_to} send_cc: {send_cc} bcc: {bcc}')
         assert isinstance(send_to, list), 'send_to should be a list!'
         assert isinstance(send_cc, list), 'send_cc should be a list!'
         assert isinstance(bcc, list), 'bcc should be a list!'
-        bcc.append(mails['admin'])   # Always send to me.
 
         txt = '{} {} host: {}'
         if not body and not mail_html:
@@ -53,7 +54,6 @@ class Mails:
         if not subject:
             subject = txt.format('No Subject added', ' - ', curr_hostname)
 
-        fake_run = False
         msg = f"subject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}"
         if fake_run:
             # Fake run, but send email:
@@ -67,12 +67,12 @@ class Mails:
             connection = mail.get_connection()
             connection.open()
             email_args = dict(
+                subject    = subject,
+                body       = body,
                 from_email = getattr(settings, 'EMAIL_ADDR', None),
                 to         = send_to,
                 cc         = send_cc,
                 bcc        = bcc,
-                subject    = subject,
-                body       = body,
                 connection = connection,
             )
             # log.debug("<=MailSender=> short email_args - %s", email_args)

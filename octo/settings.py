@@ -14,7 +14,7 @@ import os
 import sys
 import logging
 import socket
-from octo.config_cred import cred
+from octo.config_cred import cred, mails
 log = logging.getLogger("octo.octologger")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -223,3 +223,5 @@ CONN_MAX_AGE = None
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+ADMINS = mails['admin']

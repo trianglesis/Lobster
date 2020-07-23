@@ -14,7 +14,7 @@ import os
 import sys
 import logging
 import socket
-from octo.config_cred import cred
+from octo.config_cred import cred, mails
 
 log = logging.getLogger("octo.octologger")
 
@@ -251,3 +251,5 @@ FTPSERVER_AUTHORIZER = 'django_ftpserver.authorizers.FTPAccountAuthorizer'
 FTPSERVER_HANDLER = 'pyftpdlib.handlers.FTPHandler'
 FTPSERVER_TLSHANDLER = 'pyftpdlib.handlers.TLS_FTPHandler'
 FTPSERVER_FILESYSTEM = 'django_ftpserver.filesystems.StorageFS'
+
+ADMINS = mails['admin']
