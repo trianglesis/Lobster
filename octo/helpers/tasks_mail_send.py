@@ -33,10 +33,16 @@ class Mails:
         subject = mail_args.get('subject', False)  # When nothing to render - send just plain text
 
         send_to = mail_args.get('send_to', mails['admin'])  # Send to me, if None.
-        send_cc = mail_args.get('send_cc', '')
+        send_cc = mail_args.get('send_cc', [])
+        bcc = mail_args.get('bcc', [])
         attach_file = mail_args.get('attach_file', '')
         attach_content = mail_args.get('attach_content', '')
         attach_content_name = mail_args.get('attach_content_name', 'octopus.html')
+
+        assert isinstance(send_to, list), 'send_to should be a list!'
+        assert isinstance(send_cc, list), 'send_cc should be a list!'
+        assert isinstance(bcc, list), 'bcc should be a list!'
+        bcc.append(mails['admin'])   # Always send to me.
 
         txt = '{} {} host: {}'
         if not body and not mail_html:
@@ -47,32 +53,28 @@ class Mails:
         if not subject:
             subject = txt.format('No Subject added', ' - ', curr_hostname)
 
-        msg = f"mail_html={mail_html} body={body} subject={subject} send_to={send_to} send_cc={send_cc}"
-
+        fake_run = False
+        msg = f"subject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}"
         if fake_run:
             # Fake run, but send email:
-            log.debug(f'Sending short email confirmation: {subject} {send_to} {send_cc}')
-        elif settings.DEV:
-            # Probably a fake run, but on local dev - so do not send emails? Somehow this could be switchable, so I can test email locally!
-            log.info(f'FAKE: Dev settings: {settings.DEV} Sending short email confirmation: \n\t{subject} {send_to} {send_cc}')
-            return msg
-
+            log.debug(f'Sending short email confirmation: \n\tsubject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}')
+            return f'Short mail sent! {msg}'
+        # elif settings.DEV:
+        #     # Probably a fake run, but on local dev - so do not send emails? Somehow this could be switchable, so I can test email locally!
+        #     log.debug(f'Sending short email confirmation: \n\tsubject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}')
+        #     return f'Short mail sent! {msg}'
         else:
             connection = mail.get_connection()
             connection.open()
-
-            admin = mails['admin']
-
             email_args = dict(
                 from_email = getattr(settings, 'EMAIL_ADDR', None),
                 to         = send_to,
                 cc         = send_cc,
-                bcc        = admin,  # Always send to me.
+                bcc        = bcc,
                 subject    = subject,
                 body       = body,
                 connection = connection,
             )
-
             # log.debug("<=MailSender=> short email_args - %s", email_args)
             if mail_html:
                 # log.debug("<=MAIL SIMPLE=> Mail html send")
@@ -93,4 +95,3 @@ class Mails:
                     email.attach(attach_content_name, attach_content, "text/html")
                 email.send()
                 # log.debug("<=MAIL SIMPLE=> Mail txt send")
-        return 'Short mail sent!'
