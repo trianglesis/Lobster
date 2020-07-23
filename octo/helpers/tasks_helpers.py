@@ -179,7 +179,7 @@ class TMail:
             mails_txt = MailsTexts.objects.get(mail_key__contains='general_exception')
 
         subject = f'Exception: {mails_txt.subject} | {curr_hostname}'
-        log.debug(f"Selected mail subject: {subject}")
+        log.debug(f"Selected mail subject: {subject} send to: {user_email}")
         body = f' - Body: {mails_txt.body} \n - Exception: {e} \n - Explain: {mails_txt.description}' \
                f'\n\n\t - args: {_args} \n\t - kwargs: {_kwargs}' \
                f'\n\t - key: {mails_txt.mail_key}' \

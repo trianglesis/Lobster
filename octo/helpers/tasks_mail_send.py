@@ -32,7 +32,7 @@ class Mails:
         body = mail_args.get('body', False)  # When nothing to render - send just plain text
         subject = mail_args.get('subject', False)  # When nothing to render - send just plain text
 
-        send_to = mail_args.get('send_to', [mails['admin'], ])  # Send to me, if None.
+        send_to = mail_args.get('send_to', mails['admin'])  # Send to me, if None.
         send_cc = mail_args.get('send_cc', '')
         attach_file = mail_args.get('attach_file', '')
         attach_content = mail_args.get('attach_content', '')
@@ -51,7 +51,7 @@ class Mails:
 
         if fake_run:
             # Fake run, but send email:
-            log.debug('Sending short email confirmation: \n\t%s', (subject, send_to, send_cc))
+            log.debug(f'Sending short email confirmation: {subject} {send_to} {send_cc}')
         elif settings.DEV:
             # Probably a fake run, but on local dev - so do not send emails? Somehow this could be switchable, so I can test email locally!
             log.info(f'FAKE: Dev settings: {settings.DEV} Sending short email confirmation: \n\t{subject} {send_to} {send_cc}')
