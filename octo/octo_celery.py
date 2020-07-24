@@ -36,7 +36,7 @@ app = Celery('octo',
              broker=conf_cred.cred['broker'],
 
              # http://docs.celeryproject.org/en/latest/userguide/configuration.html#result-backend
-             # backend=backend,
+             backend=backend,
              )
 
 # Using a string here means the worker doesn't have to serialize
@@ -69,7 +69,7 @@ app.conf.update(
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#database-url-examples
     # https://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#keeping-results
     # 1406, "Data too long for column 'result' at row 1" - it's not so important to keep it in DB
-    # result_backend=result_backend,
+    result_backend=result_backend,
     database_engine_options={'pool_timeout': 90},
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#beat-scheduler
