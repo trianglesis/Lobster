@@ -220,6 +220,8 @@ class TaskPrepare:
         """
         if self.options.get('silent'):
             self.silent = True
+        if settings.DEV:
+            self.silent = True
         log.debug("<=TaskPrepare=> Silent run = %s", self.silent)
 
     def excluding(self):
@@ -277,6 +279,10 @@ class TaskPrepare:
 
         :return:
         """
+        if settings.DEV:
+            self.p4_synced = True
+            return self.p4_synced
+
         if self.request.get('refresh'):
             self.wipe = True
             self.refresh = True
@@ -588,9 +594,8 @@ class TaskPrepare:
                 t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'fake={self.fake_run};start_time={self.start_time};command_k={operation_cmd.command_key};'
                 addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
-                serializer = AddmDevSerializer(addm_grouped_set, many=True)
-                addm_set = serializer.data
-                t_kwargs = dict(addm_set=addm_set, operation_cmd=operation_cmd)
+                log.debug(f"addm_grouped_set: {addm_grouped_set}")
+                t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
                 Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
                               fake_run=self.fake_run,
                               # fake_run=True,
@@ -656,8 +661,8 @@ class TaskPrepare:
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
-                      fake_run=self.fake_run,
-                      # fake_run=True,
+                      # fake_run=self.fake_run,
+                      fake_run=True,
                       to_sleep=10,
                       debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
