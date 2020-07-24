@@ -661,8 +661,8 @@ class TaskPrepare:
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
-                      # fake_run=self.fake_run,
-                      fake_run=True,
+                      fake_run=self.fake_run,
+                      # fake_run=False,
                       to_sleep=10,
                       debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
