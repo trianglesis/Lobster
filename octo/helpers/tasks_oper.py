@@ -54,9 +54,9 @@ class TasksOperations:
         """
         # TODO: Rethink this, not a best idea to wait task, when celery can answer PENDING on any unknown state!
         if not task_name:
-            msg = "task_wait_success '{}' status: '{}'".format(task_itself, task_itself.status)
+            msg = f"task_wait_success '{task_itself}' status: '{task_itself.status}'"
         else:
-            msg = "task_wait_success '{}' '{}' status: '{}'".format(task_itself, task_name, task_itself.status)
+            msg = f"task_wait_success '{task_itself}' '{task_name}' status: '{task_itself.status}'"
         while not task_itself.ready():
             sleep(20)  # raised from 10
             log.info(msg)

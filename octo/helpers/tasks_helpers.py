@@ -75,11 +75,12 @@ def exception(function):
                 args=args,
                 kwargs=kwargs,
             )
-            try:
-                item_sort = json.dumps(error_d, indent=2, ensure_ascii=False, default=pformat)
-                log.error("Task Exception: %s", item_sort)
-            except TypeError:
-                log.error("Task Exception: %s", error_d)
+            log.error(f"Task Exception: {error_d}")
+            # try:
+            #     item_sort = json.dumps(error_d, indent=2, ensure_ascii=False, default=pformat)
+            #     log.error(f"Task Exception: {e}")
+            # except TypeError:
+            #     log.error(f"Task Exception: {error_d}")
             if settings.DEV:
                 log.info(
                     f'Exceptions into DEV mode {settings.DEV}: do not send mail log on task fail! {function} {exc_more} {args} {kwargs}')
