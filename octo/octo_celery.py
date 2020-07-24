@@ -59,9 +59,9 @@ default_exchange = Exchange('default', type='direct', durable=False)
 
 app.conf.update(
     accept_content=['json', 'pickle', 'application/x-python', 'application/json', 'application/x-python-serialize'],
-    task_serializer='json',
+    task_serializer='pickle',
     result_serializer='json',  # https://docs.celeryproject.org/en/master/userguide/calling.html#calling-serializers
-    result_extended=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#result-extended
+    result_extended=False,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#result-extended
     # Do not set! Or logic will not wait of task OK: # task_ignore_result=True,
     # task_track_started = True,
 

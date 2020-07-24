@@ -119,8 +119,8 @@ class AddmDevSerializer(serializers.HyperlinkedModelSerializer):
         fields = (
             'addm_host',
             'addm_name',
-            'tideway_user',
-            'tideway_pdw',
+            # 'tideway_user',
+            # 'tideway_pdw',
             'addm_ip',
             'addm_v_int',
             'addm_full_version',

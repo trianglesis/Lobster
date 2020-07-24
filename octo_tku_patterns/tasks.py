@@ -24,6 +24,7 @@ from octo.helpers.tasks_helpers import exception, db_logger, db_log_f
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
 from octo.octo_celery import app
+from octo.octo_serializers import AddmDevSerializer
 from octo.tasks import TSupport
 from octo_adm.tasks import TaskADDMService
 from octo_tku_patterns.models import TestLast, TestCases, TestCasesDetails
@@ -204,7 +205,7 @@ class TaskPrepare:
         :return:
         """
         if settings.DEV:  # Always fake run on local test env:
-            self.fake_run = True
+            self.fake_run = False
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL options: %s", self.options)
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL request: %s", self.request)
 
@@ -587,7 +588,9 @@ class TaskPrepare:
                 t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'fake={self.fake_run};start_time={self.start_time};command_k={operation_cmd.command_key};'
                 addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
-                t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
+                serializer = AddmDevSerializer(addm_grouped_set, many=True)
+                addm_set = serializer.data
+                t_kwargs = dict(addm_set=addm_set, operation_cmd=operation_cmd)
                 Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
                               fake_run=self.fake_run,
                               # fake_run=True,
