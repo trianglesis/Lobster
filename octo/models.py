@@ -33,26 +33,31 @@ class OctoCacheStore(models.Model):
 class CeleryTaskmeta(models.Model):
     task_id = models.CharField(unique=True, max_length=155, blank=True, null=True)
     status = models.CharField(max_length=50, blank=True, null=True)
-    result = models.TextField(blank=True, null=True)
+    result = models.BinaryField(blank=True, null=True)
     date_done = models.DateTimeField(blank=True, null=True)
+
     traceback = models.TextField(blank=True, null=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
-    args = models.TextField(blank=True, null=True)
-    kwargs = models.TextField(blank=True, null=True)
-    worker = models.CharField(max_length=45, blank=True, null=True)
+
+    name = models.CharField(max_length=155, blank=True, null=True)
+
+    args = models.BinaryField(blank=True, null=True)
+    kwargs = models.BinaryField(blank=True, null=True)
+
+    worker = models.CharField(max_length=155, blank=True, null=True)
     retries = models.IntegerField(blank=True, null=True)
-    queue = models.CharField(max_length=45, blank=True, null=True)
+    queue = models.CharField(max_length=155, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'celery_taskmeta'
 
 
 class CeleryTasksetmeta(models.Model):
+
     taskset_id = models.CharField(unique=True, max_length=155, blank=True, null=True)
-    result = models.TextField(blank=True, null=True)
+    result = models.BinaryField(blank=True, null=True)
     date_done = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'celery_tasksetmeta'

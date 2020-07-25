@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from run_core.models import AddmDev
+from run_core.models import AddmDev, ADDMCommands
 from octo_tku_patterns.models import TestLast, TestHistory
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.models import UploadTestsNew as UploadTests
@@ -128,6 +128,17 @@ class AddmDevSerializer(serializers.HyperlinkedModelSerializer):
             'disables',
         )
 
+class ADDMCommandsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ADDMCommands
+        fields = (
+            'command_key',
+            'command_value',
+            'private',
+            'interactive',
+            'description',
+            'created_at',
+        )
 
 # ViewSets define the view behavior.
 class UserViewSet(viewsets.ModelViewSet):

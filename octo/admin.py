@@ -651,15 +651,16 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
 
 @admin.register(CeleryTaskmeta)
 class CeleryTaskmetaAdmin(admin.ModelAdmin):
+    readonly_fields = ('result', 'traceback', 'args', 'kwargs')
     list_display = (
         'task_id',
         'status',
-        'result',
+        # 'result',
         'date_done',
-        'traceback',
+        # 'traceback',
         'name',
-        'args',
-        'kwargs',
+        # 'args',
+        # 'kwargs',
         'worker',
         'retries',
         'queue',

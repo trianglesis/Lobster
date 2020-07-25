@@ -58,18 +58,19 @@ app.autodiscover_tasks()  # Load task modules from all registered Django app con
 default_exchange = Exchange('default', type='direct', durable=False)
 
 app.conf.update(
-    accept_content=['pickle', 'json', 'application/x-python', 'application/json', 'application/x-python-serialize'],
+    accept_content=['pickle', 'json',],
     task_serializer='pickle',
     result_serializer='pickle',  # https://docs.celeryproject.org/en/master/userguide/calling.html#calling-serializers
     result_extended=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#result-extended
     # Do not set! Or logic will not wait of task OK: # task_ignore_result=True,
-    # task_track_started = True,
+    task_track_started = True,
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#result-backend
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#database-url-examples
     # https://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#keeping-results
     # 1406, "Data too long for column 'result' at row 1" - it's not so important to keep it in DB
     result_backend=result_backend,
+    # result_backend='django-db',
     database_engine_options={'pool_timeout': 90},
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#beat-scheduler

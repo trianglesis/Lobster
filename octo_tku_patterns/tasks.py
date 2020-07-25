@@ -24,7 +24,7 @@ from octo.helpers.tasks_helpers import exception, db_logger, db_log_f
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
 from octo.octo_celery import app
-from octo.octo_serializers import AddmDevSerializer
+from octo.octo_serializers import AddmDevSerializer, ADDMCommandsSerializer
 from octo.tasks import TSupport
 from octo_adm.tasks import TaskADDMService
 from octo_tku_patterns.models import TestLast, TestCases, TestCasesDetails
@@ -205,7 +205,7 @@ class TaskPrepare:
         :return:
         """
         if settings.DEV:  # Always fake run on local test env:
-            self.fake_run = False
+            self.fake_run = True   # TODO: Remove
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL options: %s", self.options)
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL request: %s", self.request)
 
@@ -279,9 +279,6 @@ class TaskPrepare:
 
         :return:
         """
-        if settings.DEV:
-            self.p4_synced = True
-            return self.p4_synced
 
         if self.request.get('refresh'):
             self.wipe = True
@@ -297,7 +294,6 @@ class TaskPrepare:
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_sync = Runner.fire_t(TPatternParse.t_p4_sync,
                                   fake_run=self.fake_run,
-                                  # fake_run=True,
                                   t_args=[t_tag],
                                   t_queue='w_parsing@tentacle.dq2',
                                   t_routing_key='parsing.perforce.TaskPrepare.sync_depot.TPatternParse.t_p4_sync')
@@ -306,7 +302,7 @@ class TaskPrepare:
             if TasksOperations().task_wait_success(t_p4_sync, 't_p4_sync'):
                 log.debug("<=TaskPrepare=> Wait for p4_sync_task is finished, lock released!")
                 self.p4_synced = True
-                # return self.p4_synced
+                return self.p4_synced
         else:
             # On fake run we just show this p4 sync is finished OK
             self.p4_synced = True
@@ -487,13 +483,13 @@ class TaskPrepare:
 
         grouped = dict(
             tku_patterns=dict(
-                tkn_main=to_test_queryset.filter(tkn_branch__exact='tkn_main').values(),
-                tkn_ship=to_test_queryset.filter(tkn_branch__exact='tkn_ship').values(),
+                tkn_main=to_test_queryset.filter(tkn_branch__exact='tkn_main'),  # .values()
+                tkn_ship=to_test_queryset.filter(tkn_branch__exact='tkn_ship'),  # .values()
             ),
-            main_python=to_test_queryset.filter(test_type__exact='main_python').values(),
-            octo_tests=to_test_queryset.filter(test_type__exact='octo_tests').values(),
+            main_python=to_test_queryset.filter(test_type__exact='main_python'),  # .values()
+            octo_tests=to_test_queryset.filter(test_type__exact='octo_tests'),  # .values()
         )
-        # log.debug("<=TaskPrepare=> grouped: %s", grouped)
+        log.debug("<=TaskPrepare=> grouped: %s", grouped)
         return grouped
 
     def tests_balance(self, tests_grouped):
@@ -506,11 +502,11 @@ class TaskPrepare:
         assert isinstance(tests_grouped, dict), 'Test tests_grouped should be a dict: %s' % type(tests_grouped)
 
         tku_patterns_tests = tests_grouped.get('tku_patterns', {})
-        # log.debug("<=TaskPrepare=> tku_patterns_tests: %s", tku_patterns_tests)
+        log.debug("<=TaskPrepare=> tku_patterns_tests: %s", tku_patterns_tests)
 
         for branch_k, branch_cases in tku_patterns_tests.items():
             if branch_cases:
-                log.debug("<=TaskPrepare=> Balancing tests for branch: '%s'", branch_k)
+                log.debug(f"<=TaskPrepare=> Balancing tests for branch: '{branch_k}': {branch_cases}")
                 # 5. Assign free worker for test cases run
                 addm_group = self.addm_group_get(tkn_branch=branch_k)
                 addm_set = self.addm_set_select(addm_group=addm_group)
@@ -522,6 +518,8 @@ class TaskPrepare:
                 self.prep_step(addm_set)
 
                 for test_item in branch_cases:
+                    log.debug(f'test_item: {test_item} {type(test_item)} {test_item.test_py_path}')
+
                     # 7.1 Fire task for test starting
                     self.mail_status(mail_opts=dict(mode='start', test_item=test_item, addm_set=addm_set))
                     # 7.2 Fire task for test execution
@@ -585,12 +583,12 @@ class TaskPrepare:
         addm = addm_set.first()
         if self.p4_synced and self.request.get('refresh'):
             log.debug("<=TaskPrepare=> Adding task to sync addm group: '%s'", addm['addm_group'])
-            commands_set = ADDMStaticOperations.select_operation([
+            commands_qs = ADDMStaticOperations.select_operation([
                 'rsync.python.testutils',
                 'rsync.tideway.utils',
                 'rsync.tku.data',
             ])
-            for operation_cmd in commands_set:
+            for operation_cmd in commands_qs:
                 t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'fake={self.fake_run};start_time={self.start_time};command_k={operation_cmd.command_key};'
                 addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
@@ -598,7 +596,6 @@ class TaskPrepare:
                 t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
                 Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
                               fake_run=self.fake_run,
-                              # fake_run=True,
                               t_queue=f'{addm["addm_group"]}@tentacle.dq2',
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
@@ -614,6 +611,9 @@ class TaskPrepare:
         mail_opts.update(request=self.request)
         mail_opts.update(user_email=self.user_email)
 
+        log.debug(f"mail_status mail_opts addm_set: {mail_opts.get('addm_set')}")
+
+        self.silent = True  # TODO: Remove
         if not self.silent:
             log.info("<=TaskPrepare=> Mail sending, mode: %s", mode)
             if mail_opts.get('test_item') and mail_opts.get('addm_set'):
@@ -626,7 +626,7 @@ class TaskPrepare:
 
                 # TODO: Change to
                 Runner.fire_t(TSupport.t_user_test,
-                              # fake_run=False,
+                              # fake_run=False,  # TODO: Remove
                               fake_run=self.fake_run,
                               t_args=[t_tag],
                               t_kwargs=dict(mail_opts=mail_opts),
@@ -646,29 +646,30 @@ class TaskPrepare:
         :param test_item:
         :return:
         """
-        assert isinstance(test_item, dict), 'Test item should be a dict: %s' % type(test_item)
+        # TODO: Move to queryset objects
+        assert isinstance(test_item, TestCases), 'Test item should be a QuerySet: %s' % type(test_item)
         assert isinstance(addm_set, QuerySet), "Addm set should be a QuerySet: %s" % type(addm_set)
 
         addm = addm_set.first()
-        task_r_key = '{}.TExecTest.t_test_exec_threads.{}'.format(addm['addm_group'], test_item["pattern_folder_name"])
-        t_tag = f'tag=t_test_exec_threads;type=user_routine;branch={test_item["tkn_branch"]};' \
+        task_r_key = '{}.TExecTest.t_test_exec_threads.{}'.format(addm['addm_group'], test_item.pattern_folder_name)
+        t_tag = f'tag=t_test_exec_threads;type=user_routine;branch={test_item.tkn_branch};' \
                 f'addm_group={addm["addm_group"]};user_name={self.user_name};' \
-                f'refresh={self.refresh};t_ETA={test_item["test_time_weight"]};test_case_path={test_item["test_case_depot_path"]}'
-        if test_item['test_time_weight']:
-            test_t_w = round(float(test_item['test_time_weight']))  # TODO: If NoneType - use 0
+                f'refresh={self.refresh};t_ETA={test_item.test_time_weight};test_case_path={test_item.test_case_depot_path}'
+        if test_item.test_time_weight:
+            test_t_w = round(float(test_item.test_time_weight))  # TODO: If NoneType - use 0
         else:
             test_t_w = 60 * 15
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
-                      fake_run=self.fake_run,
-                      # fake_run=False,
+                      # fake_run=self.fake_run,
+                      fake_run=True,  # TODO: Remove
                       to_sleep=10,
                       debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(user_email=self.user_email,
                                     user_name=self.user_name,
-                                    addm_items=list(addm_set),
+                                    addm_items=addm_set,
                                     test_item=test_item,
                                     test_function=self.test_function),
                       t_routing_key=task_r_key,

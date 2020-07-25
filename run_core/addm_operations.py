@@ -115,11 +115,9 @@ class ADDMStaticOperations:
     def threaded_exec_cmd(self, **kwargs):
         """ Execute one operation command per addm in addm_set """
         from threading import Thread
-
         addm_set = kwargs.get('addm_set', None)
         operation_cmd = kwargs.get('operation_cmd', None)
         interactive_mode = kwargs.get('interactive_mode', False)
-        fake_run = kwargs.get('fake_run', False)
 
         if isinstance(addm_set, QuerySet):
             addm_set = addm_set.values()
@@ -130,6 +128,7 @@ class ADDMStaticOperations:
         if isinstance(operation_cmd, ADDMCommands):
             cmd_k = operation_cmd.command_key
             cmd_interactive = operation_cmd.interactive
+
         elif isinstance(operation_cmd, dict):
             cmd_k = operation_cmd
             cmd_interactive = interactive_mode

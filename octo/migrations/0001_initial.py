@@ -12,34 +12,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='CeleryTaskmeta',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('task_id', models.CharField(blank=True, max_length=155, null=True, unique=True)),
-                ('status', models.CharField(blank=True, max_length=50, null=True)),
-                ('result', models.TextField(blank=True, null=True)),
-                ('date_done', models.DateTimeField(blank=True, null=True)),
-                ('traceback', models.TextField(blank=True, null=True)),
-            ],
-            options={
-                'db_table': 'celery_taskmeta',
-                'managed': False,
-            },
-        ),
-        migrations.CreateModel(
-            name='CeleryTasksetmeta',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('taskset_id', models.CharField(blank=True, max_length=155, null=True, unique=True)),
-                ('result', models.TextField(blank=True, null=True)),
-                ('date_done', models.DateTimeField(blank=True, null=True)),
-            ],
-            options={
-                'db_table': 'celery_tasksetmeta',
-                'managed': False,
-            },
-        ),
-        migrations.CreateModel(
             name='DjangoContentType',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),

@@ -4,7 +4,7 @@ Here execute service functions for tasks to collect them, get IDs, statuses, que
 
 import logging
 import sys
-from time import sleep
+from time import time, sleep
 
 from celery.result import AsyncResult
 
@@ -13,6 +13,7 @@ from run_core.models import Options
 from octo.models import CeleryTaskmeta
 from octo.api.serializers import CeleryTaskmetaSerializer
 
+from dev_site.rabbitmq_pika import RabbitCheck
 
 log = logging.getLogger("octo.octologger")
 
@@ -62,6 +63,20 @@ class TasksOperations:
             sleep(20)  # raised from 10
             log.info(msg)
         return self.task_success(task_itself)
+
+    def p4_sync_wait_message(self):
+        timeout = time() + 20   # 60*5 5 minutes from now
+        found = []
+        while not found:
+            messages = RabbitCheck().get_messages_ask(queue='task_statuses', body='p4_sync_finished')
+            log.debug(f"Current messages {messages}")
+            found = messages['all_messages_found']
+            sleep(5)
+            if time() > timeout:
+                log.error('P4 last_changes_get task finish message is not found, return False = not synced')
+                return False
+        log.info('P4 last_changes_get finish message found!')
+        return True
 
     @staticmethod
     def get_all_tasks_statuses(worker_name):

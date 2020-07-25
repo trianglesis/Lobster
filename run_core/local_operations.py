@@ -15,7 +15,7 @@ import os.path
 import re
 import subprocess
 from datetime import datetime, timezone, timedelta
-from time import time
+from time import time, sleep
 
 import pytz
 from django.db.models.query import QuerySet
@@ -27,6 +27,8 @@ from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from run_core.models import AddmDev, ADDMCommands
 from run_core.p4_operations import PerforceOperations
+
+from dev_site.rabbitmq_pika import RabbitCheck
 
 # Python logger
 log = logging.getLogger("octo.octologger")
@@ -580,39 +582,45 @@ class LocalPatternsP4Parse:
         Run sync -f for all found changes.
         :return:
         """
-        from django.db.models import Max
-
-        p4_conn = PerforceOperations().p4_initialize(debug=True)
-
-        change_max_q = TestCases.objects.all().aggregate(Max('change'))
-        change_max = change_max_q.get('change__max', '312830')  # default change from 2015
-        log.debug("change_max: %s", change_max)
-
         _files_synced_plan = []
         _files_synced_actually = []
-        p4_filelog = self.get_latest_filelog(depot_path=None, change_max=change_max, p4_conn=p4_conn)
-        if p4_filelog:
+        if not settings.DEV:
+            from django.db.models import Max
 
-            for p4_file in p4_filelog:
-                file_path = p4_file.get('depotFile', None)
-                if not p4_file.get('action', None) == 'delete':
-                    synced = PerforceOperations().p4_sync(path=file_path, force=True, p4_conn=p4_conn)
-                    _files_synced_plan.append(file_path)
-                    if synced:
-                        _files_synced_actually.append(synced[0].get('clientFile', None))
-                    log.debug("This will be synced: %s - %s", file_path, p4_file.get('action', None))
-                else:
-                    log.debug("This should be deleted: %s", file_path)
+            p4_conn = PerforceOperations().p4_initialize(debug=True)
 
-        log.debug("Synced files_synced_plan: %s %s", len(_files_synced_plan), _files_synced_plan)
-        log.debug("Synced files_synced_actually: %s %s", len(_files_synced_actually), _files_synced_actually)
-        # Both should be equal:
-        if len(_files_synced_plan) == len(_files_synced_actually):
-            log.info("Change / synced files lists are equal")
+            change_max_q = TestCases.objects.all().aggregate(Max('change'))
+            change_max = change_max_q.get('change__max', '312830')  # default change from 2015
+            log.debug("change_max: %s", change_max)
+
+
+            p4_filelog = self.get_latest_filelog(depot_path=None, change_max=change_max, p4_conn=p4_conn)
+            if p4_filelog:
+
+                for p4_file in p4_filelog:
+                    file_path = p4_file.get('depotFile', None)
+                    if not p4_file.get('action', None) == 'delete':
+                        synced = PerforceOperations().p4_sync(path=file_path, force=True, p4_conn=p4_conn)
+                        _files_synced_plan.append(file_path)
+                        if synced:
+                            _files_synced_actually.append(synced[0].get('clientFile', None))
+                        log.debug("This will be synced: %s - %s", file_path, p4_file.get('action', None))
+                    else:
+                        log.debug("This should be deleted: %s", file_path)
+
+            log.debug("Synced files_synced_plan: %s %s", len(_files_synced_plan), _files_synced_plan)
+            log.debug("Synced files_synced_actually: %s %s", len(_files_synced_actually), _files_synced_actually)
+            # Both should be equal:
+            if len(_files_synced_plan) == len(_files_synced_actually):
+                log.info("Change / synced files lists are equal")
+            else:
+                log.warning("Change / synced files lists are NOT equal!")
+
+            self.parse_and_changes_routine(sync_force=False, full=True, p4_conn=p4_conn)
+            # TODO: Add RabbitMQ message when finished!
         else:
-            log.warning("Change / synced files lists are NOT equal!")
+            log.info("DEV HOST, EMULATE WORK!")
 
-        self.parse_and_changes_routine(sync_force=False, full=True, p4_conn=p4_conn)
         return {'files_synced_plan': _files_synced_plan, 'files_synced_actually': _files_synced_actually}
 
 

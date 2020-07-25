@@ -18,6 +18,9 @@ from octo_tku_patterns.models import TestLast, TestHistory
 from run_core.addm_operations import ADDMOperations
 from run_core.models import Options
 
+from django.db.models.query import QuerySet
+from octo_tku_patterns.models import TestCases
+
 log = logging.getLogger("octo.octologger")
 
 
@@ -68,8 +71,10 @@ class TestExecutor:
         test_item = kwargs.get('test_item')
         test_output_mode = kwargs.get('test_output_mode')
 
-        isinstance(addm_items, dict), "Addm items should be a dict: %s" % type(addm_items)
-        isinstance(test_item, dict), "Test item should be a dict: %s " % type(test_item)
+        log.debug(f'addm_items: {addm_items}')
+
+        isinstance(addm_items, QuerySet), "Addm items should be a QuerySet: %s" % type(addm_items)
+        isinstance(test_item, TestCases), "Test item should be a TestCases: %s " % type(test_item)
 
         thread_list = []
         test_outputs = []
