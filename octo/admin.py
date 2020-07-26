@@ -243,6 +243,21 @@ class ServicesLogAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
+@admin.register(TaskPrepareLog)
+class TaskPrepareLogAdmin(admin.ModelAdmin):
+    fields = (
+        (
+            'subject',
+            'user_email',
+            'details',
+            'created_at',
+        )
+    )
+    readonly_fields = ('created_at',)
+    list_display = ('subject', 'user_email', 'created_at')
+    list_filter = ('user_email', 'created_at')
+    ordering = ('-created_at',)
+
 @admin.register(OctoCacheStore)
 class OctoCacheStoreAdmin(admin.ModelAdmin):
     fields = (

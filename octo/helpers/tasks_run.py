@@ -80,9 +80,9 @@ class Runner:
         if not fake_run:
             return task.apply_async(**task_options)
         else:
-            to_sleep = kwargs.get('to_sleep', 10)
+            to_sleep = kwargs.get('to_sleep', 1)
             task_options.update(to_sleep=to_sleep, to_debug=to_debug)
-            log.debug(f'Fake task items: {task_options}')
+            log.info(f'Fake task items: {task_options}')
             return TSupport.fake_task.apply_async(
                 args=[f'Fake task run: t_args: {t_args}; sleep {to_sleep}; debug {to_debug}'],
                 kwargs=task_options,

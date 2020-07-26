@@ -206,7 +206,19 @@
                     </div>
                     <div class="col-4 col-md-2">
                         <div class="card bg-light border-light">
-                            <div class="card-body card-body-sm">{% worker_queues_short %}</div>
+                            <div class="card-body card-body-sm">
+                                <table id="workers_state" class="table table-shrink table-hover table-sm">
+                                    <tr>
+                                        <thead class="table-light bg-light table-sm">
+                                            <tr>
+                                                <th scope="col" id="col_addm" class="bg-light text-center" style="max-width: fit-content">Queue</th>
+                                                <th scope="col" id="col_active" class="bg-light text-center" style="max-width: fit-content">Tasks</th>
+                                            </tr>
+                                        </thead>
+                                    </tr>
+                                    <tbody id="worker-table"></tbody>
+                                </table>
+                            </div>
                             <div class="card-footer card-footer-shrink txt-nice">
                                 Workers status
                             </div>

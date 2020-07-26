@@ -26,12 +26,6 @@ urlpatterns = [
     url(r'^celery_beat_crontabschedules/', AdminFunctions.celery_beat_crontabschedules, name='celery_beat_crontabschedules'),
     url(r'^reset_cron_last_run/', AdminFunctions.reset_cron_last_run, name='reset_cron_last_run'),
 
-    # Celery operations
-    # New
-    url(r'^workers_status/', CeleryInteract.workers_status, name='workers_status'),
-    # System command to restart celery workers:
-    url(r'^celery_service_restart/', CeleryInteract.celery_service_restart, name='celery_service_restart'),
-
     # NEW:
     url(r'^addm_workbench/', AddmWorkbench.as_view(), name='addm_workbench'),
     # REST Support for ADMIN functions and tasks:

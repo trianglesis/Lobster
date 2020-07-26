@@ -1,68 +1,16 @@
-#!/usr/bin/env python
+
+import logging
 import time
 import pika
 import pika.exceptions
 import octo.config_cred as conf_cred
 
-
-def main_check():
-    credentials = pika.PlainCredentials(
-        username=conf_cred.cred['rabbitmq_user'],
-        password=conf_cred.cred['rabbitmq_pswd'],
-    )
-    parameters = pika.ConnectionParameters(
-        host='localhost',
-        port=5672,
-        virtual_host='tentacle',
-        credentials=credentials,
-    )
-
-    w_routines = 'w_routines@tentacle.dq2'
-    routing_key = 'w_routines@tentacle.dq2'
-
-    # url_params = pika.connection.URLParameters(conf_cred.cred['rabbitmq_url'])
-    connection = pika.BlockingConnection(parameters=parameters)
-    print(f'is_open: {connection.is_open}')
-
-    channel = connection.channel()
-    channel.exchange_declare(exchange=w_routines, exchange_type='direct', durable=True)
-    queue_declare = channel.queue_declare(queue=w_routines, passive=True)
-    channel.queue_bind(exchange=w_routines, queue=w_routines, routing_key=routing_key)
-    channel.confirm_delivery()
-
-    def on_delivery_confirmation(method_frame):
-        confirmation_type = method_frame.method.NAME.split('.')[1].lower()
-        if confirmation_type == 'ack':
-            print('message published')
-        elif confirmation_type == 'nack':
-            print('message not routed')
-
-    for i in range(20):
-        try:
-            channel.basic_publish(
-                exchange=w_routines,
-                routing_key=routing_key,
-                body=f'Sending message to w_routines@tentacle.dq2',
-                properties=pika.BasicProperties(content_type='text/plain', delivery_mode=2),
-                # mandatory=True,
-            )
-            print('Message was published')
-        except pika.exceptions.UnroutableError:
-            print('Message was returned')
-
-    # Close the channel and the connection
-
-    print(f'queue_declare {queue_declare}')
-    print(f'Messages len {queue_declare.method.message_count}')
-
-    channel.close()
-    connection.close()
-    print(f'is_closed: {connection.is_closed}')
+log = logging.getLogger("octo.octologger")
 
 def callback_func(channel, method, properties, body):
     print(body)
 
-# main_check()
+
 class RabbitCheck():
 
     def __init__(self):
@@ -151,8 +99,12 @@ class RabbitCheck():
     def queue_count_list(self, queues_list):
         queues_d = dict()
         for queue in queues_list:
-            queue_len = self.queue_count(queue=queue)
-            queues_d.update({queue:queue_len})
+            try:
+                queue_len = self.queue_count(queue=queue)
+                queues_d.update({queue:queue_len})
+            except Exception as e:
+                log.debug(f'Queue count error: {e}')
+                pass
         return queues_d
 
     def get_message(self, queue):
@@ -203,25 +155,3 @@ class RabbitCheck():
         result = self.declare_queue(queue)
         self.channel.basic_consume(queue, auto_ack=False, on_message_callback=callback_func)
         # self.channel.start_consuming()
-
-"""
-https://stackoverflow.com/questions/28550140/python-and-rabbitmq-best-way-to-listen-to-consume-events-from-multiple-channel
-"""
-
-# Pub message to queue:
-# for i in range(10):
-#     RabbitCheck().message_pub(queue='w_routines@tentacle.dq2', body=f'Testing message {i}')
-#     # Check all queues by list:
-#     queues_list = ['alpha@tentacle.dq2', 'w_parsing@tentacle.dq2', 'w_routines@tentacle.dq2']
-#     all_queues_len = RabbitCheck().queue_count_list(queues_list)
-#     print(all_queues_len)
-
-# RabbitCheck().message_pub(queue='w_parsing@tentacle.dq2', body=f'p4_sync_finished', create_q=True)
-# all_queues_len = RabbitCheck().queue_count_list(['w_parsing@tentacle.dq2'])
-# print(all_queues_len)
-
-# message = RabbitCheck().get_message_ack(queue='w_routines@tentacle.dq2', body='Testing message 8')
-# print(message)
-
-# message = RabbitCheck().get_messages_ask(queue='w_routines@tentacle.dq2', body='Testing message 1')
-# print(message)

@@ -213,14 +213,6 @@
                 </div>
             </div>
         </div>
-        {% if user.is_staff %}
-            <div style="padding-left:1%;padding-right:1%;margin-top:1em">
-                <div class="alert alert-secondary" role="alert">
-                    Danger zone: restart system services
-                <a role="button" class="btn btn-sm btn-danger" href="{% url 'celery_service_restart' %}" title="systemctl reload httpd.service && systemctl restart celery.service && systemctl restart celerybeat.service && systemctl restart flower.service">Celery service restart + apache + flower</a>
-                </div>
-            </div>
-        {% endif %}
     {% else %}
         <!-- Login form request. -->
         <div style="padding-left:2%;padding-right:2%;margin-bottom:5px;margin-top:5px">

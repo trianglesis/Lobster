@@ -18,18 +18,6 @@ from dev_site.rabbitmq_pika import RabbitCheck
 log = logging.getLogger("octo.octologger")
 
 
-class recursionlimit:
-    def __init__(self, limit):
-        self.limit = limit
-        self.old_limit = sys.getrecursionlimit()
-
-    def __enter__(self):
-        sys.setrecursionlimit(self.limit)
-
-    def __exit__(self, type, value, tb):
-        sys.setrecursionlimit(self.old_limit)
-
-
 class TasksOperations:
 
     def __init__(self):
@@ -64,63 +52,6 @@ class TasksOperations:
             log.info(msg)
         return self.task_success(task_itself)
 
-    def p4_sync_wait_message(self):
-        timeout = time() + 20   # 60*5 5 minutes from now
-        found = []
-        while not found:
-            messages = RabbitCheck().get_messages_ask(queue='task_statuses', body='p4_sync_finished')
-            log.debug(f"Current messages {messages}")
-            found = messages['all_messages_found']
-            sleep(5)
-            if time() > timeout:
-                log.error('P4 last_changes_get task finish message is not found, return False = not synced')
-                return False
-        log.info('P4 last_changes_get finish message found!')
-        return True
-
-    @staticmethod
-    def get_all_tasks_statuses(worker_name):
-        """
-        Collect all tasks and show their statuses.
-        Maybe collect only user tasks?
-
-        http://docs.celeryproject.org/en/master/userguide/workers.html#inspecting-workers
-        https://stackoverflow.com/questions/5544629/retrieve-list-of-tasks-in-a-queue-in-celery
-        :return:
-        """
-
-        if worker_name:
-            inspect        = app.control.inspect([worker_name])
-            inspect_active = app.control.inspect([worker_name]).active_queues()
-        else:
-            inspect        = app.control.inspect()
-            inspect_active = app.control.inspect().active_queues()
-
-        tasks_inspection = dict(
-            inspect_workers=dict(
-                         registered     = inspect.registered(),
-                         active         = inspect.active(),
-                         scheduled      = inspect.scheduled(),
-                         reserved       = inspect.reserved()
-                         ),
-            inspect_active_tsk=inspect_active,)
-        return tasks_inspection
-
-    @staticmethod
-    def get_addm_tasks_statuses(worker):
-        """
-        Get tasks running on worker with selected name:
-        worker@tentacle or tentacle
-
-        :param worker:
-        :return:
-        """
-        worker_k = worker
-        if '@tentacle' not in worker:
-            worker_k = '{}@tentacle'.format(worker)
-        inspect = app.control.inspect([worker_k])
-        return dict(active = inspect.active(), reserved = inspect.reserved())
-
     @staticmethod
     def get_workers_summary(**kwargs):
         if kwargs.get('worker_name'):
@@ -133,125 +64,6 @@ class TasksOperations:
             t_reserved  = inspect.reserved()
 
         return {'active': t_active, 'reserved': t_reserved}
-
-    def check_active_reserved(self, workers_list=None):
-        """
-        Using list ow workers - get active/reserved tasks items and len of queue.
-
-        :type workers_list: list
-        """
-        inspect = app.control.inspect()
-        reserved = inspect.reserved()
-        active = inspect.active()
-        inspected = []
-        if not workers_list:
-            workers_list = self.workers_list
-
-        for worker in workers_list:
-            if active is not None and reserved is not None:
-                active_tasks = reserved.get(worker, [])  # If None - it's empty.
-                reserved_tasks = active.get(worker, [])  # If None - it's empty.
-                all_tasks = active_tasks + reserved_tasks
-
-                inspected.append({
-                    worker: dict(
-                        active_tasks=active_tasks,
-                        reserved_tasks=reserved_tasks,
-                        all_tasks=all_tasks,
-                        all_tasks_len=len(all_tasks),
-                        reserved_len=len(reserved_tasks) if reserved_tasks else 0,
-                        active_len=len(active_tasks) if active_tasks else 0,)
-                })
-            else:
-                inspected.append({
-                    worker: dict(
-                        active_tasks=[], reserved_tasks=[], all_tasks=[], all_tasks_len=0, reserved_len=0, active_len=0)
-                })
-        return inspected
-
-    def check_active_reserved_short(self, workers_list=None, tasks_body=False):
-        """
-        Using list ow workers - get active/reserved tasks items and len of queue.
-        tasks_body - if we want to see what tasks are run.
-
-        :param tasks_body:
-        :type workers_list: list
-        """
-        inspected = []
-
-        if not workers_list:
-            workers_list = self.workers_list
-
-        # Inspect each worker, instead of list (can be much slower?):
-        inspect = app.control.inspect(destination=workers_list)  # :type worker list
-        reserved = inspect.reserved()
-        active = inspect.active()
-
-        for worker in workers_list:
-            try:
-                active_tasks = reserved.get(worker, [])  # If None - it's empty.
-                reserved_tasks = active.get(worker, [])  # If None - it's empty.
-                if tasks_body:
-                    inspected.append({worker: dict(all_tasks_len=len(active_tasks + reserved_tasks), all_tasks=active_tasks + reserved_tasks,)})
-                else:
-                    inspected.append({worker: dict(all_tasks_len=len(active_tasks + reserved_tasks))})
-            except AttributeError as e:
-                msg = "Some worker could be down '{}'! {}".format(worker, e)
-                log.error(msg)
-                inspected.append(dict(no_worker=dict(all_tasks=[dict(args='none', name='none')], all_tasks_len=0, error=msg)))
-        return inspected
-
-    def get_free_worker(self, workers_list):
-        """
-        Using list of workers get state of each, sort out busy workers or
-            workers with very long tasks like upload tests.
-
-        :return:
-        """
-        excluded_option = Options.objects.filter(option_key__exact='workers_excluded_list').values('option_value')[0]
-        excluded_list = excluded_option.get('option_value', []).replace(' ', '').split(',')
-        included_list = []
-        workers_list_actual = []
-
-        if not workers_list:
-            workers_list = self.workers_list
-        log.debug("Use workers_list: %s", workers_list)
-
-        # Ping all workers before any action to be sure they're up:
-        worker_up = WorkerOperations().worker_ping(worker_list=workers_list)  # List of all workers?
-        log.debug("Pinged workers: %s", worker_up)
-
-        for w_key, w_val in worker_up.items():
-            if 'pong' in w_val:
-                # 1st check if this worker excluded in options:
-                if w_key not in excluded_list:
-                    # Better exclude workers here, before inspecting theirs state?
-                    workers_list_actual.append(w_key)
-
-        inspected = self.check_active_reserved_short(workers_list=workers_list_actual, tasks_body=True)
-        log.debug("<=get_free_worker=> excluded_list: %s", excluded_list)
-        for worker in inspected:
-            for w_key, w_val in worker.items():
-                # all_tasks = w_val.get('all_tasks')
-                # Do not care about lock no more - add task to min worker
-                # # Update excluded list with new workers where tasks lock=True
-                # if any(excl in d.get('args') for d in all_tasks) or any(excl in d.get('name') for d in all_tasks):
-                #     log.debug("<=get_free_worker=> Exclude worker due task lock: %s", w_key)
-                #     excluded_list.append(w_key)
-                #     break
-                # else:
-                # 2nd check if inspected worker is in dynamical excluded list:
-                if w_key not in excluded_list:
-                    if w_key not in included_list:
-                        included_list.append(w_key)
-
-        for candidate in included_list:
-            # 3rd check after all:
-            # To check if we not choosing worker from other branch
-            if candidate in excluded_list:
-                included_list.remove(candidate)
-
-        return excluded_list, included_list
 
     # VIA REST:
     # Inspect workers:
@@ -500,7 +312,7 @@ class WorkerOperations:
         self.service_workers_list = TasksOperations().service_workers_list
 
     @staticmethod
-    def ping_check(w_ping, worker_up):
+    def _ping_check(w_ping, worker_up):
         for pinged in w_ping:
             for ping_k, ping_v in pinged.items():
                 if 'pong' in ping_v.get('ok'):
@@ -569,7 +381,7 @@ class WorkerOperations:
         else:
             app.control.heartbeat()
             w_ping = app.control.ping(timeout=10)
-        worker_up = self.ping_check(w_ping, worker_up)
+        worker_up = self._ping_check(w_ping, worker_up)
 
         return worker_up
 
@@ -608,38 +420,6 @@ class WorkerOperations:
                 return worker_up
         else:
             w_ping = app.control.ping(timeout=5)
-        worker_up = self.ping_check(w_ping, worker_up)
+        worker_up = self._ping_check(w_ping, worker_up)
 
-        return worker_up
-
-    def worker_ping_alt(self, worker_list):
-        """
-        Check workers list with ping. Ping will return only list of workers with answer.
-        Check the list of workers that answered to be sure they're have 'pong' in answer.
-        Update dict with workers with live workers and add also ones which hasn't 'pong' or not answered.
-        Show warnings if worker are down.
-
-        Ping return answer: [{'alpha@tentacle': {'ok': 'pong'}}]
-            worker_up {'foxtrot@tentacle': 'down', 'charlie@tentacle': 'pong', 'delta@tentacle': 'pong'}
-
-
-        :param worker_list:
-        :return:
-        """
-        worker_up = dict()
-
-        if worker_list and isinstance(worker_list, list):
-            w_ping = app.control.ping(destination=worker_list, timeout=2)
-            log.debug("<=WorkerOperations=> w_ping: %s", w_ping)
-
-            if len(w_ping) != len(worker_list):
-                for w_can in worker_list:
-                    if not any([ping.get(w_can) for ping in w_ping]):
-                        worker_up.update({w_can: 'down'})
-                        log.error("<=WorkerOperations=> Worker DOWN: %s", w_can)
-            worker_up = self.ping_check(w_ping, worker_up)
-        else:
-            log.error("<=WorkerOperations=> This should be a list of workers!")
-
-        log.debug("<=WorkerOperations=> worker_up %s", worker_up)
         return worker_up

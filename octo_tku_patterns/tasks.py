@@ -13,29 +13,37 @@ from __future__ import absolute_import, unicode_literals
 
 import datetime
 import logging
-import os
+from typing import List, Any, Dict
 
-from django.contrib.auth.models import User
-from django.db.models.query import QuerySet
 from django.conf import settings
+from django.db.models.query import QuerySet
+from django.template import loader
+from django.utils import timezone
+from rest_framework.renderers import JSONRenderer
 
-from octo.helpers.tasks_helpers import TMail
-from octo.helpers.tasks_helpers import exception, db_logger, db_log_f
+from octo.helpers.tasks_helpers import exception
+from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
+
 from octo.octo_celery import app
-from octo.octo_serializers import AddmDevSerializer, ADDMCommandsSerializer
-from octo.tasks import TSupport
+from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
+
 from octo_adm.tasks import TaskADDMService
+
+from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer
+from octo_tku_patterns.digests import TestDigestMail
+from octo_tku_patterns.model_views import TestLatestDigestAll
 from octo_tku_patterns.models import TestLast, TestCases, TestCasesDetails
 from octo_tku_patterns.test_executor import TestExecutor
-from octo_tku_patterns.digests import TestDigestMail
 
 from octotests.tests_discover_run import TestRunnerLoc
+
 from run_core.addm_operations import ADDMStaticOperations
 from run_core.local_operations import LocalPatternsP4Parse
-from run_core.models import AddmDev, RoutinesLog, UserAdprod
+from run_core.models import AddmDev, TaskPrepareLog, Options
 from run_core.p4_operations import PerforceOperations
+from run_core.rabbitmq_operations import RabbitCheck
 
 log = logging.getLogger("octo.octologger")
 
@@ -132,6 +140,22 @@ class TPatternParse:
         log.debug("t_tag: %s", t_tag)
         PatternTestExecCases.patterns_weight_compute(last_days, addm_name)
 
+class MailDigests:
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_user_digest',
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    def t_user_digest(t_tag, **kwargs):
+        """User test digest mail send task"""
+        TestDigestMail().failed_pattern_test_user_daily_digest(**kwargs)
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_lib_digest',
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    def t_lib_digest(t_tag, **kwargs):
+        """ Team test digest by patt LIBRARY send task"""
+        TestDigestMail().all_pattern_test_team_daily_digest(**kwargs)
+
 class PatternTestExecCases:
 
     @staticmethod
@@ -170,8 +194,6 @@ class TaskPrepare:
         # Define fake run:
         self.fake_run = False
         self.fake_fun()
-        # NOTE:  Fix django.contrib.auth.models.User.DoesNotExist and think why do we need it here?
-        # self.user = User.objects.get(username__exact=self.user_name)
 
         # Get user and mail:
         self.start_time = datetime.datetime.now()
@@ -194,7 +216,6 @@ class TaskPrepare:
         # Sorted\grouped test set:
         self.tests_grouped = dict()
 
-        # NOTE: It can change during process current class!!!!`
         self.t_tag = ''
 
     def fake_fun(self):
@@ -243,7 +264,7 @@ class TaskPrepare:
         self.task_tag_generate()
 
         # 0. Init test mail?
-        self.mail_status(mail_opts=dict(mode='init'))
+        self.user_test_mail(mode='init')
 
         # 1. Select cases for test
         cases_to_test = self.case_selection()
@@ -287,10 +308,9 @@ class TaskPrepare:
             log.debug("<=TaskPrepare=> Will execute p4 sync before run tests")
         else:
             self.p4_synced = True  # Let's think we already synced everything:
-            return self.p4_synced
+            return True
 
         # Only sync and parse depot, no ADDM Sync here!
-        # TODO: Add task for sync to the same routine worker so it only can start next tests after sync was finished?
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_sync = Runner.fire_t(TPatternParse.t_p4_sync,
                                   fake_run=self.fake_run,
@@ -302,32 +322,28 @@ class TaskPrepare:
             if TasksOperations().task_wait_success(t_p4_sync, 't_p4_sync'):
                 log.debug("<=TaskPrepare=> Wait for p4_sync_task is finished, lock released!")
                 self.p4_synced = True
-                return self.p4_synced
+                return True
         else:
-            # On fake run we just show this p4 sync is finished OK
-            self.p4_synced = True
-            return self.p4_synced
+            self.p4_synced = True  # On fake run we just show this p4 sync is finished OK
+            return True
 
     def wipe_logs(self, test_items):
-        if self.test_balanced:
-            log.info("<=TaskPrepare=> All tests are balanced and assigned to workers, we now can wipe logs?")
-
+        """
+        Delete test logs for current tests
+        :param test_items:
+        :return:
+        """
         deleted = []
         if self.request.get('wipe'):
             self.wipe = True
-            log.info("<=TaskPrepare=> Will wipe old logs for selected case(s)")
-        elif self.wipe and self.refresh:
-            log.info("<=TaskPrepare=> Forced: Will wipe old logs for selected case(s). By: self.refresh = %s", self.refresh)
 
         if self.fake_run:
             return []
 
-        if self.wipe:
+        if self.wipe and not settings.DEV:
             for test_item in test_items:
                 deleted_log = self.db_logs_wipe(test_item)
                 deleted.append(deleted_log)
-        else:
-            log.info("<=TaskPrepare=> Not wiping previous logs.")
         return deleted
 
     def db_logs_wipe(self, test_item):
@@ -348,7 +364,7 @@ class TaskPrepare:
 
         try:
             if self.test_function:
-                log.debug("<=TaskPrepare=> Wipe logs for only test unit: %s", self.test_function)
+                log.info("<=TaskPrepare=> Wipe logs for only test unit: %s", self.test_function)
                 if '+' in self.test_function:
                     test_arg = self.test_function.split('+')
                 else:
@@ -372,80 +388,45 @@ class TaskPrepare:
         - Only in exceptional cases use words to sort.
         :return:
         """
-
-        # TODO: Not actually select ALL if we don't get/understand request args?
-        # TODO: Sort only pattern test cases?
         if any(value for value in self.selector.values()):
+            log.debug(f'self.selector" {self.selector}')
             queryset = TestCases.objects.all()
         else:
             queryset = TestCases.objects.last()
 
-        # # Most common and usual way to select cases for tests:
-        # log.debug("self.selector: %s", self.selector)
-        # for key, value in self.selector.items():
-        #     if value:
-        #         log.debug("True val for key: %s val: %s", key, value)
-        #     else:
-        #         log.debug("False val for key: %s val: %s", key, value)
-        # log.debug("self.selector value: %s", any(value for value in self.selector.values()))
-
         if self.selector.get('cases_ids'):
             id_list = self.selector['cases_ids'].split(',')
-            log.debug("<=TaskPrepare=> Selecting cases by id: %s", id_list)
             queryset = queryset.filter(id__in=id_list)
-        # Older but useful from search perspectives???
         elif self.selector.get('pattern_folder_names'):
             pattern_folder_names = self.selector['pattern_folder_names']
             if isinstance(pattern_folder_names, str):
                 pattern_folder_names.split(',')
-            log.debug("<=TaskPrepare=> Selecting cases by 'pattern_folder_names: %s", pattern_folder_names)
             queryset = queryset.filter(pattern_folder_name__in=pattern_folder_names)
-        # Not sure this is the best solution to sort out
         elif self.selector.get('pattern_folder_name') and not self.selector['pattern_library']:
-            log.debug("<=TaskPrepare=> Selecting cases by 'pattern_folder_name': %s", self.selector['pattern_folder_name'])
             queryset = queryset.filter(pattern_folder_name__exact=self.selector['pattern_folder_name'])
-        # Current implemented way, but remove it later?
         elif self.selector.get('pattern_folder_name') and self.selector['pattern_library']:
-            log.debug("<=TaskPrepare=> Selecting cases by 'pattern_library' AND 'pattern_folder_name': %s", self.selector['pattern_folder_name'])
             queryset = queryset.filter(
                 pattern_folder_name__exact=self.selector['pattern_folder_name'],
                 pattern_library__exact=self.selector['pattern_library'])
-        # Test all cases related to p4 change:
         elif self.selector.get('change'):
-            log.debug("<=TaskPrepare=> Selecting cases by 'change': %s", self.selector['change'])
             queryset = queryset.filter(change__exact=self.selector['change'])
-        # Test all cases related to p4 change user:
         elif self.selector.get('change_user'):
-            log.debug("<=TaskPrepare=> Selecting cases by 'change_user': %s", self.selector['change_user'])
             queryset = queryset.filter(change_user__exact=self.selector['change_user'])
-        # Test all cases related to change review if any:
         elif self.selector.get('change_review'):
-            log.debug("<=TaskPrepare=> Selecting cases by 'change_review': %s", self.selector['change_review'])
             queryset = queryset.filter(change_review__exact=self.selector['change_review'])
-        # Test all cases related to change ticket if any:
         elif self.selector.get('change_ticket'):
-            log.debug("<=TaskPrepare=> Selecting cases by 'change_ticket': %s", self.selector['change_ticket'])
             queryset = queryset.filter(change_ticket__exact=self.selector['change_ticket'])
-        # Test case with selected test_py - to be removed maybe later?:
         elif self.selector.get('test_py_path'):
-            log.debug("<=TaskPrepare=> Selecting cases by 'test_py_path': %s", self.selector['test_py_path'])
             queryset = queryset.filter(test_py_path__exact=self.selector['test_py_path'])
         else:
-            # Ignore any unused options:
-            pass
+            # We won't run any test if not sure how it was selected:
+            return None
 
-        # Queryset strict by branch if needed:
         if self.selector.get('tkn_branch'):
-            log.debug("<=TaskPrepare=> Selecting cases by 'tkn_branch': %s", self.selector['tkn_branch'])
             queryset = queryset.filter(tkn_branch__exact=self.selector['tkn_branch'])
-        # Queryset strict by test_type:
         if self.selector.get('test_type'):
-            log.debug("<=TaskPrepare=> Selecting cases by 'test_type': %s", self.selector['test_type'])
             queryset = queryset.filter(test_type__exact=self.selector['test_type'])
 
-        # log.debug("<=TaskPrepare=> queryset: %s", queryset.query)
-        log.debug("<=TaskPrepare=> cases_to_test: %s", queryset.count())
-        # log.debug("<=TaskPrepare=> Items: %s", queryset)
         return queryset.order_by('tkn_branch')
 
     def case_exclusion(self, queryset):
@@ -456,7 +437,6 @@ class TaskPrepare:
         :return:
         """
         if self.exclude:
-            log.info("<=TaskPrepare=> About to exclude some tests which are added to group exclude!")
             log.debug("<=TaskPrepare=> Before exclude: %s", queryset.count())
             excluded_group = TestCasesDetails.objects.get(title__exact='excluded')
             excluded_ids = excluded_group.test_cases.values('id')
@@ -503,32 +483,44 @@ class TaskPrepare:
 
         tku_patterns_tests = tests_grouped.get('tku_patterns', {})
         log.debug("<=TaskPrepare=> tku_patterns_tests: %s", tku_patterns_tests)
-
         for branch_k, branch_cases in tku_patterns_tests.items():
             if branch_cases:
                 log.debug(f"<=TaskPrepare=> Balancing tests for branch: '{branch_k}': {branch_cases}")
                 # 5. Assign free worker for test cases run
                 addm_group = self.addm_group_get(tkn_branch=branch_k)
                 addm_set = self.addm_set_select(addm_group=addm_group)
-
                 # 6. Sync current ADDM set with actual data from Octopus, after p4 sync finished it's work:
                 self.addm_rsync(addm_set)
-
                 # 6.1 Something like prep step? Maybe delete/wipe/kill other tests or ensure ADDM on OK state and so on.
                 self.prep_step(addm_set)
-
                 for test_item in branch_cases:
                     log.debug(f'test_item: {test_item} {type(test_item)} {test_item.test_py_path}')
-
                     # 7.1 Fire task for test starting
-                    self.mail_status(mail_opts=dict(mode='start', test_item=test_item, addm_set=addm_set))
+                    self.user_test_mail('start', test_item=test_item, addm_set=addm_set)
                     # 7.2 Fire task for test execution
                     self.test_exec(addm_set, test_item)
                     # 7.3 Add mail task after one test, so it show when one test was finished.
-                    self.mail_status(mail_opts=dict(mode='finish', test_item=test_item, addm_set=addm_set))
+                    self.user_test_mail('finish', test_item=test_item, addm_set=addm_set)
                     # 8 Save log when test task finished, disregard any results:
             else:
                 log.debug("<=TaskPrepare=> This branch had no selected tests to run: '%s'", branch_k)
+
+    def branched_w(self, branch):
+        """
+        Select only workers are related to branch
+        :type branch: str
+        """
+        branched_w = Options.objects.get(option_key__exact=f'branch_workers.{branch}')
+        branched_w = branched_w.option_value.replace(' ', '').split(',')
+        return branched_w
+
+    def rabbit_queue_minimal(self, workers_q):
+        workers = [worker+'@tentacle.dq2' for worker in workers_q]
+        all_queues_len = RabbitCheck().queue_count_list(workers)
+        worker_min = min(all_queues_len, key=all_queues_len.get)
+        if '@tentacle' in worker_min:
+            worker_min = worker_min.replace('@tentacle.dq2', '')
+        return worker_min
 
     def addm_group_get(self, tkn_branch):
         """
@@ -539,21 +531,8 @@ class TaskPrepare:
         :param tkn_branch:
         :return:
         """
-
-        """DEBUG:"""
-        from octo_tku_patterns.user_test_balancer import WorkerGetAvailable
-        branch_w = WorkerGetAvailable.branched_w(tkn_branch)
-        addm_group = branch_w[0]
-        if settings.DEV:
-            log.info(f"Use local dev group. {settings.DEV}")
-            addm_group = 'alpha'
-        log.debug(f"Initial addm_group: {addm_group}")
-        if not self.fake_run:
-            if settings.DEV:
-                log.info(f"Skipping workers check on local dev. {settings.DEV}")
-            else:
-                addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
-        log.debug("<=TaskPrepare=> Got an available addm_group: '%s'", addm_group)
+        branch_w = self.branched_w(tkn_branch)
+        addm_group = self.rabbit_queue_minimal(workers_q=branch_w)  # Ask rabbit mq for less busy queue:
         return addm_group
 
     def addm_set_select(self, addm_group=None):
@@ -568,7 +547,6 @@ class TaskPrepare:
                 addm_group__exact=addm_group,
                 disables__isnull=True
             ).values()
-        # log.info("<=TaskPrepare=> Will use selected addm_set to run test: %s",  addm_set)
         return addm_set
 
     def addm_rsync(self, addm_set):
@@ -592,52 +570,152 @@ class TaskPrepare:
                 t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
                         f'fake={self.fake_run};start_time={self.start_time};command_k={operation_cmd.command_key};'
                 addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
-                log.debug(f"addm_grouped_set: {addm_grouped_set}")
                 t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
                 Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
                               fake_run=self.fake_run,
                               t_queue=f'{addm["addm_group"]}@tentacle.dq2',
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
-                              t_routing_key=f'{addm["addm_group"]}.addm_rsync.TaskADDMService.t_addm_cmd_thread')
+                              t_routing_key=f'{addm["addm_group"]}.{operation_cmd.command_key}.TaskADDMService.t_addm_cmd_thread')
 
     def prep_step(self, addm_set):
-        log.info("<=TaskPrepare=> Preparing step before test run!")
+        """
+        Kill any hung tests or scans before test run, to be sure ADDM is ready for actual user test.
+
+        :param addm_set:
+        :return:
+        """
         addm = addm_set.first()
-        # TODO: Here we can kill test.py, wipe old data, run cmd and so on.
+        commands_qs = ADDMStaticOperations.select_operation([
+            'test.kill.term',
+            'tku.install.kill',
+            'tw_scan_control.clear',
+        ])
+        for operation_cmd in commands_qs:
+            t_tag = f'tag=t_addm_cmd_thread;addm_group={addm["addm_group"]};user_name={self.user_name};' \
+                    f'fake={self.fake_run};start_time={self.start_time};command_k={operation_cmd.command_key};'
+            addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
+            t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
+            Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
+                          fake_run=self.fake_run,
+                          t_queue=f'{addm["addm_group"]}@tentacle.dq2',
+                          t_args=[t_tag],
+                          t_kwargs=t_kwargs,
+                          t_routing_key=f'{addm["addm_group"]}.{operation_cmd.command_key}.TaskADDMService.t_addm_cmd_thread')
 
-    def mail_status(self, mail_opts):
-        mode = mail_opts.get('mode')
-        mail_opts.update(request=self.request)
-        mail_opts.update(user_email=self.user_email)
+    def user_test_mail(self, mode, **kwargs):
+        """
+        Send mails during user test run. Stages: init, start, finish.
+        Finish stage will include test results.
+        :param mail_opts:
+        :return:
+        """
+        test_item = kwargs.get('test_item', None)  # When test are sorted and prepared
+        addm_set = kwargs.get('addm_set', None)
+        test_added = loader.get_template('service/emails/statuses/test_added.html')
 
-        log.debug(f"mail_status mail_opts addm_set: {mail_opts.get('addm_set')}")
+        subject = ''
+        addm_group = ''
+        log_html = []
+        tests_digest = []
+        subject_str = 'Placeholder'
 
-        self.silent = True  # TODO: Remove
-        if not self.silent:
-            log.info("<=TaskPrepare=> Mail sending, mode: %s", mode)
-            if mail_opts.get('test_item') and mail_opts.get('addm_set'):
-                addm = mail_opts.pop('addm_set').first()  # Do not put QuerySet into task kwargs!
-                test_item = mail_opts.get('test_item')
-
-                mail_r_key = f'{addm["addm_group"]}.TSupport.t_user_mail.{mode}.TSupport.t_user_test'
-                t_tag = f'tag=t_user_mail;mode={mode};addm_group={addm["addm_group"]};user_name={self.user_name};' \
-                        f'test_py_path={test_item["test_py_path"]}'
-
-                # TODO: Change to
-                Runner.fire_t(TSupport.t_user_test,
-                              # fake_run=False,  # TODO: Remove
-                              fake_run=self.fake_run,
-                              t_args=[t_tag],
-                              t_kwargs=dict(mail_opts=mail_opts),
-                              t_queue=addm['addm_group']+'@tentacle.dq2',
-                              t_routing_key=mail_r_key)
-            elif mode == 'init':
-                TMail().user_test(mail_opts)
-            else:
-                TMail().user_test(mail_opts)
+        cases_ids_l = self.request.get("cases_ids", "").split(',')
+        cases_selected = TestCases.objects.filter(id__in=cases_ids_l)
+        # Different mode options:
+        if mode == 'init':
+            init_subject = f'selected cases id: {cases_ids_l}'
+            subject = f'[{SITE_SHORT_NAME}] User test init: {init_subject}'
+            TaskPrepareLog(subject=subject, user_email=self.user_email).save()
+        elif mode == 'start' or mode == 'finish':
+            addm = addm_set.first()
+            isinstance(addm, dict), "First element from QuerySet should be a dict type!"
+            isinstance(test_item, TestCases), "Test item should be TestCases object!"
+            addm_group = addm.get('addm_group', None)
+            subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
+            if mode == 'start':
+                subject = f'[{SITE_SHORT_NAME}] User test started: {subject_str}'
+            if mode == 'finish':
+                subject = f'[{SITE_SHORT_NAME}] User test finished: {subject_str}'
         else:
-            log.info("<=TaskPrepare=> Mail silent mode. Do not send massages. Current stage: %s", mode)
+            subject = f'[{SITE_SHORT_NAME}] User test failed: : {cases_ids_l}'
+            log.debug("Unusual mail mode!")
+            TaskPrepareLog(subject=subject, user_email=self.user_email,
+                           details=f'test_item: {test_item.values()}, addm_set: {addm_set.values()}').save()
+
+        mail_html = test_added.render(
+            dict(
+                subject=subject,
+                domain=SITE_DOMAIN,
+                mail_opts=kwargs,
+                tests_digest=tests_digest,
+                cases_selected=cases_selected,
+            )
+        )
+        time_stamp = datetime.datetime.now(tz=timezone.utc).strftime('%Y-%m-%d_%H-%M')
+        if mode == 'start' or mode == 'finish':
+            mail_r_key = f'{addm_group}.TaskPrepare.t_short_mail.{mode}'
+            t_tag = f'tag=t_user_mail;mode={mode};{addm_group};{self.user_name};{test_item.test_py_path}'
+            Runner.fire_t(self.mail_s,
+                          fake_run=False,
+                          t_args=[t_tag],
+                          t_kwargs={'mode': mode, 'test_item': test_item, 'mail_html': mail_html, 'user_email': self.user_email},
+                          t_queue=addm_group + '@tentacle.dq2',
+                          t_routing_key=mail_r_key)
+        else:
+            Mails.short(subject=subject,
+                        send_to=[self.user_email],
+                        mail_html=mail_html,
+                        attach_content=log_html,
+                        attach_content_name=f'{subject_str}_test_{time_stamp}.html',
+                        )
+        return 'User test mail sent!'
+
+    @staticmethod
+    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @exception
+    def mail_s(tag, **kwargs):
+        mode = kwargs.get('mode')
+        test_item = kwargs.get('test_item')
+        mail_html = kwargs.get('mail_html')
+        user_email = kwargs.get('user_email')
+
+        log_html = ''
+        tests_digest = ''
+
+        time_stamp = datetime.datetime.now(tz=timezone.utc).strftime('%Y-%m-%d_%H-%M')
+        isinstance(test_item, TestCases), "Test item should be TestCases object!"
+
+        subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
+        if mode == 'start':
+            subject = f'[{SITE_SHORT_NAME}] User test started: {subject_str}'
+        elif mode == 'finish':
+            subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
+            subject = f'[{SITE_SHORT_NAME}] User test finished: {subject_str}'
+
+            test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
+            tests_digest = TestLatestDigestAll.objects.filter(
+                test_py_path__exact=test_item.test_py_path).order_by('-addm_name')
+            test_logs = TestLast.objects.filter(
+                test_py_path__exact=test_item.test_py_path).order_by('-addm_name').distinct()
+            log_html = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN, ))
+            log.debug(f"tests_digest: {tests_digest}")
+
+        else:
+            subject = f'[{SITE_SHORT_NAME}] User test else: {subject_str}'
+
+        Mails.short(subject=subject,
+                    send_to=[user_email],
+                    mail_html=mail_html,
+                    attach_content=log_html if log_html else None,
+                    attach_content_name=f'{subject_str}_test_{time_stamp}.html',
+                    )
+        if tests_digest:
+            tests_digest = JSONRenderer().render(TestLatestDigestAllSerializer(tests_digest, many=True).data).decode('utf-8')
+        else:
+            tests_digest = 'Empty'
+        TaskPrepareLog(subject=subject, user_email=user_email, details=tests_digest).save()
+        return f'Mail sent {subject}'
 
     def test_exec(self, addm_set, test_item):
         """
@@ -646,7 +724,6 @@ class TaskPrepare:
         :param test_item:
         :return:
         """
-        # TODO: Move to queryset objects
         assert isinstance(test_item, TestCases), 'Test item should be a QuerySet: %s' % type(test_item)
         assert isinstance(addm_set, QuerySet), "Addm set should be a QuerySet: %s" % type(addm_set)
 
@@ -664,8 +741,6 @@ class TaskPrepare:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
                       # fake_run=self.fake_run,
                       fake_run=True,  # TODO: Remove
-                      to_sleep=10,
-                      debug_me=True,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(user_email=self.user_email,
                                     user_name=self.user_name,
@@ -691,22 +766,3 @@ class TaskPrepare:
         log.debug("<=TaskPrepare=> User test user_test_add: \n%s", t_tag_d)
         self.t_tag = t_tag_d
 
-    def test_and_addm_check(self, addm_set, test_item):
-        if not addm_set or not test_item:
-            self.mail_status(mail_opts=dict(mode='fail', test_item=test_item))
-
-class MailDigests:
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_user_digest',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    def t_user_digest(t_tag, **kwargs):
-        """User test digest mail send task"""
-        TestDigestMail().failed_pattern_test_user_daily_digest(**kwargs)
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_lib_digest',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    def t_lib_digest(t_tag, **kwargs):
-        """ Team test digest by patt LIBRARY send task"""
-        TestDigestMail().all_pattern_test_team_daily_digest(**kwargs)

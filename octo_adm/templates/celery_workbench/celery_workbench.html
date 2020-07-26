@@ -57,9 +57,17 @@
                 <div class="card-body">
                     <a class="btn btn-sm btn-info active" href="{% url 'celery_inspect' %}">Celery Inspect</a>
                     <div class="card-text">Tasks queues summary:</div>
-                    {% worker_queues_short %}
-                    <div class="card-text">Inspect worker, get tasks.</div>
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'workers_status' %}">{% select_icon 'dashboard' 18 'right' 0.2 %}Celery Workers (old)</a>
+                    <table id="workers_state" class="table table-shrink table-hover table-sm">
+                        <tr>
+                            <thead class="table-light bg-light table-sm">
+                                <tr>
+                                    <th scope="col" id="col_addm" class="bg-light text-center" style="max-width: fit-content">Queue</th>
+                                    <th scope="col" id="col_active" class="bg-light text-center" style="max-width: fit-content">Tasks</th>
+                                </tr>
+                            </thead>
+                        </tr>
+                        <tbody id="worker-table"></tbody>
+                    </table>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">Showing all queues in short view as amount of tasks.</small>
@@ -112,12 +120,6 @@
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item text-center">
                                 <a class="btn btn-sm btn-outline-warning" href="{% url 'reset_cron_last_run' %}">Celery cron reset last run</a>
-                            </li>
-                            <li class="list-group-item text-center">
-                                <div class="alert alert-secondary" role="alert">
-                                    <a role="button" class="btn btn-sm btn-danger" href="{% url 'celery_service_restart' %}"
-                                       title="systemctl reload httpd.service && systemctl restart celery.service && systemctl restart celerybeat.service && systemctl restart flower.service">Celery service restart + apache + flower</a>
-                                </div>
                             </li>
                         </ul>
                     </div>

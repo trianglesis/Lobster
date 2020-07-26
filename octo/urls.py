@@ -26,7 +26,7 @@ from django.conf import settings
 urlpatterns = [
     # Home
     url(r'^$', MainPage.as_view(), name='home'),
-    url(r'^inspect_workers_short/', CeleryWorkersStatusREST.as_view(), name='inspect_workers_short'),
+    url(r'^inspect_rabbitmq_queues/', RabbitMQQueuesREST.as_view(), name='inspect_rabbitmq_queues'),
 
     url(r'^admin/', admin.site.urls),
 
