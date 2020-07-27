@@ -130,6 +130,9 @@ class TaskPrepareLog(models.Model):
     class Meta:
         managed = True
         db_table = 'octo_task_prep_log'
+        verbose_name = 'User Test Run log'
+        verbose_name_plural = 'User Test Run logs'
+
 
 class UploadTaskPrepareLog(models.Model):
     subject = models.CharField(max_length=255)
@@ -140,6 +143,8 @@ class UploadTaskPrepareLog(models.Model):
     class Meta:
         managed = True
         db_table = 'octo_upload_task_prep_log'
+        verbose_name = 'Upload task Run log'
+        verbose_name_plural = 'Upload tasks Run logs'
 
 
 class PatternTestUtilsLog(models.Model):
@@ -151,7 +156,8 @@ class PatternTestUtilsLog(models.Model):
     class Meta:
         managed = True
         db_table = 'octo_patt_test_utils_log'
-
+        verbose_name = 'Night Routine Run log'
+        verbose_name_plural = 'Night Routines Run logs'
 
 class TaskExceptionLog(models.Model):
     subject = models.CharField(max_length=255)
@@ -162,3 +168,5 @@ class TaskExceptionLog(models.Model):
     class Meta:
         managed = True
         db_table = 'octo_task_except_log'
+        verbose_name = 'Task exception log'
+        verbose_name_plural = 'Task exception logs'

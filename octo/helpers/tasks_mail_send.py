@@ -55,21 +55,21 @@ class Mails:
         if not subject:
             subject = txt.format('No Subject added', ' - ', curr_hostname)
 
-        msg = f"subject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}"
-        if fake_run:
-            # Fake run, but send email:
-            log.debug(f'NOT Sending short email: \n\tsubject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}')
-            # mail_html_f = open(f'{subject}.html', 'w')
-            # mail_html_f.write(mail_html)
-            # mail_html_f.close()
-            # return f'Short mail sent! {msg}'
-        elif settings.DEV:
-            # Probably a fake run, but on local dev - so do not send emails? Somehow this could be switchable, so I can test email locally!
-            log.debug(f'NOT Sending short email: \n\tsubject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}')
-            # mail_html_f = open(f'{subject}.html', 'w')
-            # mail_html_f.write(mail_html)
-            # mail_html_f.close()
-            # return f'Short mail sent! {msg}'
+        # msg = f"subject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}"
+        # if fake_run:
+        #     # Fake run, but send email:
+        #     log.debug(f'NOT Sending short email - FAKE RUN : \n\tsubject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}')
+        #     mail_html_f = open(f'{subject}.html', 'w')
+        #     mail_html_f.write(mail_html)
+        #     mail_html_f.close()
+        #     return f'Short mail sent! {msg}'
+        # elif settings.DEV:
+        #     # Probably a fake run, but on local dev - so do not send emails? Somehow this could be switchable, so I can test email locally!
+        #     log.debug(f'NOT Sending short email settings.DEV: \n\tsubject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}')
+        #     # mail_html_f = open(f'{subject}.html', 'w')
+        #     # mail_html_f.write(mail_html)
+        #     # mail_html_f.close()
+        #     # return f'Short mail sent! {msg}'
 
         connection = mail.get_connection()
         connection.open()
