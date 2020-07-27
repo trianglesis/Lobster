@@ -245,7 +245,7 @@ class TaskPrepare:
         :return:
         """
         if settings.DEV:  # Always fake run on local test env:
-            self.fake_run = True  # TODO: Remove
+            self.fake_run = True
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL options: %s", self.options)
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL request: %s", self.request)
 
@@ -676,7 +676,7 @@ class TaskPrepare:
             mail_r_key = f'{addm_group}.TaskPrepare.t_short_mail.{mode}'
             t_tag = f'tag=t_user_mail;mode={mode};{addm_group};{self.user_name};{test_item.test_py_path}'
             Runner.fire_t(self.mail_s,
-                          fake_run=False,
+                          fake_run=self.fake_run,
                           t_args=[t_tag],
                           t_kwargs={'mode': mode, 'test_item': test_item, 'mail_html': mail_html,
                                     'user_email': self.user_email},
@@ -760,8 +760,7 @@ class TaskPrepare:
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
-                      # fake_run=self.fake_run,
-                      fake_run=True,  # TODO: Remove
+                      fake_run=self.fake_run,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(user_email=self.user_email,
                                     user_name=self.user_name,

@@ -38,7 +38,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), sock
 if cred['LOBSTER_SITE_DOMAIN'] in ALLOWED_HOSTS:
     INTERNAL_IPS = ['172.28.142.169']
     DEBUG = True
-    DEV = True
+    DEV = False
     DEBUG_TOOLBAR_PANELS = [
         'debug_toolbar.panels.versions.VersionsPanel',
         'debug_toolbar.panels.timer.TimerPanel',
