@@ -666,7 +666,7 @@ class TaskPrepare:
             dict(
                 subject=subject,
                 domain=SITE_DOMAIN,
-                mail_opts=kwargs,
+                mode=mode,
                 tests_digest=tests_digest,
                 cases_selected=cases_selected,
             )

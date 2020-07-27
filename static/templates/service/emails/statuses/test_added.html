@@ -104,24 +104,23 @@
     <body>
     {{ subject }}
     <br>
-    <br>
     <table id="table-subject">
         <tr>
-            {% if mail_opts.mode == 'init' %}
+            {% if mode == 'init' %}
                 <td style="background-color: #bee5eb;">User test routine has been initialized. Now processing test
                     tasks and
                     balancing workers.
                 </td>
-            {% elif mail_opts.mode == 'start' %}
+            {% elif mode == 'start' %}
                 <td style="background-color: #36e6dd;">User test started. See details, wait for test finish email
                     confirmation.
                 </td>
-            {% elif mail_opts.mode == 'finish' %}
+            {% elif mode == 'finish' %}
                 <td style="background-color: #c3e6cb;">User test finished. This is confirmation email. You can see
                     the logs
                     now.
                 </td>
-            {% elif mail_opts.mode == 'fail' %}
+            {% elif mode == 'fail' %}
                 <td style="background-color: #f5c6cb;">User test routine failed. Cannot proceed further, please
                     re-run or ask
                     assistance.
@@ -134,7 +133,7 @@
         </tr>
     </table>
     <br>
-    {% if mail_opts.mode == 'init' %}
+    {% if mode == 'init' %}
         <table>
             <thead>
             <tr>
@@ -166,7 +165,7 @@
             </tbody>
         </table>
     {% endif %}
-    {% if mail_opts.mode == 'finish' %}
+    {% if mode == 'finish' %}
         <table>
             {% include 'digests/tables_details/tests_last_table_email.html' with tests=tests_digest %}
         </table>
