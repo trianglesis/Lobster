@@ -70,35 +70,35 @@ class Mails:
             # mail_html_f.write(mail_html)
             # mail_html_f.close()
             # return f'Short mail sent! {msg}'
-        else:
-            connection = mail.get_connection()
-            connection.open()
-            email_args = dict(
-                subject=subject,
-                body=body,
-                from_email=getattr(settings, 'EMAIL_ADDR', None),
-                to=send_to,
-                cc=send_cc,
-                bcc=bcc,
-                connection=connection,
-            )
+
+        connection = mail.get_connection()
+        connection.open()
+        email_args = dict(
+            subject=subject,
+            body=body,
+            from_email=getattr(settings, 'EMAIL_ADDR', None),
+            to=send_to,
+            cc=send_cc,
+            bcc=bcc,
+            connection=connection,
+        )
+        # log.debug("<=MailSender=> short email_args - %s", email_args)
+        if mail_html:
+            # log.debug("<=MAIL SIMPLE=> Mail html send")
+            email = EmailMultiAlternatives(**email_args)
             # log.debug("<=MailSender=> short email_args - %s", email_args)
-            if mail_html:
-                # log.debug("<=MAIL SIMPLE=> Mail html send")
-                email = EmailMultiAlternatives(**email_args)
-                # log.debug("<=MailSender=> short email_args - %s", email_args)
-                email.attach_alternative(mail_args.get('mail_html', ''), "text/html")
-                if attach_file:
-                    email.attach_file(attach_file)
-                if attach_content:
-                    email.attach(attach_content_name, attach_content, "text/html")
-                email.send()
-            else:
-                email = EmailMessage(**email_args)
-                # log.debug("<=MailSender=> short email_args - %s", email_args)
-                if attach_file:
-                    email.attach_file(attach_file)
-                if attach_content:
-                    email.attach(attach_content_name, attach_content, "text/html")
-                email.send()
-                # log.debug("<=MAIL SIMPLE=> Mail txt send")
+            email.attach_alternative(mail_args.get('mail_html', ''), "text/html")
+            if attach_file:
+                email.attach_file(attach_file)
+            if attach_content:
+                email.attach(attach_content_name, attach_content, "text/html")
+            email.send()
+        else:
+            email = EmailMessage(**email_args)
+            # log.debug("<=MailSender=> short email_args - %s", email_args)
+            if attach_file:
+                email.attach_file(attach_file)
+            if attach_content:
+                email.attach(attach_content_name, attach_content, "text/html")
+            email.send()
+            # log.debug("<=MAIL SIMPLE=> Mail txt send")
