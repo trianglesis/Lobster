@@ -151,3 +151,14 @@ class PatternTestUtilsLog(models.Model):
     class Meta:
         managed = True
         db_table = 'octo_patt_test_utils_log'
+
+
+class TaskExceptionLog(models.Model):
+    subject = models.CharField(max_length=255)
+    user_email = models.CharField(max_length=255)
+    details = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = True
+        db_table = 'octo_task_except_log'

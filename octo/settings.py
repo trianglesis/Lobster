@@ -15,6 +15,7 @@ import sys
 import logging
 import socket
 from octo.config_cred import cred, mails
+
 log = logging.getLogger("octo.octologger")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -30,13 +31,30 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'octo'))
 SECRET_KEY = cred['SECRET_KEY']
 
 CURR_HOSTNAME = socket.getfqdn()
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()), socket.gethostname()]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()),
+                 socket.gethostname()]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if cred['LOBSTER_SITE_DOMAIN'] in ALLOWED_HOSTS:
-    log.info(f"Debug mode is active on Lobster host {ALLOWED_HOSTS}")
+    INTERNAL_IPS = ['172.28.142.169']
     DEBUG = True
     DEV = True
+    DEBUG_TOOLBAR_PANELS = [
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.headers.HeadersPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.cache.CachePanel',
+        'debug_toolbar.panels.signals.SignalsPanel',
+        'debug_toolbar.panels.logging.LoggingPanel',
+        'debug_toolbar.panels.redirects.RedirectsPanel',
+        'debug_toolbar.panels.profiling.ProfilingPanel',
+    ]
+    log.debug(f"Debug mode is active on Lobster hosts! {ALLOWED_HOSTS}")
 else:
     DEBUG = False
     DEV = False
@@ -54,8 +72,8 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'rest_framework',
     'rest_framework.authtoken',
+    'debug_toolbar',
     # 'rest_auth',
-    # 'django_celery_results',
     'django_celery_beat',
     'octo',
     'octo_adm',
@@ -67,6 +85,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -74,10 +93,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # https://docs.djangoproject.com/en/3.0/topics/cache/#the-per-site-cache
-    # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 CACHES = {
@@ -127,8 +143,8 @@ DATABASES = {
         'PORT': cred['PORT'],
         'CONN_MAX_AGE': 3600,
         'OPTIONS': {
-            # 'read_default_file': '/etc/my.cnf',
-            'read_default_file': '/etc/my.cnf.d/win_mysql.cnf',
+            'read_default_file': '/etc/my.cnf',
+            # 'read_default_file': '/etc/my.cnf.d/win_mysql.cnf',
             # 'init_command': 'SET default_storage_engine=INNODB;'
             # 'init_command': 'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',
             # 'init_command': 'SET default_storage_engine=INNODB',
@@ -171,10 +187,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 200,
+    'PAGE_SIZE': 500,
 
 }
-
 
 # https://docs.djangoproject.com/en/2.0/topics/email/
 EMAIL_HOST = cred['EMAIL_HOST']
@@ -182,19 +197,14 @@ EMAIL_HOST = cred['EMAIL_HOST']
 # Mail addr:
 if cred['LOBSTER_HOST'] in CURR_HOSTNAME:
     EMAIL_ADDR = cred['LOBSTER_EMAIL_ADDR']
-elif cred['OCTOPUS_HOST'] in CURR_HOSTNAME:
-    EMAIL_ADDR = cred['OCTOPUS_EMAIL_ADDR']
-else:
-    EMAIL_ADDR = cred['LOCAL_EMAIL_ADDR']
-
-# Site domain:
-if cred['LOBSTER_HOST'] in CURR_HOSTNAME:
     SITE_DOMAIN = cred['LOBSTER_SITE_DOMAIN']
     SITE_SHORT_NAME = cred['LOBSTER_SITE_SHORT_NAME']
 elif cred['OCTOPUS_HOST'] in CURR_HOSTNAME:
+    EMAIL_ADDR = cred['OCTOPUS_EMAIL_ADDR']
     SITE_DOMAIN = cred['OCTOPUS_SITE_DOMAIN']
     SITE_SHORT_NAME = cred['OCTOPUS_SITE_SHORT_NAME']
 else:
+    EMAIL_ADDR = cred['LOCAL_EMAIL_ADDR']
     SITE_DOMAIN = '127.0.0.1:8000'
     SITE_SHORT_NAME = 'LocalHost'
 
@@ -214,7 +224,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # https://github.com/maxtepkeev/architect/issues/38
 # https://github.com/celery/django-celery/issues/359

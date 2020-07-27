@@ -18,6 +18,7 @@ from datetime import datetime, timezone, timedelta
 from time import time, sleep
 
 import pytz
+from django.db.models import Max
 from django.db.models.query import QuerySet
 
 from django.conf import settings
@@ -49,6 +50,7 @@ class LocalPatternsParse:
     """
     New parsing methods with walk fs
     """
+
     def walk_fs_tests(self, local_depot_path):
         """
         Use os.filewalk to build all paths to test.py and attributes such as:
@@ -107,7 +109,8 @@ class LocalPatternsParse:
                         tkn_branch = 'not_set'
 
                     if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
-                        split_root = root.split(os.sep)[6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
+                        split_root = root.split(os.sep)[
+                                     6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
                         test_dict.update(
                             test_type='tku_patterns',
                             tkn_branch=tkn_branch,
@@ -346,7 +349,8 @@ class LocalPatternsP4Parse:
         if int(latest_change.get('change', 0)) > int(test_case.change if test_case.change else 0):
             self.parse_and_save_changes(test_case, latest_change, sync_force, p4_conn=p4_conn)
             log.debug("%s Change update in db", th_name)
-            msg = 'Updated: {} -> {} -> {}'.format(latest_change.get('change', 0), test_case.test_case_depot_path, test_case.change)
+            msg = 'Updated: {} -> {} -> {}'.format(latest_change.get('change', 0), test_case.test_case_depot_path,
+                                                   test_case.change)
         else:
             # log.debug("%s Change is actual - skip", th_name)
             msg = ''
@@ -382,24 +386,25 @@ class LocalPatternsP4Parse:
 
         # Thread-cases pairs:
         for thread_i, cases_list in zip(threads, split_patt):
-            cases_threads.update({'thread-{}'.format(str(thread_i)): dict(cases_list=collections.deque(cases_list), thread=thread_i)})
+            cases_threads.update(
+                {'thread-{}'.format(str(thread_i)): dict(cases_list=collections.deque(cases_list), thread=thread_i)})
 
         log.debug("Filling threads with jobs...")
-        for thread_i, cases in cases_threads.items():       # Iter each thread and cases in it:
+        for thread_i, cases in cases_threads.items():  # Iter each thread and cases in it:
 
-            conn_q = Queue()                                      # Separate Queue for p4 connection store
-            p4_conn = PerforceOperations().p4_initialize()        # Init p4 connection for single thread-worker
-            conn_q.put(p4_conn)                                   # Put active connection in queue for all threads
+            conn_q = Queue()  # Separate Queue for p4 connection store
+            p4_conn = PerforceOperations().p4_initialize()  # Init p4 connection for single thread-worker
+            conn_q.put(p4_conn)  # Put active connection in queue for all threads
 
             log.debug("Filling threads for thread: {}".format(thread_i))
-            cases_list = cases.get('cases_list')                  # Choose cases list from dict of threads+cases
+            cases_list = cases.get('cases_list')  # Choose cases list from dict of threads+cases
 
-            while 0 < len(cases_list):                            # Each pattern generates own process
-                test_case = cases_list.popleft()                  # When assigned to thread - delete item
+            while 0 < len(cases_list):  # Each pattern generates own process
+                test_case = cases_list.popleft()  # When assigned to thread - delete item
                 th_name = 'Parse thread: {} test case: {}'.format(thread_i, test_case.test_case_depot_path)  # type: str
                 args_d = dict(test_case=test_case, th_name=th_name, test_q=test_q, conn_q=conn_q, sync_force=sync_force)
                 parse_thread = Thread(target=LocalPatternsP4Parse().compare_change_thread, name=th_name, kwargs=args_d)
-                thread_list.append(parse_thread)                  # Save list of threads for further execution
+                thread_list.append(parse_thread)  # Save list of threads for further execution
 
         # Execute threads:
         log.debug("Executing saved threads!")
@@ -429,9 +434,9 @@ class LocalPatternsP4Parse:
         assert isinstance(test_case, TestCases)
         assert isinstance(latest_change, dict)
         p4_change = int(latest_change.get('change', None))
-        p4_time   = latest_change.get('time', None)
-        p4_user   = latest_change.get('user', None)
-        p4_desc   = latest_change.get('desc', None)
+        p4_time = latest_change.get('time', None)
+        p4_user = latest_change.get('user', None)
+        p4_desc = latest_change.get('desc', None)
         test_case_depot_path_ = test_case.test_case_depot_path + '...'
 
         test_case_name = test_case.pattern_folder_name if test_case.pattern_folder_name else test_case.test_case_dir
@@ -456,12 +461,12 @@ class LocalPatternsP4Parse:
         change_time = p4_utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=self.lon_tz)  # set London time
 
         # Save newly parsed data to table:
-        test_case.change        = p4_change
-        test_case.change_desc   = p4_desc
-        test_case.change_user   = p4_user
+        test_case.change = p4_change
+        test_case.change_desc = p4_desc
+        test_case.change_user = p4_user
         test_case.change_review = change_desc_dict.get('review', None)
         test_case.change_ticket = change_desc_dict.get('ticket', None)
-        test_case.change_time   = change_time
+        test_case.change_time = change_time
 
         # test_case.save()
         test_case.save(update_fields=[
@@ -584,43 +589,35 @@ class LocalPatternsP4Parse:
         """
         _files_synced_plan = []
         _files_synced_actually = []
-        if not settings.DEV:
-            from django.db.models import Max
 
-            p4_conn = PerforceOperations().p4_initialize(debug=True)
+        p4_conn = PerforceOperations().p4_initialize(debug=True)
+        change_max_q = TestCases.objects.all().aggregate(Max('change'))
+        change_max = change_max_q.get('change__max', '312830')  # default change from 2015
+        log.debug("change_max: %s", change_max)
 
-            change_max_q = TestCases.objects.all().aggregate(Max('change'))
-            change_max = change_max_q.get('change__max', '312830')  # default change from 2015
-            log.debug("change_max: %s", change_max)
+        p4_filelog = self.get_latest_filelog(depot_path=None, change_max=change_max, p4_conn=p4_conn)
+        if p4_filelog:
 
+            for p4_file in p4_filelog:
+                file_path = p4_file.get('depotFile', None)
+                if not p4_file.get('action', None) == 'delete':
+                    synced = PerforceOperations().p4_sync(path=file_path, force=True, p4_conn=p4_conn)
+                    _files_synced_plan.append(file_path)
+                    if synced:
+                        _files_synced_actually.append(synced[0].get('clientFile', None))
+                    log.debug("This will be synced: %s - %s", file_path, p4_file.get('action', None))
+                else:
+                    log.debug("This should be deleted: %s", file_path)
 
-            p4_filelog = self.get_latest_filelog(depot_path=None, change_max=change_max, p4_conn=p4_conn)
-            if p4_filelog:
-
-                for p4_file in p4_filelog:
-                    file_path = p4_file.get('depotFile', None)
-                    if not p4_file.get('action', None) == 'delete':
-                        synced = PerforceOperations().p4_sync(path=file_path, force=True, p4_conn=p4_conn)
-                        _files_synced_plan.append(file_path)
-                        if synced:
-                            _files_synced_actually.append(synced[0].get('clientFile', None))
-                        log.debug("This will be synced: %s - %s", file_path, p4_file.get('action', None))
-                    else:
-                        log.debug("This should be deleted: %s", file_path)
-
-            log.debug("Synced files_synced_plan: %s %s", len(_files_synced_plan), _files_synced_plan)
-            log.debug("Synced files_synced_actually: %s %s", len(_files_synced_actually), _files_synced_actually)
-            # Both should be equal:
-            if len(_files_synced_plan) == len(_files_synced_actually):
-                log.info("Change / synced files lists are equal")
-            else:
-                log.warning("Change / synced files lists are NOT equal!")
-
-            self.parse_and_changes_routine(sync_force=False, full=True, p4_conn=p4_conn)
-            # TODO: Add RabbitMQ message when finished!
+        log.debug("Synced files_synced_plan: %s %s", len(_files_synced_plan), _files_synced_plan)
+        log.debug("Synced files_synced_actually: %s %s", len(_files_synced_actually), _files_synced_actually)
+        # Both should be equal:
+        if len(_files_synced_plan) == len(_files_synced_actually):
+            log.info("Change / synced files lists are equal")
         else:
-            log.info("DEV HOST, EMULATE WORK!")
+            log.warning("Change / synced files lists are NOT equal!")
 
+        self.parse_and_changes_routine(sync_force=False, full=True, p4_conn=p4_conn)
         return {'files_synced_plan': _files_synced_plan, 'files_synced_actually': _files_synced_actually}
 
 
@@ -840,13 +837,15 @@ class LocalDownloads:
 
         # Compose download wget cmd for each sprint TKN
         for sprint in release_sprints:
-            wget_sprints_html = wget_rec.format(cut=3, ftp=sprint, dir=download_paths_d['released_tkn'], excl=exclude_dirs)
+            wget_sprints_html = wget_rec.format(cut=3, ftp=sprint, dir=download_paths_d['released_tkn'],
+                                                excl=exclude_dirs)
             if wget_sprints_html not in wget_cmd_d:
                 wget_cmd_d.update(released_tkn=wget_sprints_html)
 
         # GA Candidate -  Compose download wget cmd for each sprint TKN
         for ga_candidate in ga_candidates:
-            ga_candidate_html = wget_rec.format(cut=1, ftp=ga_candidate, dir=download_paths_d['ga_candidate'], excl=exclude_dirs)
+            ga_candidate_html = wget_rec.format(cut=1, ftp=ga_candidate, dir=download_paths_d['ga_candidate'],
+                                                excl=exclude_dirs)
             if ga_candidate_html not in wget_cmd_d:
                 wget_cmd_d.update(ga_candidate=ga_candidate_html)
 
@@ -854,7 +853,8 @@ class LocalDownloads:
         for addm_va_d_item in buildhub_paths_d['addm_tkn_paths']:
             for va_k, va_v in addm_va_d_item.items():
                 # local_path_to_zip = download_paths_d['addm_released']+va_k
-                wget_addm_va = wget_rec.format(cut=2, ftp=va_v, dir=download_paths_d['addm_released'], excl=exclude_dirs)
+                wget_addm_va = wget_rec.format(cut=2, ftp=va_v, dir=download_paths_d['addm_released'],
+                                               excl=exclude_dirs)
                 if wget_addm_va not in wget_cmd_d:
                     # log.debug("<=LocalDownloads=> Download ADDM VA: %s %s", va_k, wget_addm_va)
                     wget_cmd_d.update(addm_released=wget_addm_va)
@@ -1328,10 +1328,12 @@ class LocalDownloads:
             # Compare md5sum of current package with get:
             if get_if_exist:
                 # When md5sum is different OR release.txt is different - update current record:
-                if not get_if_exist.zip_file_md5_digest == package['zip_file_md5_digest'] or not get_if_exist.release == package['release']:
+                if not get_if_exist.zip_file_md5_digest == package['zip_file_md5_digest'] or not get_if_exist.release == \
+                                                                                                 package['release']:
 
                     if not get_if_exist.zip_file_md5_digest == package['zip_file_md5_digest']:
-                        log.debug("<=UPDATE=> MD5SUM (%s) != (%s)", get_if_exist.zip_file_md5_digest, package['zip_file_md5_digest'])
+                        log.debug("<=UPDATE=> MD5SUM (%s) != (%s)", get_if_exist.zip_file_md5_digest,
+                                  package['zip_file_md5_digest'])
                     if not get_if_exist.release == package['release']:
                         log.debug("<=UPDATE=> RELEASE (%s) != (%s)", get_if_exist.release, package['release'])
 

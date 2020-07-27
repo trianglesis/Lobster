@@ -21,6 +21,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import loader
 from django.utils import timezone
+from run_core.models import TaskExceptionLog
 
 from octo.helpers.tasks_mail_send import Mails
 from run_core.models import Options, MailsTexts
@@ -74,7 +75,7 @@ def exception(function):
             log.error(f"Task Exception: {error_d}")
             try:
                 item_sort = json.dumps(error_d, indent=2, ensure_ascii=False, default=pformat)
-                log.error(f"Task Exception: {e}")
+                log.error(f"Task Exception: {e} {item_sort}")
             except TypeError:
                 log.error(f"Task Exception: {error_d}")
             if settings.DEV:
@@ -103,33 +104,30 @@ class TMail:
         self.m_user_test = m_user_test.option_value.replace(' ', '').split(',')
 
     def mail_log(self, function, e, _args, _kwargs):
-        user_email = _kwargs.get('user_email', None)
-        if not user_email:
-            request = _kwargs.get('request', None)
-            if request:
-                user_email = request.get('user_email', self.m_service)
-
+        user_email = _kwargs.get('user_email', False)
+        send_to = []
+        if user_email:
+            send_to.append(user_email)
+        send_to.extend(self.m_service)
         # When something bad happened - use selected text object to fill mail subject and body:
-        log.error(f'<=TASK Exception=> Selecting mail txt for: "{function.__module__}.{function.__name__}"')
-
+        log.error(f'<=TASK Exception mail_log=> Selecting mail txt for: "{function.__module__}.{function.__name__}"')
         try:
             mails_txt = MailsTexts.objects.get(mail_key__contains=f'{function.__module__}.{function.__name__}')
         except ObjectDoesNotExist:
             mails_txt = MailsTexts.objects.get(mail_key__contains='general_exception')
 
         subject = f'Exception: {mails_txt.subject} | {curr_hostname}'
-        log.debug(f"Selected mail subject: {subject} send to: {user_email}")
+        log.debug(f"<=TASK Exception mail_log=> Selected mail subject: {subject} send to: {send_to}")
         body = f' - Body: {mails_txt.body} \n - Exception: {e} \n - Explain: {mails_txt.description}' \
                f'\n\n\t - args: {_args} \n\t - kwargs: {_kwargs}' \
                f'\n\t - key: {mails_txt.mail_key}' \
                f'\n\t - occurred in: {function.__module__}.{function.__name__}'
-
-        Mails.short(subject=subject, body=body, send_to=[user_email])
+        TaskExceptionLog(subject=subject, details=body, user_email=send_to).save()
+        Mails.short(subject=subject, body=body, send_to=send_to)
 
     def t_fail(self, function, err, *args, **kwargs):
         log.error("<=Task helpers=> %s", '({}) : ({}) Task failed!'.format(curr_hostname, function.__name__))
         task_limit = loader.get_template('service/emails/statuses/task_details.html')
-
         # Try to get user email if present:
         user_email = kwargs.get('user_email', self.m_service)
 

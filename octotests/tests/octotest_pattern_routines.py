@@ -316,9 +316,9 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
     def test_999_local_debug(self):
-        date_from = now - datetime.timedelta(days=int(10))
-        self.silent_on(False)
-        self.fake_run_on(True)
+        date_from = now - datetime.timedelta(days=int(2))
+        # self.silent_on(False)
+        # self.fake_run_on(False)
         self.wipe_logs_on(False)
         self.branch = 'tkn_main'
         # self.queryset = self.queryset.filter(test_py_path__exact='/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/CORE/MicroStrategy/tests/test.py')
@@ -335,7 +335,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # Show all:
         for test in self.queryset:
             print(test)
-        self.addm_group_l = ['alpha']
+        self.addm_group_l = ['juliett']
+        # self.addm_group_l = ['alpha']
         # OR:
         # self.addm_set = self.addm_set.filter(
         #     addm_group__in=['alpha'],

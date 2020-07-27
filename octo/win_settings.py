@@ -30,14 +30,13 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'octo'))
 # noinspection SpellCheckingInspection
 SECRET_KEY = cred['SECRET_KEY']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-DEV = True
-
 CURR_HOSTNAME = socket.getfqdn()
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', CURR_HOSTNAME, socket.getfqdn(), socket.gethostbyname(socket.gethostname()),
                  socket.gethostname()]
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+DEV = True
 log.warning(f"WE'RE on DEBUG setting now! {__name__}")
 log.warning(f"ALLOWED HOSTS: {ALLOWED_HOSTS}")
 
@@ -59,7 +58,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     # 'rest_auth',
-    # 'django_celery_results',
     'django_celery_beat',
     'octo',
     'octo_adm',
@@ -80,10 +78,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # https://docs.djangoproject.com/en/3.0/topics/cache/#the-per-site-cache
-    # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 CACHES = {
@@ -98,7 +93,7 @@ CACHES = {
 }
 
 DEBUG_TOOLBAR_PANELS = [
-    # 'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.versions.VersionsPanel',
     'debug_toolbar.panels.timer.TimerPanel',
     'debug_toolbar.panels.settings.SettingsPanel',
     'debug_toolbar.panels.headers.HeadersPanel',
@@ -127,7 +122,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',
-                'django.template.context_processors.debug',
             ],
         },
     },
@@ -150,7 +144,8 @@ DATABASES = {
         'PORT': cred['PORT'],
         'CONN_MAX_AGE': 3600,
         'OPTIONS': {
-            'read_default_file': '/etc/my.cnf',
+            # 'read_default_file': '/etc/my.cnf',
+            'read_default_file': '/etc/my.cnf.d/win_mysql.cnf',
             # 'init_command': 'SET default_storage_engine=INNODB;'
             # 'init_command': 'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',
             # 'init_command': 'SET default_storage_engine=INNODB',
@@ -158,11 +153,10 @@ DATABASES = {
     }
 }
 
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
-    'static',
-    os.path.join('static', 'admin'),
+    os.path.join(STATIC_ROOT, 'admin'),
 )
 
 # Password validation
@@ -204,19 +198,14 @@ EMAIL_HOST = cred['EMAIL_HOST']
 # Mail addr:
 if cred['LOBSTER_HOST'] in CURR_HOSTNAME:
     EMAIL_ADDR = cred['LOBSTER_EMAIL_ADDR']
-elif cred['OCTOPUS_HOST'] in CURR_HOSTNAME:
-    EMAIL_ADDR = cred['OCTOPUS_EMAIL_ADDR']
-else:
-    EMAIL_ADDR = cred['LOCAL_EMAIL_ADDR']
-
-# Site domain:
-if cred['LOBSTER_HOST'] in CURR_HOSTNAME:
     SITE_DOMAIN = cred['LOBSTER_SITE_DOMAIN']
     SITE_SHORT_NAME = cred['LOBSTER_SITE_SHORT_NAME']
 elif cred['OCTOPUS_HOST'] in CURR_HOSTNAME:
+    EMAIL_ADDR = cred['OCTOPUS_EMAIL_ADDR']
     SITE_DOMAIN = cred['OCTOPUS_SITE_DOMAIN']
     SITE_SHORT_NAME = cred['OCTOPUS_SITE_SHORT_NAME']
 else:
+    EMAIL_ADDR = cred['LOCAL_EMAIL_ADDR']
     SITE_DOMAIN = '127.0.0.1:8000'
     SITE_SHORT_NAME = 'LocalHost'
 
