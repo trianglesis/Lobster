@@ -21,6 +21,7 @@ from octo_adm.tasks import TaskADDMService
 
 from octo_tku_upload.models import UploadTestsNew as UploadTests
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
+from run_core.models import UploadTaskPrepareLog
 
 log = logging.getLogger("octo.octologger")
 
@@ -76,8 +77,8 @@ class UploadTestExec:
         Run sequence of commands on each ADDM to prepare it for TKU Install.
         Usually just delete older TKU (to install released one later), restart services and so on.
         test_mode - fresh, update, step, tideway_content, tideway_devices
+        Each cmd is a separate task
         """
-        user_email = kwargs.get('user_email', None)
         addm_items = kwargs.get('addm_items', None)
         test_mode = kwargs.get('test_mode', None)
         step_k = kwargs.get('step_k', None)
@@ -87,9 +88,10 @@ class UploadTestExec:
         preps = self.preparation_steps[test_mode]
         for operation in preps:
             operation_cmd = ADDMStaticOperations.select_operation(operation).first()
-            log.info(f"<=UploadTestExec=> Running: {operation} selected: {operation_cmd.command_key} for ADDM set in task mode.")
+            log.info(
+                f"<=UploadTestExec=> Running: {operation} selected: {operation_cmd.command_key} for ADDM set in task mode.")
             # Alternate run: execute each as separate task with single CMD:
-            t_tag = f'tag=t_addm_cmd_thread;addm_group={addm_group};user_email={user_email};' \
+            t_tag = f'tag=t_addm_cmd_thread;addm_group={addm_group};' \
                     f'command_k={operation_cmd.command_key};'
             t_kwargs = dict(addm_set=addm_items, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
@@ -98,11 +100,10 @@ class UploadTestExec:
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
                           t_routing_key=f'{addm_group}.upload_preparations.TaskADDMService.t_addm_cmd_thread')
-
-        subject = f"TKU_Upload_routines | upload_preparations | {step_k} |  {addm_group} | Executed!"
-        body = f"ADDM group: {addm_group}\ntest_mode: {test_mode}\nstep_k: {step_k}\npreps: {preps}"
-        # Mails.short(subject=subject, body=body, send_to=[user_email])
-        return f'upload_preparations CMD: {preps} mail: {body}'
+        UploadTaskPrepareLog(
+            subject=f"TKU_Upload_routines | upload_preparations | {step_k} |  {addm_group} | Executed!",
+            details=f"ADDM group: {addm_group}\ntest_mode: {test_mode}\nstep_k: {step_k}\npreps: {preps}").save()
+        return f'upload_preparations CMD: {preps}'
 
     @exception
     def upload_unzip_threads(self, **kwargs):
@@ -112,7 +113,6 @@ class UploadTestExec:
         :param kwargs:
         :return:
         """
-        user_email = kwargs.get('user_email', None)
         addm_items = kwargs.get('addm_items', None)
         packages = kwargs.get('packages', None)
         test_mode = kwargs.get('test_mode', None)
@@ -151,14 +151,11 @@ class UploadTestExec:
             test_th.join()
             th_out = test_q.get()
             thread_outputs.append(th_out)
-        log.info(f"ADDM Unzip TKUs output: {thread_outputs}")
-        # Email confirmation when execution was finished:
-        subject = f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!"
-        log.info(subject)
         body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
                f"\n\ttku_type: {pack.tku_type}, \n\tpackage_type: {pack.package_type}, \n\tstart_time: {start_time}, " \
                f"\n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
-        # Mails.short(subject=subject, body=body, send_to=[user_email])
+        UploadTaskPrepareLog(subject=f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!",
+                             details=body).save()
         return f'upload_unzip_threads Took {time() - ts} {body}'
 
     @exception
@@ -218,8 +215,6 @@ class UploadTestExec:
             test_th.join()
             th_out = test_q.get()
             thread_outputs.append(th_out)  # {addm_item:addm_item, output:upload_outputs_d}
-            msg = f'tku_type={packages[0].tku_type};package_type={packages[0].package_type};' \
-                  f'test_mode={test_mode}:step_k={step_k};package_detail={package_detail}'
             self.model_save_insert(th_out=th_out, test_mode=test_mode, mode_key=mode_key, packages=packages, ts=ts)
 
         # Email confirmation when execution was finished:
@@ -228,6 +223,8 @@ class UploadTestExec:
         body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, tku_type: {pack.tku_type}, " \
                f"package_type: {pack.package_type}, package_detail: {package_detail}, " \
                f"start_time: {start_time}, time spent: {time() - ts} mode_key={mode_key} "
+        UploadTaskPrepareLog(subject=subject,
+                             details=body).save()
         Mails.short(subject=subject, body=body, send_to=[user_email])
         return f'install_tku_threads Took {time() - ts} {body}'
 

@@ -349,9 +349,9 @@ class PatternTestUtils(unittest.TestCase):
         mail_kwargs.update(
             branch=self.branch,
             addm_coll=addm_coll,
-            addm_groups = self.addm_group_l,
+            addm_groups=self.addm_group_l,
             addm_tests=addm_coll.get('tests', []),
-            addm_test_pairs = self.addm_tests_balanced,
+            addm_test_pairs=self.addm_tests_balanced,
             all_tests=self.queryset,
             addm_set=self.addm_set,
             addm_tests_weight=addm_coll.get('all_tests_weight'),
@@ -366,9 +366,8 @@ class PatternTestUtils(unittest.TestCase):
                       t_queue=f'{addm_group}@tentacle.dq2',
                       t_args=[tag],
                       t_kwargs=mail_kwargs,
-                      t_routing_key=f'z_{addm_group}.night_routine_mail.{mode}',)
+                      t_routing_key=f'z_{addm_group}.night_routine_mail.{mode}', )
         return True
-
 
 
 class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):

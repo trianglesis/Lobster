@@ -1,8 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
 from django.forms import TextInput, Textarea
-from django_ftpserver.models import *
 
 from octo.common.paginator import TimeLimitedPaginator
 from octo_tku_patterns.model_views import *
@@ -93,8 +91,10 @@ class AddmDevAdmin(admin.ModelAdmin):
 class AddmDevProxyAdmin(admin.ModelAdmin):
     """ https://djangobook.com/mdj2-django-admin/ """
     # https://djangoguide.readthedocs.io/en/latest/django/admin.html#editable-fields
-    list_editable = ('addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
-    list_display = ('id', 'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
+    list_editable = (
+    'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
+    list_display = (
+    'id', 'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
     list_filter = ('addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version', 'disables',)
     ordering = ('addm_group',)
     search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group')
@@ -204,6 +204,7 @@ class TaskPrepareLogAdmin(admin.ModelAdmin):
     list_filter = ('user_email', 'created_at')
     ordering = ('-created_at',)
 
+
 @admin.register(PatternTestUtilsLog)
 class PatternTestUtilsLogAdmin(admin.ModelAdmin):
     fields = (
@@ -218,6 +219,23 @@ class PatternTestUtilsLogAdmin(admin.ModelAdmin):
     list_display = ('subject', 'user_email', 'created_at')
     list_filter = ('user_email', 'created_at')
     ordering = ('-created_at',)
+
+
+@admin.register(UploadTaskPrepareLog)
+class UploadTaskPrepareLogAdmin(admin.ModelAdmin):
+    fields = (
+        (
+            'subject',
+            'user_email',
+            'details',
+            'created_at',
+        )
+    )
+    readonly_fields = ('created_at',)
+    list_display = ('subject', 'user_email', 'created_at')
+    list_filter = ('user_email', 'created_at')
+    ordering = ('-created_at',)
+
 
 @admin.register(OctoCacheStore)
 class OctoCacheStoreAdmin(admin.ModelAdmin):
@@ -237,6 +255,7 @@ class OctoCacheStoreAdmin(admin.ModelAdmin):
     list_display = ('key', 'hashed', 'ttl', 'counter', 'created_time', 'name',)
     list_filter = ('name', 'key', 'created_time',)
     ordering = ('-created_time',)
+
 
 @admin.register(TestCases)
 class TestCasesAdmin(admin.ModelAdmin):
@@ -394,7 +413,7 @@ class TestLastAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 ('tkn_branch',),
-                ('pattern_library', 'pattern_folder_name', ),
+                ('pattern_library', 'pattern_folder_name',),
                 ('test_py_path',),
                 ()
             )
@@ -421,6 +440,7 @@ class TestLastAdmin(admin.ModelAdmin):
         }),
     )
     list_per_page = 100
+
 
 @admin.register(TestLatestDigestAll)
 class TestLatestDigestAllAdmin(admin.ModelAdmin):
@@ -449,7 +469,7 @@ class TestLatestDigestAllAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 ('tkn_branch',),
-                ('pattern_library', 'pattern_folder_name', ),
+                ('pattern_library', 'pattern_folder_name',),
                 ('test_py_path',),
                 ()
             )
@@ -462,6 +482,7 @@ class TestLatestDigestAllAdmin(admin.ModelAdmin):
         }),
     )
     list_per_page = 100
+
 
 @admin.register(TestHistory)
 class TestHistoryAdmin(admin.ModelAdmin):
@@ -490,7 +511,7 @@ class TestHistoryAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 ('tkn_branch',),
-                ('pattern_library', 'pattern_folder_name', ),
+                ('pattern_library', 'pattern_folder_name',),
                 ('test_py_path',),
                 ()
             )
@@ -522,7 +543,6 @@ class TestHistoryAdmin(admin.ModelAdmin):
 # UPLOAD:
 @admin.register(TkuPackagesNew)
 class TkuPackagesNewAdmin(admin.ModelAdmin):
-
     readonly_fields = ('zip_file_md5_digest', 'updated_at', 'created_at', 'release',)
 
     list_display = (
@@ -560,7 +580,6 @@ class TkuPackagesNewAdmin(admin.ModelAdmin):
 
 @admin.register(UploadTestsNew)
 class UploadTestsNewAdmin(admin.ModelAdmin):
-
     readonly_fields = ('time_spent_test', 'test_date_time')
 
     list_display = (
@@ -657,6 +676,7 @@ class CeleryTaskmetaAdmin(admin.ModelAdmin):
         'queue',
     )
 
+
 @admin.register(DjangoContentType)
 class DjangoContentTypeAdmin(admin.ModelAdmin):
     fields = (
@@ -665,6 +685,7 @@ class DjangoContentTypeAdmin(admin.ModelAdmin):
     )
     list_display = ('app_label', 'model')
     list_filter = ('app_label', 'model')
+
 
 @admin.register(DjangoMigrations)
 class DjangoMigrationsAdmin(admin.ModelAdmin):
