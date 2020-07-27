@@ -130,7 +130,8 @@ class UploadTestExec:
         test_q = Queue()
         start_time = datetime.now()
 
-        if not settings.DEV:
+        fake_run = True
+        if fake_run:
             for addm_item in addm_items:
                 ssh = ADDMOperations().ssh_c(addm_item=addm_item)
                 if ssh and ssh.get_transport().is_active():
@@ -190,7 +191,8 @@ class UploadTestExec:
         else:
             mode_key = f'{pack.tku_type}.{test_mode}.{step_k}'
 
-        if not settings.DEV:
+        fake_run = True
+        if fake_run:
             for addm_item in addm_items:
                 addm_group = addm_item['addm_group']
                 msg = f"<=Upload TKU Install Thread=> {addm_item['addm_name']}:{addm_item['addm_v_int']} mode_key={mode_key}"

@@ -359,7 +359,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.run_case()
 
     def test999_tkn_main_continuous_fresh(self):
-        self.silent = True
+        self.silent = False
         self.tku_wget = True
         self.fake_run = True
         self.test_mode = 'fresh'

@@ -358,8 +358,8 @@ class UploadTaskPrepare:
 
         if options:
             for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
-                options.update(addm_items=addm_items, addm_group=addm_group, step_k=step_k, user_email=self.user_email,
-                               fake_run=self.fake_run)
+                options.update(fake_run=self.fake_run,
+                               addm_items=addm_items, addm_group=addm_group, step_k=step_k, user_email=self.user_email)
                 UploadTaskPrepareLog(
                     subject=f"UploadTaskPrepare | addm_prepare | {self.test_mode} | {addm_group} | {step_k}",
                     details=f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, ").save()
@@ -382,8 +382,7 @@ class UploadTaskPrepare:
                 subject=f"UploadTaskPrepare | t_upload_unzip | {self.test_mode} | {addm_group} | {step_k}",
                 details=f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k} packages: {list(packs)}").save()
             task = Runner.fire_t(TUploadExec.t_upload_unzip,
-                                 # fake_run=self.fake_run,
-                                 fake_run=False,
+                                 fake_run=self.fake_run,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[f"UploadTaskPrepare;task=t_upload_unzip;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],
@@ -403,8 +402,7 @@ class UploadTaskPrepare:
                 subject=f"UploadTaskPrepare | t_tku_install | {self.test_mode} | {addm_group} | {step_k}",
                 details=f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k} packages: {list(packs)}, package_detail: {self.package_detail}").save()
             task = Runner.fire_t(TUploadExec.t_tku_install,
-                                 # fake_run=self.fake_run,
-                                 fake_run=False,
+                                 fake_run=self.fake_run,
                                  t_queue=f"{addm_group}@tentacle.dq2",
                                  t_args=[f"UploadTaskPrepare;task=t_tku_install;test_mode={self.test_mode};"
                                          f"addm_group={addm_group};user={self.user_name}"],
@@ -421,7 +419,6 @@ class UploadTaskPrepare:
                 # digests.TKUEmailDigest.upload_daily_fails_warnings
                 task = Runner.fire_t(MailDigests.t_upload_digest,
                                      fake_run=self.fake_run,
-                                     # fake_run=False,
                                      t_queue=f"{addm_group}@tentacle.dq2",
                                      t_args=[
                                          f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
@@ -437,7 +434,6 @@ class UploadTaskPrepare:
                 # digests.TKUEmailDigest.upload_daily_fails_warnings
                 task = Runner.fire_t(MailDigests.t_upload_digest,
                                      fake_run=self.fake_run,
-                                     # fake_run=False,
                                      t_queue=f"{addm_group}@tentacle.dq2",
                                      t_args=[
                                          f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
