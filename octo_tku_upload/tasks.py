@@ -11,7 +11,7 @@ from celery.utils.log import get_task_logger
 from django.db.models import Max
 from django.contrib.auth.models import User
 
-from octo.helpers.tasks_helpers import exception, db_logger
+from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
 # Celery

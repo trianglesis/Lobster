@@ -2,7 +2,7 @@
 {% block content %}
 {% load template_simplify %}
 {% load tz %}
-    {% if SUBJECT %}
+    {% if subject %}
         <table>
             <thead>
                 <tr>
@@ -11,23 +11,23 @@
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="2">{{ SUBJECT }}</td></tr>
+                <tr><td colspan="2">{{ subject }}</td></tr>
                 <tr>
                     <td>Started at: </td>
-                    <td><b>{{ START_TIME|timezone:"Europe/London"|date:'Y-m-d H:i' }}</b></td>
+                    <td><b>{{ start_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</b></td>
                 </tr>
-                {% if 'start' in MAIL_KWARGS.mode %}
+                {% if 'start' in mode %}
                     <tr><td colspan="2">Night routine has been started. Next mail will indicate when worker start to execute tests on selected group of addms. Following options were used:</td></tr>
-                {% elif 'run' in MAIL_KWARGS.mode %}
+                {% elif 'run' in mode %}
                     <tr><td colspan="2">Night routine has collected all tests and balance them between all available workers. This mail indicate when tests portion were started on one of selected workers. More details are available below.</td></tr>
-                {% elif 'fin' in MAIL_KWARGS.mode %}
+                {% elif 'fin' in mode %}
                     <tr>
                         <td>Finished at: </td>
-                        <td><b>{{ FINISH_TIME|timezone:"Europe/London"|date:'Y-m-d H:i' }}</b></td>
+                        <td><b>{{ finish_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</b></td>
                     </tr>
                     <tr>
                          <td>Time spent: </td>
-                         <td><b>{{ TIME_SPENT }}</b></td>
+                         <td><b>{{ time_spent }}</b></td>
                     </tr>
                     <tr><td colspan="2">Night routine has finish its work in selected group. This means that current worker has finished its queue and now empty.</td></tr>
                     <tr><td colspan="2">This is confirmation mail!</td></tr>
@@ -47,7 +47,7 @@
             </tr>
         </thead>
         <tbody>
-            {% if 'start' in MAIL_KWARGS.mode %}
+            {% if 'start' in mode %}
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Current status</td>
@@ -71,14 +71,14 @@
                 </tr>
                     <td class="table-dark"> - </td>
                     <td>Start time: </td>
-                    <td>{{ START_TIME|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+                    <td>{{ start_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>TKN branch: </td>
-                    <td>{{ MAIL_KWARGS.branch }}</td>
+                    <td>{{ branch }}</td>
                 </tr>
 
-            {% elif 'run' in MAIL_KWARGS.mode %}
+            {% elif 'run' in mode %}
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Current status</td>
@@ -87,54 +87,54 @@
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>TKN branch: </td>
-                    <td>{{ MAIL_KWARGS.branch }}</td>
+                    <td>{{ branch }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Start time: </td>
-                    <td>{{ START_TIME|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+                    <td>{{ start_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>ADDM group: </td>
-                    <td>{{ MAIL_KWARGS.addm_group }}</td>
+                    <td>{{ addm_group }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>ADDM Group(s) selected: </td>
-                    <td>{{ MAIL_KWARGS.addm_group_l }}</td>
+                    <td>{{ addm_groups|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>ADDM per test sets: </td>
-                    <td>{{ MAIL_KWARGS.addm_test_pairs }}</td>
+                    <td>{{ addm_test_pairs|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Current group tests queue: </td>
-                    <td>{{ MAIL_KWARGS.test_items_len }}</td>
+                    <td>{{ addm_tests|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Overall tests selected: </td>
-                    <td>{{ MAIL_KWARGS.all_tests }}</td>
+                    <td>{{ all_tests|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Available ADDM machines in group: </td>
-                    <td>{{ MAIL_KWARGS.addm_used }}</td>
+                    <td>{{ addm_set|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>All tests exec time summary: </td>
-                    <td>{{ MAIL_KWARGS.all_tests_weight | f_sec}}</td>
+                    <td>{{ addm_tests_weight | f_sec}}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Current group average time: </td>
-                    <td>{{ MAIL_KWARGS.tent_avg | f_sec }}</td>
+                    <td>{{ tent_avg | f_sec }}</td>
                 </tr>
-            {% elif 'fin' in MAIL_KWARGS.mode %}
+            {% elif 'fin' in mode %}
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Current status</td>
@@ -143,62 +143,62 @@
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>TKN branch: </td>
-                    <td>{{ MAIL_KWARGS.branch }}</td>
+                    <td>{{ branch }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Start time: </td>
-                    <td>{{ START_TIME|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+                    <td>{{ start_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>ADDM group: </td>
-                    <td>{{ MAIL_KWARGS.addm_group }}</td>
+                    <td>{{ addm_group }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>ADDM Group(s) selected: </td>
-                    <td>{{ MAIL_KWARGS.addm_group_l }}</td>
+                    <td>{{ addm_groups|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>ADDM per test sets: </td>
-                    <td>{{ MAIL_KWARGS.addm_test_pairs }}</td>
+                    <td>{{ addm_test_pairs|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Current group tests queue: </td>
-                    <td>{{ MAIL_KWARGS.test_items_len }}</td>
+                    <td>{{ addm_tests|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Overall tests selected: </td>
-                    <td>{{ MAIL_KWARGS.all_tests }}</td>
+                    <td>{{ all_tests|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Available ADDM machines in group: </td>
-                    <td>{{ MAIL_KWARGS.addm_used }}</td>
+                    <td>{{ addm_set|length }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Finished at: </td>
-                    <td>{{ FINISH_TIME|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
+                    <td>{{ finish_time|timezone:"Europe/London"|date:'Y-m-d H:i' }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Time stamp: </td>
-                    <td>{{ TIME_SPENT }}</td>
+                    <td>{{ time_spent }}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>All tests exec time summary: </td>
-                    <td>{{ MAIL_KWARGS.all_tests_weight | f_sec}}</td>
+                    <td>{{ addm_tests_weight | f_sec}}</td>
                 </tr>
                 <tr>
                     <td class="table-dark"> - </td>
                     <td>Current group average time: </td>
-                    <td>{{ MAIL_KWARGS.tent_avg | f_sec }}</td>
+                    <td>{{ tent_avg | f_sec }}</td>
                 </tr>
             {% endif %}
             {% if MAIL_KWARGS.EXTRA_ARGS %}

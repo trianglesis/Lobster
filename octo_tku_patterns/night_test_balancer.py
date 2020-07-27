@@ -8,6 +8,8 @@ import copy
 import collections
 from operator import itemgetter
 
+from django.db.models import QuerySet
+
 from run_core.models import Options
 from run_core.addm_operations import ADDMStaticOperations
 
@@ -20,7 +22,7 @@ log = logging.getLogger("octo.octologger")
 class BalanceNightTests:
 
     @staticmethod
-    def test_items_sorting(test_items, exclude=None):
+    def _test_items_sorting(test_items, exclude=None):
         """
         Use selected items from django model query and sort out any duplicates for test.py path
             and create the list with all unique tests and only required fields.
@@ -37,6 +39,7 @@ class BalanceNightTests:
             test_items = test_items.exclude(pattern_folder_name__in=exclude)
             log.info("<=test_items_sorting=> All amount of tests after exclude: %s", len(test_items))
         # Primitive RawQuerySet to Dict conversion:
+        # TODO: do not convert to dict, use QuerySet
         test_items_list = []
         for test_item in test_items:
             try:
@@ -55,7 +58,6 @@ class BalanceNightTests:
                         pattern_folder_name=test_item.pattern_folder_name,
                         pattern_folder_path=test_item.pattern_folder_path,
                         test_case_dir=test_item.test_case_dir,
-
                         test_py_path=test_item.test_py_path,
                         test_py_path_template=test_item.test_py_path_template,
                         test_dir_path_template=test_item.test_dir_path_template,
@@ -142,11 +144,13 @@ class BalanceNightTests:
         :return:
         """
 
-        sorted_tests_l = self.test_items_sorting(test_items, exclude=None)
-
-        test_items_prepared = copy.deepcopy(sorted_tests_l)    # Convert to list of dicts
-        log.debug("test_items_prepared: %s: %s", type(test_items_prepared), test_items_prepared[0])
-        test_items_prepared = sorted(test_items_prepared, key=itemgetter('test_time_weight'), reverse=True)
+        isinstance(test_items, QuerySet), "Selected test items should be in QuerySet"
+        # sorted_tests_l = self.test_items_sorting(test_items, exclude=None)
+        # test_items_prepared = copy.deepcopy(sorted_tests_l)    # Convert to list of dicts
+        # log.debug("test_items_prepared: %s: %s", type(test_items_prepared), test_items_prepared[0])
+        test_items_prepared = test_items    # Convert to list of dicts
+        log.debug(f"test_items_prepared {test_items_prepared}")
+        # test_items_prepared = sorted(test_items_prepared, key=itemgetter('test_time_weight'), reverse=True)
         test_items_prepared = collections.deque(test_items_prepared)
         # test_items_prepared = collections.deque(test_items)
 
@@ -154,22 +158,25 @@ class BalanceNightTests:
         # SUM all tests time
         all_tests_time = 0
         for test_item in test_items_prepared:
-            all_tests_time += int(test_item.get('test_time_weight', 600))                  # Count overall tests time weight
+            if test_item.test_time_weight:
+                all_tests_time += test_item.test_time_weight                 # Count overall tests time weight
+            else:
+                all_tests_time += 600
 
         tent_avg = round(all_tests_time / len(addm_group) + 900)             # Use average time amount, add +900 sec to narrow float rounds
         log.debug("All tests len %s t:%s avg:%s", len(test_items_prepared), all_tests_time, tent_avg)
         for addm_tentacle in addm_group:                                     # Iter cycle over ADDMs in list
             tent_curr = 0                                                    # Set the counter for one ADDM
             tentacle_set = dict(tests=[], all_tests_weight='', tent_avg='')  # Empty case for tests per ADDM
-            # log.debug("START FOR ADDM %s\n", addm_tentacle)
-            # log.debug("Start ADDM sort: %s - %s avg: %s", addm_tentacle, tent_curr, tent_avg)
             while tent_avg > tent_curr:                                      # Loop till total added tests weight is lower then average
                 try:
                     chosen_tst = test_items_prepared.popleft()
-                    test_time_w = chosen_tst.pop('test_time_weight')    # Remove test item (not value) key of test weight
-                    for test_v in chosen_tst.values():                  # Add test value cleaned from service keys
-                        tentacle_set['tests'].append(test_v)            # Append current test case in list of ADDM
+                    if chosen_tst.test_time_weight:
+                        test_time_w = int(chosen_tst.test_time_weight)    # Remove test item (not value) key of test weight
+                    else:
+                        test_time_w = 600
                     tent_curr += test_time_w                            # Increment added tests weight summary
+                    tentacle_set['tests'].append(chosen_tst)            # Append current test case in list of ADDM
                     # log.debug("In loop %s (agv:%s > %s:curr) + t:%s left: %s", addm_tentacle, tent_avg, tent_curr, test_time_w, len(test_items_prepared))
                 except IndexError as e:                                 # This happens when there is no items left
                     log.info("All tests are sorted! %s", e)

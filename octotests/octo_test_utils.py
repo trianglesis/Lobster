@@ -6,22 +6,23 @@ import unittest
 from pprint import pformat
 
 from celery.result import AsyncResult
+from django.template import loader
 from django.utils import timezone
 
 from octo.config_cred import mails
 from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
 from octo_adm.tasks import TaskADDMService
-from octo_tku_patterns.models import TestCases, TestCasesDetails, TestLast
 from octo_tku_patterns.model_views import TestLatestDigestFailed
+from octo_tku_patterns.models import TestCases, TestCasesDetails, TestLast
 from octo_tku_patterns.night_test_balancer import BalanceNightTests
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
-from octo_tku_patterns.tasks import TPatternExecTest
+from octo_tku_patterns.tasks import TPatternExecTest, MailDigests
+from octo_tku_patterns.tasks import TaskPrepare
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.tasks import UploadTaskPrepare
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
-from run_core.models import AddmDev, TestOutputs, ServicesLog
-from octo_tku_patterns.tasks import TaskPrepare
+from run_core.models import AddmDev, Options
 
 log = logging.getLogger("octo.octologger")
 
@@ -177,7 +178,7 @@ class PatternTestUtils(unittest.TestCase):
     def select_latest_failed(self):
         """Select latest test cases logs with failed status"""
         failed_test_py = []
-        failed_q =  TestLatestDigestFailed.objects.filter(tkn_branch__exact=self.branch).values('test_py_path')
+        failed_q = TestLatestDigestFailed.objects.filter(tkn_branch__exact=self.branch).values('test_py_path')
         log.info(f"Selected failed cases from latest: {failed_q.count()}")
         for item in failed_q:
             if item['test_py_path'] not in failed_test_py:
@@ -221,27 +222,44 @@ class PatternTestUtils(unittest.TestCase):
 
     def put_test_cases(self):
         for addm_item in self.addm_set:
-            _addm_group = addm_item[0]['addm_group']
-            log.debug(f"<=put_test_cases=> Using addm group: {_addm_group}")
-            addm_coll = self.addm_tests_balanced.get(_addm_group)
+            addm_group = addm_item[0]['addm_group']
+            log.debug(f"<=put_test_cases=> Using addm group: {addm_group}")
+            addm_coll = self.addm_tests_balanced.get(addm_group)
             addm_tests = addm_coll.get('tests', [])
             if addm_tests:
-                addm_tests_weight = addm_coll.get('all_tests_weight')
-                tent_avg = addm_coll.get('tent_avg')
-                # Start email sending:
-                self.start_mail(_addm_group, addm_tests, addm_tests_weight, tent_avg)
-                # Any addm preparations here:
+                self.all_tests_w += addm_coll.get('all_tests_weight')
                 self.before_tests()
+                self.routine_mail(mode='run', addm_group=addm_group)
                 # Sync test data on those addms from group:
                 self.sync_test_data_addm_set(addm_item)
                 # Start to fill queues with test tasks:
-                self.run_cases_router(addm_tests, _addm_group, addm_item)
-                # Add finish mail to the queue when it filled with test tasks:
-                self.finish_mail(_addm_group)
+                self.run_cases_router(addm_tests, addm_group, addm_item)
                 # End tasks when tests are finished:
+                self.routine_mail(mode='fin', addm_group=addm_group)
                 self.after_tests()
-                self.all_tests_w += addm_tests_weight
 
+    def put_test_cases_short(self, test_item):
+        _addm_group = self.addm_set[0]['addm_group']
+        self.run_cases_router(addm_tests=test_item, _addm_group=_addm_group, addm_item=self.addm_set)
+
+    def before_tests(self):
+        """
+
+        :param addm_group:
+        :return:
+        """
+        log.debug("<=PatternTestUtils=> ADDM group run some preparations before test run?")
+        return True
+
+    def after_tests(self):
+        """
+        Run after all tests are finished. May be used to generate mail notifications about test results.
+        :return:
+        """
+        # Add finish mail to the queue when it filled with test tasks:
+        # TODO: Add some addm cleaning routines and services restart?
+        log.debug("<=PatternTestUtils=> ADDM group run some preparations after all tests run?")
+        # Make task and it will be added in the end of the queue on each addm group.
         msg = '''Night routine has been executed. Options used:
                  ADDM actual: {addm_act} | 
                  Branch {branch} | 
@@ -260,24 +278,8 @@ class PatternTestUtils(unittest.TestCase):
             queryset_query=self.queryset.query,
         )
         log.info(msg)
-        return msg
-
-    def put_test_cases_short(self, test_item):
-        _addm_group = self.addm_set[0]['addm_group']
-        self.run_cases_router(addm_tests=test_item, _addm_group=_addm_group, addm_item=self.addm_set)
-
-    def before_tests(self):
-        log.debug("<=PatternTestUtils=> ADDM group run some preparations before test run?")
-        # Add a task, and it will be executed early before test queue.
-
-    def after_tests(self):
-        """
-        Run after all tests are finished. May be used to generate mail notifications about test results.
-        :param addm_item:
-        :return:
-        """
-        log.debug("<=PatternTestUtils=> ADDM group run some preparations after all tests run?")
-        # Make task and it will be added in the end of the queue on each addm group.
+        # TODO: Add here a task to save latest possible log
+        return True
 
     def sync_test_data_addm_set(self, addm_item):
         _addm_group = addm_item[0]['addm_group']
@@ -297,52 +299,25 @@ class PatternTestUtils(unittest.TestCase):
                           t_queue=f'{_addm_group}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
-                          t_routing_key=f'PatternTestUtils.{_addm_group}.sync_test_data_addm_set.TaskADDMService.t_addm_cmd_thread')
-
-    def start_mail(self, _addm_group, addm_tests, addm_tests_weight, tent_avg):
-        self.mail_task_arg = 'tag=night_routine;lvl=auto;type=send_mail'
-        self.mail_kwargs = dict(
-            mode="run",
-            r_type='Night',
-            branch=self.branch,
-            start_time=self.now,
-            addm_group=_addm_group,
-            addm_group_l=self.addm_group_l,
-            addm_test_pairs=len(self.addm_tests_balanced),
-            test_items_len=len(addm_tests),
-            all_tests=self.queryset.count(),
-            addm_used=len(self.addm_set),
-            all_tests_weight=addm_tests_weight,
-            tent_avg=tent_avg)
-        """ MAIL send mail when routine tests selected: """
-        Runner.fire_t(TSupport.t_long_mail, fake_run=self.fake_run,
-                      t_queue=_addm_group + '@tentacle.dq2',
-                      t_args=[self.mail_task_arg],
-                      t_kwargs=self.mail_kwargs,
-                      t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
-        log_kwargs = dict(
-            task_name='NightRoutine',
-            description='Night test routine starting email.',
-            user=self.user_name,
-            input=self.mail_kwargs,
-            t_start_time=datetime.datetime.now(tz=timezone.utc),
-            raw=f'{self.queryset.query}'.encode("utf-8"),
-        )
-        service_log = ServicesLog(**log_kwargs)
-        service_log.save()
+                          t_routing_key=f'PatternTestUtils.{_addm_group}.{operation_cmd}.TaskADDMService.t_addm_cmd_thread')
 
     def run_cases_router(self, addm_tests, _addm_group, addm_item):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
         for test_item in addm_tests:
-            if test_item['test_time_weight']:
-                test_t_w = round(float(test_item['test_time_weight']))  # TODO: If NoneType - use 0
+            if test_item.test_time_weight:
+                test_t_w = round(float(test_item.test_time_weight))  # TODO: If NoneType - use 0
             else:
-                test_t_w = 300
+                test_t_w = 600
+
+            if test_item.pattern_folder_name:
+                case_tag = test_item.pattern_folder_name
+            else:
+                case_tag = test_item.test_py_path
 
             tsk_msg = 'tag=night_routine;type=routine {}/{}/{} t:{} on: "{}" by: {}'
-            r_key = '{}.TExecTest.nightly_routine_case.{}'.format(_addm_group, test_item['pattern_folder_name'])
-            t_tag = tsk_msg.format(test_item['tkn_branch'], test_item['pattern_library'],
-                                   test_item['pattern_folder_name'], test_t_w, _addm_group, self.user_name)
+            r_key = '{}.TExecTest.nightly_routine_case.{}'.format(_addm_group, case_tag)
+            t_tag = tsk_msg.format(test_item.tkn_branch, test_item.pattern_library,
+                                   test_item.pattern_folder_name, test_t_w, _addm_group, self.user_name)
             # LIVE:
             Runner.fire_t(TPatternExecTest().t_test_exec_threads, fake_run=self.fake_run,
                           t_queue=_addm_group + '@tentacle.dq2',
@@ -352,15 +327,50 @@ class PatternTestUtils(unittest.TestCase):
                           t_routing_key=r_key,
                           t_soft_time_limit=test_t_w + 60 * 20,
                           t_task_time_limit=test_t_w + 60 * 30)
+        return True
 
-    def finish_mail(self, _addm_group):
-        if not self.silent:
-            self.mail_kwargs.update(mode='fin')
-            Runner.fire_t(TSupport.t_long_mail, fake_run=False,
-                          t_queue=_addm_group + '@tentacle.dq2',
-                          t_args=[self.mail_task_arg],
-                          t_kwargs=self.mail_kwargs,
-                          t_routing_key='z_{}.night_routine_mail'.format(_addm_group))
+    def routine_mail(self, **mail_kwargs):
+        """
+        Send email with task status and details:
+        - what task, name, args;
+        - when started, added to queue, finished
+        - which status have
+        - etc.
+
+        :return:
+        """
+        mode = mail_kwargs.get('mode')
+        send = mail_kwargs.get('send', True)
+        addm_group = mail_kwargs.get('addm_group')
+
+        addm_coll = self.addm_tests_balanced.get(addm_group)
+
+        if not send:
+            return 'Do not send emails.'
+
+        mail_kwargs.update(
+            branch=self.branch,
+            addm_coll=addm_coll,
+            addm_groups = self.addm_group_l,
+            addm_tests=addm_coll.get('tests', []),
+            addm_test_pairs = self.addm_tests_balanced,
+            all_tests=self.queryset,
+            addm_set=self.addm_set,
+            addm_tests_weight=addm_coll.get('all_tests_weight'),
+            tent_avg=addm_coll.get('tent_avg'),
+            start_time=self.now,
+        )
+
+        # Send mail
+        tag = 'tag=night_routine;lvl=auto;type=send_mail'
+        Runner.fire_t(MailDigests.routine_mail,
+                      fake_run=False, to_sleep=2, to_debug=True,
+                      t_queue=f'{addm_group}@tentacle.dq2',
+                      t_args=[tag],
+                      t_kwargs=mail_kwargs,
+                      t_routing_key=f'z_{addm_group}.night_routine_mail.{mode}',)
+        return True
+
 
 
 class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):

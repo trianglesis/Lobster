@@ -18,16 +18,12 @@ from time import sleep
 from billiard.exceptions import WorkerLostError
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import loader
 from django.utils import timezone
 
 from octo.helpers.tasks_mail_send import Mails
-from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
-from octo_tku_patterns.model_views import TestLatestDigestAll
-from octo_tku_patterns.models import TestLast, TestCases
-from run_core.models import Options, MailsTexts, TestOutputs, RoutinesLog, ServicesLog
+from run_core.models import Options, MailsTexts
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
@@ -90,64 +86,6 @@ def exception(function):
     return wrapper
 
 
-def db_logger(function):
-    @functools.wraps(function)
-    def wrapper(*args, **kwargs):
-        if settings.DEV:
-            log.debug(f'DB Logger task {function.__name__} opts: {args}, {kwargs}')
-        start = datetime.datetime.now(tz=timezone.utc)
-        opt_kwargs = {
-            'task_name': f'{function.__name__}',
-            'user': 'task_wrapper',
-            't_args': args,
-            't_kwargs': kwargs,
-            't_start_time': start,
-            'description': f'{function.__doc__}',
-        }
-        run = function(*args, **kwargs)
-        finish = datetime.datetime.now(tz=timezone.utc)
-        est = finish - start
-        opt_kwargs.update(
-            t_finish_time=finish,
-            t_est_time=est
-        )
-        routine_log = RoutinesLog(**opt_kwargs)
-        routine_log.save()
-        return run
-    return wrapper
-
-
-def db_log_f(option=None):
-    def decorator(function):
-        if settings.DEV:
-            log.debug(f"<=db_log_f=> {function}")
-        @functools.wraps(function)
-        def wrapper(*args, **kwargs):
-            if settings.DEV:
-                log.debug(f'DB Logger function {function.__name__} opts: {args}, {kwargs}')
-            start = datetime.datetime.now(tz=timezone.utc)
-            opt_kwargs = {
-                'task_name': f'{function.__name__}',
-                'user': 'function_wrapper',
-                't_args': args,
-                't_kwargs': kwargs,
-                't_start_time': start,
-                'description': f'{function.__doc__}',
-            }
-            run = function(*args, **kwargs)
-            finish = datetime.datetime.now(tz=timezone.utc)
-            est = finish - start
-            opt_kwargs.update(
-                t_finish_time=finish,
-                t_est_time=est
-            )
-            routine_log = RoutinesLog(**opt_kwargs)
-            routine_log.save()
-            return run
-        return wrapper
-    return decorator
-
-
 class TMail:
 
     def __init__(self):
@@ -188,68 +126,6 @@ class TMail:
 
         Mails.short(subject=subject, body=body, send_to=[user_email])
 
-    def long_r(self, **mail_kwargs):
-        """
-        Send email with task status and details:
-        - what task, name, args;
-        - when started, added to queue, finished
-        - which status have
-        - etc.
-
-        :return:
-        """
-        mode = mail_kwargs.get('mode')
-        r_type = mail_kwargs.get('r_type', 'Custom')
-        send = mail_kwargs.get('send', True)
-        branch = mail_kwargs.get('branch')
-        start_time = mail_kwargs.get('start_time')
-        addm_group = mail_kwargs.get('addm_group')  # Initially selected from request
-
-        routine_mail = loader.get_template('service/emails/routines_mail.html')
-        msg_str = "{addm_group}; branch:{branch}".format(addm_group=addm_group, branch=branch)
-        mail_details = dict(SUBJECT='SUBJECT',
-                            START_TIME=start_time,
-                            TIME_SPENT='Should be a time when test were finished',
-                            MAIL_KWARGS=mail_kwargs)
-        if mode == "start":
-            mail_details.update(
-                SUBJECT="0. {type} routine - manual - {msg}".format(type=r_type, msg=msg_str),
-                START_TIME=start_time,
-                START_ARGS=mail_kwargs.get('start_args'))
-        elif mode == "run":
-            mail_details.update(
-                SUBJECT="1. {type} routine - started - {msg}".format(type=r_type, msg=msg_str),
-                START_TIME=start_time,
-                EXTRA_ARGS=mail_kwargs.get('extra_args'))
-        elif mode == "fin":
-            mail_details.update(
-                SUBJECT="2. {type} routine - finished - {msg}".format(type=r_type, msg=msg_str),
-                START_TIME=start_time,
-                FINISH_TIME=datetime.datetime.now(tz=timezone.utc),
-                TIME_SPENT=datetime.datetime.now(tz=timezone.utc) - start_time,
-                EXTRA_ARGS=mail_kwargs.get('extra_args'))
-        # Send mail
-        mail_html = routine_mail.render(mail_details)
-        if send:
-            sleep(5)
-            Mails.short(subject=mail_details.get('SUBJECT'),
-                        send_to=mail_kwargs.get('user_email', self.m_night),
-                        mail_html=mail_html)
-        else:
-            return 'Long mail sent!'
-
-        log_kwargs = dict(
-            task_name='NightRoutine',
-            user='OctoTest',
-            description='Night test routine finishing email.',
-            t_kwargs=mail_kwargs,
-            input=mail_details,
-            t_finish_time=datetime.datetime.now(tz=timezone.utc),
-            t_est_time=datetime.datetime.now(tz=timezone.utc) - start_time,
-        )
-        service_log = ServicesLog(**log_kwargs)
-        service_log.save()
-
     def t_fail(self, function, err, *args, **kwargs):
         log.error("<=Task helpers=> %s", '({}) : ({}) Task failed!'.format(curr_hostname, function.__name__))
         task_limit = loader.get_template('service/emails/statuses/task_details.html')
@@ -268,4 +144,3 @@ class TMail:
         mail_details = dict(SUBJECT=subj_txt, TASK_DETAILS=task_details)
         mail_html = task_limit.render(mail_details)
         Mails.short(mail_html=mail_html, subject=subj_txt, send_to=user_email)
-

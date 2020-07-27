@@ -66,14 +66,6 @@ class TSupport:
     @staticmethod
     @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
-    def t_long_mail(t_tag, **mail_kwargs):
-        """Long mail task for octo test utils"""
-        from octo.helpers.tasks_helpers import TMail
-        TMail().long_r(**mail_kwargs)
-
-    @staticmethod
-    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
-    @exception
     def t_occupy_w(t_tag, sleep_t, **kwargs):
         """
         Just keep worker busy when user change it.
@@ -83,7 +75,7 @@ class TSupport:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport.fake_task',
-              soft_time_limit=HOURS_2, task_time_limit=HOURS_2+900)
+              soft_time_limit=HOURS_2, task_time_limit=HOURS_2 + 900)
     @exception
     def fake_task(t_tag, **kwargs):
         """

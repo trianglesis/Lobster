@@ -152,35 +152,6 @@ class RoutinesLog(models.Model):
         db_table = 'octo_routines_log'
 
 
-class ServicesLog(models.Model):
-    """
-    Save here internal events: service tasks, addm related, parsing, wget and so on.
-    """
-    task_name = models.CharField(max_length=255)  # Name of task - to group by kind of tasks
-    # TODO: Add foreign key to user instance?
-    user = models.CharField(max_length=60, blank=True, null=True)
-
-    t_args = models.TextField(blank=True, null=True)  # task args for debug
-    t_kwargs = models.TextField(blank=True, null=True)  # task kwargs for debug
-
-    description = models.TextField(blank=True, null=True)  # Readable useful information.
-
-    input = models.TextField(blank=True, null=True)  # optional - what was passed to run
-    out = models.TextField(blank=True, null=True)  # optional -
-    err = models.TextField(blank=True, null=True)  # optional -
-    raw = models.TextField(blank=True, null=True)  # optional -
-
-    t_start_time = models.DateTimeField(null=True)
-    t_finish_time = models.DateTimeField(null=True)
-    t_est_time = models.DurationField(blank=True, null=True)  # datetime.timedelta(days =-1, seconds = 68400)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        managed = True
-        db_table = 'octo_service_log'
-
-
 class TaskPrepareLog(models.Model):
     subject = models.CharField(max_length=255)
     user_email = models.CharField(max_length=255)

@@ -217,32 +217,6 @@ class RoutinesLogAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
-@admin.register(ServicesLog)
-class ServicesLogAdmin(admin.ModelAdmin):
-    fields = (
-        (
-            'task_name',
-            'user',
-            't_args',
-            't_kwargs',
-            'description',
-            'input',
-            'out',
-            'err',
-            'raw',
-            't_start_time',
-            't_finish_time',
-            't_est_time',
-            'created_at',
-        )
-    )
-
-    readonly_fields = ('created_at',)
-    list_display = ('task_name', 'user', 't_start_time', 't_finish_time', 't_est_time', 'created_at')
-    list_filter = ('task_name', 'user', 'created_at')
-    ordering = ('-created_at',)
-
-
 @admin.register(TaskPrepareLog)
 class TaskPrepareLogAdmin(admin.ModelAdmin):
     fields = (

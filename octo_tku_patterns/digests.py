@@ -1,4 +1,3 @@
-
 import logging
 import datetime
 from itertools import groupby
@@ -8,6 +7,7 @@ from django.utils import timezone
 from django.template import loader
 from django.db.models import Q
 
+from octo.helpers.tasks_mail_send import Mails
 from octo.settings import SITE_DOMAIN
 
 from octo_tku_patterns.models import TestLast
@@ -22,6 +22,43 @@ log = logging.getLogger("octo.octologger")
 
 class TestDigestMail:
 
+    def routine_mail(self, **mail_kwargs):
+        """
+        Send email with task status and details:
+        - what task, name, args;
+        - when started, added to queue, finished
+        - which status have
+        - etc.
+
+        :return:
+        """
+        mode = mail_kwargs.get('mode')
+        send = mail_kwargs.get('send', True)
+        addm_group = mail_kwargs.get('addm_group')
+        branch = mail_kwargs.get('branch')
+
+        if not send:
+            return 'Do not send emails.'
+        m_night = Options.objects.get(option_key__exact='mail_recipients.night_test_routines')
+        mail_html = ''
+        routine_mail = loader.get_template('service/emails/routines_mail.html')
+
+        if mode == "run":
+            mail_kwargs.update(subject=f"1. Night routine - started - {addm_group}; branch:{branch}")
+            mail_html = routine_mail.render(mail_kwargs)
+        elif mode == "fin":
+            mail_kwargs.update(
+                subject=f"2. Night routine - finished - {addm_group}; branch:{branch}",
+                finish_time=datetime.datetime.now(tz=timezone.utc),
+                time_spent=datetime.datetime.now(tz=timezone.utc) - mail_kwargs.get('start_time'),
+            )
+            mail_html = routine_mail.render(mail_kwargs)
+        mail_kwargs.update(
+            subject=mail_kwargs.get('subject'),
+            send_to=m_night.option_value.replace(' ', '').split(','),
+            mail_html=mail_html
+        )
+        Mails().short(**mail_kwargs)
 
     def failed_pattern_test_user_daily_digest(self, **kwargs):
         """
@@ -34,7 +71,8 @@ class TestDigestMail:
         mail_body = loader.get_template('digests/user_nonpass_digest_email.html')
         test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
 
-        all_nonpass_tests = TestLatestDigestAll.objects.filter(Q(fails__gte=1) | Q(error__gte=1)).values().order_by('-change_user')
+        all_nonpass_tests = TestLatestDigestAll.objects.filter(Q(fails__gte=1) | Q(error__gte=1)).values().order_by(
+            '-change_user')
         all_nonpass_tests = groupby(all_nonpass_tests, itemgetter('change_user'))
         log.info(f"Selected non passed tests grouped: {all_nonpass_tests}")
 
@@ -70,15 +108,15 @@ class TestDigestMail:
                 # Select detailed test logs:
                 test_logs = TestLast.objects.filter(test_py_path__in=sel_test_py).order_by('-addm_name')
                 # Compose detailed test latest digest
-                test_log_html_attachment = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN,))
+                test_log_html_attachment = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN, ))
                 time_stamp = datetime.datetime.now(tz=timezone.utc).strftime('%Y-%m-%d_%H-%M')
                 t_kwargs = dict(subject=subject,
-                    send_to=[user_email],
-                    send_cc=['oleksandr_danylchenko_cw@bmc.com'],
-                    mail_html=mail_html,
-                    attach_content=test_log_html_attachment,
-                    attach_content_name=f'{user_k}_digest_{time_stamp}.html',
-                    )
+                                send_to=[user_email],
+                                send_cc=['oleksandr_danylchenko_cw@bmc.com'],
+                                mail_html=mail_html,
+                                attach_content=test_log_html_attachment,
+                                attach_content_name=f'{user_k}_digest_{time_stamp}.html',
+                                )
                 t_args = f'UserTestsDigest.{user_k}.mail'
                 t_routing_key = 'UserTestsDigest.TSupport.t_short_mail'
                 t_queue = 'w_routines@tentacle.dq2'
@@ -88,7 +126,6 @@ class TestDigestMail:
             else:
                 # Send a warning email about user ADPROD
                 log.warning(f"User has no adprod record! {user_k}: {user_email}")
-
 
     def all_pattern_test_team_daily_digest(self, **kwargs):
         """
@@ -107,13 +144,14 @@ class TestDigestMail:
             STORAGE='digests.pattern_test.STORAGE',
         )
 
-        all_nonpass_tests = TestLatestDigestAll.objects.filter(Q(fails__gte=1) | Q(error__gte=1)).values().order_by('pattern_folder_name')
+        all_nonpass_tests = TestLatestDigestAll.objects.filter(Q(fails__gte=1) | Q(error__gte=1)).values().order_by(
+            'pattern_folder_name')
         for lib_k, mail_v in digest_sets.items():
 
             if not lib_k == "ADDM_TKU":
                 library_not_passed = all_nonpass_tests.filter(pattern_library__exact=lib_k)
             else:
-                library_not_passed= all_nonpass_tests
+                library_not_passed = all_nonpass_tests
 
             if library_not_passed:
                 send_to = digest_mail_groups.get(option_key__exact=mail_v).option_value.replace(' ', '').split(',')
@@ -131,12 +169,12 @@ class TestDigestMail:
                 t_routing_key = 'PatternDigest.TSupport.t_short_mail'
                 t_queue = 'w_routines@tentacle.dq2'
                 t_kwargs = dict(subject=subject,
-                    send_to=send_to,
-                    send_cc=['oleksandr_danylchenko_cw@bmc.com'],
-                    mail_html=mail_html,
-                    # attach_content=test_log_html_attachment,
-                    # attach_content_name=f'{user_k}_digest_{time_stamp}.html',
-                    )
+                                send_to=send_to,
+                                send_cc=['oleksandr_danylchenko_cw@bmc.com'],
+                                mail_html=mail_html,
+                                # attach_content=test_log_html_attachment,
+                                # attach_content_name=f'{user_k}_digest_{time_stamp}.html',
+                                )
                 log.debug(f"send_to: {send_to}")
                 Runner.fire_t(TSupport.t_short_mail,
                               fake_run=fake_run, to_sleep=2, to_debug=True,

@@ -47,7 +47,6 @@ from run_core.rabbitmq_operations import RabbitCheck
 
 log = logging.getLogger("octo.octologger")
 
-
 DAY_LIMIT = 172800
 HOURS_2 = 7200
 HOURS_1 = 3600
@@ -93,6 +92,7 @@ class TPatternRoutine:
         log.warning("<=TPatternRoutine=> RUN TaskPrepare.run_tku_patterns %s", t_tag)
         TaskPrepare(kwargs['obj']).run_tku_patterns()
 
+
 class TPatternExecTest:
 
     @staticmethod
@@ -102,6 +102,7 @@ class TPatternExecTest:
     def t_test_exec_threads(t_tag, **kwargs):
         log.debug("t_tag: %s", t_tag)
         return TestExecutor().test_run_threads(**kwargs)
+
 
 class TPatternParse:
 
@@ -140,7 +141,23 @@ class TPatternParse:
         log.debug("t_tag: %s", t_tag)
         PatternTestExecCases.patterns_weight_compute(last_days, addm_name)
 
+
 class MailDigests:
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.routine_mail',
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    def routine_mail(tag, **mail_kwargs):
+        """
+        Send email with task status and details:
+        - what task, name, args;
+        - when started, added to queue, finished
+        - which status have
+        - etc.
+
+        :return:
+        """
+        TestDigestMail().routine_mail(**mail_kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_user_digest',
@@ -156,6 +173,7 @@ class MailDigests:
         """ Team test digest by patt LIBRARY send task"""
         TestDigestMail().all_pattern_test_team_daily_digest(**kwargs)
 
+
 class PatternTestExecCases:
 
     @staticmethod
@@ -169,6 +187,7 @@ class PatternTestExecCases:
         patterns_weight = LocalDB.history_weight(last_days=last_days, addm_name=addm_name)
         # Insert sorted in TKU Patterns table:
         LocalDB.insert_patt_weight(patterns_weight)
+
 
 class TaskPrepare:
 
@@ -226,7 +245,7 @@ class TaskPrepare:
         :return:
         """
         if settings.DEV:  # Always fake run on local test env:
-            self.fake_run = True   # TODO: Remove
+            self.fake_run = True  # TODO: Remove
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL options: %s", self.options)
             log.debug("<=TaskPrepare=> Fake run for DEV LOCAL request: %s", self.request)
 
@@ -515,7 +534,7 @@ class TaskPrepare:
         return branched_w
 
     def rabbit_queue_minimal(self, workers_q):
-        workers = [worker+'@tentacle.dq2' for worker in workers_q]
+        workers = [worker + '@tentacle.dq2' for worker in workers_q]
         all_queues_len = RabbitCheck().queue_count_list(workers)
         worker_min = min(all_queues_len, key=all_queues_len.get)
         if '@tentacle' in worker_min:
@@ -659,7 +678,8 @@ class TaskPrepare:
             Runner.fire_t(self.mail_s,
                           fake_run=False,
                           t_args=[t_tag],
-                          t_kwargs={'mode': mode, 'test_item': test_item, 'mail_html': mail_html, 'user_email': self.user_email},
+                          t_kwargs={'mode': mode, 'test_item': test_item, 'mail_html': mail_html,
+                                    'user_email': self.user_email},
                           t_queue=addm_group + '@tentacle.dq2',
                           t_routing_key=mail_r_key)
         else:
@@ -711,7 +731,8 @@ class TaskPrepare:
                     attach_content_name=f'{subject_str}_test_{time_stamp}.html',
                     )
         if tests_digest:
-            tests_digest = JSONRenderer().render(TestLatestDigestAllSerializer(tests_digest, many=True).data).decode('utf-8')
+            tests_digest = JSONRenderer().render(TestLatestDigestAllSerializer(tests_digest, many=True).data).decode(
+                'utf-8')
         else:
             tests_digest = 'Empty'
         TaskPrepareLog(subject=subject, user_email=user_email, details=tests_digest).save()
@@ -765,4 +786,3 @@ class TaskPrepare:
         )
         log.debug("<=TaskPrepare=> User test user_test_add: \n%s", t_tag_d)
         self.t_tag = t_tag_d
-
