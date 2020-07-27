@@ -1,19 +1,16 @@
 from django.contrib import admin
-from django.contrib.admin.sites import AdminSite
-from django.forms import TextInput, Textarea, SelectMultiple
-
-from .model_views import *
-from .models import *
-from run_core.models import *
-from octo_tku_upload.models import *
-from octo_tku_patterns.models import *
-from octo_tku_patterns.model_views import *
-from django_ftpserver.models import *
-
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
+from django.forms import TextInput, Textarea
+from django_ftpserver.models import *
 
 from octo.common.paginator import TimeLimitedPaginator
+from octo_tku_patterns.model_views import *
+from octo_tku_patterns.models import *
+from octo_tku_upload.models import *
+from run_core.models import *
+from .model_views import *
+from .models import *
 
 
 # Define an inline admin descriptor for Employee model
@@ -192,33 +189,23 @@ class TestOutputsAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
-@admin.register(RoutinesLog)
-class RoutinesLogAdmin(admin.ModelAdmin):
+@admin.register(TaskPrepareLog)
+class TaskPrepareLogAdmin(admin.ModelAdmin):
     fields = (
         (
-            'task_name',
-            'user',
-            't_args',
-            't_kwargs',
-            'description',
-            'input',
-            'out',
-            'err',
-            'raw',
-            't_start_time',
-            't_finish_time',
-            't_est_time',
+            'subject',
+            'user_email',
+            'details',
             'created_at',
         )
     )
     readonly_fields = ('created_at',)
-    list_display = ('task_name', 'user', 't_est_time', 't_start_time', 't_finish_time',)
-    list_filter = ('task_name', 'user', 'created_at')
+    list_display = ('subject', 'user_email', 'created_at')
+    list_filter = ('user_email', 'created_at')
     ordering = ('-created_at',)
 
-
-@admin.register(TaskPrepareLog)
-class TaskPrepareLogAdmin(admin.ModelAdmin):
+@admin.register(PatternTestUtilsLog)
+class PatternTestUtilsLogAdmin(admin.ModelAdmin):
     fields = (
         (
             'subject',

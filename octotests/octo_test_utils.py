@@ -6,12 +6,10 @@ import unittest
 from pprint import pformat
 
 from celery.result import AsyncResult
-from django.template import loader
 from django.utils import timezone
 
 from octo.config_cred import mails
 from octo.helpers.tasks_run import Runner
-from octo.tasks import TSupport
 from octo_adm.tasks import TaskADDMService
 from octo_tku_patterns.model_views import TestLatestDigestFailed
 from octo_tku_patterns.models import TestCases, TestCasesDetails, TestLast
@@ -22,7 +20,7 @@ from octo_tku_patterns.tasks import TaskPrepare
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.tasks import UploadTaskPrepare
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
-from run_core.models import AddmDev, Options
+from run_core.models import AddmDev
 
 log = logging.getLogger("octo.octologger")
 

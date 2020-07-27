@@ -1,20 +1,15 @@
 """
 balance tasks between ADDM group pools for each separate branch
 """
-from typing import List, Any, Dict
-import logging
-
-import copy
 import collections
-from operator import itemgetter
+import logging
+from typing import List, Any, Dict
 
 from django.db.models import QuerySet
 
-from run_core.models import Options
-from run_core.addm_operations import ADDMStaticOperations
-
 from octo_tku_patterns.models import TestLast
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
+from run_core.models import Options
 
 log = logging.getLogger("octo.octologger")
 

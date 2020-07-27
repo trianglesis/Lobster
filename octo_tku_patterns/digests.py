@@ -12,7 +12,7 @@ from octo.settings import SITE_DOMAIN
 
 from octo_tku_patterns.models import TestLast
 from octo_tku_patterns.model_views import TestLatestDigestAll
-from run_core.models import UserAdprod, Options
+from run_core.models import UserAdprod, Options, PatternTestUtilsLog
 
 from octo.helpers.tasks_run import Runner
 from octo.tasks import TSupport
@@ -42,10 +42,12 @@ class TestDigestMail:
         m_night = Options.objects.get(option_key__exact='mail_recipients.night_test_routines')
         mail_html = ''
         routine_mail = loader.get_template('service/emails/routines_mail.html')
+        send_to = m_night.option_value.replace(' ', '').split(',')
 
         if mode == "run":
             mail_kwargs.update(subject=f"1. Night routine - started - {addm_group}; branch:{branch}")
             mail_html = routine_mail.render(mail_kwargs)
+            PatternTestUtilsLog(subject=mail_kwargs.get('subject'), details=mail_html, user_email=send_to).save()
         elif mode == "fin":
             mail_kwargs.update(
                 subject=f"2. Night routine - finished - {addm_group}; branch:{branch}",
@@ -53,9 +55,10 @@ class TestDigestMail:
                 time_spent=datetime.datetime.now(tz=timezone.utc) - mail_kwargs.get('start_time'),
             )
             mail_html = routine_mail.render(mail_kwargs)
+            PatternTestUtilsLog(subject=mail_kwargs.get('subject'), details=mail_html, user_email=send_to).save()
         mail_kwargs.update(
             subject=mail_kwargs.get('subject'),
-            send_to=m_night.option_value.replace(' ', '').split(','),
+            send_to=send_to,
             mail_html=mail_html
         )
         Mails().short(**mail_kwargs)

@@ -21,7 +21,7 @@ from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.test_executor import UploadTestExec
 from octotests.tests_discover_run import TestRunnerLoc
 from run_core.local_operations import LocalDownloads
-from run_core.models import AddmDev, RoutinesLog
+from run_core.models import AddmDev
 from octo_tku_upload.digests import TKUEmailDigest
 
 
@@ -173,7 +173,6 @@ class UploadTaskPrepare:
         self.select_addm()
         # 4. For each package&addm version do SOMETHING:
         self.tku_run_steps()
-        self.log_db()
         return self.tasks_added
 
     def wget_run(self):
@@ -190,7 +189,6 @@ class UploadTaskPrepare:
             self.tasks_added.append(task)
             if TasksOperations().task_wait_success(task, 't_tku_sync_option'):
                 self.tku_downloaded = True
-                self.log_db(task_name=subject, description=body)
             # Wait for task to finish!
         else:
             self.tku_downloaded = True
@@ -336,7 +334,6 @@ class UploadTaskPrepare:
             'snapRevert': 'pathToSnapshotReveringProcedure',
             'powerOff': 'pathToPowerOffProcedure'
         }
-        # self.log_db(t_args=mode, description='VCenter VM preparations')
 
     def addm_prepare(self, step_k):
         """
@@ -483,20 +480,3 @@ class UploadTaskPrepare:
         for step_k, step_package in packages.items():
             for pack in step_package:
                 log.info(f'{step_k} package: {pack.tku_type} -> {pack.package_type} addm: {pack.addm_version} zip: {pack.zip_file_name} ')
-
-    def log_db(self, **kwargs):
-        task_name = kwargs.get('task_name', f'Upload test - {self.__class__.__name__}')
-        user = kwargs.get('user', User.objects.filter(email__exact=self.user_email).first())
-        t_kwargs = kwargs.get('t_kwargs', self.data)
-        t_start_time = kwargs.get('t_start_time', datetime.datetime.now())
-        description = kwargs.get('description', 'TKU Upload test')
-
-        kwargs = {
-            'task_name': task_name,
-            'user': user,
-            't_kwargs': t_kwargs,
-            't_start_time': t_start_time,
-            'description': description,
-        }
-        routine_log = RoutinesLog(**kwargs)
-        routine_log.save()
