@@ -10,6 +10,8 @@ router.register(r'octo_test_cases', TestCasesSerializerViewSet)
 router.register(r'octo_test_cases_details', TestCasesDetailsSerializerViewSet)
 router.register(r'tests_last', TestLastViewSet)
 router.register(r'tests_history', TestHistoryViewSet)
+router.register(r'tests_digest_all', TestDigestAllViewSet)
+router.register(r'addm_digest', AddmDigestViewSet)
 
 
 urlpatterns = [
