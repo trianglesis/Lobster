@@ -421,6 +421,7 @@ class UploadTaskPrepare:
                 # digests.TKUEmailDigest.upload_daily_fails_warnings
                 task = Runner.fire_t(MailDigests.t_upload_digest,
                                      fake_run=self.fake_run,
+                                     # fake_run=False,
                                      t_queue=f"{addm_group}@tentacle.dq2",
                                      t_args=[
                                          f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
@@ -436,6 +437,7 @@ class UploadTaskPrepare:
                 # digests.TKUEmailDigest.upload_daily_fails_warnings
                 task = Runner.fire_t(MailDigests.t_upload_digest,
                                      fake_run=self.fake_run,
+                                     # fake_run=False,
                                      t_queue=f"{addm_group}@tentacle.dq2",
                                      t_args=[
                                          f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
