@@ -164,13 +164,14 @@ class ADDMStaticOperations:
                 raise Exception(msg)
         for test_th in th_list:
             test_th.join()
-            th_out.append(out_q.get())
-            txt_out += f'\n\t{out_q.get()}'
+            th_out = out_q.get()
+            th_out.append(th_out)
+            txt_out += f'\n\t{th_out}'
         output = {cmd_k: th_out, 'time': time() - ts}
         # Do not show CMD out with too big data in it:
         if cmd_k not in ['rsync.tku.data']:
             txt_output = f'CMD:{cmd_k}\nOutput:{txt_out}\nEST: {time() - ts}'
-            log.info(f"ADDM CMD Output: {txt_output}")
+            log.info(f"ADDM CMD Output txt: {txt_output}")
         return output
 
     @staticmethod

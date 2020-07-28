@@ -289,13 +289,13 @@ class TaskPrepare:
         self.tests_balance(self.tests_grouped)
 
         # 8. Start tests mail send:
-        log.info("<=TaskPrepare=> HERE: make single mail task to confirm tests were started")
+        # log.info("<=TaskPrepare=> HERE: make single mail task to confirm tests were started")
 
         # 9. Wipe logs when worker is free, if needed
         self.wipe_logs(cases_to_test)
 
         # 10. Finish all test mail? If we want to show this routine finished, but tests are still run...
-        log.info("<=TaskPrepare=> HERE: make single mail task and the end of addm_worker queue")
+        # log.info("<=TaskPrepare=> HERE: make single mail task and the end of addm_worker queue")
         return "Finish this run"
 
     def sync_depot(self):
@@ -399,7 +399,6 @@ class TaskPrepare:
         :return:
         """
         if any(value for value in self.selector.values()):
-            log.debug(f'self.selector" {self.selector}')
             queryset = TestCases.objects.all()
         else:
             queryset = TestCases.objects.last()
@@ -477,7 +476,6 @@ class TaskPrepare:
             main_python=to_test_queryset.filter(test_type__exact='main_python'),  # .values()
             octo_tests=to_test_queryset.filter(test_type__exact='octo_tests'),  # .values()
         )
-        log.debug("<=TaskPrepare=> grouped: %s", grouped)
         return grouped
 
     def tests_balance(self, tests_grouped):
@@ -490,7 +488,6 @@ class TaskPrepare:
         assert isinstance(tests_grouped, dict), 'Test tests_grouped should be a dict: %s' % type(tests_grouped)
 
         tku_patterns_tests = tests_grouped.get('tku_patterns', {})
-        log.debug("<=TaskPrepare=> tku_patterns_tests: %s", tku_patterns_tests)
         for branch_k, branch_cases in tku_patterns_tests.items():
             if branch_cases:
                 log.debug(f"<=TaskPrepare=> Balancing tests for branch: '{branch_k}': {branch_cases}")
@@ -502,7 +499,6 @@ class TaskPrepare:
                 # 6.1 Something like prep step? Maybe delete/wipe/kill other tests or ensure ADDM on OK state and so on.
                 self.prep_step(addm_set)
                 for test_item in branch_cases:
-                    log.debug(f'test_item: {test_item} {type(test_item)} {test_item.test_py_path}')
                     # 7.1 Fire task for test starting
                     self.user_test_mail('start', test_item=test_item, addm_set=addm_set)
                     # 7.2 Fire task for test execution
@@ -704,14 +700,21 @@ class TaskPrepare:
             # Render attachment log
             test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
 
-            tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item.test_py_path).order_by('-addm_name')
-            test_logs = TestLast.objects.filter(test_py_path__exact=test_item.test_py_path).order_by('-addm_name').distinct()
+            tests_digest = TestLatestDigestAll.objects.filter(
+                test_py_path__exact=test_item.test_py_path).order_by('-addm_name')
+            test_logs = TestLast.objects.filter(
+                test_py_path__exact=test_item.test_py_path).order_by('-addm_name').distinct()
 
-            log.debug(f"test_logs: {test_logs}")
-            log.debug(f"tests_digest: {tests_digest}")
-
-            mail_html = test_added.render(dict(subject=subject, domain=SITE_DOMAIN, mode=mode, tests_digest=tests_digest))
-            log_html = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN, ))
+            mail_html = test_added.render(dict(
+                subject=subject,
+                domain=SITE_DOMAIN,
+                mode=mode,
+                tests_digest=tests_digest,
+            ))
+            log_html = test_log_html.render(dict(
+                test_detail=test_logs,
+                domain=SITE_DOMAIN,
+            ))
 
         subject_str = f'{test_item.tkn_branch}_{test_item.pattern_library}_{test_item.pattern_folder_name}'
         Mails.short(subject=subject,
@@ -721,8 +724,8 @@ class TaskPrepare:
                     attach_content_name=f'{subject_str}_test_{time_stamp}.html',
                     )
         if tests_digest:
-            tests_digest = JSONRenderer().render(TestLatestDigestAllSerializer(tests_digest, many=True).data).decode(
-                'utf-8')
+            tests_digest = JSONRenderer().render(
+                TestLatestDigestAllSerializer(tests_digest, many=True).data).decode('utf-8')
         else:
             tests_digest = 'Empty'
         TaskPrepareLog(subject=subject, user_email=user_email, details=tests_digest).save()
@@ -773,5 +776,5 @@ class TaskPrepare:
             user_name=self.user_name,
             refresh=self.request.get('refresh'),
         )
-        log.debug("<=TaskPrepare=> User test user_test_add: \n%s", t_tag_d)
+        # log.debug("<=TaskPrepare=> User test user_test_add: \n%s", t_tag_d)
         self.t_tag = t_tag_d
