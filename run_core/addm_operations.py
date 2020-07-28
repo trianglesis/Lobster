@@ -162,11 +162,12 @@ class ADDMStaticOperations:
                 msg = f'SSH Connection died! Addm: {addm_item["addm_host"]}'
                 log.error(msg)
                 raise Exception(msg)
+
         for test_th in th_list:
             test_th.join()
-            th_out = out_q.get()
-            th_out.append(th_out)
-            txt_out += f'\n\t{th_out}'
+            thread_out = out_q.get()
+            th_out.append(thread_out)
+            txt_out += f'\n\t{thread_out}'
         output = {cmd_k: th_out, 'time': time() - ts}
         # Do not show CMD out with too big data in it:
         if cmd_k not in ['rsync.tku.data']:
