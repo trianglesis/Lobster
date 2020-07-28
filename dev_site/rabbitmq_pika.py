@@ -5,9 +5,10 @@ if __name__ == "__main__":
     import pika
     import pika.exceptions
     import django
+
     django.setup()
     import octo.config_cred as conf_cred
-    from octo.helpers.tasks_oper import TasksOperations
+    from run_core.models import Options
 
 
     def main_check():
@@ -64,8 +65,10 @@ if __name__ == "__main__":
         connection.close()
         print(f'is_closed: {connection.is_closed}')
 
+
     def callback_func(channel, method, properties, body):
         print(body)
+
 
     # main_check()
     class RabbitCheck():
@@ -157,7 +160,7 @@ if __name__ == "__main__":
             queues_d = dict()
             for queue in queues_list:
                 queue_len = self.queue_count(queue=queue)
-                queues_d.update({queue:queue_len})
+                queues_d.update({queue: queue_len})
             return queues_d
 
         def get_message(self, queue):
@@ -168,9 +171,22 @@ if __name__ == "__main__":
             else:
                 if method_frame.NAME == 'Basic.GetEmpty':
                     self.connection.close()
-                    return False, None
+                    print('No mesages!')
+                    return '', 0
                 else:
-                    return body, method_frame.delivery_tag
+                    print('Some messages')
+                    return {queue: body, 'tag': method_frame.delivery_tag}
+
+        def get_messages_no_ack(self, queue):
+            all_messages = []
+            queue_count = self.queue_count(queue)
+            print(f'queue_count: {queue_count}')
+            if not queue_count < 1:
+                for method_frame, properties, body_cons in self.channel.consume(queue=queue):
+                    all_messages.append({'body': body_cons, 'tag': method_frame.delivery_tag, 'ack': False})
+                    if queue_count == method_frame.delivery_tag:
+                        break
+            return all_messages
 
         def get_messages_ask(self, queue, body=None, grab_all=False):
             all_messages = []
@@ -186,7 +202,7 @@ if __name__ == "__main__":
                     if grab_all:
                         all_messages.append({'body': body_cons, 'tag': method_frame.delivery_tag, 'ack': False})
                     # else:
-                        # print(f"Is this we're asking for? No! {body_cons} != {body}")
+                    # print(f"Is this we're asking for? No! {body_cons} != {body}")
                     # Exit, when reach last message from queue:
                     if queue_count == method_frame.delivery_tag:
                         break
@@ -208,6 +224,7 @@ if __name__ == "__main__":
             result = self.declare_queue(queue)
             self.channel.basic_consume(queue, auto_ack=False, on_message_callback=callback_func)
             # self.channel.start_consuming()
+
 
     """
     https://stackoverflow.com/questions/28550140/python-and-rabbitmq-best-way-to-listen-to-consume-events-from-multiple-channel
@@ -231,16 +248,16 @@ if __name__ == "__main__":
     # message = RabbitCheck().get_messages_ask(queue='w_routines@tentacle.dq2', body='Testing message 1')
     # print(message)
 
-
-    workers_list = TasksOperations().workers_enabled
+    workers_enabled = Options.objects.filter(option_key__exact='workers_enabled').values('option_value')[0]
+    workers_list = workers_enabled.get('option_value', '').split(',')
     workers_list = [worker + '@tentacle.dq2' for worker in workers_list]
 
     inspected = RabbitCheck().queue_count_list(queues_list=workers_list)
-    print(inspected)
+    print(f'queue_count_list -> inspected" {inspected}')
 
     all_mess_per_worker = dict()
     for worker in workers_list:
-        worker_mess = RabbitCheck().get_message(worker)
-        print(f'W: {worker} M: {worker_mess}')
-        all_mess_per_worker.update({worker:worker_mess})
+        all_messages = RabbitCheck().get_messages_no_ack(worker)
+        print(f'W: {worker} Count: {len(all_messages)} M: {all_messages}')
+        all_mess_per_worker.update({worker: len(all_messages)})
     print(f'All workers messages: {all_mess_per_worker}')

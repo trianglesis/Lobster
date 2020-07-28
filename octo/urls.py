@@ -27,6 +27,7 @@ urlpatterns = [
     # Home
     url(r'^$', MainPage.as_view(), name='home'),
     url(r'^inspect_rabbitmq_queues/', RabbitMQQueuesREST.as_view(), name='inspect_rabbitmq_queues'),
+    url(r'^inspect_celery_workers/', CeleryWorkersREST.as_view(), name='inspect_celery_workers'),
 
     url(r'^admin/', admin.site.urls),
 

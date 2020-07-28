@@ -14,7 +14,7 @@ import os
 import sys
 import logging
 import socket
-from octo.config_cred import cred, mails
+from octo.config_cred import cred, mails, ADMINS
 
 log = logging.getLogger("octo.octologger")
 
@@ -234,4 +234,4 @@ CONN_MAX_AGE = None
 
 STATIC_URL = '/static/'
 
-ADMINS = mails['admin']
+ADMINS = ADMINS
