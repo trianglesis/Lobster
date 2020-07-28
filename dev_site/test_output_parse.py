@@ -1,3 +1,4 @@
+
 if __name__ == "__main__":
     import re
 
@@ -5,32 +6,45 @@ if __name__ == "__main__":
     import django
 
     django.setup()
-    from run_core.models import TestOutputs
+    from run_core.models import TestOutputs, AddmDev
+    from octo_tku_patterns.models import TestHistory, TestCases
     from octo_tku_patterns.test_executor import TestExecutor
+    from octo_tku_patterns.api.serializers import TestCasesSerializer
+    from octo_adm.serializers import AddmDevSerializer
 
     log = logging.getLogger("octo.octologger")
     parsed = []
     log.info("Testing Octopus TH out parsing:")
-    test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-VMwareVirtualCenter')
+    # Fake add item, liwe we test it
+    addm_item = AddmDev.objects.get(addm_group__exact='alpha', addm_name__exact='fish_finger')
+    addm_item = AddmDevSerializer(addm_item).data
+
+    # Fake test item just like we test it
+    test_item = TestCases.objects.get(
+        test_py_path__exact='/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/CORE/VMwareVirtualCenter/tests/test.py')
+    test_item = TestCasesSerializer(test_item).data
+
+    test_outputs = TestOutputs.objects.filter(
+        option_key__iregex='TestExecutor_std_out_err_d_tkn_main-VMwareVirtualCenter')
     # test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-OracleRDBMS-OracleRDBMS')
     # test_outputs = TestOutputs.objects.filter(option_key__iregex='TestExecutor_std_out_err_d_tkn_main-WebsphereMQ-WebsphereMQ')
-    log.debug("test_outputs: %s", test_outputs)
     for test_out in test_outputs:
-        log.info("Parsing: %s", test_out.option_key)
-        # log.info("Test out: %s", test_out.option_value)
+        # print("Test out: %s", test_out.option_value)
         stderr_output = test_out.option_value
         parsed = TestExecutor().parse_test_result(
             debug=True,
-            stderr_output=stderr_output, test_item=None,
-            addm_item={'addm_name': 'local_ff'}, time_spent_test=None)
+            stderr_output=stderr_output,
+            test_item=test_item,
+            addm_item=addm_item, time_spent_test=9.9999)
+        # print(f"parsed {parsed}")
 
-    for value in parsed:
-        log.info(value)
-        # log.info(f"Parsed tst_name: "
-        #          f"\n{value['tst_name']} "
-        #          f"\n\t{value['tst_status']}"
-        #          f"\n\t'{value['tst_message']}'"
-        #          f"\n\t'{value.get('fail_message', 'no fail')}'")
+    # for value in parsed:
+    #     # print(value)
+    #     print(f"Parsed tst_name: "
+    #              f"\n  tst_name {value['tst_name']} "
+    #              f"\n\t  tst_status {value['tst_status']}"
+    #              f"\n\t tst_message '{value['tst_message']}'"
+    #              f"\n\t fail_message '{value.get('fail_message', 'no fail')}'")
 
 
 REGEXES = [
@@ -94,3 +108,6 @@ EXPERIMENTAL = [
     re.compile(r"[A-Z]+:\s(test_Unix_Oracle11_on_HACMP)\s\((__main__)\.(TestCluster)\)(?:(?:\n.+)+(?=-{69}).*)(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
     re.compile(r"[A-Z]+:\s(test18_Oracl11_linked_databases)\s\((__main__)\.(TestOracleRDBMS)\)(?:(?:\n.+)+(?=-69).*)(?P<fail_message>(?:\n.*(?<![=\-]))+)"),
 ]
+
+
+# (.*\n)+(?=(?:={78}))

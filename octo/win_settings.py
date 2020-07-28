@@ -153,10 +153,11 @@ DATABASES = {
     }
 }
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
-    os.path.join(STATIC_ROOT, 'admin'),
+    'static',
+    os.path.join('static', 'admin'),
 )
 
 # Password validation

@@ -184,8 +184,11 @@ class TestOutputsAdmin(admin.ModelAdmin):
         'created_at',
     )
     readonly_fields = ('created_at',)
+
+    search_fields = ('option_key', 'option_value', 'description')
+
     list_display = ('option_key', 'created_at', 'description')
-    list_filter = ('created_at',)
+    list_filter = ('option_key', 'created_at',)
     ordering = ('-created_at',)
 
 

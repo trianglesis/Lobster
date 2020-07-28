@@ -54,6 +54,14 @@ class TestExecutor:
         self.addm_vm_test_workspace = "/usr/tideway/SYNC"
         self.addm_vm_nfs_workspace = "/usr/tideway/TKU"
 
+        # Should be JSON-format
+        stopword = Options.objects.get(option_key__exact='stderr_output.stop.word').option_value
+        try:
+            self.stopword = eval(stopword)
+        except Exception as e:
+            self.stopword = None
+            log.error(f'Stop word cannot be evaluated! \n\t{e}')
+
     @exception
     def test_run_threads(self, **kwargs):
         """
@@ -169,16 +177,10 @@ class TestExecutor:
                                                  user_email=user_email,
                                                  test_item=test_item,
                                                  addm_item=addm_item,
-                                                 # TODO: Fix to DurationField
                                                  time_spent_test=str(time_spent_test),
-                                                 # time_spent_test=datetime.timedelta(seconds=time_spent_test),
                                                  )
-            # TODO: Safe raw output here:
-            # std_out_err_d
-            # Close previously opened SSH:
-            ssh.close()
-            # Put test results into a thread queue output:
-            test_q.put(update_save)
+            ssh.close() # Close previously opened SSH:
+            test_q.put(update_save)  # Put test results into a thread queue output:
         else:
             msg = "<=TEST ERROR=> Test has no test_py_path value! {}".format(test_item)
             log.error(msg)
@@ -321,6 +323,7 @@ class TestExecutor:
         re_draft_6 = r'[A-Z]+:\s({0})\s\(({1})\.({2})\)(?:(?:\n.+)+(?=-{3}).*)(?P<fail_message>(?:\n.*(?<![=\-]))+)'
         test_output = re.match(test_name_f_verb_re, stderr_output)
         if test_output:  # Search for all test declarations after run. In TOP if content.
+            self.stop_words(stderr_output, time_spent_test, test_item, addm_item)
             test_cases = re.finditer(test_name_f_verb_re, stderr_output)
             for item in test_cases:  # For each found test item do parse:
                 test_res = dict(
@@ -341,7 +344,10 @@ class TestExecutor:
                 else:
                     parsed_debug.append(test_res)
         else:
-            test_res = dict(tst_status='ERROR', fail_message=stderr_output, time_spent_test=time_spent_test)
+            test_res = dict(tst_message='STDERR no test units found -> Output as it is',
+                            tst_status='ERROR',
+                            fail_message=stderr_output,
+                            time_spent_test=time_spent_test)
             log.error("<=PARSE_TEST_RESULT=> test_res %s", test_res)
             # Save test error if this error happened before actual test run:
             last_save.update(saved=self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item, user_email=user_email))
@@ -349,6 +355,32 @@ class TestExecutor:
             return {'last': last_save, 'history': hist_save}
         else:
             return parsed_debug
+
+    @exception
+    def stop_words(self, stderr_output, time_spent_test, test_item, addm_item):
+        """
+        Check if test STDERR output has any of stop-words, and if so - save a RAW output.
+        :param stderr_output: RAW out from test from console
+        :param time_spent_test: calculated test running time
+        :param test_item: selected test case in dict format
+        :param addm_item: selected addm item, which test runs on in dict format
+        :return:
+        """
+        if self.stopword:
+            for stop_k, stop_v in self.stopword.items():
+                if stop_v in stderr_output:
+                    test_res = dict(
+                        tst_message='STDERR stop-word -> Output as it is',
+                        tst_status='ERROR',
+                        fail_message=stderr_output,
+                        time_spent_test=time_spent_test,
+                    )
+                    log.error(f"<=PARSE_TEST_RESULT=> Found a stop_word {stop_v}, output:\n\t{test_res}")
+                    # Save test error if this error happened before actual test run:
+                    saved_l = self.model_save_insert(db=TestLast, res=test_res, test_item=test_item, addm_item=addm_item)
+                    print(f'saved_l: {saved_l}')
+                    saved_h = self.model_save_insert(db=TestHistory, res=test_res, test_item=test_item, addm_item=addm_item)
+                    print(f'saved_h: {saved_h}')
 
     @staticmethod
     @exception
@@ -369,31 +401,29 @@ class TestExecutor:
 
         test_data_res = dict(
             # Part from tku_patterns table
-            tkn_branch=test_item.get('tkn_branch', None),
-            pattern_library=test_item.get('pattern_library', None),
-            pattern_folder_name=test_item.get('pattern_folder_name', None),
-            test_case_dir=test_item.get('test_case_dir', None),
-            test_py_path=test_item['test_py_path'],
+            tkn_branch=test_item.get('tkn_branch', 'Unknown'),
+            pattern_library=test_item.get('pattern_library', 'Unknown'),
+            pattern_folder_name=test_item.get('pattern_folder_name', 'Unknown'),
+            test_case_dir=test_item.get('test_case_dir', 'Unknown'),
+            test_py_path=test_item.get('test_py_path', 'Unknown'),
             # Part from test parsed data
-            tst_message=test_res.get('tst_message', ''),
-            tst_name=test_res.get('tst_name', ''),
-            tst_module=test_res.get('tst_module', ''),
-            tst_class=test_res.get('tst_class', ''),
-            tst_status=test_res.get('tst_status', ''),
-            fail_message=test_res.get('fail_message', ''),
+            tst_class=test_res.get('tst_class', 'MainClass'),
+            tst_name=test_res.get('tst_name', 'MainTest'),
+            tst_message=test_res.get('tst_message', 'Octopus custom output'),
+            tst_module=test_res.get('tst_module', 'undefined'),
+            tst_status=test_res.get('tst_status', 'unknown'),
+            fail_message=test_res.get('fail_message', 'unknown'),
             # Part from addm_dev table
             addm_name=addm_item['addm_name'],
             addm_group=addm_item['addm_group'],
             addm_v_int=addm_item['addm_v_int'],
             addm_host=addm_item['addm_host'],
             addm_ip=addm_item['addm_ip'],
-            time_spent_test=test_res.get('time_spent_test', ''),
+            time_spent_test=test_res.get('time_spent_test', 300),  # Use default, we'll later calculate weight.
         )
         save_tst = db_model(**test_data_res)
         save_tst.save(force_insert=True)
         if save_tst.id:
-            # NOTE: Return short description of test, not the full output:
-            # NOTE: 2 We already have most of these args in task body!
             return dict(saved_id=save_tst.id)
         else:
             msg = "Test result not saved! Result: {}".format(test_data_res)
