@@ -15,21 +15,18 @@ import os.path
 import re
 import subprocess
 from datetime import datetime, timezone, timedelta
-from time import time, sleep
+from time import time
 
 import pytz
+from django.conf import settings
 from django.db.models import Max
 from django.db.models.query import QuerySet
 
-from django.conf import settings
-
-from octo_tku_patterns.models import TestCases, TestHistory
+from octo_tku_patterns.models import TestCases
 from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from run_core.models import AddmDev, ADDMCommands
 from run_core.p4_operations import PerforceOperations
-
-from dev_site.rabbitmq_pika import RabbitCheck
 
 # Python logger
 log = logging.getLogger("octo.octologger")

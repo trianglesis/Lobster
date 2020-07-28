@@ -3,17 +3,14 @@ Here execute service functions for tasks to collect them, get IDs, statuses, que
 """
 
 import logging
-import sys
-from time import time, sleep
+from time import sleep
 
 from celery.result import AsyncResult
 
+from octo.api.serializers import CeleryTaskmetaSerializer
+from octo.models import CeleryTaskmeta
 from octo.octo_celery import app
 from run_core.models import Options
-from octo.models import CeleryTaskmeta
-from octo.api.serializers import CeleryTaskmetaSerializer
-
-from dev_site.rabbitmq_pika import RabbitCheck
 
 log = logging.getLogger("octo.octologger")
 
