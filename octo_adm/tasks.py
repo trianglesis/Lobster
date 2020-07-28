@@ -59,12 +59,10 @@ class TaskADDMService:
               soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
     def t_addm_cmd_routine(t_tag, **kwargs):
-        log.info("TaskADDMService.t_addm_cmd_routine: %s %s", t_tag, kwargs)
         return ADDMStaticOperations().run_operation_cmd(**kwargs)
 
     @staticmethod
     @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
     def t_addm_cmd_thread(t_tag, **kwargs):
-        log.info("TaskADDMService.t_addm_cmd_thread: %s %s", t_tag, kwargs)
         return ADDMStaticOperations().threaded_exec_cmd(**kwargs)

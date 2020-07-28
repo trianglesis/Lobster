@@ -121,9 +121,6 @@ class ADDMStaticOperations:
 
         if isinstance(addm_set, QuerySet):
             addm_set = addm_set.values()
-            log.debug(f'AddmDev QuerySet: {type(addm_set)}')
-        else:
-            log.info(f'AddmDev set: {type(addm_set)}')
 
         if isinstance(operation_cmd, ADDMCommands):
             cmd_k = operation_cmd.command_key
@@ -139,6 +136,7 @@ class ADDMStaticOperations:
 
         th_list = []
         th_out = []
+        txt_out = ''
         ts = time()
         out_q = Queue()
 
@@ -167,8 +165,12 @@ class ADDMStaticOperations:
         for test_th in th_list:
             test_th.join()
             th_out.append(out_q.get())
+            txt_out += f'\n\t{out_q.get()}'
         output = {cmd_k: th_out, 'time': time() - ts}
-        log.info(f"ADDM CMD Output: {output}")
+        # Do not show CMD out with too big data in it:
+        if cmd_k not in ['rsync.tku.data']:
+            txt_output = f'CMD:{cmd_k}\nOutput:{txt_out}\nEST: {time() - ts}'
+            log.info(f"ADDM CMD Output: {txt_output}")
         return output
 
     @staticmethod
