@@ -592,7 +592,7 @@ class TaskPrepare:
                 addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
                 t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
                 Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
-                              fake_run=self.fake_run,
+                              fake_run=True,  # TODO: Remove
                               t_queue=f'{addm["addm_group"]}@tentacle.dq2',
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
@@ -612,9 +612,6 @@ class TaskPrepare:
             'wipe.addm.pool',
             'wipe.addm.record',
             'wipe.tpl.files',
-            'rsync.python.testutils',
-            'rsync.tideway.utils',
-            'rsync.tku.data',
         ])
         for operation_cmd in commands_qs:
             t_tag = f'tag=t_addm_cmd_thread;addm_group={addm["addm_group"]};user_name={self.user_name};' \
@@ -622,7 +619,7 @@ class TaskPrepare:
             addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
             t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
-                          fake_run=self.fake_run,
+                          fake_run=True,  # TODO: Remove
                           t_queue=f'{addm["addm_group"]}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
@@ -638,12 +635,7 @@ class TaskPrepare:
         test_item = kwargs.get('test_item', None)  # When test are sorted and prepared
         addm_set = kwargs.get('addm_set', None)
         test_added = loader.get_template('service/emails/statuses/test_added.html')
-
-        subject = ''
         addm_group = ''
-        log_html = []
-        tests_digest = []
-        subject_str = 'Placeholder'
 
         cases_ids_l = self.request.get("cases_ids", "").split(',')
         cases_selected = TestCases.objects.filter(id__in=cases_ids_l)
@@ -652,39 +644,43 @@ class TaskPrepare:
             init_subject = f'selected cases id: {cases_ids_l}'
             subject = f'[{SITE_SHORT_NAME}] User test init: {init_subject}'
             TaskPrepareLog(subject=subject, user_email=self.user_email).save()
-        elif mode == 'start' or mode == 'finish':
+            mail_html = test_added.render(dict(subject=subject, domain=SITE_DOMAIN, mode=mode, cases_selected=cases_selected))
+
+        elif mode == 'start':
             addm = addm_set.first()
             isinstance(addm, dict), "First element from QuerySet should be a dict type!"
             isinstance(test_item, TestCases), "Test item should be TestCases object!"
             addm_group = addm.get('addm_group', None)
             subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
-            if mode == 'start':
-                subject = f'[{SITE_SHORT_NAME}] User test started: {subject_str}'
-            if mode == 'finish':
-                subject = f'[{SITE_SHORT_NAME}] User test finished: {subject_str}'
+            subject = f'[{SITE_SHORT_NAME}] User test started: {subject_str}'
+            mail_html = test_added.render(dict(subject=subject, domain=SITE_DOMAIN, mode=mode, cases_selected=cases_selected, addm_set=addm_set))
+
+        elif mode == 'finish':
+            addm = addm_set.first()
+            isinstance(addm, dict), "First element from QuerySet should be a dict type!"
+            isinstance(test_item, TestCases), "Test item should be TestCases object!"
+            addm_group = addm.get('addm_group', None)
+            subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
+            subject = f'[{SITE_SHORT_NAME}] User test finished: {subject_str}'
+            mail_html = None  # Later fill in task, when start or finish - with test digest!
+
         else:
             subject = f'[{SITE_SHORT_NAME}] User test failed: : {cases_ids_l}'
             log.debug("Unusual mail mode!")
             TaskPrepareLog(subject=subject, user_email=self.user_email,
                            details=f'test_item: {test_item.values()}, addm_set: {addm_set.values()}').save()
+            mail_html = test_added.render(dict(subject=subject, domain=SITE_DOMAIN, mode=mode))
 
-        mail_html = test_added.render(
-            dict(
-                subject=subject,
-                domain=SITE_DOMAIN,
-                mode=mode,
-                tests_digest=tests_digest,
-                cases_selected=cases_selected,
-            )
-        )
-        time_stamp = datetime.datetime.now(tz=timezone.utc).strftime('%Y-%m-%d_%H-%M')
+
         if mode == 'start' or mode == 'finish':
             mail_r_key = f'{addm_group}.TaskPrepare.t_short_mail.{mode}'
             t_tag = f'tag=t_user_mail;mode={mode};{addm_group};{self.user_name};{test_item.test_py_path}'
             Runner.fire_t(self.mail_s,
                           fake_run=self.fake_run,
                           t_args=[t_tag],
-                          t_kwargs={'mode': mode, 'test_item': test_item, 'mail_html': mail_html,
+                          t_kwargs={'mode': mode, 'test_item': test_item,
+                                    'mail_html': mail_html,  # If none - fill in task
+                                    'subject': subject,
                                     'user_email': self.user_email},
                           t_queue=addm_group + '@tentacle.dq2',
                           t_routing_key=mail_r_key)
@@ -692,8 +688,6 @@ class TaskPrepare:
             Mails.short(subject=subject,
                         send_to=[self.user_email],
                         mail_html=mail_html,
-                        attach_content=log_html,
-                        attach_content_name=f'{subject_str}_test_{time_stamp}.html',
                         )
         return 'User test mail sent!'
 
@@ -703,8 +697,10 @@ class TaskPrepare:
     def mail_s(tag, **kwargs):
         mode = kwargs.get('mode')
         test_item = kwargs.get('test_item')
-        mail_html = kwargs.get('mail_html')
+        mail_html = kwargs.get('mail_html', None)
         user_email = kwargs.get('user_email')
+        subject = kwargs.get('subject')
+
 
         log_html = ''
         tests_digest = ''
@@ -712,24 +708,22 @@ class TaskPrepare:
         time_stamp = datetime.datetime.now(tz=timezone.utc).strftime('%Y-%m-%d_%H-%M')
         isinstance(test_item, TestCases), "Test item should be TestCases object!"
 
-        subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
-        if mode == 'start':
-            subject = f'[{SITE_SHORT_NAME}] User test started: {subject_str}'
-        elif mode == 'finish':
-            subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
-            subject = f'[{SITE_SHORT_NAME}] User test finished: {subject_str}'
-
+        if mode == 'finish':
+            # Again render new start-finish email body
+            test_added = loader.get_template('service/emails/statuses/test_added.html')
+            # Render attachment log
             test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
-            tests_digest = TestLatestDigestAll.objects.filter(
-                test_py_path__exact=test_item.test_py_path).order_by('-addm_name')
-            test_logs = TestLast.objects.filter(
-                test_py_path__exact=test_item.test_py_path).order_by('-addm_name').distinct()
-            log_html = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN, ))
+
+            tests_digest = TestLatestDigestAll.objects.filter(test_py_path__exact=test_item.test_py_path).order_by('-addm_name')
+            test_logs = TestLast.objects.filter(test_py_path__exact=test_item.test_py_path).order_by('-addm_name').distinct()
+
+            log.debug(f"test_logs: {test_logs}")
             log.debug(f"tests_digest: {tests_digest}")
 
-        else:
-            subject = f'[{SITE_SHORT_NAME}] User test else: {subject_str}'
+            mail_html = test_added.render(dict(subject=subject, domain=SITE_DOMAIN, mode=mode, tests_digest=tests_digest))
+            log_html = test_log_html.render(dict(test_detail=test_logs, domain=SITE_DOMAIN, ))
 
+        subject_str = f'{test_item.tkn_branch}_{test_item.pattern_library}_{test_item.pattern_folder_name}'
         Mails.short(subject=subject,
                     send_to=[user_email],
                     mail_html=mail_html,
@@ -766,7 +760,7 @@ class TaskPrepare:
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
-                      fake_run=self.fake_run,
+                      fake_run=True,  # TODO: Remove
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(user_email=self.user_email,
                                     user_name=self.user_name,

@@ -293,7 +293,7 @@ class PatternTestUtils(unittest.TestCase):
                     f'fake={self.fake_run};command_k={operation_cmd.command_key};'
             t_kwargs = dict(addm_set=addm_item, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
-                          fake_run=True, # TODO: Remove
+                          fake_run=self.fake_run,
                           t_queue=f'{_addm_group}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
@@ -318,7 +318,7 @@ class PatternTestUtils(unittest.TestCase):
                                    test_item.pattern_folder_name, test_t_w, _addm_group, self.user_name)
             # LIVE:
             Runner.fire_t(TPatternExecTest().t_test_exec_threads,
-                          fake_run=True,  # TODO: Remove this on prod
+                          fake_run=self.fake_run,
                           t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=dict(addm_items=addm_item, test_item=test_item,

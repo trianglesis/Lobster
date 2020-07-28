@@ -14,6 +14,7 @@ from time import time
 from django.conf import settings
 
 from octo.helpers.tasks_helpers import exception
+from octo_tku_patterns.api.serializers import TestCasesSerializer
 from octo_tku_patterns.models import TestLast, TestHistory
 from run_core.addm_operations import ADDMOperations
 from run_core.models import Options
@@ -71,51 +72,44 @@ class TestExecutor:
         test_item = kwargs.get('test_item')
         test_output_mode = kwargs.get('test_output_mode')
 
-        log.debug(f'addm_items: {addm_items}')
-
         isinstance(addm_items, QuerySet), "Addm items should be a QuerySet: %s" % type(addm_items)
         isinstance(test_item, TestCases), "Test item should be a TestCases: %s " % type(test_item)
+        test_item = TestCasesSerializer(test_item).data
 
         thread_list = []
         test_outputs = []
         ts = time()
         test_q = Queue()
-        if isinstance(test_item, dict):
-            for addm_item in addm_items:
-                # Open SSH connection:
-                ssh = ADDMOperations().ssh_c(addm_item=addm_item)
-                # If opened connection is Up and alive:
-                if ssh:
-                    args_d = dict(ssh=ssh, test_item=test_item, addm_item=addm_item, user_email=self.user_email,
-                                  test_function=test_function, test_output_mode=test_output_mode, test_q=test_q)
-                    th_name = f"Test thread: addm {addm_item['addm_ip']} test {test_item['test_py_path']}"
-                    try:
-                        test_thread = Thread(target=self.test_exec, name=th_name, kwargs=args_d)
-                        test_thread.start()
-                        thread_list.append(test_thread)
-                    except Exception as e:
-                        msg = "Thread test fail with error: {}".format(e)
-                        log.error(msg)
-                        # raise Exception(msg)
-                        return msg
-                # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
-                else:
-                    msg = f"<=test_run_threads=> SSH Connection could not be established, thread skipping for ADDM: " \
-                          f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
+        for addm_item in addm_items:
+            # Open SSH connection:
+            ssh = ADDMOperations().ssh_c(addm_item=addm_item)
+            # If opened connection is Up and alive:
+            if ssh:
+                args_d = dict(ssh=ssh, test_item=test_item, addm_item=addm_item, user_email=self.user_email,
+                              test_function=test_function, test_output_mode=test_output_mode, test_q=test_q)
+                th_name = f"Test thread: addm {addm_item['addm_ip']} test {test_item['test_py_path']}"
+                try:
+                    test_thread = Thread(target=self.test_exec, name=th_name, kwargs=args_d)
+                    test_thread.start()
+                    thread_list.append(test_thread)
+                except Exception as e:
+                    msg = "Thread test fail with error: {}".format(e)
                     log.error(msg)
-                    test_outputs.append(msg)
-                    # Raise exception? Stop Execution?
-                    # Send mail with this error? BUT not for the multiple tasks!!!
+                    # raise Exception(msg)
+                    return msg
+            # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
+            else:
+                msg = f"<=test_run_threads=> SSH Connection could not be established, thread skipping for ADDM: " \
+                      f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
+                log.error(msg)
+                test_outputs.append(msg)
+                # Raise exception? Stop Execution?
+                # Send mail with this error? BUT not for the multiple tasks!!!
 
-            # Execute threads:
-            for test_th in thread_list:
-                test_th.join()
-                test_outputs.append(test_q.get())
-        else:
-            msg = "Test item is not a dict! Test Item: {}".format(test_item)
-            log.error(msg)
-            # raise Exception(msg)
-            return msg
+        # Execute threads:
+        for test_th in thread_list:
+            test_th.join()
+            test_outputs.append(test_q.get())
         # Do not return much output, or celery and flower can cut it or fail.
         # return 'All tests took {}'.format(time() - ts)
         return 'All tests Took {} Out {}'.format(time() - ts, test_outputs)
@@ -139,7 +133,7 @@ class TestExecutor:
         test_q = args_d.get('test_q')
 
         test_py_t = test_item.get('test_py_path_template', False)
-        test_time_weight = test_item.get('test_time_weight', '')
+        test_time_weight = test_item.get('test_time_weight', 300)
 
         modern_addms = Options.objects.get(option_key__exact='modern_addm').option_value.replace(' ', '').split(',')
 
@@ -179,6 +173,8 @@ class TestExecutor:
                                                  time_spent_test=str(time_spent_test),
                                                  # time_spent_test=datetime.timedelta(seconds=time_spent_test),
                                                  )
+            # TODO: Safe raw output here:
+            # std_out_err_d
             # Close previously opened SSH:
             ssh.close()
             # Put test results into a thread queue output:

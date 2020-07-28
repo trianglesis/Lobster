@@ -165,6 +165,34 @@
             </tbody>
         </table>
     {% endif %}
+    {% if mode == 'start'%}
+        <table>
+            <thead>
+            <tr>
+                <th>Num</th>
+                <th>Group</th>
+                <th>Name</th>
+                <th>Host</th>
+                <th>IP</th>
+                <th>Full Version</th>
+                <th>Branch Lock</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for addm in addm_set %}
+                <tr>
+                    <td style="text-align: center;">{{ forloop.counter }}</td>
+                    <td>{{ addm.addm_group }}</td>
+                    <td>{{ addm.addm_name }}</td>
+                    <td>{{ addm.addm_host }}.bmc.com</td>
+                    <td style="font-size: 9pt; text-align: center;">{{ addm.addm_ip }}</td>
+                    <td style="font-size: 9pt; text-align: center;">{{ addm.addm_full_version }}</td>
+                    <td style="font-size: 9pt; text-align: center;">{{ addm.branch_lock }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
     {% if mode == 'finish' %}
         <table>
             {% include 'digests/tables_details/tests_last_table_email.html' with tests=tests_digest %}

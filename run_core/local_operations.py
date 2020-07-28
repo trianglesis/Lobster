@@ -604,7 +604,7 @@ class LocalPatternsP4Parse:
                     synced = PerforceOperations().p4_sync(path=file_path, force=True, p4_conn=p4_conn)
                     _files_synced_plan.append(file_path)
                     if synced and synced[0]:
-                        _files_synced_actually.append(synced[0].get('clientFile', None))
+                        _files_synced_actually.append(synced[0].get('clientFile', ['']))
                     log.debug(f"This will be synced: {file_path} - {p4_file.get('action', None)}")
                 else:
                     log.debug(f"This should be deleted: {file_path}")
@@ -618,7 +618,7 @@ class LocalPatternsP4Parse:
             log.warning("Change / synced files lists are NOT equal!")
 
         self.parse_and_changes_routine(sync_force=False, full=True, p4_conn=p4_conn)
-        return {'files_synced_plan': _files_synced_plan, 'files_synced_actually': _files_synced_actually}
+        return True
 
 
 class LocalDownloads:
