@@ -34,6 +34,7 @@ from run_core.local_operations import LocalPatternsP4Parse
 from run_core.models import AddmDev, TaskPrepareLog, Options
 from run_core.p4_operations import PerforceOperations
 from run_core.rabbitmq_operations import RabbitCheck
+from octo_tku_patterns.user_test_balancer import WorkerGetAvailable
 
 log = logging.getLogger("octo.octologger")
 
@@ -537,9 +538,22 @@ class TaskPrepare:
         :param tkn_branch:
         :return:
         """
+        # addm_group = self.rabbit_queue_minimal(workers_q=branch_w)  # Ask rabbit mq for less busy queue:
+        # return addm_group
         branch_w = self.branched_w(tkn_branch)
-        addm_group = self.rabbit_queue_minimal(workers_q=branch_w)  # Ask rabbit mq for less busy queue:
+        addm_group = branch_w[0]
+        if settings.DEV:
+            log.info(f"Use local dev group. {settings.DEV}")
+            addm_group = 'alpha'
+        log.debug(f"Initial addm_group: {addm_group}")
+        if not self.fake_run:
+            if settings.DEV:
+                log.info(f"Skipping workers check on local dev. {settings.DEV}")
+            else:
+                addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
+        log.debug("<=TaskPrepare=> Got an available addm_group: '%s'", addm_group)
         return addm_group
+
 
     def addm_set_select(self, addm_group=None):
         queryset = AddmDev.objects.all()
