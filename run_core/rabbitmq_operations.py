@@ -87,12 +87,14 @@ class RabbitCheck():
         except pika.exceptions.UnroutableError:
             print('Message was returned')
 
-    def declare_queue(self, queue):
+    def declare_queue_passive(self, queue):
         return self.channel.queue_declare(queue=queue, passive=True)
 
     def queue_count(self, queue, queue_declare=None):
         if not queue_declare:
-            queue_declare = self.declare_queue(queue)
+            queue_declare = self.declare_queue_passive(queue)
+        log.debug(f"queue_declare -> output: {queue_declare}")
+        log.debug(f"queue_declare -> queue_declare.message_count: {queue_declare.message_count}")
         queue_len = queue_declare.method.message_count
         return queue_len
 
@@ -152,6 +154,6 @@ class RabbitCheck():
             return f"There is no message you're asking for! {message_body.decode('utf-8')}"
 
     def consume(self, queue):
-        result = self.declare_queue(queue)
+        result = self.declare_queue_passive(queue)
         self.channel.basic_consume(queue, auto_ack=False, on_message_callback=callback_func)
         # self.channel.start_consuming()

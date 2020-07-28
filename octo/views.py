@@ -120,4 +120,5 @@ class RabbitMQQueuesREST(APIView):
             workers_list = workers_list.get('option_value', '').split(',')
         workers_list = [worker + '@tentacle.dq2' for worker in workers_list]
         inspected = RabbitCheck().queue_count_list(queues_list=workers_list)
+        log.debug(f"inspected RabbitMQ queues: {inspected}")
         return Response(inspected)
