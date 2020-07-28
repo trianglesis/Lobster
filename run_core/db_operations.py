@@ -55,7 +55,8 @@ class DBServicing:
 
         query_tests = self.clean_history_table()
         if query_tests:
-            query_tests.delete()
+            pass
+            # query_tests.delete()
         else:
             log.info("No old records found for test error\skipped\other statuses.")
         query_addms = self.delete_old_addm_tests(addm_names)
@@ -66,15 +67,16 @@ class DBServicing:
 
     def clean_history_table(self):
         unwanted_query = TestHistory.objects.filter(
-            Q(tst_status__iregex='ERROR:') |
             Q(tst_status__iregex='ERROR') |
             Q(tst_status__iregex='WARNING') |
             Q(tst_status__iregex='unexpected success') |
             Q(tst_status__iregex='expected failure') |
-            Q(tst_status__iregex=r"skipped\s+") |
-            Q(tst_status__iregex=r"Traceback\s+") |
-            Q(tst_status__iregex=r"CORBA\.") |
-            Q(tst_status__iregex=r"testutils\.MY_dml_test_utils")
+            Q(tst_status__iregex='DeprecationWarning') |
+            Q(tst_status__iregex='Unable to upload "tpl_test_patterns.zip') |
+            Q(fail_message__iregex=r"CORBA") |
+            Q(fail_message__iregex=r"Failed to activate patterns:") |
+            Q(fail_message__iregex=r"Failed to load tpl_test_patterns.zip")
+
         ).defer()
         if unwanted_query.count() > 0:
             log.info(f"Unwanted results: {unwanted_query.count()}")
