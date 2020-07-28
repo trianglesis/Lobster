@@ -4,16 +4,11 @@ All celery tasks should be collected here.
 - Task should execute only separate case or case_routine.
 - Task should not execute any code itself.
 - Task should have exception handler which output useful data or send mail.
-
-Note:
-    - Be careful with recursive import.
-    - Do not import case routines which import tasks from here.
 """
 from __future__ import absolute_import, unicode_literals
 
 import datetime
 import logging
-from typing import List, Any, Dict
 
 from django.conf import settings
 from django.db.models.query import QuerySet
@@ -25,20 +20,15 @@ from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
-
 from octo.octo_celery import app
 from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
-
 from octo_adm.tasks import TaskADDMService
-
 from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer
 from octo_tku_patterns.digests import TestDigestMail
 from octo_tku_patterns.model_views import TestLatestDigestAll
 from octo_tku_patterns.models import TestLast, TestCases, TestCasesDetails
 from octo_tku_patterns.test_executor import TestExecutor
-
 from octotests.tests_discover_run import TestRunnerLoc
-
 from run_core.addm_operations import ADDMStaticOperations
 from run_core.local_operations import LocalPatternsP4Parse
 from run_core.models import AddmDev, TaskPrepareLog, Options
@@ -473,8 +463,6 @@ class TaskPrepare:
         -- then on groups (for tku_patterns) by branches: tkn_main/tkn_ship
 
         Later this dict will be used to assign ADDM group for each.
-
-        Note: "octo_tests" should never run in this class!
         :return:
         """
 
@@ -525,7 +513,8 @@ class TaskPrepare:
             else:
                 log.debug("<=TaskPrepare=> This branch had no selected tests to run: '%s'", branch_k)
 
-    def branched_w(self, branch):
+    @staticmethod
+    def branched_w(branch):
         """
         Select only workers are related to branch
         :type branch: str
@@ -534,7 +523,8 @@ class TaskPrepare:
         branched_w = branched_w.option_value.replace(' ', '').split(',')
         return branched_w
 
-    def rabbit_queue_minimal(self, workers_q):
+    @staticmethod
+    def rabbit_queue_minimal(workers_q):
         workers = [worker + '@tentacle.dq2' for worker in workers_q]
         all_queues_len = RabbitCheck().queue_count_list(workers)
         worker_min = min(all_queues_len, key=all_queues_len.get)
@@ -592,7 +582,7 @@ class TaskPrepare:
                 addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
                 t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
                 Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
-                              fake_run=True,  # TODO: Remove
+                              fake_run=self.fake_run,
                               t_queue=f'{addm["addm_group"]}@tentacle.dq2',
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
@@ -619,7 +609,7 @@ class TaskPrepare:
             addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
             t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
-                          fake_run=True,  # TODO: Remove
+                          fake_run=self.fake_run,
                           t_queue=f'{addm["addm_group"]}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
@@ -629,7 +619,7 @@ class TaskPrepare:
         """
         Send mails during user test run. Stages: init, start, finish.
         Finish stage will include test results.
-        :param mail_opts:
+        :param mode:
         :return:
         """
         test_item = kwargs.get('test_item', None)  # When test are sorted and prepared
@@ -754,13 +744,13 @@ class TaskPrepare:
                 f'addm_group={addm["addm_group"]};user_name={self.user_name};' \
                 f'refresh={self.refresh};t_ETA={test_item.test_time_weight};test_case_path={test_item.test_case_depot_path}'
         if test_item.test_time_weight:
-            test_t_w = round(float(test_item.test_time_weight))  # TODO: If NoneType - use 0
+            test_t_w = round(float(test_item.test_time_weight))
         else:
             test_t_w = 60 * 15
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
-                      fake_run=True,  # TODO: Remove
+                      fake_run=self.fake_run,
                       t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(user_email=self.user_email,
                                     user_name=self.user_name,
