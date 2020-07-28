@@ -62,6 +62,38 @@ class TasksOperations:
 
         return {'active': t_active, 'reserved': t_reserved}
 
+    def check_active_reserved_short(self, workers_list=None, tasks_body=False):
+        """
+        Using list ow workers - get active/reserved tasks items and len of queue.
+        tasks_body - if we want to see what tasks are run.
+
+        :param tasks_body:
+        :type workers_list: list
+        """
+        inspected = []
+
+        if not workers_list:
+            workers_list = self.workers_list
+
+        # Inspect each worker, instead of list (can be much slower?):
+        inspect = app.control.inspect(destination=workers_list)  # :type worker list
+        reserved = inspect.reserved()
+        active = inspect.active()
+
+        for worker in workers_list:
+            try:
+                active_tasks = reserved.get(worker, [])  # If None - it's empty.
+                reserved_tasks = active.get(worker, [])  # If None - it's empty.
+                if tasks_body:
+                    inspected.append({worker: dict(all_tasks_len=len(active_tasks + reserved_tasks), all_tasks=active_tasks + reserved_tasks,)})
+                else:
+                    inspected.append({worker: dict(all_tasks_len=len(active_tasks + reserved_tasks))})
+            except AttributeError as e:
+                msg = "Some worker could be down '{}'! {}".format(worker, e)
+                log.error(msg)
+                inspected.append(dict(no_worker=dict(all_tasks=[dict(args='none', name='none')], all_tasks_len=0, error=msg)))
+        return inspected
+
     # VIA REST:
     # Inspect workers:
     @staticmethod

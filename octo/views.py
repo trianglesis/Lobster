@@ -124,16 +124,17 @@ class RabbitMQQueuesREST(APIView):
         return Response(inspected)
 
 
-class CeleryWorkersREST(APIView):
+class CeleryWorkersStatusREST(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request=None):
         workers_list = self.request.GET.get('workers_list', [])
+        tasks_body = self.request.GET.get('tasks_body', False)
         if not workers_list:
             workers_list = TasksOperations().workers_enabled
             workers_list = workers_list.get('option_value', '').split(',')
         workers_list = [worker + '@tentacle' for worker in workers_list]
-        inspected = TasksOperations.get_workers_summary()
-        log.debug(f"inspected RabbitMQ queues: {inspected}")
+
+        inspected = TasksOperations().check_active_reserved_short(workers_list, tasks_body)
         return Response(inspected)
