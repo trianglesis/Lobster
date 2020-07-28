@@ -431,7 +431,7 @@ class TKUOperationsREST(APIView):
         if self.request.POST:
             log.debug(f"self.request.POST: {self.request.POST}")
             self.operation_key = self.request.POST.get('operation_key', None)
-            self.fake_run = self.request.POST.get('fake_run', True)  # TODO: Debug, remove default True
+            self.fake_run = self.request.POST.get('fake_run', False)
             self.task_id = self.request.POST.get('task_id', 'ThisIsNotTheTaskJustSayingYouKnow?')
 
             self.addm_version = self.request.POST.get('addm_version', None)
@@ -446,7 +446,7 @@ class TKUOperationsREST(APIView):
         elif self.request.GET:
             log.debug(f"self.request.GET: {self.request.GET}")
             self.operation_key = self.request.GET.get('operation_key', None)
-            self.fake_run = self.request.GET.get('fake_run', True)  # TODO: Debug, remove default True
+            self.fake_run = self.request.GET.get('fake_run', False)
             self.task_id = self.request.GET.get('task_id', '')
 
             self.addm_version = self.request.GET.get('addm_version', None)
@@ -531,7 +531,7 @@ class TKUOperationsREST(APIView):
         t_queue = 'w_routines@tentacle.dq2'
         t_routing_key = 'TKUOperationsREST.tku_install_test.TUploadExec.t_upload_routines'
         task = Runner.fire_t(TUploadExec.t_upload_routines,
-                             fake_run=self.fake_run, to_sleep=2, to_debug=True,
+                             fake_run=self.fake_run,
                              args=[t_tag],
                              t_kwargs=kw_options,
                              t_queue=t_queue,
@@ -545,6 +545,7 @@ class TKUOperationsREST(APIView):
         :return:
         """
         task = Runner.fire_t(TUploadExec.t_tku_sync,
+                             fake_run=self.fake_run,
                              t_kwargs=dict(tku_type=self.tku_type),
                              t_args=['tag=t_tku_sync;'])
         return {'task_id': task.id}
@@ -558,6 +559,7 @@ class TKUOperationsREST(APIView):
         t_tag = 'run_tku_parse'
         options = dict(user_name=self.user_name, tku_type=self.tku_type)
         task = Runner.fire_t(TUploadExec.t_parse_tku,
+                             fake_run=self.fake_run,
                              t_kwargs=options,
                              t_args=[t_tag],
                              )

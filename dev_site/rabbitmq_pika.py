@@ -3,6 +3,7 @@ import time
 import pika
 import pika.exceptions
 import octo.config_cred as conf_cred
+from octo.helpers.tasks_oper import TasksOperations
 
 
 def main_check():
@@ -225,3 +226,16 @@ https://stackoverflow.com/questions/28550140/python-and-rabbitmq-best-way-to-lis
 
 # message = RabbitCheck().get_messages_ask(queue='w_routines@tentacle.dq2', body='Testing message 1')
 # print(message)
+
+workers_list = TasksOperations().workers_enabled
+workers_list = [worker + '@tentacle.dq2' for worker in workers_list]
+
+inspected = RabbitCheck().queue_count_list(queues_list=workers_list)
+print(inspected)
+
+all_mess_per_worker = dict()
+for worker in workers_list:
+    worker_mess = RabbitCheck().get_message(worker)
+    print(f'W: {worker} M: {worker_mess}')
+    all_mess_per_worker.update({worker:worker_mess})
+print(f'All workers messages: {all_mess_per_worker}')
