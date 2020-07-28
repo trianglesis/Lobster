@@ -411,7 +411,7 @@ class TestExecutor:
             tst_name=test_res.get('tst_name', 'MainTest'),
             tst_message=test_res.get('tst_message', 'Octopus custom output'),
             tst_module=test_res.get('tst_module', 'undefined'),
-            tst_status=test_res.get('tst_status', 'unknown'),
+            tst_status=test_res.get('tst_status', ''),  # Should be empty by default!
             fail_message=test_res.get('fail_message', 'unknown'),
             # Part from addm_dev table
             addm_name=addm_item['addm_name'],
