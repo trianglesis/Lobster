@@ -55,8 +55,8 @@ class DBServicing:
 
         query_tests = self.clean_history_table()
         if query_tests:
-            pass
-            # query_tests.delete()
+            # pass
+            query_tests.delete()
         else:
             log.info("No old records found for test error\skipped\other statuses.")
         query_addms = self.delete_old_addm_tests(addm_names)
