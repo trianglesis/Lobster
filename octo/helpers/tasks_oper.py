@@ -452,3 +452,35 @@ class WorkerOperations:
         worker_up = self._ping_check(w_ping, worker_up)
 
         return worker_up
+
+    def worker_ping_alt(self, worker_list):
+        """
+        Check workers list with ping. Ping will return only list of workers with answer.
+        Check the list of workers that answered to be sure they're have 'pong' in answer.
+        Update dict with workers with live workers and add also ones which hasn't 'pong' or not answered.
+        Show warnings if worker are down.
+
+        Ping return answer: [{'alpha@tentacle': {'ok': 'pong'}}]
+            worker_up {'foxtrot@tentacle': 'down', 'charlie@tentacle': 'pong', 'delta@tentacle': 'pong'}
+
+
+        :param worker_list:
+        :return:
+        """
+        worker_up = dict()
+
+        if worker_list and isinstance(worker_list, list):
+            w_ping = app.control.ping(destination=worker_list, timeout=2)
+            log.debug("<=WorkerOperations=> w_ping: %s", w_ping)
+
+            if len(w_ping) != len(worker_list):
+                for w_can in worker_list:
+                    if not any([ping.get(w_can) for ping in w_ping]):
+                        worker_up.update({w_can: 'down'})
+                        log.error("<=WorkerOperations=> Worker DOWN: %s", w_can)
+            worker_up = self._ping_check(w_ping, worker_up)
+        else:
+            log.error("<=WorkerOperations=> This should be a list of workers!")
+
+        log.debug("<=WorkerOperations=> worker_up %s", worker_up)
+        return worker_up

@@ -554,7 +554,6 @@ class TaskPrepare:
         log.debug("<=TaskPrepare=> Got an available addm_group: '%s'", addm_group)
         return addm_group
 
-
     def addm_set_select(self, addm_group=None):
         queryset = AddmDev.objects.all()
         if self.options.get('addm_group'):
@@ -644,7 +643,8 @@ class TaskPrepare:
             init_subject = f'selected cases id: {cases_ids_l}'
             subject = f'[{SITE_SHORT_NAME}] User test init: {init_subject}'
             TaskPrepareLog(subject=subject, user_email=self.user_email).save()
-            mail_html = test_added.render(dict(subject=subject, domain=SITE_DOMAIN, mode=mode, cases_selected=cases_selected))
+            mail_html = test_added.render(
+                dict(subject=subject, domain=SITE_DOMAIN, mode=mode, cases_selected=cases_selected))
 
         elif mode == 'start':
             addm = addm_set.first()
@@ -653,7 +653,8 @@ class TaskPrepare:
             addm_group = addm.get('addm_group', None)
             subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
             subject = f'[{SITE_SHORT_NAME}] User test started: {subject_str}'
-            mail_html = test_added.render(dict(subject=subject, domain=SITE_DOMAIN, mode=mode, cases_selected=cases_selected, addm_set=addm_set))
+            mail_html = test_added.render(
+                dict(subject=subject, domain=SITE_DOMAIN, mode=mode, cases_selected=cases_selected, addm_set=addm_set))
 
         elif mode == 'finish':
             addm = addm_set.first()
@@ -670,7 +671,6 @@ class TaskPrepare:
             TaskPrepareLog(subject=subject, user_email=self.user_email,
                            details=f'test_item: {test_item.values()}, addm_set: {addm_set.values()}').save()
             mail_html = test_added.render(dict(subject=subject, domain=SITE_DOMAIN, mode=mode))
-
 
         if mode == 'start' or mode == 'finish':
             mail_r_key = f'{addm_group}.TaskPrepare.t_short_mail.{mode}'
@@ -700,7 +700,6 @@ class TaskPrepare:
         mail_html = kwargs.get('mail_html', None)
         user_email = kwargs.get('user_email')
         subject = kwargs.get('subject')
-
 
         log_html = ''
         tests_digest = ''
