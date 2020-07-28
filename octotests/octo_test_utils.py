@@ -238,7 +238,10 @@ class PatternTestUtils(unittest.TestCase):
 
     def put_test_cases_short(self, test_item):
         _addm_group = self.addm_set[0]['addm_group']
+        log.debug(f"<=put_test_cases=> ReRun failed tests - using addm group: {_addm_group}")
+        self.routine_mail(mode='re-run', addm_group=_addm_group)
         self.run_cases_router(addm_tests=test_item, _addm_group=_addm_group, addm_item=self.addm_set)
+        self.routine_mail(mode='re-fin', addm_group=_addm_group)
 
     def before_tests(self):
         """

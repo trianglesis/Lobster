@@ -366,7 +366,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['alpha'],
+            addm_group__in=['juliett'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['bobblehat'],
             disables__isnull=True).values().order_by('addm_group')

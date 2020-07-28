@@ -56,6 +56,18 @@ class TestDigestMail:
             )
             mail_html = routine_mail.render(mail_kwargs)
             PatternTestUtilsLog(subject=mail_kwargs.get('subject'), details=mail_html, user_email=send_to).save()
+        elif mode == "re-run":
+            mail_kwargs.update(subject=f"1. Failed auto rerun - started - {addm_group}; branch:{branch}")
+            mail_html = routine_mail.render(mail_kwargs)
+            PatternTestUtilsLog(subject=mail_kwargs.get('subject'), details=mail_html, user_email=send_to).save()
+        elif mode == "re-fin":
+            mail_kwargs.update(
+                subject=f"2. Failed auto rerun - finished - {addm_group}; branch:{branch}",
+                finish_time=datetime.datetime.now(tz=timezone.utc),
+                time_spent=datetime.datetime.now(tz=timezone.utc) - mail_kwargs.get('start_time'),
+            )
+            mail_html = routine_mail.render(mail_kwargs)
+            PatternTestUtilsLog(subject=mail_kwargs.get('subject'), details=mail_html, user_email=send_to).save()
         mail_kwargs.update(
             subject=mail_kwargs.get('subject'),
             send_to=send_to,
