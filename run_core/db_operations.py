@@ -11,6 +11,7 @@ Make database operations:
 import logging
 
 from django.db.models import Q
+from django.conf import settings
 
 from octo_tku_patterns.model_views import AddmDigest
 from octo_tku_patterns.models import TestHistory
@@ -55,8 +56,8 @@ class DBServicing:
 
         query_tests = self.clean_history_table()
         if query_tests:
-            # pass
-            query_tests.delete()
+            if not settings.DEV:
+                query_tests.delete()
         else:
             log.info("No old records found for test error\skipped\other statuses.")
         query_addms = self.delete_old_addm_tests(addm_names)

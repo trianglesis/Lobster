@@ -4,11 +4,13 @@ Example for octo test
 import unittest
 import datetime
 import pytz
+import sqlparse
 
 try:
     from octotests import octo_tests
     from django.conf import settings
     from run_core.models import Options
+    from django.db.models.query_utils import Q
 except ModuleNotFoundError:
     import octotests.octo_tests
 
@@ -154,8 +156,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
         self.excluded_group()
-        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ',
-                                                                                                                  '').split(
+        self.addm_group_l = Options.objects.get(
+            option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(
             ',')
         self.wipe_logs_on(True)
         self.run_case()
@@ -169,8 +171,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
         self.excluded_group()
-        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ',
-                                                                                                                  '').split(
+        self.addm_group_l = Options.objects.get(
+            option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(
             ',')
         self.wipe_logs_on(True)
         self.run_case()
@@ -223,17 +225,17 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         Use only locked ADDMs for the current branch!
         :return:
         """
-        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ',
-                                                                                                                  '').split(
+        self.addm_group_l = Options.objects.get(
+            option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(
             ',')
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(90))
-        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)  # 3
-        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # 5
         self.key_group()  # 2
         self.excluded_group()  # 4
+        self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)  # 3
         self.wipe_logs_on(True)
         self.run_case()
 
@@ -245,15 +247,14 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         Use only locked ADDMs for the current branch!
         :return:
         """
-        self.addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ',
-                                                                                                                  '').split(
+        self.addm_group_l = Options.objects.get(
+            option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(
             ',')
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(90))
-        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)  # 3
-        self.queryset = self.queryset.exclude(change__in=self.exclude_changes)  # 5
         self.key_group()  # 2
         self.excluded_group()  # 4
         self.wipe_logs_on(True)
@@ -319,33 +320,32 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
     def test_999_local_debug(self):
-        date_from = now - datetime.timedelta(days=int(2))
-        # self.silent_on(False)
-        # self.fake_run_on(False)
+        self.silent_on(True)
+        self.fake_run_on(True)
         self.wipe_logs_on(False)
+        self.addm_group_l = Options.objects.get(
+            option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(
+            ',')
         self.branch = 'tkn_main'
-        # self.queryset = self.queryset.filter(test_py_path__exact='/home/user/TH_Octopus/perforce/addm/tkn_main/tku_patterns/CORE/MicroStrategy/tests/test.py')
-        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
+        date_from = now - datetime.timedelta(days=int(90))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        # self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)             # 3
-        # self.queryset = self.queryset.exclude(change__in=self.exclude_changes)          # 5
-        # self.key_group()                                                                # 2
-        # self.excluded_group()                                                           # 4
+        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
+        self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)  # 3
+        self.key_group()  # 2
+        self.excluded_group()  # 4
 
         print(self.queryset.count())
         print(self.queryset.explain())
-        print(self.queryset.query)
+        print(sqlparse.format(str(self.queryset.query), reindent=True, keyword_case='upper'))
         # Show all:
-        for test in self.queryset:
-            print(test)
-        self.addm_group_l = ['juliett']
+        # self.addm_group_l = ['juliett']
         # self.addm_group_l = ['alpha']
         # OR:
         # self.addm_set = self.addm_set.filter(
         #     addm_group__in=['alpha'],
         #     addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
         #     disables__isnull=True).values().order_by('addm_group')
-        self.run_case()
+        # self.run_case()
 
         if not settings.DEV:
             print("PROD MACHINE")

@@ -199,7 +199,7 @@ class PatternTestUtils(unittest.TestCase):
     def key_group(self):
         key_group = TestCasesDetails.objects.get(title__exact='key')
         included = key_group.test_cases.values('id')
-        key_cases = TestCases.objects.filter(id__in=included)
+        key_cases = TestCases.objects.filter(id__in=included, tkn_branch__exact=self.branch)
         self.queryset = self.queryset | key_cases
 
     def select_addm_set(self):
@@ -219,18 +219,18 @@ class PatternTestUtils(unittest.TestCase):
         """Balance tests between selected ADDM groups each group/queue will be filled
             with tests by overall (weight / groups)"""
         # TODO: Make list of addm_groups based on addm_set.
+        log.info(f"<=Night Routine=> Balance test on workers by ADDM List {self.addm_group_l}")
         self.addm_tests_balanced = BalanceNightTests().test_weight_balancer(
             addm_group=self.addm_group_l, test_items=self.queryset.order_by('-test_time_weight'))
 
     def put_test_cases(self):
         for addm_item in self.addm_set:
             addm_group = addm_item[0]['addm_group']
-            log.debug(f"<=put_test_cases=> Using addm group: {addm_group}")
+            log.debug(f"<=put_test_cases=> Using addm group: {addm_group} and branch: {self.branch}")
             addm_coll = self.addm_tests_balanced.get(addm_group)
             addm_tests = addm_coll.get('tests', [])
             if addm_tests:
                 self.all_tests_w += addm_coll.get('all_tests_weight')
-                log.debug(f"addm_item: {addm_item}")
                 self.routine_mail(mode='run', addm_group=addm_group)
                 # Sync test data on those addms from group:
                 self.sync_test_data_addm_set(addm_item)
