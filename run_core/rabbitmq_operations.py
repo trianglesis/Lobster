@@ -94,7 +94,6 @@ class RabbitCheck():
         if not queue_declare:
             queue_declare = self.declare_queue_passive(queue)
         log.debug(f"queue_declare -> output: {queue_declare}")
-        log.debug(f"queue_declare -> queue_declare.message_count: {queue_declare.message_count}")
         queue_len = queue_declare.method.message_count
         return queue_len
 
