@@ -124,7 +124,7 @@ class LocalPatternsParse:
                     elif 'main/code/python' in root:
                         log.info(root.split(os.sep))
                         split_root = root.split(os.sep)[5:]  # Cut n dirs until //addm/main/code/python
-                        log.info(f"code -  case dir: {split_root} path: {root}")
+                        # log.info(f"code -  case dir: {split_root} path: {root}")
                         test_dict.update(
                             test_type='main_python',
                             tkn_branch=tkn_branch,
@@ -145,7 +145,7 @@ class LocalPatternsParse:
                     elif 'product_content' in root:
                         # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/product_content
                         split_root = root.split(os.sep)[6:]
-                        log.info(f"product_content - case dir: {split_root} path: {root} ")
+                        # log.info(f"product_content - case dir: {split_root} path: {root} ")
                         test_dict.update(
                             test_type='product_content',
                             tkn_branch=tkn_branch,
@@ -419,7 +419,7 @@ class LocalPatternsP4Parse:
 
         msg = "Finish all threads in - {} ! Patterns parsed - {}".format(time() - ts, len(test_outputs))
         log.info(msg)
-        log.debug(test_outputs)
+        log.debug(f'Synced matrix: {test_outputs}')
         return msg
 
     def parse_and_save_changes(self, test_case, latest_change, sync_force=False, p4_conn=None):
@@ -593,7 +593,7 @@ class LocalPatternsP4Parse:
         p4_conn = PerforceOperations().p4_initialize(debug=True)
         change_max_q = TestCases.objects.all().aggregate(Max('change'))
         change_max = change_max_q.get('change__max', '312830')  # default change from 2015
-        log.debug("change_max: %s", change_max)
+        log.debug(f"change_max: {change_max}")
 
         p4_filelog = self.get_latest_filelog(depot_path=None, change_max=change_max, p4_conn=p4_conn)
         if p4_filelog:
@@ -603,14 +603,14 @@ class LocalPatternsP4Parse:
                 if not p4_file.get('action', None) == 'delete':
                     synced = PerforceOperations().p4_sync(path=file_path, force=True, p4_conn=p4_conn)
                     _files_synced_plan.append(file_path)
-                    if synced:
+                    if synced and synced[0]:
                         _files_synced_actually.append(synced[0].get('clientFile', None))
-                    log.debug("This will be synced: %s - %s", file_path, p4_file.get('action', None))
+                    log.debug(f"This will be synced: {file_path} - {p4_file.get('action', None)}")
                 else:
-                    log.debug("This should be deleted: %s", file_path)
+                    log.debug(f"This should be deleted: {file_path}")
 
-        log.debug("Synced files_synced_plan: %s %s", len(_files_synced_plan), _files_synced_plan)
-        log.debug("Synced files_synced_actually: %s %s", len(_files_synced_actually), _files_synced_actually)
+        log.debug(f"Synced files_synced_plan: {len(_files_synced_plan)}\n\t{_files_synced_plan}")
+        log.debug(f"Synced files_synced_actually: {len(_files_synced_actually)}\n\t{_files_synced_actually}")
         # Both should be equal:
         if len(_files_synced_plan) == len(_files_synced_actually):
             log.info("Change / synced files lists are equal")

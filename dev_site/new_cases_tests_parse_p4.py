@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
                         if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
                             split_root = root.split(os.sep)[6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
-                            log.info(f"tku_patterns - case dir: {split_root} path: {root}")
+                            # log.info(f"tku_patterns - case dir: {split_root} path: {root}")
                             # test_dict.update(
                             #     test_type='tku_patterns',
                             #     tkn_branch=tkn_branch,
@@ -116,7 +116,7 @@ if __name__ == "__main__":
                         elif 'main/code/python' in root:
                             log.info(root.split(os.sep))
                             split_root = root.split(os.sep)[5:]  # Cut n dirs until //addm/main/code/python
-                            log.info(f"code -  case dir: {split_root} path: {root}")
+                            # log.info(f"code -  case dir: {split_root} path: {root}")
                             test_dict.update(
                                 test_type='main_python',
                                 tkn_branch=tkn_branch,
@@ -139,7 +139,7 @@ if __name__ == "__main__":
                         elif 'product_content' in root:
                             # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/product_content
                             split_root = root.split(os.sep)[6:]
-                            log.info(f"product_content - case dir: {split_root} path: {root} ")
+                            # log.info(f"product_content - case dir: {split_root} path: {root} ")
                             test_dict.update(
                                 test_type='product_content',
                                 tkn_branch=tkn_branch,
@@ -150,7 +150,7 @@ if __name__ == "__main__":
                         else:
                             # Cut just first 4 dirs
                             split_root = root.split(os.sep)[5:]
-                            log.info(f"custom test - case dir: {split_root} path: {root}")
+                            # log.info(f"custom test - case dir: {split_root} path: {root}")
                             test_dict.update(
                                 test_type='other',
                                 tkn_branch=tkn_branch,

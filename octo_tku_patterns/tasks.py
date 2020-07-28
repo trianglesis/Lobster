@@ -607,9 +607,14 @@ class TaskPrepare:
         """
         addm = addm_set.first()
         commands_qs = ADDMStaticOperations.select_operation([
-            'test.kill.term',
-            'tku.install.kill',
-            'tw_scan_control.clear',
+            'test.kill.term',  # Kill any hanged test before.
+            'tw_scan_control.clear',  # Stop any running scan
+            'wipe.addm.pool',
+            'wipe.addm.record',
+            'wipe.tpl.files',
+            'rsync.python.testutils',
+            'rsync.tideway.utils',
+            'rsync.tku.data',
         ])
         for operation_cmd in commands_qs:
             t_tag = f'tag=t_addm_cmd_thread;addm_group={addm["addm_group"]};user_name={self.user_name};' \

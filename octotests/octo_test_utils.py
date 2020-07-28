@@ -230,7 +230,7 @@ class PatternTestUtils(unittest.TestCase):
             addm_tests = addm_coll.get('tests', [])
             if addm_tests:
                 self.all_tests_w += addm_coll.get('all_tests_weight')
-                self.before_tests()
+                log.debug(f"addm_item: {addm_item}")
                 self.routine_mail(mode='run', addm_group=addm_group)
                 # Sync test data on those addms from group:
                 self.sync_test_data_addm_set(addm_item)
@@ -244,15 +244,6 @@ class PatternTestUtils(unittest.TestCase):
         _addm_group = self.addm_set[0]['addm_group']
         log.debug(f"<=put_test_cases=> ReRun failed tests - using addm group: {_addm_group}")
         self.run_cases_router(addm_tests=test_item, _addm_group=_addm_group, addm_item=self.addm_set)
-
-    def before_tests(self):
-        """
-
-        :param addm_group:
-        :return:
-        """
-        log.debug("<=PatternTestUtils=> ADDM group run some preparations before test run?")
-        return True
 
     def after_tests(self):
         """
@@ -290,6 +281,9 @@ class PatternTestUtils(unittest.TestCase):
         commands_set = ADDMStaticOperations.select_operation([
             'test.kill.term',  # Kill any hanged test before.
             'tw_scan_control.clear',  # Stop any running scan
+            'wipe.addm.pool',
+            'wipe.addm.record',
+            'wipe.tpl.files',
             'rsync.python.testutils',
             'rsync.tideway.utils',
             'rsync.tku.data',
