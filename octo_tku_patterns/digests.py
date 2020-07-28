@@ -37,6 +37,8 @@ class TestDigestMail:
         addm_group = mail_kwargs.get('addm_group')
         branch = mail_kwargs.get('branch')
 
+        # TODO: Add here an SQL request?
+
         if not send:
             return 'Do not send emails.'
         m_night = Options.objects.get(option_key__exact='mail_recipients.night_test_routines')

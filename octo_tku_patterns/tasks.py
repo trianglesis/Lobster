@@ -206,6 +206,7 @@ class TaskPrepare:
             # It's only single test run can include wiping for test_function.
             self.test_function = self.request.get('test_function', None)
         else:
+            self.request = None
             self.options = {}
             self.user_name = obj.user_name
             self.user_email = obj.user_email

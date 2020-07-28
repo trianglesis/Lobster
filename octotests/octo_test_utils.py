@@ -20,7 +20,7 @@ from octo_tku_patterns.tasks import TaskPrepare
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.tasks import UploadTaskPrepare
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
-from run_core.models import AddmDev
+from run_core.models import AddmDev, PatternTestUtilsLog
 
 log = logging.getLogger("octo.octologger")
 
@@ -185,7 +185,11 @@ class PatternTestUtils(unittest.TestCase):
         return failed_test_py
 
     def select_failed_cases(self, test_py_list):
-        return TestCases.objects.filter(test_py_path__in=test_py_list).values()
+        rerun_tests = TestCases.objects.filter(test_py_path__in=test_py_list)
+        PatternTestUtilsLog(
+            subject="Selected tests for re-run",
+            details=f'rerun_tests: {list(rerun_tests.values())}').save()
+        return rerun_tests
 
     def excluded_group(self):
         excluded_group = TestCasesDetails.objects.get(title__exact='excluded')
@@ -239,9 +243,7 @@ class PatternTestUtils(unittest.TestCase):
     def put_test_cases_short(self, test_item):
         _addm_group = self.addm_set[0]['addm_group']
         log.debug(f"<=put_test_cases=> ReRun failed tests - using addm group: {_addm_group}")
-        self.routine_mail(mode='re-run', addm_group=_addm_group)
         self.run_cases_router(addm_tests=test_item, _addm_group=_addm_group, addm_item=self.addm_set)
-        self.routine_mail(mode='re-fin', addm_group=_addm_group)
 
     def before_tests(self):
         """
@@ -297,7 +299,7 @@ class PatternTestUtils(unittest.TestCase):
                     f'fake={self.fake_run};command_k={operation_cmd.command_key};'
             t_kwargs = dict(addm_set=addm_item, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
-                          fake_run=self.fake_run,
+                          fake_run=True, # TODO: Remove
                           t_queue=f'{_addm_group}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
@@ -322,7 +324,7 @@ class PatternTestUtils(unittest.TestCase):
                                    test_item.pattern_folder_name, test_t_w, _addm_group, self.user_name)
             # LIVE:
             Runner.fire_t(TPatternExecTest().t_test_exec_threads,
-                          fake_run=True,
+                          fake_run=True,  # TODO: Remove this on prod
                           t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=dict(addm_items=addm_item, test_item=test_item,
@@ -358,6 +360,8 @@ class PatternTestUtils(unittest.TestCase):
             addm_tests=addm_coll.get('tests', []),
             addm_test_pairs=self.addm_tests_balanced,
             all_tests=self.queryset,
+            query=self.queryset.query,
+            explain=self.queryset.explain(),
             addm_set=self.addm_set,
             addm_tests_weight=addm_coll.get('all_tests_weight'),
             tent_avg=addm_coll.get('tent_avg'),

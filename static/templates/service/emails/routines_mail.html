@@ -183,7 +183,17 @@
         <td>Current group average time:</td>
         <td>{{ tent_avg | f_sec }}</td>
     </tr>
-    {% elif 'fin' in mode %}
+    <tr>
+        <td class="table-dark"> -</td>
+        <td>Selection SQL query</td>
+        <td>{{ query }}</td>
+    </tr>
+    <tr>
+        <td class="table-dark"> -</td>
+        <td>Selection SQL explain</td>
+        <td>{{ explain }}</td>
+    </tr>
+    {% elif 'fin' in mode or 're-fin' in mode %}
     <tr>
         <td class="table-dark"> -</td>
         <td>Current status</td>
@@ -249,6 +259,17 @@
         <td>Current group average time:</td>
         <td>{{ tent_avg | f_sec }}</td>
     </tr>
+    <tr>
+        <td class="table-dark"> -</td>
+        <td>Selection SQL query</td>
+        <td>{{ query }}</td>
+    </tr>
+    <tr>
+        <td class="table-dark"> -</td>
+        <td>Selection SQL explain</td>
+        <td>{{ explain }}</td>
+    </tr>
+    {% endif %}
     </tbody>
 </table>
 <br>

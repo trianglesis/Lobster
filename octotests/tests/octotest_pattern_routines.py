@@ -276,10 +276,11 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                 # Sync test data to ADDM
                 self.sync_test_data_addm_set(addm_item=self.addm_set)
                 # Now wipe old results
-                print(f"Wipe last logs for {test_item['test_py_path']}")
-                self.wipe_case_logs(test_item['test_py_path'])
+                # print(f"Wipe last logs for {test_item['test_py_path']}")
+                # self.wipe_case_logs(test_item['test_py_path'])
                 # Put each case on selected group
                 self.put_test_cases_short([test_item])
+                break
 
     def test_017_execute_failed_ship(self):
         self.silent_on(True)
@@ -298,18 +299,20 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                 # Sync test data to ADDM
                 self.sync_test_data_addm_set(addm_item=self.addm_set)
                 # Now wipe old results
-                print(f"Wipe last logs for {test_item['test_py_path']}")
-                self.wipe_case_logs(test_item['test_py_path'])
+                # print(f"Wipe last logs for {test_item['test_py_path']}")
+                # self.wipe_case_logs(test_item['test_py_path'])
                 # Put each case on selected group
                 self.put_test_cases_short([test_item])
 
     def test_018_taxonomy_tkn_main(self):
+        self.silent_on(True)
         self.branch = 'tkn_main'
         self.queryset = self.queryset.filter(test_type__exact='product_content', tkn_branch__exact='tkn_main')
         self.addm_group_l = ['beta']
         self.run_case()
 
     def test_019_taxonomy_tkn_ship(self):
+        self.silent_on(True)
         self.branch = 'tkn_ship'
         self.queryset = self.queryset.filter(test_type__exact='product_content', tkn_branch__exact='tkn_ship')
         self.addm_group_l = ['echo']
