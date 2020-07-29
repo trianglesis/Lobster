@@ -542,16 +542,23 @@ class TaskPrepare:
         # return addm_group
         branch_w = self.branched_w(tkn_branch)
         addm_group = branch_w[0]
+
         if settings.DEV:
             log.info(f"Use local dev group. {settings.DEV}")
             addm_group = 'alpha'
+
         log.debug(f"Initial addm_group: {addm_group}")
+
         if not self.fake_run:
             if settings.DEV:
                 log.info(f"Skipping workers check on local dev. {settings.DEV}")
             else:
                 addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
         log.debug("<=TaskPrepare=> Got an available addm_group: '%s'", addm_group)
+
+        # Switch to RabbitMQ and check
+        # addm_group = self.rabbit_queue_minimal(workers_q=branch_w)
+
         return addm_group
 
     def addm_set_select(self, addm_group=None):
@@ -760,9 +767,9 @@ class TaskPrepare:
                 f'addm_group={addm["addm_group"]};user_name={self.user_name};' \
                 f'refresh={self.refresh};t_ETA={test_item.test_time_weight};test_case_path={test_item.test_case_depot_path}'
         if test_item.test_time_weight:
-            test_t_w = round(float(test_item.test_time_weight))
+            test_t_w = round(float(test_item.test_time_weight)) + 60 * 30
         else:
-            test_t_w = 60 * 15
+            test_t_w = 60 * 40
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
@@ -774,8 +781,8 @@ class TaskPrepare:
                                     test_item=test_item,
                                     test_function=self.test_function),
                       t_routing_key=task_r_key,
-                      t_soft_time_limit=test_t_w + 60 * 20,
-                      t_task_time_limit=test_t_w + 60 * 30)
+                      t_soft_time_limit=test_t_w,
+                      t_task_time_limit=test_t_w + 60 * 40)
 
     def task_tag_generate(self):
         """Just make a task tag for this routine"""

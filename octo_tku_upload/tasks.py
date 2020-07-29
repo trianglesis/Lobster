@@ -96,16 +96,13 @@ class TUploadExec:
         """ Execute TKU install command after TKU packages were unzipped in TEMP folder."""
         return UploadTestExec().install_tku_threads(**kwargs)
 
-
-class MailDigests:
-
     @staticmethod
+    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20,
+              queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_upload_digest')
     @exception
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_upload_digest',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
     def t_upload_digest(t_tag, **kwargs):
         log.info(f"Task send email: {t_tag}")
-        TKUEmailDigest.upload_daily_fails_warnings(**kwargs)
+        return TKUEmailDigest.upload_daily_fails_warnings(**kwargs)
 
 
 class UploadTaskPrepare:
@@ -120,7 +117,7 @@ class UploadTaskPrepare:
 
         self.tku_wget = self.data.get('tku_wget', None)
         self.test_mode = self.data.get('test_mode', 'custom')
-        self.tku_type = self.data.get('tku_type', None)
+        self.tku_type = self.data.get('tku_type', None)  # Assign TKU type based on packs.tku_type
         self.addm_group = self.data.get('addm_group', None)
         self.package_detail = self.data.get('package_detail', None)
 
@@ -321,7 +318,7 @@ class UploadTaskPrepare:
         But do not mess with addm prep function, as this is only for each addm host itself.
         Wait until this task is finished or just stack next tasks to addm_group worker.
         """
-        # log.debug(f'Using addm set: {self.addm_set} to run vCenter procedures based on VM ids.')
+        log.debug(f'Using addm set: {self.addm_set} to run vCenter procedures based on VM ids.')
         modes = {
             'powerOn': 'pathToPowerOnProcedure',
             'snapRevert': 'pathToSnapshotReveringProcedure',
@@ -337,7 +334,6 @@ class UploadTaskPrepare:
 
         # TODO: Maybe move this to upload_preparations? OR to test utils?
         if self.test_mode == 'fresh' and step_k == 'step_1':
-            self.vcenter_prepare(mode='snapRevert')
             options = dict(test_mode='fresh')  # 1st step is always fresh
             log.info(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - TKU wipe and prod content delete!")
 
@@ -395,71 +391,69 @@ class UploadTaskPrepare:
 
     def tku_install(self, step_k, packages_from_step):
         """ Install previously unzipped TKU from /usr/tideway/TEMP/*.zip """
+        self.tku_type = packages_from_step.first().tku_type
         for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path', 'release',
                                               'zip_file_md5_digest')
             UploadTaskPrepareLog(
                 subject=f"UploadTaskPrepare | t_tku_install | {self.test_mode} | {addm_group} | {step_k}",
-                details=f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k} packages: {list(packs)}, package_detail: {self.package_detail}").save()
-            task = Runner.fire_t(TUploadExec.t_tku_install,
-                                 fake_run=self.fake_run,
-                                 t_queue=f"{addm_group}@tentacle.dq2",
-                                 t_args=[f"UploadTaskPrepare;task=t_tku_install;test_mode={self.test_mode};"
-                                         f"addm_group={addm_group};user={self.user_name}"],
-                                 t_kwargs=dict(addm_items=addm_items, addm_group=addm_group,
-                                               test_mode=self.test_mode, step_k=step_k,
-                                               packages=packages_from_step, package_detail=self.package_detail,
-                                               user_email=self.user_email),
-                                 t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
-            self.tasks_added.append(task)
+                details=f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, "
+                        f"tku_type: {self.tku_type} step_k: {step_k} packages: {list(packs)}, "
+                        f"package_detail: {self.package_detail}").save()
+            Runner.fire_t(TUploadExec.t_tku_install,
+                          fake_run=self.fake_run,
+                          t_queue=f"{addm_group}@tentacle.dq2",
+                          t_args=[f"UploadTaskPrepare;task=t_tku_install;test_mode={self.test_mode};"
+                                  f"addm_group={addm_group};user={self.user_name}"],
+                          t_kwargs=dict(addm_items=addm_items, addm_group=addm_group,
+                                        test_mode=self.test_mode, step_k=step_k,
+                                        packages=packages_from_step, package_detail=self.package_detail,
+                                        user_email=self.user_email),
+                          t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
 
             # When finished - last task for upload status update:
+            """
+            Send email if following conditions are True:
+            if test_mode: fresh AND step_k: step_1 OR  test_mode: update AND step_k: step_2
+            if 'tku_type': 'ga_candidate' - get it from current packages_from_step - first any package from step
+            if 'tku_type': 'tkn_main_continuous' or 'tkn_ship_continuous' - get it from current packages_from_step - first any package from step
+            """
+            log.info(f"Options before mail send \n test_mode: {self.test_mode} \ntku_type: {self.tku_type}"
+                     f"\nstep_k: {step_k} \npackage_detail: {self.package_detail}")
             if self.tku_type == 'ga_candidate':
                 log.info(f"Send email of upload result for {self.tku_type}")
                 # digests.TKUEmailDigest.upload_daily_fails_warnings
-                task = Runner.fire_t(MailDigests.t_upload_digest,
-                                     fake_run=self.fake_run,
-                                     t_queue=f"{addm_group}@tentacle.dq2",
-                                     t_args=[
-                                         f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
-                                         f"addm_group={addm_group};user={self.user_name}"],
-                                     t_kwargs=dict(status='everything',
-                                                   tku_type=self.tku_type,
-                                                   fake_run=self.fake_run),
-                                     t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
-                self.tasks_added.append(task)
+                Runner.fire_t(TUploadExec.t_upload_digest,
+                              fake_run=self.fake_run,
+                              t_queue=f"{addm_group}@tentacle.dq2",
+                              t_args=[
+                                  f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
+                                  f"addm_group={addm_group};user={self.user_name}"],
+                              t_kwargs=dict(
+                                  status='everything',
+                                  tku_type=self.tku_type,
+                                  fake_run=self.fake_run
+                              ),
+                              t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
 
             elif self.tku_type == 'tkn_main_continuous' or self.tku_type == 'tkn_ship_continuous':
                 log.info(f"Send email of upload result for {self.tku_type}")
                 # digests.TKUEmailDigest.upload_daily_fails_warnings
-                task = Runner.fire_t(MailDigests.t_upload_digest,
-                                     fake_run=self.fake_run,
-                                     t_queue=f"{addm_group}@tentacle.dq2",
-                                     t_args=[
-                                         f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
-                                         f"addm_group={addm_group};user={self.user_name}"],
-                                     t_kwargs=dict(status='error',
-                                                   tku_type=self.tku_type,
-                                                   fake_run=self.fake_run),
-                                     t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
-                self.tasks_added.append(task)
-
-    def mail_stst(self, t_kwargs, t_queue=None, t_args=None, t_routing_key=None):
-        if not t_args:
-            t_args = 'UploadTaskPrepare.mail'
-        if not t_routing_key:
-            t_routing_key = 'UploadTaskPrepare.TSupport.t_short_mail'
-        if not t_queue:
-            t_queue = 'w_routines@tentacle.dq2'
-        if not self.silent:
-            task = Runner.fire_t(TSupport.t_short_mail,
-                                 fake_run=self.fake_run,
-                                 t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
-            self.tasks_added.append(task)
-        log.debug(f"Silent mode, mail don't sending: {t_kwargs.get('subject', 'subject')}")
+                Runner.fire_t(TUploadExec.t_upload_digest,
+                              fake_run=self.fake_run,
+                              t_queue=f"{addm_group}@tentacle.dq2",
+                              t_args=[
+                                  f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
+                                  f"addm_group={addm_group};user={self.user_name}"],
+                              t_kwargs=dict(
+                                  status='error',
+                                  tku_type=self.tku_type,
+                                  fake_run=self.fake_run
+                              ),
+                              t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
 
     @staticmethod
-    def debug_unpack_qs(packages):
+    def _debug_unpack_qs(packages):
         for step_k, step_package in packages.items():
             for pack in step_package:
                 log.info(

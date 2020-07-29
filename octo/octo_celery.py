@@ -86,7 +86,7 @@ app.conf.update(
     task_create_missing_queues=True,  # By Default  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-create-missing-queues
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#worker-prefetch-multiplier
-    worker_prefetch_multiplier=1,  # NOTE: Do not rely on celery queue no more, use rabbitmq queues instead!
+    worker_prefetch_multiplier=55,  # NOTE: Do not rely on celery queue no more, use rabbitmq queues instead!
 
     worker_disable_rate_limits=True,
     worker_concurrency=1,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-concurrency
@@ -117,6 +117,8 @@ app.conf.update(
     broker_connection_max_retries=0,
 
     worker_direct=True,  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#worker-direct
+
+    broker_heartbeat=4,  # https://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-broker_heartbeat
 
 )
 

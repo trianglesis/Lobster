@@ -1,6 +1,7 @@
 import logging
 import datetime
 
+from octo.helpers.tasks_mail_send import Mails
 from run_core.models import Options
 from django.template import loader
 from django.db.models import Q
@@ -26,9 +27,13 @@ class TKUEmailDigest:
         send_to = kwargs.get('send_to', None)
         send_cc = kwargs.get('send_cc', ['oleksandr_danylchenko_cw@bmc.com'])
 
+        log.info(f"<=TKUEmailDigest=> Send TKU Upload digest for status {status}, tku_type: {tku_type}")
         if not send_to:
             m_upload = Options.objects.get(option_key__exact='mail_recipients.upload_test')
             send_to = m_upload.option_value.replace(' ', '').split(',')
+
+        if fake_run:
+            send_to = send_cc
 
         # mail body
         mail_body = loader.get_template('digests/email_upload_digest.html')
@@ -42,8 +47,10 @@ class TKUEmailDigest:
             day_sel = datetime.date.today()
 
         queryset = UploadTestsNew.objects.all()
-        queryset = queryset.filter(
-            Q(test_date_time__year=day_sel.year, test_date_time__month=day_sel.month, test_date_time__day=day_sel.day))
+        queryset = queryset.filter(Q(
+            test_date_time__year=day_sel.year,
+            test_date_time__month=day_sel.month,
+            test_date_time__day=day_sel.day))
 
         if status == 'error':
             # Error integers could be Null when we not parse STD ERR for known errors
@@ -93,11 +100,12 @@ class TKUEmailDigest:
                             attach_content=mail_log,
                             attach_content_name=f'TKU_Upload_log_{status}_{tku_type if tku_type else "everything"}_{day_sel.strftime("%Y-%m-%d")}.html',
                             )
-            t_args = f'TKU_Upload_digest.{status}.mail'
-            t_routing_key = 'UserTestsDigest.TSupport.t_short_mail'
-            t_queue = 'w_routines@tentacle.dq2'
-            Runner.fire_t(TSupport.t_short_mail, fake_run=fake_run, to_sleep=2, to_debug=True,
-                          t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
+            # t_args = f'TKU_Upload_digest.{status}.mail'
+            # t_routing_key = 'UserTestsDigest.TSupport.t_short_mail'
+            # t_queue = 'w_routines@tentacle.dq2'
+            # Runner.fire_t(TSupport.t_short_mail, fake_run=fake_run, to_sleep=2, to_debug=True,
+            #               t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
+            Mails().short(**t_kwargs)
         else:
             log.info(f'There are no errors or warnings in TKU Upload for {day_sel.strftime("%Y-%m-%d")}!')
 
