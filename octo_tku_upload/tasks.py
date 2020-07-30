@@ -21,6 +21,7 @@ from octo_tku_upload.test_executor import UploadTestExec
 from octotests.tests_discover_run import TestRunnerLoc
 from run_core.local_operations import LocalDownloads
 from run_core.models import AddmDev, UploadTaskPrepareLog
+from run_core.vcenter_operations import VCenterOperations
 
 log = logging.getLogger("octo.octologger")
 logger = get_task_logger(__name__)
@@ -134,7 +135,7 @@ class UploadTaskPrepare:
 
         self.package_types = ''
         self.packages = dict()
-        self.addm_set = ''
+        self.addm_set = AddmDev.objects.all()
         # To ignore filter packages by ADDM version during unzip func
         self.development = False
 
@@ -304,7 +305,7 @@ class UploadTaskPrepare:
         for step_k, packages_v in self.packages.items():
             log.info(f"{_LH_}Processing packages step by step: {step_k}")
             # Power on machines for upload test or check online:
-            self.vcenter_prepare(mode='powerOn')
+            self.vcenter_prepare()
             # Task for upload test prep if needed (remove older TKU, prod content, etc)
             self.addm_prepare(step_k=step_k)
             # Task for unzip packages on selected each ADDM from ADDM Group
@@ -312,18 +313,17 @@ class UploadTaskPrepare:
             # Task for install TKU from unzipped packages for each ADDM from selected ADDM group
             self.tku_install(step_k=step_k, packages_from_step=packages_v)
 
-    def vcenter_prepare(self, mode):
+    def vcenter_prepare(self):
         """
         TBA: Add vCenter operations for: power on, snapshot revert.
         But do not mess with addm prep function, as this is only for each addm host itself.
         Wait until this task is finished or just stack next tasks to addm_group worker.
         """
         log.debug(f'Using addm set: {self.addm_set} to run vCenter procedures based on VM ids.')
-        modes = {
-            'powerOn': 'pathToPowerOnProcedure',
-            'snapRevert': 'pathToSnapshotReveringProcedure',
-            'powerOff': 'pathToPowerOffProcedure'
-        }
+        vc = VCenterOperations()
+        for addm in self.addm_set:
+            vc.vm_power_on(vm_obj=addm.octopusvm)
+            vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
 
     def addm_prepare(self, step_k):
         """

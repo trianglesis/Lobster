@@ -6,6 +6,7 @@ import ssl
 from pyVim import connect
 # noinspection PyUnresolvedReferences
 from pyVmomi import vim
+from pyVim.task import WaitForTask
 
 
 
@@ -164,7 +165,7 @@ class VCenterOperations:
         if vm:
             # Revert latest snapshot RevertToCurrentSnapshot_Task:
             task = vm.RevertToCurrentSnapshot_Task()
-            # task.WaitForTask(task)
+            WaitForTask(task)
             snapshot = task.info.result
             print("Snapshot reverted: {}".format(snapshot))
             return snapshot
@@ -176,9 +177,12 @@ class VCenterOperations:
         print(f"Power ON VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
-            task = vm.PowerOn()
-            print(f"Powering on task: {task}")
-            # task.WaitForTask(task)
+            if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOff:
+                task = vm.PowerOn()
+                print(f"Powering on task: {task}")
+                WaitForTask(task)
+            else:
+                print(f'This machine is not PoweredOff - skipping task! {vm_obj.vm_name}')
         else:
             print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
@@ -187,9 +191,12 @@ class VCenterOperations:
         print(f"Power OFF VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
-            task = vm.PowerOff()
-            print(f"Powering off task: {task}")
-            # task.WaitForTask(task)
+            if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
+                task = vm.PowerOff()
+                print(f"Powering off task: {task}")
+                WaitForTask(task)
+            else:
+                print(f'This machine is poweredOn already - skipping task! {vm_obj.vm_name}')
         else:
             print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
@@ -200,7 +207,7 @@ class VCenterOperations:
         if vm:
             task = vm.RebootGuest()()
             print(f"Reboot off task: {task}")
-            # task.WaitForTask(task)
+            WaitForTask(task)
         else:
             print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
@@ -211,21 +218,21 @@ class VCenterOperations:
         if vm:
             task = vm.ResetVM_Task()()()
             print(f"Reset off task: {task}")
-            # task.WaitForTask(task)
+            WaitForTask(task)
         else:
             print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
 
 
-# if __name__ == "__main__":
-#     import django
-#     django.setup()
-#     from run_core.models import AddmDev, OctopusVM
-#     vc = VCenterOperations()
-#     # all_vms = vc.list_vms(model=AddmDev, vm_model=OctopusVM)
-#
-#     alpha_addms = AddmDev.objects.filter(addm_group__exact='alpha')
-#     for addm in alpha_addms:
-#         print(f"addm {addm.octopusvm.vm_name}, {addm.octopusvm.instanceUuid}")
-#         vc.vm_power_off(vm_obj=addm.octopusvm)
-#         vc.vm_power_on(vm_obj=addm.octopusvm)
+if __name__ == "__main__":
+    import django
+    django.setup()
+    from run_core.models import AddmDev, OctopusVM
+    vc = VCenterOperations()
+    # all_vms = vc.list_vms(model=AddmDev, vm_model=OctopusVM)
+
+    alpha_addms = AddmDev.objects.filter(addm_group__exact='alpha')
+    for addm in alpha_addms:
+        print(f"addm {addm.octopusvm.vm_name}, {addm.octopusvm.instanceUuid}")
+        vc.vm_power_off(vm_obj=addm.octopusvm)
+        vc.vm_power_on(vm_obj=addm.octopusvm)
