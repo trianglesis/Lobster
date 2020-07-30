@@ -104,6 +104,7 @@ class AddmDev(models.Model):
     branch_lock = models.CharField(max_length=20)
     description = models.TextField(blank=True, null=True)
     role = models.CharField(max_length=50, blank=True, null=True)
+    # TODO: remove
     vm_cluster = models.CharField(max_length=20, blank=True, null=True)
     vm_id = models.CharField(max_length=50, blank=True, null=True)
 
@@ -145,6 +146,22 @@ class OctopusVM(models.Model):
 
     def __str__(self):
         return f'{self.addm_name} - vm: {self.vm_name}'
+
+class AddmDiscoInfo(models.Model):
+    addm_name = models.OneToOneField(
+        AddmDev, on_delete=models.CASCADE,
+        primary_key=True,
+    )
+    addm_version = models.CharField(max_length=20)
+    addm_rpm = models.TextField(blank=True, null=True)
+    files_sum = models.TextField(blank=True, null=True)
+    tw_options = models.TextField(blank=True, null=True)
+    disk_usage = models.TextField(blank=True, null=True)
+    tideway_py_files = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'octo_addm_info'
 
 
 class TaskPrepareLog(models.Model):

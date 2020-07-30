@@ -22,6 +22,7 @@ from octo.helpers.tasks_oper import WorkerOperations
 from octo.octo_celery import app
 from run_core.db_operations import DBServicing
 
+
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
 
@@ -103,6 +104,15 @@ class TSupport:
         sleep(to_sleep)
         return f'<=Fake Task=> Finished work: {routing_key}, queue: {queue}.\t\tEnd.'
 
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport._t_power_off_addm',
+              soft_time_limit=HOURS_2, task_time_limit=HOURS_2 + 900)
+    @exception
+    def _t_power_off_addm(tag, **kwargs):
+        log.info(f'Powering OFF addm group: {tag} - {kwargs}')
+        # Circular import!
+        from run_core.addm_operations import ADDMOperations
+        ADDMOperations().power_off_addm_group(kwargs)
 
 class TInternal:
 

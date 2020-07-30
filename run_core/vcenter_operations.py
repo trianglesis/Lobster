@@ -8,8 +8,6 @@ from pyVim import connect
 from pyVmomi import vim
 from pyVim.task import WaitForTask
 
-
-
 from octo.config_cred import v_center_cred
 from django.core.exceptions import ObjectDoesNotExist
 

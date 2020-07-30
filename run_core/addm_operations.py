@@ -28,6 +28,7 @@ from django.conf import settings
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_run import Runner
 from run_core.models import AddmDev, ADDMCommands
+from run_core.vcenter_operations import VCenterOperations
 
 from octo.config_cred import mails
 
@@ -666,3 +667,16 @@ class ADDMOperations:
                 log.error(msg)
                 raise Exception(msg)
         test_q.put(outputs_l)
+
+    def power_off_addm_group(self, kwargs):
+        addm_group = kwargs.get('addm_group', None)
+        if addm_group:
+            vc = VCenterOperations()
+            addm_set = AddmDev.objects.filter(addm_group__exact=addm_group)
+            for addm in addm_set:
+                print(f"PowerOff ADDM: {addm.octopusvm.vm_name}, {addm.octopusvm.instanceUuid}")
+                vc.vm_power_off(vm_obj=addm.octopusvm)
+            return True
+        else:
+            log.error(f"<=power_off_addm_group=> No addm group! {addm_group}")
+            return False
