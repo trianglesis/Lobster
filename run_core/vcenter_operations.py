@@ -174,6 +174,11 @@ class VCenterOperations:
             return None
 
     def vm_power_on(self, vm_obj):
+        """
+        Power on vm. If not powered off state - skip
+        :param vm_obj:
+        :return:
+        """
         print(f"Power ON VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
@@ -188,6 +193,11 @@ class VCenterOperations:
             return None
 
     def vm_power_off(self, vm_obj):
+        """
+        Power off vm. If not powered on state - skip
+        :param vm_obj:
+        :return:
+        """
         print(f"Power OFF VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
@@ -234,5 +244,6 @@ if __name__ == "__main__":
     alpha_addms = AddmDev.objects.filter(addm_group__exact='alpha')
     for addm in alpha_addms:
         print(f"addm {addm.octopusvm.vm_name}, {addm.octopusvm.instanceUuid}")
-        vc.vm_power_off(vm_obj=addm.octopusvm)
+        vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
+        # vc.vm_power_off(vm_obj=addm.octopusvm)
         vc.vm_power_on(vm_obj=addm.octopusvm)
