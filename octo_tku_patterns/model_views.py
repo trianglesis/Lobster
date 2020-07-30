@@ -18,7 +18,7 @@ class AddmDigest(models.Model):
         managed = False
         db_table = "addm_test_digest"
 
-
+# TODO: Make save
 class TestLatestDigestAll(models.Model):
     test_type            = models.CharField(max_length=255)
     tkn_branch           = models.CharField(max_length=255)

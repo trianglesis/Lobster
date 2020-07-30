@@ -157,3 +157,5 @@ z_DEV/test_999_local_debug.sql
 /static/octicons/*
 /static/Font-Awesome/*
 /static/admin/*
+/z_DEV/services/*
+/z_DEV/lib_examples/*

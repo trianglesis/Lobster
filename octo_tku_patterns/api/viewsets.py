@@ -7,6 +7,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from octo.api.serializers import *
+from octo.cache import OctoCache
 from octo_adm.user_operations import UserCheck
 from octo_tku_patterns.api.serializers import TestCasesSerializer, TestCasesDetailsSerializer, \
     TestLastSerializer, TestHistorySerializer, TestLatestDigestAllSerializer, AddmDigestSerializer
@@ -18,30 +19,48 @@ from octo_tku_patterns.views import compose_selector
 
 log = logging.getLogger("octo.octologger")
 
-
-@method_decorator(cache_control(max_age=60 *5), name='dispatch')
-class TestCasesSerializerViewSet(viewsets.ModelViewSet):
-    queryset = TestCases.objects.all().order_by('change_time')
-    serializer_class = TestCasesSerializer
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
+class AddmDigestViewSet(viewsets.ModelViewSet):
+    queryset = AddmDigest.objects.all()
+    serializer_class = AddmDigestSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
-        # Not the best idea: remove inter-selection args, when call this func from another views: octo.views.UserMainPage.get_queryset
-        sel_opts.pop('tst_status')
-        queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)
-        # queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
-        return queryset.order_by('change_time')
-
+        queryset = PatternsDjangoTableOper.sel_dynamical(AddmDigest, sel_opts=sel_opts)
+        queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
+        return queryset
 
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
-class TestCasesDetailsSerializerViewSet(viewsets.ModelViewSet):
-    queryset = TestCasesDetails.objects.all().order_by('changed_date')
-    serializer_class = TestCasesDetailsSerializer
+class TestDigestAllViewSet(viewsets.ModelViewSet):
+    queryset = TestLatestDigestAll.objects.all().order_by('test_date_time')
+    serializer_class = TestLatestDigestAllSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     pagination_class = StandardResultsSetPagination
 
+    def get_queryset(self):
+        sel_opts = compose_selector(self.request.GET)
+        queryset = PatternsDjangoTableOper.sel_dynamical(TestLatestDigestAll, sel_opts=sel_opts)
+        queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
+        return queryset.order_by('test_date_time')
+
+
+"""
+Add alternate view, but with pattern LIBRARY grouping!
+"""
+# @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
+# class TestDigestAllLibraryViewSet(viewsets.ModelViewSet):
+#     queryset = TestLatestDigestAll.objects.all().order_by('test_date_time')
+#     serializer_class = TestLatestDigestAllSerializer
+#     permission_classes = (IsAuthenticatedOrReadOnly, )
+#     pagination_class = StandardResultsSetPagination
+#
+#     def get_queryset(self):
+#         sel_opts = compose_selector(self.request.GET)
+#         queryset = PatternsDjangoTableOper.sel_dynamical(TestLatestDigestAll, sel_opts=sel_opts)
+#         queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
+#         return queryset.order_by('test_date_time')
 
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestLastViewSet(viewsets.ModelViewSet):
@@ -53,7 +72,7 @@ class TestLastViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
         queryset = PatternsDjangoTableOper.sel_dynamical(TestLast, sel_opts=sel_opts)
-        # queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
+        queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
         return queryset.order_by('test_date_time')
 
 
@@ -69,33 +88,30 @@ class TestHistoryViewSet(viewsets.ModelViewSet):
         # sel_opts.pop('tst_status')
         queryset = PatternsDjangoTableOper.sel_dynamical(TestHistory, sel_opts=sel_opts)
         # queryset = tst_status_selector(queryset, sel_opts)
-        # queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
+        queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
         return queryset.order_by('test_date_time')
 
-# TODO: Add REST for TestDigestAll
-@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
-class TestDigestAllViewSet(viewsets.ModelViewSet):
-    queryset = TestLatestDigestAll.objects.all().order_by('test_date_time')
-    serializer_class = TestLatestDigestAllSerializer
+@method_decorator(cache_control(max_age=60 *5), name='dispatch')
+class TestCasesSerializerViewSet(viewsets.ModelViewSet):
+    queryset = TestCases.objects.all().order_by('change_time')
+    serializer_class = TestCasesSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
-        queryset = PatternsDjangoTableOper.sel_dynamical(TestLatestDigestAll, sel_opts=sel_opts)
-        # queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
-        return queryset.order_by('test_date_time')
+        # Not the best idea: remove inter-selection args, when call this func from another views: octo.views.UserMainPage.get_queryset
+        sel_opts.pop('tst_status')
+        queryset = PatternsDjangoTableOper.sel_dynamical(TestCases, sel_opts=sel_opts)
+        queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
+        return queryset.order_by('change_time')
 
-# TODO: Add REST for AddmDigest
+
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
-class AddmDigestViewSet(viewsets.ModelViewSet):
-    queryset = AddmDigest.objects.all()
-    serializer_class = AddmDigestSerializer
+class TestCasesDetailsSerializerViewSet(viewsets.ModelViewSet):
+    queryset = TestCasesDetails.objects.all().order_by('changed_date')
+    serializer_class = TestCasesDetailsSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     pagination_class = StandardResultsSetPagination
 
-    def get_queryset(self):
-        sel_opts = compose_selector(self.request.GET)
-        queryset = PatternsDjangoTableOper.sel_dynamical(AddmDigest, sel_opts=sel_opts)
-        # queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
-        return queryset
+
