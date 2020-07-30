@@ -121,6 +121,32 @@ class AddmDevProxy(AddmDev):
         proxy = True
 
 
+class OctopusVM(models.Model):
+    addm_name = models.OneToOneField(
+        AddmDev, on_delete=models.CASCADE,
+        primary_key=True,
+    )
+    vm_name = models.CharField(max_length=50)  # Same as addm_host
+    parent_name = models.CharField(max_length=50, blank=True, null=True)
+    vm_id = models.CharField(max_length=50)
+    vm_name_str = models.CharField(max_length=50)
+    vm_os = models.CharField(max_length=255)
+    instanceUuid = models.CharField(max_length=255)
+    uptimeSeconds = models.IntegerField(blank=True, null=True)
+    bootTime = models.DateTimeField(null=True)
+    currentSnapshot = models.CharField(max_length=255, blank=True, null=True)
+    rootSnapshotList = models.TextField(blank=True, null=True)
+    pool_name = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'octo_vm'
+        unique_together = (('addm_name', 'vm_name', 'vm_id'),)
+
+    def __str__(self):
+        return f'{self.addm_name} - vm: {self.vm_name}'
+
+
 class TaskPrepareLog(models.Model):
     subject = models.CharField(max_length=255)
     user_email = models.CharField(max_length=255)
@@ -158,6 +184,7 @@ class PatternTestUtilsLog(models.Model):
         db_table = 'octo_patt_test_utils_log'
         verbose_name = 'Night Routine Run log'
         verbose_name_plural = 'Night Routines Run logs'
+
 
 class TaskExceptionLog(models.Model):
     subject = models.CharField(max_length=255)

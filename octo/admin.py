@@ -92,9 +92,9 @@ class AddmDevProxyAdmin(admin.ModelAdmin):
     """ https://djangobook.com/mdj2-django-admin/ """
     # https://djangoguide.readthedocs.io/en/latest/django/admin.html#editable-fields
     list_editable = (
-    'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
+        'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
     list_display = (
-    'id', 'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
+        'id', 'addm_host', 'addm_ip', 'disables', 'addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version')
     list_filter = ('addm_name', 'addm_group', 'branch_lock', 'role', 'addm_full_version', 'disables',)
     ordering = ('addm_group',)
     search_fields = ('addm_host', 'addm_ip', 'addm_name', 'addm_group')
@@ -130,6 +130,28 @@ class AddmDevProxyAdmin(admin.ModelAdmin):
             )
         }),
     )
+
+
+@admin.register(OctopusVM)
+class OctopusVMAdmin(admin.ModelAdmin):
+    list_display = (
+        # 'addm_name',
+        'vm_name_str',
+        'vm_name',
+        'pool_name',
+        'vm_id',
+        'vm_os',
+        # 'instanceUuid',
+        'uptimeSeconds',
+        'bootTime',
+        'currentSnapshot',
+        # 'rootSnapshotList',
+        'parent_name',
+    )
+    list_filter = ('parent_name', 'vm_name_str', 'vm_os', 'pool_name', 'vm_name', 'addm_name',)
+    ordering = ('pool_name',)
+    search_fields = ('addm_name', 'vm_name', 'parent_name', 'vm_name_str', 'vm_os', 'pool_name')
+    readonly_fields = ('bootTime', 'uptimeSeconds', 'instanceUuid',)
 
 
 @admin.register(ADDMCommands)
@@ -222,6 +244,7 @@ class PatternTestUtilsLogAdmin(admin.ModelAdmin):
     list_display = ('subject', 'user_email', 'created_at')
     list_filter = ('user_email', 'created_at')
     ordering = ('-created_at',)
+
 
 @admin.register(TaskExceptionLog)
 class TaskExceptionLogAdmin(admin.ModelAdmin):
