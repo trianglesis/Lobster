@@ -7,6 +7,8 @@ from pyVim import connect
 # noinspection PyUnresolvedReferences
 from pyVmomi import vim
 
+
+
 from octo.config_cred import v_center_cred
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -129,10 +131,101 @@ class VCenterOperations:
             )
             octo_vm.save()
 
+    def search_vm(self, vm_uuid, instance_search=True):
+        self.retrieve_content()
+        vm = self.service_instance.content.searchIndex.FindByUuid(None, vm_uuid, True, instance_search)
+        print(f'Find VM: {vm}')
+        return vm
 
-if __name__ == "__main__":
-    import django
-    django.setup()
-    from run_core.models import AddmDev, OctopusVM
-    vc = VCenterOperations()
-    all_vms = vc.list_vms(model=AddmDev, vm_model=OctopusVM)
+    def vm_create_snapshot(self, vm_obj, **kwargs):
+        print(f"Creating snapshot for VM: {vm_obj.vm_name}")
+        vm = self.search_vm(vm_obj.instanceUuid)
+        if vm:
+            name = kwargs.get('name', 'Default snapshot')
+            description = kwargs.get('description', 'Automated default snapshot.')
+            memory = kwargs.get('memory', False)
+            quiesce = kwargs.get('quiesce', False)
+            # Create snapshot CreateSnapshot_Task:
+            task = vm.CreateSnapshot_Task(name=name,
+                                          description=description,
+                                          memory=memory,
+                                          quiesce=quiesce)
+            vim.WaitForTask(task)
+            snapshot = task.info.result
+            print("Snapshot created: {}".format(snapshot))
+            return snapshot
+        else:
+            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            return None
+
+    def vm_revert_snapshot(self, vm_obj):
+        print(f"Reverting latest snapshot for VM: {vm_obj.vm_name}")
+        vm = self.search_vm(vm_obj.instanceUuid)
+        if vm:
+            # Revert latest snapshot RevertToCurrentSnapshot_Task:
+            task = vm.RevertToCurrentSnapshot_Task()
+            # task.WaitForTask(task)
+            snapshot = task.info.result
+            print("Snapshot reverted: {}".format(snapshot))
+            return snapshot
+        else:
+            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            return None
+
+    def vm_power_on(self, vm_obj):
+        print(f"Power ON VM: {vm_obj.vm_name}")
+        vm = self.search_vm(vm_obj.instanceUuid)
+        if vm:
+            task = vm.PowerOn()
+            print(f"Powering on task: {task}")
+            # task.WaitForTask(task)
+        else:
+            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            return None
+
+    def vm_power_off(self, vm_obj):
+        print(f"Power OFF VM: {vm_obj.vm_name}")
+        vm = self.search_vm(vm_obj.instanceUuid)
+        if vm:
+            task = vm.PowerOff()
+            print(f"Powering off task: {task}")
+            # task.WaitForTask(task)
+        else:
+            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            return None
+
+    def vm_soft_reboot(self, vm_obj):
+        print(f"Soft REBOOT VM: {vm_obj.vm_name}")
+        vm = self.search_vm(vm_obj.instanceUuid)
+        if vm:
+            task = vm.RebootGuest()()
+            print(f"Reboot off task: {task}")
+            # task.WaitForTask(task)
+        else:
+            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            return None
+
+    def vm_reset(self, vm_obj):
+        print(f"RESET VM: {vm_obj.vm_name}")
+        vm = self.search_vm(vm_obj.instanceUuid)
+        if vm:
+            task = vm.ResetVM_Task()()()
+            print(f"Reset off task: {task}")
+            # task.WaitForTask(task)
+        else:
+            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            return None
+
+
+# if __name__ == "__main__":
+#     import django
+#     django.setup()
+#     from run_core.models import AddmDev, OctopusVM
+#     vc = VCenterOperations()
+#     # all_vms = vc.list_vms(model=AddmDev, vm_model=OctopusVM)
+#
+#     alpha_addms = AddmDev.objects.filter(addm_group__exact='alpha')
+#     for addm in alpha_addms:
+#         print(f"addm {addm.octopusvm.vm_name}, {addm.octopusvm.instanceUuid}")
+#         vc.vm_power_off(vm_obj=addm.octopusvm)
+#         vc.vm_power_on(vm_obj=addm.octopusvm)
