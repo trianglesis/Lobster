@@ -58,7 +58,7 @@ app.autodiscover_tasks()  # Load task modules from all registered Django app con
 default_exchange = Exchange('default', type='direct', durable=False)
 
 app.conf.update(
-    accept_content=['pickle', 'json',],
+    accept_content=['pickle',],
     task_serializer='pickle',
     result_serializer='pickle',  # https://docs.celeryproject.org/en/master/userguide/calling.html#calling-serializers
     result_extended=True,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#result-extended
@@ -86,7 +86,7 @@ app.conf.update(
     task_create_missing_queues=True,  # By Default  # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-create-missing-queues
 
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#worker-prefetch-multiplier
-    worker_prefetch_multiplier=55,  # NOTE: Do not rely on celery queue no more, use rabbitmq queues instead!
+    worker_prefetch_multiplier=2,  # NOTE: Do not rely on celery queue no more, use rabbitmq queues instead!
 
     worker_disable_rate_limits=True,
     worker_concurrency=1,  # https://docs.celeryproject.org/en/master/userguide/configuration.html#worker-concurrency

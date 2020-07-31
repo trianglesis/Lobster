@@ -14,30 +14,26 @@ function getCeleryWorkersStatus() {
 
 function createWorkerRow(workerQueues) {
     let workerTable = document.getElementById('worker-table');
-    // console.table(workerTable);
-
     // Iter list:
-    for (let workerItem of workerQueues) {
-        for (const [workerName, workerValue] of Object.entries(workerItem)) {
-            let workerRow = document.createElement('tr');
-            let workerNameCell = document.createElement('td');
-            let workerTaskCountCell = document.createElement('td');
-            let workerTaskCountButton = document.createElement('a');
+    for (const [workerName, workerValue] of Object.entries(workerQueues)) {
+        let workerRow = document.createElement('tr');
+        let workerNameCell = document.createElement('td');
+        let workerTaskCountCell = document.createElement('td');
+        let workerTaskCountButton = document.createElement('a');
 
-            workerRow.setAttribute('id', workerName);
-            workerNameCell.setAttribute('class', 'bg-light text-dark');
-            workerNameCell.style.textAlign = `left`;
-            workerTaskCountCell.setAttribute('class', 'bg-light text-center text-dark');
-            workerTaskCountButton.setAttribute('class', 'btn btn-sm-er btn-outline-dark');
-            workerTaskCountButton.href = `/octo_admin/celery_inspect/?workers=${workerName.split('@')[0]}`;
-            workerTaskCountButton.textContent = `${workerName}`;
-            workerTaskCountCell.innerText = `${workerValue['all_tasks_len']}`;
+        workerRow.setAttribute('id', workerName);
+        workerNameCell.setAttribute('class', 'bg-light text-dark');
+        workerNameCell.style.textAlign = `left`;
+        workerTaskCountCell.setAttribute('class', 'bg-light text-center text-dark');
+        workerTaskCountButton.setAttribute('class', 'btn btn-sm-er btn-outline-dark');
+        workerTaskCountButton.href = `/octo_admin/celery_inspect/?workers=${workerName.split('@')[0]}`;
+        workerTaskCountButton.textContent = `${workerName}`;
+        workerTaskCountCell.innerText = `${workerValue}`;
 
-            workerNameCell.appendChild(workerTaskCountButton);
-            workerRow.appendChild(workerNameCell);
-            workerRow.appendChild(workerTaskCountCell);
-            workerTable.appendChild(workerRow);
-        }
+        workerNameCell.appendChild(workerTaskCountButton);
+        workerRow.appendChild(workerNameCell);
+        workerRow.appendChild(workerTaskCountCell);
+        workerTable.appendChild(workerRow);
     }
 
 }
@@ -63,22 +59,22 @@ function RESTGetCeleryWorkersQueues(workerList, tasksBody, createWorkerRow) {
         "type": "GET",
         "dataType": "json",
         contentType: "application/json; charset=utf-8",
-        "url": "/inspect_celery_workers/",
+        "url": "/inspect_rabbitmq_queues/",
         data: data,
         "beforeSend": function (xhr, settings) {
             $.ajaxSettings.beforeSend(xhr, settings)
         },
         "success": function (result) {
             // console.log(`GET result: ${result}`);
-            // console.table(result);
             if (result) {
+                // console.table(result);
                 createWorkerRow(result)
             } else {
-                console.log("Task GET failed, no task found or no status");
+                console.error("Task GET failed, no task found or no status");
             }
         },
         "error": function () {
-            console.log("GET TASK ERROR, something goes wrong...");
+            console.error("GET TASK ERROR, something goes wrong...");
         },
     });
     return [];

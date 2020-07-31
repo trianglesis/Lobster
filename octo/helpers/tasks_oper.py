@@ -74,15 +74,24 @@ class TasksOperations:
         if not workers_list:
             workers_list = self.workers_list
 
+        log.debug(f'Inspecting workers {workers_list}')
         # Inspect each worker, instead of list (can be much slower?):
         inspect = app.control.inspect(destination=workers_list)  # :type worker list
+
+        stats = inspect.stats()
+        log.debug(f"Inspect stats {stats}")
+        registered_tasks = inspect.registered()
+        log.debug(f"Inspect registered_tasks {registered_tasks}")
+
         reserved = inspect.reserved()
         active = inspect.active()
 
         for worker in workers_list:
             try:
                 active_tasks = reserved.get(worker, [])  # If None - it's empty.
+                log.debug(f'{worker} active_tasks: {active_tasks}')
                 reserved_tasks = active.get(worker, [])  # If None - it's empty.
+                log.debug(f'{worker} reserved_tasks: {reserved_tasks}')
                 if tasks_body:
                     inspected.append({worker: dict(all_tasks_len=len(active_tasks + reserved_tasks), all_tasks=active_tasks + reserved_tasks,)})
                 else:

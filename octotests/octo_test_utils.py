@@ -158,14 +158,14 @@ class PatternTestUtils(unittest.TestCase):
     def wipe_case_logs(self, test_py_path):
         """Delete latest logs for selected test cases if they're were selected to run."""
         if not self.fake_run:
-            log.debug("<=PatternTestUtils=> Will wipe logs of selected patterns.")
+            log.debug(f"<=PatternTestUtils=> Will wipe logs of selected patterns. {test_py_path}")
             if isinstance(test_py_path, list):
                 to_delete = TestLast.objects.filter(test_py_path__in=test_py_path)
-                # log.warning(f"About to delete test logs: {to_delete.count()}\n{to_delete.query}\n{to_delete}")
+                log.warning(f"About to delete test logs: {to_delete.count()}\n{to_delete.query}\n{to_delete}")
                 to_delete.delete()
             elif isinstance(test_py_path, str):
                 to_delete = TestLast.objects.filter(test_py_path__exact=test_py_path)
-                # log.warning(f"About to delete test logs: {to_delete.count()}\n{to_delete.query}\n{to_delete}")
+                log.warning(f"About to delete test logs: {to_delete.count()}\n{to_delete.query}\n{to_delete}")
                 to_delete.delete()
             else:
                 log.warning("Do not wipe logs is test_py_path is not a list or str!")
@@ -212,7 +212,7 @@ class PatternTestUtils(unittest.TestCase):
 
     def select_addm_group(self):
         """ Select min worker - same as in octo_tku_patterns.tasks.TaskPrepare """
-        addm_group = TaskPrepare(self).addm_group_get(tkn_branch=self.branch)
+        addm_group = TaskPrepare(self).rabbit_queue_minimal(tkn_branch=self.branch)
         self.addm_set = TaskPrepare(self).addm_set_select(addm_group=addm_group)
 
     def balance_tests_on_workers(self):
@@ -319,6 +319,7 @@ class PatternTestUtils(unittest.TestCase):
             # LIVE:
             Runner.fire_t(TPatternExecTest().t_test_exec_threads,
                           fake_run=self.fake_run,
+                          to_sleep=60 * 30, to_debug=True,
                           t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=dict(addm_items=addm_item, test_item=test_item,

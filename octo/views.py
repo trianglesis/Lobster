@@ -135,6 +135,9 @@ class CeleryWorkersStatusREST(APIView):
             workers_list = TasksOperations().workers_enabled
             workers_list = workers_list.get('option_value', '').split(',')
         workers_list = [worker + '@tentacle' for worker in workers_list]
+        log.debug(f'Inspect workers: {workers_list}')
 
+        inspected = []
         inspected = TasksOperations().check_active_reserved_short(workers_list, tasks_body)
+        log.debug(f"inspected Celery queues: {inspected}")
         return Response(inspected)

@@ -493,7 +493,7 @@ class TaskPrepare:
             if branch_cases:
                 log.debug(f"<=TaskPrepare=> Balancing tests for branch: '{branch_k}': {branch_cases}")
                 # 5. Assign free worker for test cases run
-                addm_group = self.addm_group_get(tkn_branch=branch_k)
+                addm_group = self.rabbit_queue_minimal(tkn_branch=branch_k)
                 addm_set = self.addm_set_select(addm_group=addm_group)
                 # 6. Sync current ADDM set with actual data from Octopus, after p4 sync finished it's work:
                 self.addm_rsync(addm_set)
@@ -520,13 +520,22 @@ class TaskPrepare:
         branched_w = branched_w.option_value.replace(' ', '').split(',')
         return branched_w
 
-    @staticmethod
-    def rabbit_queue_minimal(workers_q):
+    def rabbit_queue_minimal(self, workers_q=None, tkn_branch=None):
+        if not workers_q and tkn_branch:
+            workers_q = self.branched_w(tkn_branch)
+
         workers = [worker + '@tentacle.dq2' for worker in workers_q]
+        log.debug(f"Check RabbitMQ workers {workers}")
+
         all_queues_len = RabbitCheck().queue_count_list(workers)
+        log.debug(f"RabbitMQ all_queues_len {all_queues_len}")
+
         worker_min = min(all_queues_len, key=all_queues_len.get)
+        log.debug(f"Worker rabbitMQ min: {worker_min}")
+
         if '@tentacle' in worker_min:
             worker_min = worker_min.replace('@tentacle.dq2', '')
+        log.debug(f'Selected min worker {worker_min}')
         return worker_min
 
     def addm_group_get(self, tkn_branch):
@@ -541,23 +550,19 @@ class TaskPrepare:
         # addm_group = self.rabbit_queue_minimal(workers_q=branch_w)  # Ask rabbit mq for less busy queue:
         # return addm_group
         branch_w = self.branched_w(tkn_branch)
-        addm_group = branch_w[0]
-
-        if settings.DEV:
-            log.info(f"Use local dev group. {settings.DEV}")
-            addm_group = 'alpha'
-
-        log.debug(f"Initial addm_group: {addm_group}")
-
-        if not self.fake_run:
-            if settings.DEV:
-                log.info(f"Skipping workers check on local dev. {settings.DEV}")
-            else:
-                addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
-        log.debug("<=TaskPrepare=> Got an available addm_group: '%s'", addm_group)
-
+        # addm_group = branch_w[0]
+        # if settings.DEV:
+        #     log.info(f"Use local dev group. {settings.DEV}")
+        #     addm_group = 'alpha'
+        # log.debug(f"Initial addm_group: {addm_group}")
+        # if not self.fake_run:
+        #     if settings.DEV:
+        #         log.info(f"Skipping workers check on local dev. {settings.DEV}")
+        #     else:
+        #         addm_group = WorkerGetAvailable().user_test_available_w(branch=tkn_branch, user_mail=self.user_email)
+        # log.debug("<=TaskPrepare=> Got an available addm_group: '%s'", addm_group)
         # Switch to RabbitMQ and check
-        # addm_group = self.rabbit_queue_minimal(workers_q=branch_w)
+        addm_group = self.rabbit_queue_minimal(workers_q=branch_w)
 
         return addm_group
 
