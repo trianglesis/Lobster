@@ -328,7 +328,9 @@ class UploadTaskPrepare:
             vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
             vc.vm_power_on(vm_obj=addm.octopusvm)
             # TODO: Block ADDM queue for a few minutes until ADDM services are OK.
-        time.sleep(120)
+        log.info('Sleep for 5 minutes to let ADDM services start')
+        time.sleep(60 * 5)
+        log.info('Finish Sleep for 5 minutes to let ADDM services start')
 
 
     def addm_prepare(self, step_k):
