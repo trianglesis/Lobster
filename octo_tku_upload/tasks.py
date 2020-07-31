@@ -284,11 +284,11 @@ class UploadTaskPrepare:
         """
         if self.addm_group:
             addm_set = AddmDev.objects.all()
-            self.addm_set = addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True).values()
+            self.addm_set = addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True)
         else:
             log.debug("Using addm set from test call.")
         if self.addm_set:
-            self.addm_set = self.addm_set.order_by('addm_group').values()
+            self.addm_set = self.addm_set.order_by('addm_group')
         else:
             msg = "Addm set has not selected. It should be selected by passing addm_group argument, " \
                   "or in octotest overriding the query" \
@@ -322,9 +322,11 @@ class UploadTaskPrepare:
         log.debug(f'Using addm set: {self.addm_set} to run vCenter procedures based on VM ids.')
         vc = VCenterOperations()
         for addm in self.addm_set:
+            log.info(f"addm from set: {addm}")
             vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
             vc.vm_power_on(vm_obj=addm.octopusvm)
             # TODO: Block ADDM queue for a few minutes until ADDM services are OK.
+            breakpoint()
 
     def addm_prepare(self, step_k):
         """
@@ -393,7 +395,7 @@ class UploadTaskPrepare:
     def tku_install(self, step_k, packages_from_step):
         """ Install previously unzipped TKU from /usr/tideway/TEMP/*.zip """
         self.tku_type = packages_from_step.first().tku_type
-        for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
+        for addm_group, addm_items in groupby(self.addm_set.values(), itemgetter('addm_group')):
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path', 'release',
                                               'zip_file_md5_digest')
             UploadTaskPrepareLog(

@@ -62,7 +62,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=self.tkn_main_addm_group_l,
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test002_product_content_update_tkn_ship(self):
@@ -82,7 +82,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=self.tkn_ship_addm_group_l,
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test003_tideway_devices_update_tkn_main(self):
@@ -102,7 +102,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=self.tkn_main_addm_group_l,
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test004_tideway_devices_update_tkn_ship(self):
@@ -122,7 +122,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=self.tkn_ship_addm_group_l,
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test005_release_ga_upgrade(self):
@@ -143,7 +143,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=['alpha'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test006_release_ga_fresh(self):
@@ -160,7 +160,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=['alpha'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.package_types = [package_type]
         self.run_case()
 
@@ -182,7 +182,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=['beta'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test008_tkn_ship_continuous_fresh(self):
@@ -203,11 +203,11 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=['echo'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test009_release_ga_upgrade_and_fresh(self):
-        self.tku_wget = True
+        # self.tku_wget = True
         self.test005_release_ga_upgrade()
         self.test006_release_ga_fresh()
 
@@ -227,7 +227,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=['beta'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test011_product_content_update_tkn_ship_echo(self):
@@ -246,7 +246,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=['echo'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test012_product_content_update_main_options_addm(self):
@@ -264,7 +264,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=self.addm_group_l,
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test013_product_content_update_ship_options_addm(self):
@@ -282,7 +282,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=self.addm_group_l,
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test014_product_content_update_main_continuous(self):
@@ -301,8 +301,8 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=self.addm_group_l,
             # addm_group__in=['beta'],
             addm_v_int__in=['11.90'],
-            disables__isnull=True).values().order_by('addm_group')
-        print(self.addm_set.values())
+            disables__isnull=True).order_by('addm_group')
+        print(self.addm_set)
         self.run_case()
 
     def test015_product_content_update_main_latest(self):
@@ -321,7 +321,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=self.addm_group_l,
             # addm_group__in=['beta'],
             addm_v_int__in=['11.90'],
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test016_tku_install_main_continuous(self):
@@ -338,7 +338,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=['beta'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['fish_finger'],
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test017_tku_install_main_latest(self):
@@ -355,7 +355,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=['beta'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['fish_finger'],
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
     def test999_tkn_main_continuous_fresh(self):
@@ -369,7 +369,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
             addm_group__in=['juliett'],
             addm_v_int__in=['11.2','11.3', '12.0'],
             # addm_name__in=['bobblehat'],
-            disables__isnull=True).values().order_by('addm_group')
+            disables__isnull=True).order_by('addm_group')
         self.run_case()
 
 
