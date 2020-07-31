@@ -348,6 +348,7 @@ class PatternTestUtils(unittest.TestCase):
             return 'Do not send emails.'
 
         mail_kwargs.update(
+            silent=self.silent,
             branch=self.branch,
             addm_coll=addm_coll,
             addm_groups=self.addm_group_l,

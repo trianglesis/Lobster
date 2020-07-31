@@ -32,15 +32,16 @@ class TestDigestMail:
 
         :return:
         """
+        silent = mail_kwargs.get('silent', False)
         mode = mail_kwargs.get('mode')
-        send = mail_kwargs.get('send', True)
         addm_group = mail_kwargs.get('addm_group')
         branch = mail_kwargs.get('branch')
 
         # TODO: Add here an SQL request?
 
-        if not send:
+        if silent:
             return 'Do not send emails.'
+
         m_night = Options.objects.get(option_key__exact='mail_recipients.night_test_routines')
         mail_html = ''
         routine_mail = loader.get_template('service/emails/routines_mail.html')
