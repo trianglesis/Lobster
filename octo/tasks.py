@@ -114,6 +114,16 @@ class TSupport:
         from run_core.addm_operations import ADDMOperations
         ADDMOperations().power_off_addm_group(kwargs)
 
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport._t_power_off_addm',
+              soft_time_limit=HOURS_2, task_time_limit=HOURS_2 + 900)
+    @exception
+    def _t_list_vms(tag, **kwargs):
+        log.info(f'Powering OFF addm group: {tag} - {kwargs}')
+        # Circular import!
+        from run_core.addm_operations import ADDMOperations
+        ADDMOperations().vm_list_update(kwargs)
+
 class TInternal:
 
     @staticmethod

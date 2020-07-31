@@ -73,7 +73,7 @@ class VCenterOperations:
         containerView = self.content.viewManager.CreateContainerView(self.container, viewType, recursive)  # create container view
         return containerView
 
-    def list_vms(self, model=None, vm_model=None):
+    def list_vms_update_db(self, model=None, vm_model=None):
         containerView = self.get_content_vms()
         children = containerView.view
         all_vms = []

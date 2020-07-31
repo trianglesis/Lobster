@@ -27,7 +27,7 @@ from paramiko import SSHClient
 from django.conf import settings
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_run import Runner
-from run_core.models import AddmDev, ADDMCommands
+from run_core.models import AddmDev, ADDMCommands, OctopusVM
 from run_core.vcenter_operations import VCenterOperations
 
 from octo.config_cred import mails
@@ -667,6 +667,12 @@ class ADDMOperations:
                 log.error(msg)
                 raise Exception(msg)
         test_q.put(outputs_l)
+
+    def vm_list_update(self, kwargs):
+        log.info(f'vm_list_update -> {kwargs}')
+        vc = VCenterOperations()
+        all_vms = vc.list_vms_update_db(model=AddmDev, vm_model=OctopusVM)
+        return all_vms
 
     def power_off_addm_group(self, kwargs):
         addm_group = kwargs.get('addm_group', None)
