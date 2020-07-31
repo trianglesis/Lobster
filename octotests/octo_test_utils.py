@@ -393,6 +393,9 @@ class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
         # To ignore filter packages by ADDM version during unzip func
         self.development = False
 
+        # ADDM VM Snapshot:
+        self.revert_snapshot = False
+
         self.packages = TkuPackages.objects.all()
         if not self.addm_group:
             self.addm_set = AddmDev.objects.all()
