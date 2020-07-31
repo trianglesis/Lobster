@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
+import time
 import logging
 from itertools import groupby
 from operator import itemgetter
@@ -166,6 +167,8 @@ class UploadTaskPrepare:
         self.select_pack_modes()
         # 3. Select ADDMs for test:
         self.select_addm()
+        # 3.1 ADDM VM Prepare
+        self.vcenter_prepare()
         # 4. For each package&addm version do SOMETHING:
         self.tku_run_steps()
         return self.tasks_added
@@ -305,7 +308,6 @@ class UploadTaskPrepare:
         for step_k, packages_v in self.packages.items():
             log.info(f"{_LH_}Processing packages step by step: {step_k}")
             # Power on machines for upload test or check online:
-            self.vcenter_prepare()
             # Task for upload test prep if needed (remove older TKU, prod content, etc)
             self.addm_prepare(step_k=step_k)
             # Task for unzip packages on selected each ADDM from ADDM Group
@@ -322,9 +324,12 @@ class UploadTaskPrepare:
         log.debug(f'Using addm set: {self.addm_set} to run vCenter procedures based on VM ids.')
         vc = VCenterOperations()
         for addm in self.addm_set:
+            log.info(f"addm from set: {addm}")
             vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
             vc.vm_power_on(vm_obj=addm.octopusvm)
             # TODO: Block ADDM queue for a few minutes until ADDM services are OK.
+        time.sleep(120)
+
 
     def addm_prepare(self, step_k):
         """
@@ -354,7 +359,7 @@ class UploadTaskPrepare:
             log.debug(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - no preparations.")
 
         if options:
-            for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
+            for addm_group, addm_items in groupby(self.addm_set.values(), itemgetter('addm_group')):
                 options.update(fake_run=self.fake_run,
                                addm_items=addm_items, addm_group=addm_group, step_k=step_k, user_email=self.user_email)
                 UploadTaskPrepareLog(
@@ -373,7 +378,7 @@ class UploadTaskPrepare:
         :param packages_from_step:
         :return:
         """
-        for addm_group, addm_items in groupby(self.addm_set, itemgetter('addm_group')):
+        for addm_group, addm_items in groupby(self.addm_set.values(), itemgetter('addm_group')):
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path')
             UploadTaskPrepareLog(
                 subject=f"UploadTaskPrepare | t_upload_unzip | {self.test_mode} | {addm_group} | {step_k}",
@@ -393,6 +398,8 @@ class UploadTaskPrepare:
     def tku_install(self, step_k, packages_from_step):
         """ Install previously unzipped TKU from /usr/tideway/TEMP/*.zip """
         self.tku_type = packages_from_step.first().tku_type
+        # addm_set = self.addm_set.order_by('addm_group').values()
+        # log.info(f"<=tku_install=> addm_set: {addm_set}")
         for addm_group, addm_items in groupby(self.addm_set.values(), itemgetter('addm_group')):
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path', 'release',
                                               'zip_file_md5_digest')
