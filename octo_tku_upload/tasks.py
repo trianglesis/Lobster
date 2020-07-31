@@ -334,7 +334,7 @@ class UploadTaskPrepare:
             log.debug(f'Using addm set: {self.addm_set} to run vCenter procedures based on VM ids.')
             vc = VCenterOperations()
             for addm in self.addm_set:
-                log.info(f"addm from set: {addm}")
+                log.info(f"Snap revert and power on - addm from set: {addm}")
                 vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
                 vc.vm_power_on(vm_obj=addm.octopusvm)
             # TODO: Block ADDM queue for a few minutes until ADDM services are OK?

@@ -28,6 +28,7 @@ class VCenterOperations:
         self.content =None
         self.containerView = None
         self.container = None
+        self.session_manager = None
 
         # Store connection here:
         self.vconnect()
@@ -59,7 +60,7 @@ class VCenterOperations:
         """
         self.retrieve_content()
         self.container = self.content.rootFolder  # starting point to look into
-        print("container {}".format(self.container))
+        log.info(f"container {self.container}")
 
     def get_content_vms(self):
         self.root_container()
@@ -67,7 +68,7 @@ class VCenterOperations:
 
         recursive = True  # whether we should look into it recursively
         viewType = [vim.VirtualMachine]  # object types to look for
-        print("viewType {}".format(viewType))
+        log.info(f"viewType {viewType}")
 
         containerView = self.content.viewManager.CreateContainerView(self.container, viewType, recursive)  # create container view
         return containerView
@@ -101,19 +102,20 @@ class VCenterOperations:
                 if model and vm_model:
                     self.insert_update_addm_vm(vm=vm_info_all, model=model, vm_model=vm_model)
 
-                print(f"VM Info: {vm_info_all}")
+                log.info(f"VM Info: {vm_info_all}")
             else:
-                print(f"Has no name: {child}")
+                log.info(f"Has no name: {child}")
         return all_vms
 
-    def insert_update_addm_vm(self, vm, model, vm_model):
+    @staticmethod
+    def insert_update_addm_vm(vm, model, vm_model):
         related_addm = None
         try:
             related_addm = model.objects.get(addm_host__exact=vm['vm_name'])
         except ObjectDoesNotExist as e:
-            print(f'VM is not in ADDM VMs, skip {vm["vm_name"]} {e}')
+            log.info(f'VM is not in ADDM VMs, skip {vm["vm_name"]} {e}')
         if related_addm:
-            print(f"Found ADDM VM! {related_addm}")
+            log.info(f"Found ADDM VM! {related_addm}")
             octo_vm = vm_model(
                 addm_name=related_addm,
                 vm_name=vm['vm_name'],
@@ -133,11 +135,11 @@ class VCenterOperations:
     def search_vm(self, vm_uuid, instance_search=True):
         self.retrieve_content()
         vm = self.service_instance.content.searchIndex.FindByUuid(None, vm_uuid, True, instance_search)
-        print(f'Find VM: {vm}')
+        log.info(f'Find VM: {vm}')
         return vm
 
     def vm_create_snapshot(self, vm_obj, **kwargs):
-        print(f"Creating snapshot for VM: {vm_obj.vm_name}")
+        log.info(f"Creating snapshot for VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
             name = kwargs.get('name', 'Default snapshot')
@@ -151,24 +153,24 @@ class VCenterOperations:
                                           quiesce=quiesce)
             vim.WaitForTask(task)
             snapshot = task.info.result
-            print("Snapshot created: {}".format(snapshot))
+            log.info(f"Snapshot created: {snapshot}")
             return snapshot
         else:
-            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
 
     def vm_revert_snapshot(self, vm_obj):
-        print(f"Reverting latest snapshot for VM: {vm_obj.vm_name}")
+        log.info(f"Reverting latest snapshot for VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
             # Revert latest snapshot RevertToCurrentSnapshot_Task:
             task = vm.RevertToCurrentSnapshot_Task()
             WaitForTask(task)
             snapshot = task.info.result
-            print("Snapshot reverted: {}".format(snapshot))
+            log.info(f"Snapshot reverted: {snapshot}")
             return snapshot
         else:
-            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
 
     def vm_power_on(self, vm_obj):
@@ -177,17 +179,17 @@ class VCenterOperations:
         :param vm_obj:
         :return:
         """
-        print(f"Power ON VM: {vm_obj.vm_name}")
+        log.info(f"Power ON VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
             if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOff:
                 task = vm.PowerOn()
-                print(f"Powering on task: {task}")
+                log.info(f"Powering on task: {task}")
                 WaitForTask(task)
             else:
-                print(f'This machine is not PoweredOff - skipping task! {vm_obj.vm_name}')
+                log.info(f'This machine is not PoweredOff - skipping task! {vm_obj.vm_name}')
         else:
-            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
 
     def vm_power_off(self, vm_obj):
@@ -196,52 +198,52 @@ class VCenterOperations:
         :param vm_obj:
         :return:
         """
-        print(f"Power OFF VM: {vm_obj.vm_name}")
+        log.info(f"Power OFF VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
             if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
                 task = vm.PowerOff()
-                print(f"Powering off task: {task}")
+                log.info(f"Powering off task: {task}")
                 WaitForTask(task)
             else:
-                print(f'This machine is poweredOn already - skipping task! {vm_obj.vm_name}')
+                log.info(f'This machine is poweredOn already - skipping task! {vm_obj.vm_name}')
         else:
-            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
 
     def vm_soft_reboot(self, vm_obj):
-        print(f"Soft REBOOT VM: {vm_obj.vm_name}")
+        log.info(f"Soft REBOOT VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
             task = vm.RebootGuest()()
-            print(f"Reboot off task: {task}")
+            log.info(f"Reboot off task: {task}")
             WaitForTask(task)
         else:
-            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
 
     def vm_reset(self, vm_obj):
-        print(f"RESET VM: {vm_obj.vm_name}")
+        log.info(f"RESET VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
             task = vm.ResetVM_Task()()()
-            print(f"Reset off task: {task}")
+            log.info(f"Reset off task: {task}")
             WaitForTask(task)
         else:
-            print(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             return None
 
 
-if __name__ == "__main__":
-    import django
-    django.setup()
-    from run_core.models import AddmDev, OctopusVM
-    vc = VCenterOperations()
-    # all_vms = vc.list_vms(model=AddmDev, vm_model=OctopusVM)
-
-    alpha_addms = AddmDev.objects.filter(addm_group__exact='alpha')
-    for addm in alpha_addms:
-        print(f"addm {addm.octopusvm.vm_name}, {addm.octopusvm.instanceUuid}")
-        vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
-        # vc.vm_power_off(vm_obj=addm.octopusvm)
-        vc.vm_power_on(vm_obj=addm.octopusvm)
+# if __name__ == "__main__":
+#     import django
+#     django.setup()
+#     from run_core.models import AddmDev, OctopusVM
+#     vc = VCenterOperations()
+#     # all_vms = vc.list_vms(model=AddmDev, vm_model=OctopusVM)
+#
+#     alpha_addms = AddmDev.objects.filter(addm_group__exact='alpha')
+#     for addm in alpha_addms:
+#         log.info(f"addm {addm.octopusvm.vm_name}, {addm.octopusvm.instanceUuid}")
+#         vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
+#         # vc.vm_power_off(vm_obj=addm.octopusvm)
+#         vc.vm_power_on(vm_obj=addm.octopusvm)
