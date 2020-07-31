@@ -134,6 +134,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         """
         # self.tku_wget = True
         self.test_mode = 'update'
+        self.revert_snapshot = True
         # Update mode will select packages for upgrade test by itself
         # previous = self.select_latest_released()
         # current_ga = self.select_latest_ga()
@@ -156,6 +157,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_ga()
         # self.tku_wget = True
         self.test_mode = 'fresh'
+        self.revert_snapshot = True
         self.addm_set = self.addm_set.filter(
             addm_group__in=['alpha'],
             addm_v_int__in=['11.2','11.3', '12.0'],

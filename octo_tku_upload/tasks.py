@@ -131,6 +131,9 @@ class UploadTaskPrepare:
         self.silent = False
         self.silent_run()
 
+        # ADDM VM Snapshot:
+        self.revert_snapshot = False
+
         # Get user and mail:
         log.info(f"{_LH_} Prepare tests for user: {self.user_name} - {self.user_email}")
 
@@ -157,18 +160,24 @@ class UploadTaskPrepare:
             self.silent = True
         log.debug(f"{_LH_} Silent run = {self.silent}")
 
+    def vm_snap(self):
+        """For debug purposes, just run all tasks as fake_task with showing all inputs and outputs: args, kwargs."""
+        if self.data.get('revert_snapshot'):
+            self.revert_snapshot = True
+            log.debug(f"{_LH_} revert_snapshot = {self.fake_run}")
+
     def run_tku_upload(self):
         # 0. Init test mail?
         UploadTaskPrepareLog(subject=f"UploadTaskPrepare | Routine start | {self.test_mode} ",
                              details=f"Upload test routine started! test mode: {self.test_mode}, tku_type: {self.tku_type}, user: {self.user_name}").save()
-        # 1. Refresh local TKU Packages:
-        self.wget_run()
-        # 2. Select TKU for test run.
-        self.select_pack_modes()
-        # 3. Select ADDMs for test:
+        # 1. Select ADDMs for test:
         self.select_addm()
-        # 3.1 ADDM VM Prepare
+        # 1.1 ADDM VM Prepare
         self.vcenter_prepare()
+        # 2. Refresh local TKU Packages:
+        self.wget_run()
+        # 3. Select TKU for test run.
+        self.select_pack_modes()
         # 4. For each package&addm version do SOMETHING:
         self.tku_run_steps()
         return self.tasks_added
@@ -321,16 +330,19 @@ class UploadTaskPrepare:
         But do not mess with addm prep function, as this is only for each addm host itself.
         Wait until this task is finished or just stack next tasks to addm_group worker.
         """
-        log.debug(f'Using addm set: {self.addm_set} to run vCenter procedures based on VM ids.')
-        vc = VCenterOperations()
-        for addm in self.addm_set:
-            log.info(f"addm from set: {addm}")
-            vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
-            vc.vm_power_on(vm_obj=addm.octopusvm)
-            # TODO: Block ADDM queue for a few minutes until ADDM services are OK.
-        log.info('Sleep for 5 minutes to let ADDM services start')
-        time.sleep(60 * 5)
-        log.info('Finish Sleep for 5 minutes to let ADDM services start')
+        if self.revert_snapshot:
+            log.debug(f'Using addm set: {self.addm_set} to run vCenter procedures based on VM ids.')
+            vc = VCenterOperations()
+            for addm in self.addm_set:
+                log.info(f"addm from set: {addm}")
+                vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
+                vc.vm_power_on(vm_obj=addm.octopusvm)
+                # TODO: Block ADDM queue for a few minutes until ADDM services are OK.
+            log.info('Sleep for 5 minutes to let ADDM services start')
+            time.sleep(60 * 5)
+            log.info('Finish Sleep for 5 minutes to let ADDM services start')
+        else:
+            log.info(f"VM Will be not revert snapshot - self.revert_snapshot = {self.revert_snapshot}")
 
 
     def addm_prepare(self, step_k):
