@@ -312,10 +312,10 @@ class PatternTestUtils(unittest.TestCase):
             else:
                 case_tag = test_item.test_py_path
 
-            tsk_msg = 'tag=night_routine;type=routine {}/{}/{} t:{} on: "{}" by: {}'
+            t_tag = f'tag=night_routine;type=routine ' \
+                    f'{test_item.tkn_branch}/{test_item.pattern_library}/{test_item.pattern_folder_name} ' \
+                    f't:{test_t_w} on: "{_addm_group}" by: {self.user_name}'
             r_key = '{}.TExecTest.nightly_routine_case.{}'.format(_addm_group, case_tag)
-            t_tag = tsk_msg.format(test_item.tkn_branch, test_item.pattern_library,
-                                   test_item.pattern_folder_name, test_t_w, _addm_group, self.user_name)
             # LIVE:
             Runner.fire_t(TPatternExecTest().t_test_exec_threads,
                           fake_run=self.fake_run,
