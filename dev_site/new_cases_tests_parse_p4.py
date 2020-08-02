@@ -1,4 +1,3 @@
-
 if __name__ == "__main__":
     from time import time
     from datetime import datetime, timezone, timedelta
@@ -17,24 +16,30 @@ if __name__ == "__main__":
 
     django.setup()
     from django.db.models.query import QuerySet
+    from django.conf import settings
 
     # from run_core.local_operations import TestsParseLocal
     from octo_tku_patterns.models import TestCases
     from run_core.p4_operations import PerforceOperations
     from run_core.local_operations import LocalPatternsP4Parse
+    from run_core.local_operations import LocalPatternsParse
+
+
 
     log = logging.getLogger("octo.octologger")
     log.info("Running DEV")
 
     # Run os file walk on local p4 depot path:
     dep_path = '/home/user/TH_Octopus/perforce/addm/'
-    # results = TestsParseLocal().walk_fs_tests(local_depot_path=dep_path)
 
+
+    # results = TestsParseLocal().walk_fs_tests(local_depot_path=dep_path)
 
     class TestsParseLocal:
         """
             New way to parse test data, only use test.py as entry point for any test case.
         """
+
         def __init__(self):
             pass
 
@@ -69,13 +74,13 @@ if __name__ == "__main__":
             :param local_depot_path: path to local depot were start to find all test.py
             :return: show amount of tests data were parsed
             """
-
             pattern = re.compile(r'^test[\w]*\.py')
-            if os.name == "nt":
-                p4_workspace = "/mnt/f/perforce/"
+            if settings.DEV:
+                p4_workspace = "/mnt/g/perforce"
             else:
                 p4_workspace = "/home/user/TH_Octopus/perforce"
 
+            p4_workspace = "/mnt/g/perforce"
             octo_workspace = p4_workspace
             iters = 0
 
@@ -96,73 +101,71 @@ if __name__ == "__main__":
                             tkn_branch = 'tkn_main'
                         elif 'tkn_ship' in root:
                             tkn_branch = 'tkn_ship'
+                        elif 'gargoyle' in root:
+                            tkn_branch = 'gargoyle'
                         else:
                             tkn_branch = 'not_set'
 
                         if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
-                            split_root = root.split(os.sep)[6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
-                            # log.info(f"tku_patterns - case dir: {split_root} path: {root}")
-                            # test_dict.update(
-                            #     test_type='tku_patterns',
-                            #     tkn_branch=tkn_branch,
-                            #     pattern_library=os.path.basename(os.path.dirname(os.path.dirname(root))),
-                            #     pattern_folder_name=os.path.basename(os.path.dirname(root)),
-                            #     pattern_folder_path=os.path.dirname(root),
-                            #     test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
-                            #     test_case_dir='/'.join(split_root),
-                            #     pattern_library_path=os.path.dirname(os.path.dirname(root)),
-                            # )
-                            pass
+                            split_root = root.split(os.sep)[
+                                         6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
+                            test_dict.update(
+                                test_type='tku_patterns',
+                                tkn_branch=tkn_branch,
+                                pattern_library=os.path.basename(os.path.dirname(os.path.dirname(root))),
+                                pattern_folder_name=os.path.basename(os.path.dirname(root)),
+                                pattern_folder_path=os.path.dirname(root),
+                                test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
+                                test_case_dir='/'.join(split_root),
+                                pattern_library_path=os.path.dirname(os.path.dirname(root)),
+                            )
+                            walked_test_data.append(test_dict)
                         elif 'main/code/python' in root:
-                            log.info(root.split(os.sep))
-                            split_root = root.split(os.sep)[5:]  # Cut n dirs until //addm/main/code/python
-                            # log.info(f"code -  case dir: {split_root} path: {root}")
-                            test_dict.update(
-                                test_type='main_python',
-                                tkn_branch=tkn_branch,
-                                test_case_dir='/'.join(split_root),
-                                test_case_depot_path=root.replace(octo_workspace, '/')
-                            )
+                            pass
+                            # log.info(root.split(os.sep))
+                            # split_root = root.split(os.sep)[5:]  # Cut n dirs until //addm/main/code/python
+                            # # log.info(f"code -  case dir: {split_root} path: {root}")
+                            # test_dict.update(
+                            #     test_type='main_python',
+                            #     tkn_branch=tkn_branch,
+                            #     test_case_dir='/'.join(split_root),
+                            #     test_case_depot_path=root.replace(octo_workspace, '/')
+                            # )
                         elif 'addm/rel/branches' in root:
-                            split_root = root.split(os.sep)[5:]
-                            # log.info(f"addm/rel/branches - case dir: {split_root} path: {root} | Skipping!")
-                            test_dict.update(
-                                test_type='addm_rel',
-                                tkn_branch=tkn_branch,
-                                test_case_dir='/'.join(split_root),
-                                test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
-                            )
+                            pass
+                            # split_root = root.split(os.sep)[5:]
+                            # test_dict.update(
+                            #     test_type='addm_rel',
+                            #     tkn_branch=tkn_branch,
+                            #     test_case_dir='/'.join(split_root),
+                            #     test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
+                            # )
                         elif 'tkn_sandbox' in root:
                             # split_root = root.split(os.sep)[5:]
-                            # log.info(f"tkn_sandbox - case dir: {split_root} path: {root} | Skipping!")
                             pass
                         elif 'product_content' in root:
-                            # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/product_content
-                            split_root = root.split(os.sep)[6:]
-                            # log.info(f"product_content - case dir: {split_root} path: {root} ")
-                            test_dict.update(
-                                test_type='product_content',
-                                tkn_branch=tkn_branch,
-                                test_case_dir='/'.join(split_root),
-                                test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
-                            )
+                            pass
+                            # # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/product_content
+                            # split_root = root.split(os.sep)[6:]
+                            # # log.info(f"product_content - case dir: {split_root} path: {root} ")
+                            # test_dict.update(
+                            #     test_type='product_content',
+                            #     tkn_branch=tkn_branch,
+                            #     test_case_dir='/'.join(split_root),
+                            #     test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
+                            # )
                         # If any other place:
                         else:
-                            # Cut just first 4 dirs
-                            split_root = root.split(os.sep)[5:]
-                            # log.info(f"custom test - case dir: {split_root} path: {root}")
-                            test_dict.update(
-                                test_type='other',
-                                tkn_branch=tkn_branch,
-                                test_case_dir=os.path.basename(root),  # Like "pattern_folder_name" but for other tests
-                                test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
-                            )
-                        walked_test_data.append(test_dict)
-
-                # if iters > 100:
-                #     break
-                # print("Iterated over {}".format(iters))
-
+                            pass
+                            # # Cut just first 4 dirs
+                            # split_root = root.split(os.sep)[5:]
+                            # test_dict.update(
+                            #     test_type='other',
+                            #     tkn_branch=tkn_branch,
+                            #     test_case_dir='/'.join(split_root),
+                            #     test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
+                            # )
+                        # walked_test_data.append(test_dict)
             return walked_test_data
 
         @staticmethod
@@ -174,13 +177,15 @@ if __name__ == "__main__":
                     defaults=dict(dict_test_case),
                 )
                 if create_new:
-                    print("New pattern saved: updated %s, create_new %s, details %s", updated, create_new, dict_test_case)
+                    print("New pattern saved: updated %s, create_new %s, details %s", updated, create_new,
+                          dict_test_case)
                 # if updated:
                 #     print("Pattern info has been updated {}".format(updated))
             except Exception as e:
                 msg = "<=LocalOper=> get_all_files: Error: {} Details {} ".format(e, dict_test_case)
                 print(msg)
                 raise Exception(msg)
+
 
     class P4ChangesParse:
         """
@@ -284,7 +289,8 @@ if __name__ == "__main__":
 
             sync_depot = self.p4_cmd_run(p4_cmd='sync', args=args, p4_conn=p4_conn, path=path)
             if sync_depot:
-                print("<=P4 LAST SYNCING=> sync_depot out: Action {} change #{}".format(sync_depot[0]['action'], sync_depot[0]['change']))
+                print("<=P4 LAST SYNCING=> sync_depot out: Action {} change #{}".format(sync_depot[0]['action'],
+                                                                                        sync_depot[0]['change']))
             return sync_depot
 
         def get_p4_changes(self, path, short=True, change_max=None, p4_conn=None):
@@ -352,10 +358,12 @@ if __name__ == "__main__":
             filelog = self.p4_cmd_run(p4_cmd='filelog', args=args, p4_conn=p4_conn, path=path)
             return filelog
 
+
     class LocalOperations:
         """
         Make local parsing
         """
+
         def __init__(self):
             self.dep_path = '/home/user/TH_Octopus/perforce/addm/'
             self.lon_tz = pytz.timezone('Europe/London')
@@ -510,7 +518,8 @@ if __name__ == "__main__":
             if int(latest_change.get('change', 0)) > int(test_case.change if test_case.change else 0):
                 self.parse_and_save_changes(test_case, latest_change, sync_force, p4_conn=p4_conn)
                 # print("{} Change update in db".format(th_name))
-                msg = 'Updated: {} -> {} -> {}'.format(latest_change.get('change', 0), test_case.test_case_depot_path, test_case.change)
+                msg = 'Updated: {} -> {} -> {}'.format(latest_change.get('change', 0), test_case.test_case_depot_path,
+                                                       test_case.change)
             else:
                 # print("{} Change is actual - skip".format(th_name))
                 msg = ''
@@ -546,24 +555,27 @@ if __name__ == "__main__":
 
             # Thread-cases pairs:
             for thread_i, cases_list in zip(threads, split_patt):
-                cases_threads.update({'thread-{}'.format(str(thread_i)): dict(cases_list=collections.deque(cases_list), thread=thread_i)})
+                cases_threads.update({'thread-{}'.format(str(thread_i)): dict(cases_list=collections.deque(cases_list),
+                                                                              thread=thread_i)})
 
             print("Filling threads with jobs...")
-            for thread_i, cases in cases_threads.items():       # Iter each thread and cases in it:
+            for thread_i, cases in cases_threads.items():  # Iter each thread and cases in it:
 
-                conn_q = Queue()                                      # Separate Queue for p4 connection store
-                p4_conn = PerforceOperations().p4_initialize()        # Init p4 connection for single thread-worker
-                conn_q.put(p4_conn)                                   # Put active connection in queue for all threads
+                conn_q = Queue()  # Separate Queue for p4 connection store
+                p4_conn = PerforceOperations().p4_initialize()  # Init p4 connection for single thread-worker
+                conn_q.put(p4_conn)  # Put active connection in queue for all threads
 
                 print("Filling threads for thread: {}".format(thread_i))
-                cases_list = cases.get('cases_list')                  # Choose cases list from dict of threads+cases
+                cases_list = cases.get('cases_list')  # Choose cases list from dict of threads+cases
 
-                while 0 < len(cases_list):                            # Each pattern generates own process
-                    test_case = cases_list.popleft()                  # When assigned to thread - delete item
-                    th_name = 'Parse thread: {} test case: {}'.format(thread_i, test_case.test_case_depot_path)  # type: str
-                    args_d = dict(test_case=test_case, th_name=th_name, test_q=test_q, conn_q=conn_q, sync_force=sync_force)
+                while 0 < len(cases_list):  # Each pattern generates own process
+                    test_case = cases_list.popleft()  # When assigned to thread - delete item
+                    th_name = 'Parse thread: {} test case: {}'.format(thread_i,
+                                                                      test_case.test_case_depot_path)  # type: str
+                    args_d = dict(test_case=test_case, th_name=th_name, test_q=test_q, conn_q=conn_q,
+                                  sync_force=sync_force)
                     parse_thread = Thread(target=LocalOperations().compare_change_thread, name=th_name, kwargs=args_d)
-                    thread_list.append(parse_thread)                  # Save list of threads for further execution
+                    thread_list.append(parse_thread)  # Save list of threads for further execution
 
             # Execute threads:
             print("Executing saved threads!")
@@ -593,9 +605,9 @@ if __name__ == "__main__":
             assert isinstance(test_case, TestCases)
             assert isinstance(latest_change, dict)
             p4_change = int(latest_change.get('change', None))
-            p4_time   = latest_change.get('time', None)
-            p4_user   = latest_change.get('user', None)
-            p4_desc   = latest_change.get('desc', None)
+            p4_time = latest_change.get('time', None)
+            p4_user = latest_change.get('user', None)
+            p4_desc = latest_change.get('desc', None)
             test_case_depot_path_ = test_case.test_case_depot_path + '...'
 
             test_case_name = test_case.pattern_folder_name if test_case.pattern_folder_name else test_case.test_case_dir
@@ -620,12 +632,12 @@ if __name__ == "__main__":
             change_time = p4_utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=self.lon_tz)  # set London time
 
             # Save newly parsed data to table:
-            test_case.change        = p4_change
-            test_case.change_desc   = p4_desc
-            test_case.change_user   = p4_user
+            test_case.change = p4_change
+            test_case.change_desc = p4_desc
+            test_case.change_user = p4_user
             test_case.change_review = change_desc_dict.get('review', None)
             test_case.change_ticket = change_desc_dict.get('ticket', None)
-            test_case.change_time   = change_time
+            test_case.change_time = change_time
 
             # test_case.save()
             test_case.save(update_fields=[
@@ -800,7 +812,14 @@ if __name__ == "__main__":
     # Parsing took: 88.95439553260803
 
     # 11-06-2020 Adding test.py from path like perforce\addm\tkn_main\product_content\r1_0\code\data\installed\tests
-    # walked_test_data = TestsParseLocal().walk_fs_tests(local_depot_path='/mnt/f/perforce/')
-    walked_test_data = TestsParseLocal().walk_fs_tests(local_depot_path='/home/user/TH_Octopus/perforce')
-    # log.debug(f"walked_test_data: {walked_test_data}")
+    # walked_test_data = TestsParseLocal().walk_fs_tests(local_depot_path='/mnt/g/perforce/')
+    results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce")
+    # results = TestsParseLocal().walk_fs_tests(local_depot_path='/home/user/TH_Octopus/perforce')
+    for test in results:
+        print(f"walked_test_data: {test}")
+        break
 
+    # Check live:
+    # results = LocalPatternsParse().walk_fs_tests(local_depot_path="/mnt/g/perforce/addm/gargoyle/tku_patterns")
+    # results = LocalPatternsP4Parse().parse_local_test(path_to_depot='/mnt/g/perforce')
+    LocalPatternsP4Parse().insert_parsed_test(results)

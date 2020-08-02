@@ -78,7 +78,7 @@ class LocalPatternsParse:
 
         pattern = re.compile(r'^test[\w]*\.py')
         if settings.DEV:
-            p4_workspace = "d:{os_sep}perforce{os_sep}".format(os_sep=os.sep)
+            p4_workspace = "/mnt/g/perforce"
         else:
             p4_workspace = "/home/user/TH_Octopus/perforce"
 
@@ -102,6 +102,8 @@ class LocalPatternsParse:
                         tkn_branch = 'tkn_main'
                     elif 'tkn_ship' in root:
                         tkn_branch = 'tkn_ship'
+                    elif 'gargoyle' in root:
+                        tkn_branch = 'gargoyle'
                     else:
                         tkn_branch = 'not_set'
 
