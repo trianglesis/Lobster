@@ -234,6 +234,9 @@ class TestLastDigestListView(ListView):
         addm_names = OctoCache().cache_query(
             AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         # TODO: Use regroup for this on page, or move to JS work:
+        branch_qs = OctoCache().cache_query(
+            TestLatestDigestAll.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch'))
         test_type_qs = OctoCache().cache_query(
             TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(
                 total=Count('test_type')).order_by('test_type'))
@@ -248,6 +251,7 @@ class TestLastDigestListView(ListView):
             selector=compose_selector(self.request.GET),
             selector_str='',
             addm_names=addm_names,
+            branch_qs=branch_qs,
             test_type_qs=test_type_qs,
             pattern_library_qs=pattern_library_qs,
             change_user_qs=change_user_qs,
@@ -484,6 +488,9 @@ class TestHistoryDigestTodayView(TodayArchiveView):
     context_object_name = 'tests_digest'
 
     def get_context_data(self, **kwargs):
+        branch_qs = OctoCache().cache_query(
+            TestLatestDigestAll.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch'))
         addm_names = OctoCache().cache_query(
             AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
         test_type_qs = OctoCache().cache_query(
@@ -503,6 +510,7 @@ class TestHistoryDigestTodayView(TodayArchiveView):
                 selector=compose_selector(self.request.GET),
                 selector_str='',
                 addm_names=addm_names,
+                branch_qs=branch_qs,
                 test_type_qs=test_type_qs,
                 pattern_library_qs=pattern_library_qs,
                 change_user_qs=change_user_qs,
