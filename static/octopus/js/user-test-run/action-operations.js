@@ -31,7 +31,9 @@ function makeCaseTestDataSet(dataJSON,
     let temp = [];
     let caseTestDataArr = [];
     // TODO: Find a corresponds item in JSON by most unique value, like test record ID from table and on JSON
+    // console.log(dataJSON)
     for (let testItem of dataJSON) {
+        // console.log(testItem)
         //For case on last test
         if (case_id && (parseInt(testItem['case_id']) === parseInt(case_id))) {
             console.log("Getting case by case_id");

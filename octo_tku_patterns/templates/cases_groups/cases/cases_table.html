@@ -34,8 +34,18 @@
                 <div class="card-header">{% select_icon 'git-commit' 20 'right' 1 %}Sort by: branch</div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item border-light">{% select_icon 'git-commit' 20 'right' 0.4 %}<a class="badge {% is_active 'tkn_branch' None 'badge-light' 'badge-dark' %}" href="{% url 'test_cases' %}?{{ selector_tkn_branch }}">All</a></li>
-                    <li class="list-group-item border-light">{% select_icon 'git-branch' 20 'right' 0.4 %}<a class="badge {% is_active 'tkn_branch' 'tkn_main' 'badge-light' 'badge-dark' %}" href="{% url 'test_cases' %}?tkn_branch=tkn_main;{{ selector_tkn_branch }}">tkn_main</a></li>
-                    <li class="list-group-item border-light">{% select_icon 'git-merge' 20 'right' 0.4 %}<a class="badge {% is_active 'tkn_branch' 'tkn_ship' 'badge-light' 'badge-dark' %}" href="{% url 'test_cases' %}?tkn_branch=tkn_ship;{{ selector_tkn_branch }}">tkn_ship</a></li>
+                    {% for branch in branch_qs %}
+                        <li class="list-group-item border-light">
+                            {% if branch.tkn_branch == 'tkn_main' %}
+                                {% select_icon 'git-branch' 20 'right' 0.4 %}
+                            {% elif branch.tkn_branch == 'tkn_ship' %}
+                                {% select_icon 'git-merge' 20 'right' 0.4 %}
+                            {% else %}
+                                {% select_icon 'repo-forked' 20 'right' 0.4 %}
+                            {% endif %}
+                            <a class="badge {% is_active 'tkn_branch' branch.tkn_branch 'badge-light' 'badge-dark' %}"
+                               href="{% url 'test_cases' %}?tkn_branch={{ branch.tkn_branch }};{{ selector_tkn_branch }}">{{ branch.tkn_branch }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
             <div class="card border-light card-autosize">

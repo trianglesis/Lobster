@@ -602,6 +602,9 @@ class TestCasesListView(ListView):
         context = super(TestCasesListView, self).get_context_data(**kwargs)
         debug = self.request.GET.get('debug', False)
 
+        branch_qs = OctoCache().cache_query(
+            TestCases.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch'))
         test_type_qs = OctoCache().cache_query(
             TestCases.objects.filter(test_type__isnull=False).values('test_type').annotate(
                 total=Count('test_type')).order_by('test_type'))
@@ -613,6 +616,7 @@ class TestCasesListView(ListView):
         context.update(
             selector=compose_selector(self.request.GET),
             selector_str='',
+            branch_qs=branch_qs,
             test_type_qs=test_type_qs,
             pattern_library_qs=pattern_library_qs,
             test_cases_json='',
