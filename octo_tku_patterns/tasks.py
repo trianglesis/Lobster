@@ -100,7 +100,7 @@ class TPatternParse:
     # New:
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_p4_sync_NEW',
-              soft_time_limit=MIN_5, task_time_limit=MIN_10)
+              soft_time_limit=MIN_10, task_time_limit=MIN_20)
     @exception
     def t_p4_sync(t_tag):
         log.debug("t_tag: %s", t_tag)
