@@ -342,18 +342,17 @@ class LocalPatternsP4Parse:
         :param conn_q:
         :return:
         """
+        msg = ''
         p4_conn = conn_q.get()
         assert isinstance(test_case, TestCases)
-        latest_change = PerforceOperations().get_p4_changes(path=test_case.test_case_depot_path, p4_conn=p4_conn)[0]
-        if int(latest_change.get('change', 0)) > int(test_case.change if test_case.change else 0):
-            self.parse_and_save_changes(test_case, latest_change, sync_force, p4_conn=p4_conn)
-            log.debug("%s Change update in db", th_name)
-            msg = 'Updated: {} -> {} -> {}'.format(latest_change.get('change', 0), test_case.test_case_depot_path,
-                                                   test_case.change)
-        else:
-            # log.debug("%s Change is actual - skip", th_name)
-            msg = ''
-            pass
+
+        latest_change = PerforceOperations().get_p4_changes(path=test_case.test_case_depot_path, p4_conn=p4_conn)
+        if latest_change:
+            latest_change = latest_change[0]
+            if int(latest_change.get('change', 0)) > int(test_case.change if test_case.change else 0):
+                self.parse_and_save_changes(test_case, latest_change, sync_force, p4_conn=p4_conn)
+                log.debug("%s Change update in db", th_name)
+                msg = 'Updated: {} -> {} -> {}'.format(latest_change.get('change', 0), test_case.test_case_depot_path, test_case.change)
         test_q.put(msg)  # Mark finished parsing
         conn_q.put(p4_conn)  # Put active P4 connection back
 

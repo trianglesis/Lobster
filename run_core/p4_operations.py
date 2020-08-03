@@ -314,7 +314,9 @@ class PerforceOperations:
             path = path + "@" + change_max + ',@now'
 
         changes_list = self.p4_cmd_run(p4_cmd='changes', args=args, p4_conn=p4_conn, path=path)
-
+        # Fix list index out of range
+        if not changes_list:
+            changes_list = []
         return changes_list
 
     def get_p4_filelog(self, path, short=True, change_max=None, p4_conn=None):
