@@ -261,7 +261,6 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
     def test_016_execute_failed_main(self):
-        self.fake_run = True
         self.silent_on(True)
         self.branch = 'tkn_main'
         # Select failed log entries
@@ -284,7 +283,6 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
                 self.put_test_cases_short([test_item])
 
     def test_017_execute_failed_ship(self):
-        self.fake_run = True
         self.silent_on(True)
         self.branch = 'tkn_ship'
         # Select failed log entries
