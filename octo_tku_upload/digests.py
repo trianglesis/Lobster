@@ -35,6 +35,8 @@ class TKUEmailDigest:
         if fake_run:
             send_to = send_cc
 
+        # TODO: Maybe beautify foe GA?
+
         # mail body
         mail_body = loader.get_template('digests/email_upload_digest.html')
         # Digest full log

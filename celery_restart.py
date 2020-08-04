@@ -30,7 +30,7 @@ CELERYD_NODES = [
     'india@tentacle',
     'juliett@tentacle',
     'kilo@tentacle',
-    # 'lima@tentacle',
+    'lima@tentacle',
     # 'mike@tentacle',
     # 'november@tentacle',
     # 'oskar@tentacle',

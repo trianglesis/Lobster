@@ -119,7 +119,7 @@ class TSupport:
               soft_time_limit=HOURS_2, task_time_limit=HOURS_2 + 900)
     @exception
     def _t_list_vms(tag, **kwargs):
-        log.info(f'Powering OFF addm group: {tag} - {kwargs}')
+        log.info(f'_t_list_vms: {tag} - {kwargs}')
         # Circular import!
         from run_core.addm_operations import ADDMOperations
         ADDMOperations().vm_list_update(kwargs)
