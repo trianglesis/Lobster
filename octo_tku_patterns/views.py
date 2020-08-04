@@ -346,10 +346,14 @@ class TestItemSingleHistoryListView(ListView):
         context = super(TestItemSingleHistoryListView, self).get_context_data(**kwargs)
         addm_names = OctoCache().cache_query(
             AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        branch_qs = OctoCache().cache_query(
+            TestHistory.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch'))
         if self.request.method == 'GET':
             context.update(
                 selector=compose_selector(self.request.GET),
                 selector_str='',
+                branch_qs=branch_qs,
                 addm_names=addm_names,
                 tests_digest_json='',
             )
@@ -384,9 +388,13 @@ class TestHistoryArchiveIndexView(ArchiveIndexView):
     context_object_name = 'test_detail'
 
     def get_context_data(self, **kwargs):
+        branch_qs = OctoCache().cache_query(
+            TestHistory.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch'))
         context = super(TestHistoryArchiveIndexView, self).get_context_data(**kwargs)
         context.update(
             selector=compose_selector(self.request.GET),
+            branch_qs=branch_qs,
             selector_str='',
         )
         context['test_detail'] = OctoCache().cache_query(
