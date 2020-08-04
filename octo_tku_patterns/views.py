@@ -297,12 +297,17 @@ class TestLastSingleDetailedListView(ListView):
     def get_context_data(self, **kwargs):
         addm_names = OctoCache().cache_query(
             AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        branch_qs = OctoCache().cache_query(
+            TestLatestDigestAll.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch'))
+
         if self.request.method == 'GET':
             context = super(TestLastSingleDetailedListView, self).get_context_data(**kwargs)
             context.update(
                 selector=compose_selector(self.request.GET),
                 selector_str='',
                 addm_names=addm_names,
+                branch_qs=branch_qs,
                 # HERE: Adding JSON for JS operations
                 tests_digest_json='',
             )
@@ -417,14 +422,19 @@ class TestHistoryDayArchiveView(DayArchiveView):
     paginate_by = 500
 
     def get_context_data(self, **kwargs):
+
         addm_names = OctoCache().cache_query(
             AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        branch_qs = OctoCache().cache_query(
+            TestHistory.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch'))
         if self.request.method == 'GET':
             context = super(TestHistoryDayArchiveView, self).get_context_data(**kwargs)
             context.update(
                 selector=compose_selector(self.request.GET),
                 selector_str='',
                 addm_names=addm_names,
+                branch_qs=branch_qs,
             )
             if context['test_detail']:
                 context['test_detail'] = OctoCache().cache_query(

@@ -34,17 +34,28 @@
                             {% select_icon 'git-branch' 16 'right' 0.4 %} tkn main
                         {% elif selector.tkn_branch == 'tkn_ship' %}
                             {% select_icon 'git-merge' 16 'right' 0.4 %} tkn ship
+                        {% elif selector.tkn_branch == 'gargoyle' %}
+                            {% select_icon 'repo-forked' 16 'right' 0.4 %} tkn ship
                         {% else %}
                             {% select_icon 'git-commit' 16 'right' 0.4 %} both branches
                         {% endif %}
                     </a>
+                    {% comment %}<!-- Choose branch -->
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownTknBranch">
+                        <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?tkn_branch=tkn_main;{{ selector_tkn_branch }}">{% select_icon 'git-branch' 20 'right' 0.4 %}TKN MAIN</a>
+                        <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?tkn_branch=tkn_ship;{{ selector_tkn_branch }}">{% select_icon 'git-merge' 20 'right' 0.4 %}TKN SHIP</a>
+                        <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?{{ selector_tkn_branch }}">{% select_icon 'git-commit' 20 'right' 0.4 %}BOTH</a>
+                    </div>{% endcomment %}
                     <!-- Choose branch -->
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownTknBranch">
-                        <a class="dropdown-item" href="{% url 'patterns_digest_short' %}?tkn_branch=tkn_main;{{ selector_tkn_branch }}">{% select_icon 'git-branch' 20 'right' 0.4 %}TKN MAIN</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'patterns_digest_short' %}?tkn_branch=tkn_ship;{{ selector_tkn_branch }}">{% select_icon 'git-merge' 20 'right' 0.4 %}TKN SHIP</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'patterns_digest_short' %}?{{ selector_tkn_branch }}">{% select_icon 'git-commit' 20 'right' 0.4 %}BOTH</a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownTknBranch">
+                        {% for branch in branch_qs %}
+                            <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?tkn_branch={{ branch.tkn_branch }};{{ selector_tkn_branch }}">
+                                {% if branch.tkn_branch == 'tkn_main' %}{% select_icon 'git-branch' 20 'right' 0.4 %}
+                                {% elif branch.tkn_branch == 'tkn_ship' %}{% select_icon 'git-merge' 20 'right' 0.4 %}
+                                {% else %}{% select_icon 'repo-forked' 20 'right' 0.4 %}{% endif %}
+                                {{ branch.tkn_branch}}</a>
+                        {% endfor %}
+                        <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?{{ selector_tkn_branch }}">{% select_icon 'git-commit' 20 'right' 0.4 %}BOTH</a>
                     </div>
                 </nav>
             </div>
