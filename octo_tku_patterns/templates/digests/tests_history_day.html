@@ -82,9 +82,9 @@
                         {% elif selector.tkn_branch == 'tkn_ship' %}
                             {% select_icon 'git-merge' 16 'right' 0.4 %} tkn ship
                         {% elif selector.tkn_branch == 'gargoyle' %}
-                            {% select_icon 'repo-forked' 16 'right' 0.4 %} tkn ship
+                            {% select_icon 'repo-forked' 16 'right' 0.4 %} gargoyle
                         {% else %}
-                            {% select_icon 'git-commit' 16 'right' 0.4 %} both branches
+                            {% select_icon 'git-commit' 16 'right' 0.4 %} all branches
                         {% endif %}
                     </a>
                     {% comment %}<!-- Choose branch -->
@@ -102,7 +102,7 @@
                                 {% else %}{% select_icon 'repo-forked' 20 'right' 0.4 %}{% endif %}
                                 {{ branch.tkn_branch}}</a>
                         {% endfor %}
-                        <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?{{ selector_tkn_branch }}">{% select_icon 'git-commit' 20 'right' 0.4 %}BOTH</a>
+                        <a class="dropdown-item dropdown-branch" href="{{tests_digest_url}}?{{ selector_tkn_branch }}">{% select_icon 'git-commit' 20 'right' 0.4 %}ALL</a>
                     </div>
                 </nav>
             </div>
