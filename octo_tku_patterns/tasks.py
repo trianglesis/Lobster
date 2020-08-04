@@ -34,7 +34,6 @@ from run_core.local_operations import LocalPatternsP4Parse
 from run_core.models import AddmDev, TaskPrepareLog, Options
 from run_core.p4_operations import PerforceOperations
 from run_core.rabbitmq_operations import RabbitCheck
-from octo_tku_patterns.user_test_balancer import WorkerGetAvailable
 
 log = logging.getLogger("octo.octologger")
 
@@ -56,7 +55,7 @@ class TPatternRoutine:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_patt_routines',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
     def t_patt_routines(t_tag, **kwargs):
         """
@@ -71,7 +70,7 @@ class TPatternRoutine:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_test_prep',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
     def t_test_prep(t_tag, **kwargs):
         """
@@ -100,7 +99,7 @@ class TPatternParse:
     # New:
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_p4_sync_NEW',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
     def t_p4_sync(t_tag):
         log.debug("t_tag: %s", t_tag)
@@ -108,7 +107,7 @@ class TPatternParse:
 
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_p4_info',
-              soft_time_limit=MIN_1, task_time_limit=MIN_10)
+              soft_time_limit=MIN_5, task_time_limit=MIN_90)
     @exception
     def t_p4_info(t_tag):
         log.debug("t_tag: %s", t_tag)
@@ -116,7 +115,7 @@ class TPatternParse:
 
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_p4_sync_force',
-              soft_time_limit=MIN_20, task_time_limit=MIN_40)
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
     def t_p4_sync_force(t_tag, depot_path):
         """Perforce workspace sync force"""
@@ -125,7 +124,7 @@ class TPatternParse:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_pattern_weight_index',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
     def t_pattern_weight_index(t_tag, last_days=30, addm_name='custard_cream'):
         """Calculate pattern time weight on previous execution time"""
@@ -137,7 +136,7 @@ class MailDigests:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.routine_mail',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
     def routine_mail(tag, **mail_kwargs):
         """
         Send email with task status and details:
@@ -152,14 +151,14 @@ class MailDigests:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_user_digest',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
     def t_user_digest(t_tag, **kwargs):
         """User test digest mail send task"""
         TestDigestMail().failed_pattern_test_user_daily_digest(**kwargs)
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.MailDigests.t_lib_digest',
-              soft_time_limit=MIN_10, task_time_limit=MIN_20)
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
     def t_lib_digest(t_tag, **kwargs):
         """ Team test digest by patt LIBRARY send task"""
         TestDigestMail().all_pattern_test_team_daily_digest(**kwargs)
@@ -473,6 +472,7 @@ class TaskPrepare:
             tku_patterns=dict(
                 tkn_main=to_test_queryset.filter(tkn_branch__exact='tkn_main'),  # .values()
                 tkn_ship=to_test_queryset.filter(tkn_branch__exact='tkn_ship'),  # .values()
+                gargoyle=to_test_queryset.filter(tkn_branch__exact='gargoyle'),  # .values()
             ),
             main_python=to_test_queryset.filter(test_type__exact='main_python'),  # .values()
             octo_tests=to_test_queryset.filter(test_type__exact='octo_tests'),  # .values()
@@ -540,7 +540,7 @@ class TaskPrepare:
 
     def addm_group_get(self, tkn_branch):
         """
-        Check addm groups for available and mininal loaded worker.
+        Check addm groups for available and minimal loaded worker.
         Depends on branch.
             TBA: Later add dependency on test_type, 'main_python' OR 'tku_patterns' OR 'octo_tests'
 
@@ -704,7 +704,7 @@ class TaskPrepare:
         return 'User test mail sent!'
 
     @staticmethod
-    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @app.task(soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
     def mail_s(tag, **kwargs):
         mode = kwargs.get('mode')
@@ -774,7 +774,7 @@ class TaskPrepare:
         if test_item.test_time_weight:
             test_t_w = round(float(test_item.test_time_weight)) + 60 * 30
         else:
-            test_t_w = 60 * 40
+            test_t_w = 60 * 60
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,

@@ -320,6 +320,23 @@ class AdvancedViews(TestCase):
         # view.options(request)
         view.get(request)
 
+    def test002_tests_last_gargoyle(self):
+        """
+        Get most common views on tests_last for different branches and all test statuses
+        Those are dynamical views all ADDMs on one, but template and JS sorting.
+        Maybe do not load a LIBRARY related, usually it does not so needed for users to be so fast.
+        :return:
+        """
+        log.info("Running: test002_tests_last_gargoyle")
+        view = TestLastDigestListView()
+        request = self.request.get('/octo_tku_patterns/tests_last/',
+                                   {'tkn_branch': 'gargoyle', 'tst_status': 'notpass'})
+        view.setup(request)
+        queryset = view.get_queryset()
+        OctoCache().cache_query(queryset)
+        # view.options(request)
+        view.get(request)
+
     def test003_test_details(self):
         """
         Get most common views on /octo_tku_patterns/test_details
@@ -375,6 +392,26 @@ class AdvancedViews(TestCase):
             request = self.request.get(
                 '/octo_tku_patterns/test_details/',
                 {'tkn_branch': 'tkn_ship', 'addm_name': addm_name, 'tst_status': 'notpass'})
+            view.setup(request)
+            queryset = view.get_queryset()
+            OctoCache().cache_query(queryset)
+            view.get(request)
+            pages += 1
+        log.info(f'Tested {pages} pages.')
+
+    def test003_test_details_gargoyle(self):
+        """
+        Get most common views on /octo_tku_patterns/test_details
+        Most pages which opens when clicking on count of passed,failed,errored tests
+        :return:
+        """
+        log.info("Running: test003_test_details_gargoyle")
+        pages = 0
+        view = TestLastSingleDetailedListView()
+        for addm_name in self.addm_names:
+            request = self.request.get(
+                '/octo_tku_patterns/test_details/',
+                {'tkn_branch': 'gargoyle', 'addm_name': addm_name, 'tst_status': 'notpass'})
             view.setup(request)
             queryset = view.get_queryset()
             OctoCache().cache_query(queryset)

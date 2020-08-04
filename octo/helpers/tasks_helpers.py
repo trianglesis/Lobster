@@ -46,6 +46,11 @@ def exception(function):
             TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             # Do not rise when soft time limit, just inform:
             # raise SoftTimeLimitExceeded(msg)
+            # TODO: Add addm_cleanup
+            addm_items = kwargs.get('addm_items', False)
+            if addm_items:
+                log.info(f"TODO: WIll run ADDM Clean task 'run_operation_cmd'!")
+                # ADDMStaticOperations().run_operation_cmd(**kwargs)
             return wrapper
 
         except TimeLimitExceeded as e:

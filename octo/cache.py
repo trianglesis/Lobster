@@ -240,6 +240,8 @@ class OctoSignals:
                 test_last_t.extend(('test002_tests_last_tkn_main', 'test003_test_details_tkn_main'))
             elif instance.tkn_branch == 'tkn_ship':
                 test_last_t.extend(('test002_tests_last_tkn_ship', 'test003_test_details_tkn_ship'))
+            elif instance.tkn_branch == 'gargoyle':
+                test_last_t.extend(('test002_tests_last_gargoyle', 'test003_test_details_gargoyle'))
             else:
                 log.error('No branch in deleted item?! OctoSignals')
         OctoCache().cache_operation(keys=test_last, methods=test_last_t)
@@ -265,6 +267,8 @@ class OctoSignals:
                 test_last_t.extend(('test002_tests_last_tkn_main', 'test003_test_details_tkn_main'))
             elif instance.tkn_branch == 'tkn_ship':
                 test_last_t.extend(('test002_tests_last_tkn_ship', 'test003_test_details_tkn_ship'))
+            elif instance.tkn_branch == 'gargoyle':
+                test_last_t.extend(('test002_tests_last_gargoyle', 'test003_test_details_gargoyle'))
             else:
                 log.error('No branch in deleted item?! OctoSignals')
         OctoCache().cache_operation(keys=test_last, methods=test_last_t)

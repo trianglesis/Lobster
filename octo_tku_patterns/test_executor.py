@@ -159,16 +159,22 @@ class TestExecutor:
             test_wd_sync = test_item.get('test_dir_path_template').format(self.addm_vm_test_workspace)
             tkn_branch = test_item.get('tkn_branch')
 
+            environment = dict(
+                TKN_MAIN=f'/usr/tideway/SYNC/addm/{tkn_branch}',
+                TKN_CORE=f'/usr/tideway/SYNC/addm/{tkn_branch}/tku_patterns/CORE',
+                # THIS should be in ~/.pythonpath_bashrc
+                # PYTHONPATH=f'$PYTHONPATH:/usr/tideway/SYNC/addm/{tkn_branch}/python'
+            )
             if test_function:
-                cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; {bin_python} -u {test_py_sync}" \
+                cmd = f". ~/.pythonpath_bashrc;cd {test_wd_sync}; {bin_python} -u {test_py_sync}" \
                       f" --verbose {test_function.replace('+', '.')}"
             else:
-                cmd = f". ~/.{tkn_branch}_bashrc; cd {test_wd_sync}; {bin_python} -u {test_py_sync}" \
+                cmd = f". ~/.pythonpath_bashrc;cd {test_wd_sync}; {bin_python} -u {test_py_sync}" \
                       f" --verbose"
 
             log.debug(f"'{cmd}'")
             # Test execution:
-            _, stdout, stderr = ssh.exec_command(cmd)
+            _, stdout, stderr = ssh.exec_command(cmd, get_pty=False, environment=environment)
             std_out_err_d = self.std_read(out=stdout, err=stderr, mode=test_output_mode, mgs="<=TEST=>")
 
             time_spent_test = time() - ts
