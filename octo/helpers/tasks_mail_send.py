@@ -62,14 +62,20 @@ class Mails:
         #     mail_html_f = open(f'{subject}.html', 'w')
         #     mail_html_f.write(mail_html)
         #     mail_html_f.close()
+        #     mail_html_f = open(f'attachment.html', 'w')
+        #     mail_html_f.write(attach_content)
+        #     mail_html_f.close()
         #     return f'Short mail sent! {msg}'
         # elif settings.DEV:
         #     # Probably a fake run, but on local dev - so do not send emails? Somehow this could be switchable, so I can test email locally!
         #     log.debug(f'NOT Sending short email settings.DEV: \n\tsubject: {subject} \n\tsend_to: {send_to} \n\tsend_cc: {send_cc} \n\tbcc: {bcc}')
-        #     # mail_html_f = open(f'{subject}.html', 'w')
-        #     # mail_html_f.write(mail_html)
-        #     # mail_html_f.close()
-        #     # return f'Short mail sent! {msg}'
+        #     mail_html_f = open(f'{subject}.html', 'w')
+        #     mail_html_f.write(mail_html)
+        #     mail_html_f.close()
+        #     mail_html_f = open(f'attachment.html', 'w')
+        #     mail_html_f.write(attach_content)
+        #     mail_html_f.close()
+        #     return f'Short mail sent! {msg}'
 
         connection = mail.get_connection()
         connection.open()

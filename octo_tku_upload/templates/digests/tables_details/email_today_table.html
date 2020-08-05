@@ -9,7 +9,7 @@
         <th class="txt-sm-center">Mode</th>
         <th class="txt-sm-center">Package</th>
         <th class="txt-sm-center">Build</th>
-        <th class="txt-sm-center">Status</th>
+{#        <th class="txt-sm-center">Status</th>#}
         <th class="txt-sm-center">Er</th>
         <th class="txt-sm-center">Warn</th>
         <th class="txt-sm-center">ETA</th>
@@ -35,7 +35,7 @@
             <td class="txt-sm-center">{{ test.test_mode }}</td>
             <td class="txt-sm-center">{{ test.package_type }}</td>
             <td class="txt-sm-center">{{ test.release }}</td>
-            <td class="txt-sm-center">{{ test.upload_test_status }}</td>
+{#            <td class="txt-sm-center">{{ test.upload_test_status }}</td>#}
             <td class="txt-sm-center">{{ test.all_errors }}</td>
             <td class="txt-sm-center">{{ test.all_warnings }}</td>
             <td class="txt-sm-center">{{ test.time_spent_test|f_sec }}</td>
@@ -50,7 +50,7 @@
             <td colspan="10" class="txt-extra-sm-center txt-left-prewrap tst-error">{{ test.important_out }}</td>
         </tr>
         {% endif %}
-        {% if test.all_errors > '0' %}
+        {% if test.all_errors > '0' or test.upload_test_str_stderr %}
         <tr>
             <th class="txt-sm-center tst-error">STDERR</th>
             <td colspan="10" class="txt-extra-sm-center txt-left-prewrap tst-error">{{ test.upload_test_str_stderr }}</td>

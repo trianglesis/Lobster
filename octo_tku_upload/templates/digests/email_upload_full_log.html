@@ -123,7 +123,7 @@
         <tr class="text-center">
             <th class="table-info">#</th>
             <th class="txt-sm-center">Mode</th>
-            <th class="txt-sm-center">Status</th>
+{#            <th class="txt-sm-center">Status</th>#}
             <th class="txt-sm-center">Er</th>
             <th class="txt-sm-center">Warn</th>
             <th class="txt-sm-center">ADDM</th>
@@ -148,39 +148,42 @@
                 class="tst-None"
             {% endif %}>
                 <td>{{ forloop.counter }}</td>
-                <td class="txt-sm-center">{{ test.mode_key }}<br>{{ test.package_type }}<br>{{ test.tku_type }}<br>Build:{{ test.build }}</td>
-                <td class="txt-sm-center">{{ test.upload_test_status }}</td>
+                <td class="txt-sm-center">{{ test.mode_key }}<br>{{ test.package_type }}<br>{{ test.tku_type }}<br>Build:{{ test.release }}
+                </td>
+{#                <td class="txt-sm-center">{{ test.upload_test_status }}</td>#}
                 <td class="txt-sm-center">{{ test.all_errors }}</td>
                 <td class="txt-sm-center">{{ test.all_warnings }}</td>
                 <td class="txt-sm-center">{{ test.addm_name }} {{ test.addm_v_int }}<br>{{ test.addm_host }}<br>{{ test.addm_version }}
                 </td>
                 <td class="txt-sm-center">{{ test.time_spent_test|f_sec }}<br>{{ test.test_date_time|naturaltime }}</td>
-                <td rowspan="7" class="txt-sm-center"><a class="btn btn-sm-er btn-outline-info"
-                                                         href="http://{{ domain }}/admin/octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View</a>
+                <td rowspan="6" class="txt-sm-center">
+                    <a class="btn btn-sm-er btn-outline-info"
+                       href="http://{{ domain }}/admin/octo_tku_upload/uploadtestsnew/{{ test.id }}/change">View
+                    </a>
                 </td>
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">Stderr</th>
-                <td colspan="6"
+                <td colspan="5"
                     class="txt-extra-sm-left txt-left-prewrap {% if test.upload_test_str_stderr %}tst-error{% endif %}">{{ test.upload_test_str_stderr }}</td>
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">important_out</th>
-                <td colspan="6" class="txt-extra-sm-left txt-left-prewrap">{{ test.important_out }}</td>
+                <td colspan="5" class="txt-extra-sm-left txt-left-prewrap">{{ test.important_out }}</td>
             </tr>
 
             <tr>
                 <th class="txt-extra-sm-left">Warn out</th>
-                <td colspan="6" class="txt-extra-sm-left">{{ test.upload_warnings }}</td>
+                <td colspan="5" class="txt-extra-sm-left">{{ test.upload_warnings }}</td>
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">Err out</th>
-                <td colspan="6"
+                <td colspan="5"
                     class="txt-extra-sm-left {% if not test.upload_errors == '[]' %}tst-error{% endif %}">{{ test.upload_errors }}</td>
             </tr>
             <tr>
                 <th class="txt-extra-sm-left">tku_statuses</th>
-                <td colspan="6" class="txt-extra-sm-left txt-left-prewrap">{{ test.tku_statuses }}</td>
+                <td colspan="5" class="txt-extra-sm-left txt-left-prewrap">{{ test.tku_statuses }}</td>
             </tr>
         {% endfor %}
         </tbody>

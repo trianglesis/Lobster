@@ -10,9 +10,6 @@ from octo.settings import SITE_DOMAIN
 
 from octo_tku_upload.models import UploadTestsNew
 
-from octo.helpers.tasks_run import Runner
-from octo.tasks import TSupport
-
 log = logging.getLogger("octo.octologger")
 
 
@@ -45,6 +42,8 @@ class TKUEmailDigest:
         # Select ANY failed, errored or warning log
         if day_select == 'yesterday':
             day_sel = datetime.date.today() - datetime.timedelta(days=1)
+        elif isinstance(day_select, int):
+            day_sel = datetime.date.today() - datetime.timedelta(days=day_select)
         else:
             day_sel = datetime.date.today()
 
@@ -76,7 +75,7 @@ class TKUEmailDigest:
 
         if queryset:
             log.debug(f'Sending email with TKU fail upload statuses for {day_sel.strftime("%Y-%m-%d")}!')
-            subject = f'Upload status mail: "{status}" type: {tku_type if tku_type else "all"}'
+            subject = f'TKU Upload Test Reports – {day_sel.strftime("%Y-%m-%d")}: Status: "{status}" type: "{tku_type if tku_type else "all"}"'
 
             mail_html = mail_body.render(
                 dict(
@@ -102,14 +101,6 @@ class TKUEmailDigest:
                             attach_content=mail_log,
                             attach_content_name=f'TKU_Upload_log_{status}_{tku_type if tku_type else "everything"}_{day_sel.strftime("%Y-%m-%d")}.html',
                             )
-            # t_args = f'TKU_Upload_digest.{status}.mail'
-            # t_routing_key = 'UserTestsDigest.TSupport.t_short_mail'
-            # t_queue = 'w_routines@tentacle.dq2'
-            # Runner.fire_t(TSupport.t_short_mail, fake_run=fake_run, to_sleep=2, to_debug=True,
-            #               t_queue=t_queue, t_args=[t_args], t_kwargs=t_kwargs, t_routing_key=t_routing_key)
             Mails().short(**t_kwargs)
         else:
             log.info(f'There are no errors or warnings in TKU Upload for {day_sel.strftime("%Y-%m-%d")}!')
-
-
-

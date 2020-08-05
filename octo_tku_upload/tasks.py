@@ -344,7 +344,6 @@ class UploadTaskPrepare:
         else:
             log.info(f"VM Will be not revert snapshot - self.revert_snapshot = {self.revert_snapshot}")
 
-
     def addm_prepare(self, step_k):
         """
         Upload test initial step, prepare ADDM before install TKU.
@@ -452,7 +451,6 @@ class UploadTaskPrepare:
                                   f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
                                   f"addm_group={addm_group};user={self.user_name}"],
                               t_kwargs=dict(
-                                  status='everything',
                                   tku_type=self.tku_type,
                                   fake_run=self.fake_run
                               ),
@@ -468,7 +466,6 @@ class UploadTaskPrepare:
                                   f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
                                   f"addm_group={addm_group};user={self.user_name}"],
                               t_kwargs=dict(
-                                  status='error',
                                   tku_type=self.tku_type,
                                   fake_run=self.fake_run
                               ),
