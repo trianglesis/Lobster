@@ -97,7 +97,7 @@ class VCenterOperations:
         :return:
         """
         from threading import Thread
-        addm_set = kwargs.get('addm_set', 'vm_power_on')
+        addm_set = kwargs.get('addm_set')
         operation_k = kwargs.get('operation_k', None)
         t_sleep = kwargs.get('t_sleep', None)
 
@@ -109,7 +109,8 @@ class VCenterOperations:
 
         if not addm_set:
             return 'No ADDM set provided!'
-        assert isinstance(addm_set, QuerySet), 'ADDM set should be a QS of AddmDev model for VM operations!'
+        # if not isinstance(addm_set, QuerySet) and not isinstance(addm_set, AddmDev):
+        #     raise Exception('ADDM set should be a QS of AddmDev model for VM operations!')
 
         for addm_item in addm_set:
             if self.service_instance:

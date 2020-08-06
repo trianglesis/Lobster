@@ -312,14 +312,15 @@ class TaskPrepare:
         :return:
         """
 
-        if self.request.get('refresh'):
-            self.wipe = True
-            self.refresh = True
-            self.p4_synced = False  # To be synced
-            log.debug("<=TaskPrepare=> Will execute p4 sync before run tests")
-        else:
-            self.p4_synced = True  # Let's think we already synced everything:
-            return True
+        if hasattr(self, 'request') and self.request:
+            if self.request.get('refresh'):
+                self.wipe = True
+                self.refresh = True
+                self.p4_synced = False  # To be synced
+                log.debug("<=TaskPrepare=> Will execute p4 sync before run tests")
+            else:
+                self.p4_synced = True  # Let's think we already synced everything:
+                return True
 
         # Only sync and parse depot, no ADDM Sync here!
         t_tag = f'tag=t_p4_sync;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'

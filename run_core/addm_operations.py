@@ -456,48 +456,6 @@ class ADDMOperations:
         self.host_keys = os.path.join(place, 'addms')
         self.private_key = os.path.join(self.host_keys, 'private_key', 'Octo_ssh_key')
 
-    @staticmethod
-    def select_addm_set(addm_group=None, addm_set=None):
-        """
-        When addm set was selected BEFORE this step - just return itself.
-        When addm set was not selected BUT addm group is present - select addm set
-            based on it's group name.
-        When NO addm set and NO addm group - select ALL addms from database.
-
-        When addm_group is a list - return list of querysets for selected addm groups
-
-        Be careful!
-
-        :param addm_group:
-        :param addm_set:
-        :return:
-        """
-        selected_addms_l = []
-        if not addm_set:
-            log.info("<=ADDMOperations=> Selecting addm set.")
-            if addm_group:
-                log.info(f"<=ADDMOperations=> Selecting addm set by addm_group: {addm_group}")
-                if addm_group == 'all':
-                    addm_set = AddmDev.objects.filter(disables__isnull=True).values()
-                elif isinstance(addm_group, list):
-                    log.info(f"<=ADDMOperations=> Selecting addm set by addm_group list: {addm_group}")
-                    for addm_group_item in addm_group:
-                        if '@tentacle' in addm_group_item:
-                            addm_group_item = addm_group_item.replace('@tentacle', '')
-
-                        addm_set = AddmDev.objects.filter(addm_group__exact=addm_group_item, disables__isnull=True).values()
-                        selected_addms_l.append(addm_set)
-                    return selected_addms_l
-                else:
-                    log.info(f"<=ADDMOperations=> Selecting addm set by addm_group not a list and not 'all': {addm_group}")
-                    addm_set = AddmDev.objects.filter(addm_group__exact=addm_group, disables__isnull=True).values()
-                    log.debug("<=ADDMOperations=> Use select_addm_set. ADDM group used: (%s)", addm_group)
-            else:
-                log.info(f"<=ADDMOperations=> Selecting everything!")
-                addm_set = AddmDev.objects.filter(disables__isnull=True).values()
-                log.debug("<=ADDMOperations=> Use select_addm_set. Use all ADDMs!")
-        return addm_set
-
     def ssh_c(self, **kwargs):
         """
         Create active SSH connection, then validate and show SUCCESS or ERROR.

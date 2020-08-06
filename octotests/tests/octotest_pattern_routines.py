@@ -261,6 +261,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.run_case()
 
     def test_016_execute_failed_main(self):
+        # self.fake_run_on(True)
         self.silent_on(True)
         self.branch = 'tkn_main'
         # Select failed log entries
@@ -269,18 +270,14 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # Select actual test cases from failed log details
         cases_q = self.select_failed_cases(test_py_list)
         print(f"Selected cases for rerun: {cases_q.count()}")
+        self.sync_depot()
         # For each of selected assign worker and add test task:
         for test_item in cases_q:
             # May select wrong branch group?
-            self.select_addm_group()
-            if self.addm_set:
-                # Sync test data to ADDM
-                self.sync_test_data_addm_set(addm_item=self.addm_set)
-                # Now wipe old results
-                print(f"Wipe last logs for {test_item.test_py_path}")
-                self.wipe_case_logs(test_item.test_py_path)
+            addm_set = self.addm_group_qs_short()
+            if addm_set:
                 # Put each case on selected group
-                self.put_test_cases_short([test_item])
+                self.put_test_cases_short([test_item], addm_set)
 
     def test_017_execute_failed_ship(self):
         self.silent_on(True)
@@ -291,18 +288,14 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # Select actual test cases from failed log details
         cases_q = self.select_failed_cases(test_py_list)
         print(f"Selected cases for rerun: {cases_q.count()}")
+        self.sync_depot()
         # For each of selected assign worker and add test task:
         for test_item in cases_q:
             # May select wrong branch group?
-            self.select_addm_group()
-            if self.addm_set:
-                # Sync test data to ADDM
-                self.sync_test_data_addm_set(addm_item=self.addm_set)
-                # Now wipe old results
-                print(f"Wipe last logs for {test_item.test_py_path}")
-                self.wipe_case_logs(test_item.test_py_path)
+            addm_set = self.addm_group_qs_short()
+            if addm_set:
                 # Put each case on selected group
-                self.put_test_cases_short([test_item])
+                self.put_test_cases_short([test_item], addm_set)
 
     def test_018_taxonomy_tkn_main(self):
         self.silent_on(True)
@@ -326,7 +319,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
             option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(
             ',')
         self.branch = 'tkn_main'
-        date_from = now - datetime.timedelta(days=int(5))
+        date_from = now - datetime.timedelta(days=int(7))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)  # 3

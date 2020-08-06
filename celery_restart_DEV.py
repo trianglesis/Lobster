@@ -32,7 +32,7 @@ CELERYD_NODES = [
     "w_parsing@tentacle",
     "w_routines@tentacle",
     "alpha@tentacle",
-    # "beta@tentacle",
+    "beta@tentacle",
     # "charlie@tentacle",
     # "delta@tentacle",
     # "echo@tentacle",
