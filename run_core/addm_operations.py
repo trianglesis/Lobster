@@ -631,16 +631,3 @@ class ADDMOperations:
         vc = VCenterOperations()
         all_vms = vc.list_vms_update_db(model=AddmDev, vm_model=OctopusVM)
         return all_vms
-
-    def power_off_addm_group(self, kwargs):
-        addm_group = kwargs.get('addm_group', None)
-        if addm_group:
-            vc = VCenterOperations()
-            addm_set = AddmDev.objects.filter(addm_group__exact=addm_group)
-            for addm in addm_set:
-                print(f"PowerOff ADDM: {addm.octopusvm.vm_name}, {addm.octopusvm.instanceUuid}")
-                vc.vm_power_off(vm_obj=addm.octopusvm)
-            return True
-        else:
-            log.error(f"<=power_off_addm_group=> No addm group! {addm_group}")
-            return False
