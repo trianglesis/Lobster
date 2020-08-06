@@ -43,8 +43,8 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         # self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
 
         # PatternTestUtils balance the load automatically
-        # self.tkn_main_addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(',')
-        # self.tkn_ship_addm_group_l = Options.objects.get(option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(',')
+        # self.tkn_main_addm_group_l = Options.objects.get(option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(',')
+        # self.tkn_ship_addm_group_l = Options.objects.get(option_key__exact='night_workers.tkn_ship').option_value.replace(' ', '').split(',')
 
         # Short set:
         self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
@@ -157,7 +157,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
         self.excluded_group()
         self.addm_group_l = Options.objects.get(
-            option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(
+            option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(
             ',')
         self.wipe_logs_on(True)
         self.run_case()
@@ -172,7 +172,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)
         self.excluded_group()
         self.addm_group_l = Options.objects.get(
-            option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(
+            option_key__exact='night_workers.tkn_ship').option_value.replace(' ', '').split(
             ',')
         self.wipe_logs_on(True)
         self.run_case()
@@ -226,7 +226,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         :return:
         """
         self.addm_group_l = Options.objects.get(
-            option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(
+            option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(
             ',')
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(90))
@@ -248,7 +248,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         :return:
         """
         self.addm_group_l = Options.objects.get(
-            option_key__exact='branch_workers.tkn_ship').option_value.replace(' ', '').split(
+            option_key__exact='night_workers.tkn_ship').option_value.replace(' ', '').split(
             ',')
         self.branch = 'tkn_ship'
         date_from = now - datetime.timedelta(days=int(90))
@@ -323,7 +323,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         self.fake_run_on(True)
         self.wipe_logs_on(False)
         self.addm_group_l = Options.objects.get(
-            option_key__exact='branch_workers.tkn_main').option_value.replace(' ', '').split(
+            option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(
             ',')
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(90))

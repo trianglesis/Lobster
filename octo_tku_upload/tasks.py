@@ -15,7 +15,10 @@ from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
 # Celery
 from octo.octo_celery import app
+
+from octo_adm.tasks import TaskVMService
 from octo.tasks import TSupport
+
 from octo_tku_upload.digests import TKUEmailDigest
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
 from octo_tku_upload.test_executor import UploadTestExec
@@ -330,19 +333,49 @@ class UploadTaskPrepare:
         But do not mess with addm prep function, as this is only for each addm host itself.
         Wait until this task is finished or just stack next tasks to addm_group worker.
         """
+        # Revert snapshot - usually for alpha and only during GA, and then wait fr VMs to powerOn and start services
+        addm_group = self.addm_set.first().addm_group
         if self.revert_snapshot:
-            log.debug(f'Using addm set: {self.addm_set} to run vCenter procedures based on VM ids.')
-            vc = VCenterOperations()
-            for addm in self.addm_set:
-                log.info(f"Snap revert and power on - addm from set: {addm}")
-                vc.vm_revert_snapshot(vm_obj=addm.octopusvm)
-                vc.vm_power_on(vm_obj=addm.octopusvm)
-            # TODO: Block ADDM queue for a few minutes until ADDM services are OK?
-            log.info('Sleep for 5 minutes to let ADDM services start')
-            time.sleep(60 * 5)
-            log.info('Finish Sleep for 5 minutes to let ADDM services start')
+            log.debug(f'VM Reverting snapshot, PowerOn VMs and occupy worker for 5 min: \n{self.addm_set}')
+            # Taskization:
+            log.info("Adding task revert snapshot!")
+            Runner.fire_t(TaskVMService.t_vm_operation_thread,
+                          fake_run=self.fake_run,
+                          t_queue=f"{addm_group}@tentacle.dq2",
+                          t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_revert_snapshot"],
+                          t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_revert_snapshot'),
+                          t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_revert_snapshot")
+            log.info("Adding task power On vms!")
+            Runner.fire_t(TaskVMService.t_vm_operation_thread,
+                          fake_run=self.fake_run,
+                          t_queue=f"{addm_group}@tentacle.dq2",
+                          t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
+                          t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_power_on'),
+                          t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
+            log.info("Adding task occupy worker, for 5 min!")
+            Runner.fire_t(TSupport.t_occupy_w,
+                          fake_run=self.fake_run,
+                          t_queue=f"{addm_group}@tentacle.dq2",
+                          t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitAfterPowerOnVMs", 60 * 5],
+                          t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
+                          t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
+        # Otherwise check if machines aren't powered off - and power On if so
         else:
-            log.info(f"VM Will be not revert snapshot - self.revert_snapshot = {self.revert_snapshot}")
+            log.info(f"VM Power on tasks, no snapshots reverting = {self.revert_snapshot}")
+            log.info("Adding task power On vms!")
+            Runner.fire_t(TaskVMService.t_vm_operation_thread,
+                          fake_run=self.fake_run,
+                          t_queue=f"{addm_group}@tentacle.dq2",
+                          t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
+                          t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_power_on'),
+                          t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
+            log.info("Adding task occupy worker, for 5 min!")
+            Runner.fire_t(TSupport.t_occupy_w,
+                          fake_run=self.fake_run,
+                          t_queue=f"{addm_group}@tentacle.dq2",
+                          t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitAfterPowerOnVMs", 60 * 5],
+                          t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
+                          t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
 
     def addm_prepare(self, step_k):
         """
@@ -470,6 +503,25 @@ class UploadTaskPrepare:
                                   fake_run=self.fake_run
                               ),
                               t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
+
+            """
+            Power Off ADDM VMs after latest step reached: ga tku and fresh test mode should be always the last step!
+            """
+            if self.tku_type == 'ga_candidate' and self.test_mode == 'fresh':
+                log.info("Adding task occupy worker, for 15 min! before power Off vms!")
+                Runner.fire_t(TSupport.t_occupy_w,
+                              fake_run=self.fake_run,
+                              t_queue=f"{addm_group}@tentacle.dq2",
+                              t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitBeforePowerOffVMs", 60 * 15],
+                              t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
+                              t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
+                log.info("Adding task Power off VMs")
+                Runner.fire_t(TaskVMService.t_vm_operation_thread,
+                              fake_run=self.fake_run,
+                              t_queue=f"{addm_group}@tentacle.dq2",
+                              t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_off"],
+                              t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_power_off'),
+                              t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_off")
 
     @staticmethod
     def _debug_unpack_qs(packages):

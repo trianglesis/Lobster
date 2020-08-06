@@ -10,18 +10,13 @@ Note:
     - Do not import case routines which import tasks from here.
 """
 from __future__ import absolute_import, unicode_literals
+
 import logging
-from time import time
 
-from octo.octo_celery import app
-from octo.config_cred import mails
-from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
-
-from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_helpers import exception
-
-from octo.helpers.tasks_run import Runner
-
+from octo.octo_celery import app
+from run_core.addm_operations import ADDMStaticOperations
+from run_core.vcenter_operations import VCenterOperations
 
 log = logging.getLogger("octo.octologger")
 
@@ -66,3 +61,13 @@ class TaskADDMService:
     @exception
     def t_addm_cmd_thread(t_tag, **kwargs):
         return ADDMStaticOperations().threaded_exec_cmd(**kwargs)
+
+
+class TaskVMService:
+
+    @staticmethod
+    @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
+    @exception
+    def t_vm_operation_thread(t_tag, **kwargs):
+        log.info(f'Running {t_tag}')
+        return VCenterOperations().threaded_operations(**kwargs)

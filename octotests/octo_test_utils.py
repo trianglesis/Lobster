@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from octo.config_cred import mails
 from octo.helpers.tasks_run import Runner
+
 from octo_adm.tasks import TaskADDMService
 from octo_tku_patterns.model_views import TestLatestDigestFailed
 from octo_tku_patterns.models import TestCases, TestCasesDetails, TestLast

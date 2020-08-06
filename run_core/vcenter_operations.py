@@ -3,13 +3,20 @@ import logging
 import atexit
 import ssl
 # noinspection PyUnresolvedReferences
+from django.db.models import QuerySet
 from pyVim import connect
 # noinspection PyUnresolvedReferences
 from pyVmomi import vim
 from pyVim.task import WaitForTask
 
+from time import sleep
+from time import time
+from queue import Queue
+
 from octo.config_cred import v_center_cred
 from django.core.exceptions import ObjectDoesNotExist
+
+from run_core.models import AddmDev
 
 log = logging.getLogger("octo.octologger")
 place = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +39,16 @@ class VCenterOperations:
 
         # Store connection here:
         self.vconnect()
+
+        self.operations = dict(
+            list_vms_update_db=self.list_vms_update_db,
+            vm_create_snapshot=self.vm_create_snapshot,
+            vm_revert_snapshot=self.vm_revert_snapshot,
+            vm_power_on=self.vm_power_on,
+            vm_power_off=self.vm_power_off,
+            vm_soft_reboot=self.vm_soft_reboot,
+            vm_reset=self.vm_reset,
+        )
 
     def vconnect(self):
         """
@@ -72,6 +89,55 @@ class VCenterOperations:
 
         containerView = self.content.viewManager.CreateContainerView(self.container, viewType, recursive)  # create container view
         return containerView
+
+    def threaded_operations(self, **kwargs):
+        """
+        Power On is always a default operation_k, if no key provided!
+        :param kwargs:
+        :return:
+        """
+        from threading import Thread
+        addm_set = kwargs.get('addm_set', 'vm_power_on')
+        operation_k = kwargs.get('operation_k', None)
+
+        th_list = []
+        th_out = []
+        txt_out = ''
+        ts = time()
+        out_q = Queue()
+
+        if not addm_set:
+            return 'No ADDM set provided!'
+        assert isinstance(addm_set, QuerySet), 'ADDM set should be a QS of AddmDev model for VM operations!'
+
+        for addm_item in addm_set:
+            if self.service_instance:
+                th_name = f'VCenterOperations.threaded_operations: {addm_item.addm_group} - {addm_item.addm_host} {addm_item.addm_ip}'
+                args_d = dict(out_q=out_q, vm_obj=addm_item.octopusvm)
+                try:
+                    log.info(f"<=threaded_operations=> Run {operation_k}.")
+                    cmd_th = Thread(target=self.operations[operation_k], name=th_name, kwargs=args_d)
+                    cmd_th.start()
+                    th_list.append(cmd_th)
+                except Exception as e:
+                    msg = f'Thread {th_name} fail with error: \n{e}'
+                    log.error(msg)
+                    raise Exception(msg)
+            else:
+                msg = f'VCenter Connection died! There is no service_instance!'
+                log.error(msg)
+                raise Exception(msg)
+
+        for test_th in th_list:
+            test_th.join()
+            thread_out = out_q.get()
+            th_out.append(thread_out)
+            txt_out += f'\n\t{thread_out}'
+        output = {operation_k: th_out, 'time': time() - ts}
+        # Do not show CMD out with too big data in it:
+        txt_output = f'CMD:{operation_k}\nOutput:{txt_out}\nEST: {time() - ts}'
+        log.info(f"VM Operation Output txt: {txt_output}")
+        return output
 
     def list_vms_update_db(self, model=None, vm_model=None):
         containerView = self.get_content_vms()
@@ -138,7 +204,7 @@ class VCenterOperations:
         log.info(f'Find VM: {vm}')
         return vm
 
-    def vm_create_snapshot(self, vm_obj, **kwargs):
+    def vm_create_snapshot(self, vm_obj, out_q, **kwargs):
         log.info(f"Creating snapshot for VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
@@ -154,12 +220,12 @@ class VCenterOperations:
             vim.WaitForTask(task)
             snapshot = task.info.result
             log.info(f"Snapshot created: {snapshot}")
-            return snapshot
+            out_q.put({vm_obj.vm_name: snapshot})
         else:
             log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
-            return None
+            out_q.put({vm_obj.vm_name: 'no_snapshot'})
 
-    def vm_revert_snapshot(self, vm_obj):
+    def vm_revert_snapshot(self, vm_obj, out_q):
         log.info(f"Reverting latest snapshot for VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
@@ -168,12 +234,12 @@ class VCenterOperations:
             WaitForTask(task)
             snapshot = task.info.result
             log.info(f"Snapshot reverted: {snapshot}")
-            return snapshot
+            out_q.put({vm_obj.vm_name: snapshot})
         else:
             log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
-            return None
+            out_q.put({vm_obj.vm_name: 'no_snapshot'})
 
-    def vm_power_on(self, vm_obj):
+    def vm_power_on(self, vm_obj, out_q):
         """
         Power on vm. If not powered off state - skip
         :param vm_obj:
@@ -186,13 +252,15 @@ class VCenterOperations:
                 task = vm.PowerOn()
                 log.info(f"Powering on task: {task}")
                 WaitForTask(task)
+                out_q.put({vm_obj.vm_name: 'poweredOn'})
             else:
                 log.info(f'This machine is not PoweredOff - skipping task! {vm_obj.vm_name}')
+                out_q.put({vm_obj.vm_name: 'skipped'})
         else:
             log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
-            return None
+            out_q.put({vm_obj.vm_name: None})
 
-    def vm_power_off(self, vm_obj):
+    def vm_power_off(self, vm_obj, out_q):
         """
         Power off vm. If not powered on state - skip
         :param vm_obj:
@@ -205,33 +273,37 @@ class VCenterOperations:
                 task = vm.PowerOff()
                 log.info(f"Powering off task: {task}")
                 WaitForTask(task)
+                out_q.put({vm_obj.vm_name: 'poweredOff'})
             else:
-                log.info(f'This machine is poweredOn already - skipping task! {vm_obj.vm_name}')
+                log.info(f'This machine is poweredOff already - skipping task! {vm_obj.vm_name}')
+                out_q.put({vm_obj.vm_name: 'skipped'})
         else:
             log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
-            return None
+            out_q.put({vm_obj.vm_name: None})
 
-    def vm_soft_reboot(self, vm_obj):
+    def vm_soft_reboot(self, vm_obj, out_q):
         log.info(f"Soft REBOOT VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
             task = vm.RebootGuest()()
             log.info(f"Reboot off task: {task}")
             WaitForTask(task)
+            out_q.put({vm_obj.vm_name: 'rebooted'})
         else:
             log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
-            return None
+            out_q.put({vm_obj.vm_name: None})
 
-    def vm_reset(self, vm_obj):
+    def vm_reset(self, vm_obj, out_q):
         log.info(f"RESET VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
             task = vm.ResetVM_Task()()()
             log.info(f"Reset off task: {task}")
             WaitForTask(task)
+            out_q.put({vm_obj.vm_name: 'reset'})
         else:
             log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
-            return None
+            out_q.put({vm_obj.vm_name: None})
 
 
 # if __name__ == "__main__":

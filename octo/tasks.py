@@ -65,13 +65,14 @@ class TSupport:
         return Mails().short(**mail_kwargs)
 
     @staticmethod
-    @app.task(soft_time_limit=MIN_10, task_time_limit=MIN_20)
+    @app.task(soft_time_limit=MIN_90, task_time_limit=HOURS_2)
     @exception
     def t_occupy_w(t_tag, sleep_t, **kwargs):
         """
         Just keep worker busy when user change it.
         :return:
         """
+        log.info(f"Sleeping task {t_tag} for {sleep_t} seconds.")
         sleep(sleep_t)
 
     @staticmethod
