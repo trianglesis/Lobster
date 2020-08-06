@@ -224,7 +224,7 @@ class PatternTestUtils(unittest.TestCase):
         _addm_group = addm_item.first().addm_group
         log.info("Adding task power On vms!")
         Runner.fire_t(TaskVMService.t_vm_operation_thread,
-                      fake_run=self.fake_run,
+                      fake_run=True,
                       t_queue=f"{_addm_group}@tentacle.dq2",
                       t_args=[f"PatternTestUtils;task=t_vm_operation_thread;operation_k=vm_power_on"],
                       t_kwargs=dict(addm_set=addm_item, operation_k='vm_power_on', t_sleep=60 * 5),
@@ -257,7 +257,6 @@ class PatternTestUtils(unittest.TestCase):
     def balance_tests_on_workers(self):
         """Balance tests between selected ADDM groups each group/queue will be filled
             with tests by overall (weight / groups)"""
-        # TODO: Make list of addm_groups based on addm_set.
         log.info(f"<=Night Routine=> Balance test on workers by ADDM List {self.addm_group_l}")
         self.addm_tests_balanced = BalanceNightTests().test_weight_balancer(
             addm_group=self.addm_group_l, test_items=self.queryset.order_by('-test_time_weight'))
@@ -266,6 +265,8 @@ class PatternTestUtils(unittest.TestCase):
         for addm_item in self.addm_set:
             addm_group = addm_item[0].addm_group
             addm_group_qs = self.addm_group_qs_night(addm_group)
+            log.debug(f"addm_group_qs: {addm_group_qs}")
+
             log.debug(f"<=put_test_cases=> Using addm group: {addm_group} and branch: {self.branch}")
             addm_coll = self.addm_tests_balanced.get(addm_group)
             addm_tests = addm_coll.get('tests', [])
@@ -292,7 +293,6 @@ class PatternTestUtils(unittest.TestCase):
         :return:
         """
         # Add finish mail to the queue when it filled with test tasks:
-        # TODO: Add some addm cleaning routines and services restart?
         log.debug("<=PatternTestUtils=> ADDM group run some preparations after all tests run?")
         # Make task and it will be added in the end of the queue on each addm group.
         msg = '''Night routine has been executed. Options used:
@@ -313,7 +313,6 @@ class PatternTestUtils(unittest.TestCase):
             queryset_query=self.queryset.query,
         )
         log.info(msg)
-        # TODO: Add here a task to save latest possible log
         return True
 
     def addm_preps_finish(self, addm_item):
@@ -324,7 +323,7 @@ class PatternTestUtils(unittest.TestCase):
         _addm_group = addm_item.first().addm_group
         log.info("Adding task Power off VMs")
         Runner.fire_t(TaskVMService.t_vm_operation_thread,
-                      fake_run=self.fake_run,
+                      fake_run=True,
                       t_queue=f"{_addm_group}@tentacle.dq2",
                       t_args=[f"PatternTestUtils;task=t_vm_operation_thread;operation_k=vm_power_off"],
                       t_kwargs=dict(addm_set=addm_item, operation_k='vm_power_off'),
@@ -426,7 +425,8 @@ class PatternTestUtils(unittest.TestCase):
         # Send mail
         tag = 'tag=night_routine;lvl=auto;type=send_mail'
         Runner.fire_t(MailDigests.routine_mail,
-                      fake_run=self.fake_run, to_sleep=2, to_debug=True,
+                      fake_run=True,
+                      to_sleep=2, to_debug=True,
                       t_queue=f'{addm_group}@tentacle.dq2',
                       t_args=[tag],
                       t_kwargs=mail_kwargs,

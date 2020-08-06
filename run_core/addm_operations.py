@@ -1,18 +1,4 @@
-"""
-ADDM operations execute here:
-- SSH connections
 
-
-addm_name:          addm_ip:          addm_host:      addm_ver:     owner:
-custard_cream       172.25.144.118    vl-aus-tkudev-38    ADDM_11_2     Alex D
-bobblehat           172.25.144.119    vl-aus-tkudev-39    ADDM_11_1     Alex D
-aardvark            172.25.144.120    vl-aus-tkudev-40    ADDM_11_0     Alex D
-zythum              172.25.144.121    vl-aus-tkudev-41    ADDM_10_2     Alex D
-double_decker                 172.25.144.122    vl-aus-tkudev-42    ADDM_10_1     Alex D
-
-"""
-
-# Python logger
 import logging
 import os
 from queue import Queue
@@ -120,8 +106,7 @@ class ADDMStaticOperations:
         operation_cmd = kwargs.get('operation_cmd', None)
         interactive_mode = kwargs.get('interactive_mode', False)
 
-        if isinstance(addm_set, QuerySet):
-            addm_set = addm_set.values()
+        assert isinstance(addm_set, QuerySet), 'ADDM Set should be a QuerySet instance! ===> In ADDMStaticOperations.threaded_exec_cmd'
 
         if isinstance(operation_cmd, ADDMCommands):
             cmd_k = operation_cmd.command_key
@@ -131,7 +116,7 @@ class ADDMStaticOperations:
             cmd_k = operation_cmd
             cmd_interactive = interactive_mode
         else:
-            cmd_interactive, cmd_k = None, None
+            # cmd_interactive, cmd_k = None, None
             log.error("ADDM CMD should be a dict or ADDMCommands object!")
             return {'cmd_error': 'ADDM CMD should be a dict or ADDMCommands object!'}
 
@@ -178,7 +163,8 @@ class ADDMStaticOperations:
 
     @staticmethod
     def run_static_cmd(out_q, addm_item, operation_cmd, ssh):
-        assert isinstance(addm_item, dict), 'Should be dict converted from QuerySet.values()'
+        assert isinstance(addm_item,
+                          AddmDev), 'ADDM Set should be a AddmDev instance! ===> In ADDMStaticOperations.run_static_cmd'
 
         if isinstance(operation_cmd, ADDMCommands):
             cmd_k = operation_cmd.command_key
@@ -190,11 +176,11 @@ class ADDMStaticOperations:
             cmd_k = 'cmd_list'
             cmd = operation_cmd
         else:
-            cmd, cmd_k = None, None
+            # cmd, cmd_k = None, None
             log.error("ADDM CMD should be a dict or ADDMCommands object!")
             return {'cmd_error': 'ADDM CMD should be a dict or ADDMCommands object!'}
 
-        addm_instance = f"ADDM: {addm_item['addm_name']} - {addm_item['addm_host']}"
+        addm_instance = f"ADDM: {addm_item.addm_name} - {addm_item.addm_host}"
         ts = time()
 
         log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", cmd_k, addm_instance, cmd)
@@ -218,13 +204,13 @@ class ADDMStaticOperations:
             out_q.put({cmd_k: dict(out='Skipped', msg=msg, addm=addm_instance)})
 
     def run_interactive_cmd(self, out_q, addm_item, operation_cmd, ssh):
-        assert isinstance(addm_item, dict), 'Should be dict converted from QuerySet.values()'
+        assert isinstance(addm_item, AddmDev), 'ADDM Set should be a AddmDev instance! ===> In ADDMStaticOperations.run_interactive_cmd'
         assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
 
         cmd_k = operation_cmd.command_key
         cmd = operation_cmd.command_value
 
-        addm_instance = f"ADDM: {addm_item['addm_name']} - {addm_item['addm_host']}"
+        addm_instance = f"ADDM: {addm_item.addm_name} - {addm_item.addm_host}"
         ts = time()
 
         log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operation_cmd.command_key, addm_instance, operation_cmd.command_value)
@@ -519,7 +505,7 @@ class ADDMOperations:
                 # raise Exception(m)
             except TimeoutError as e:
                 m = f"TimeoutError: Connection failed. Host or IP of ADDM is not set or incorrect! " \
-                    "\n{addm_instance}\nError: --> s{e} <--"
+                    f"\n{addm_instance}\nError: --> s{e} <--"
                 log.error(m)
                 return None
                 # raise Exception(m)
@@ -567,10 +553,6 @@ class ADDMOperations:
 
         Unzip
 
-
-        :param ssh:
-        :param addm_item:
-        :param tku_zip_list:
         :return:
         """
         # TODO: Abort an further execution if zip fails to load
@@ -579,6 +561,9 @@ class ADDMOperations:
         addm_item = kwargs.get('addm_item')
         packages = kwargs.get('packages')
         development = kwargs.get('development', False)
+
+        assert isinstance(addm_item,
+                          AddmDev), 'ADDM Set should be a AddmDev instance! ===> In ADDMOperations.upload_unzip'
 
         outputs_l = []
         tku_zip_cmd_l = []
@@ -600,7 +585,7 @@ class ADDMOperations:
             for p in package_:
                 log.debug(f"Development packages will be used: {p}")
         else:
-            package_ = packages.filter(addm_version__exact=addm_item['addm_v_int'])
+            package_ = packages.filter(addm_version__exact=addm_item.addm_v_int)
 
         zip_path = [package.zip_file_path.replace('/home/user/TH_Octopus', '/usr/tideway') for package in package_]
         clean_cmd_l = [cmd.command_value for cmd in clean_tku_TEMP]
@@ -608,7 +593,7 @@ class ADDMOperations:
 
         tku_zip_cmd_l.extend([unzipTkuTemp.command_value.format(path_to_zip=zip_) for zip_ in zip_path])
         tku_zip_cmd_l.append(rmTidewayTempRelease.command_value)
-        log.info(f"{addm_item['addm_name']} upload_unzip commands: {tku_zip_cmd_l}")
+        log.info(f"{addm_item.addm_name} upload_unzip commands: {tku_zip_cmd_l}")
 
         # noinspection PyBroadException
         for cmd in tku_zip_cmd_l:
@@ -616,13 +601,13 @@ class ADDMOperations:
                 _, stdout, stderr = ssh.exec_command(cmd)
                 std_output, stderr_output = out_err_read(
                     out=stdout, err=stderr, cmd=cmd, mode='error',
-                    name='upload_unzip on {}'.format(addm_item['addm_name']))
+                    name='upload_unzip on {}'.format(addm_item.addm_name))
                 if stderr_output:
                     log.error("<=ADDM Oper=> upload_unzip -> stderr_output: %s", stderr_output)
                 outputs_l.append(dict(cmd=cmd, stdout=std_output, stderr=stderr_output))
             except Exception as e:
                 log.debug(f"<=ADDM Oper=> CMD LIST {tku_zip_cmd_l}")
-                msg = f'<=ADDM Oper=> Error during upload_unzip for: {cmd} {e} {addm_item["addm_name"]} ON {addm_item["addm_host"]}'
+                msg = f'<=ADDM Oper=> Error during upload_unzip for: {cmd} {e} {addm_item.addm_name} ON {addm_item.addm_host}'
                 log.error(msg)
                 raise Exception(msg)
         test_q.put(outputs_l)

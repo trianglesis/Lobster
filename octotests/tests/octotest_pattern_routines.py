@@ -313,11 +313,12 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
 
     def test_999_local_debug(self):
         self.silent_on(True)
-        self.fake_run_on(True)
+        # self.fake_run_on(True)
         self.wipe_logs_on(False)
-        self.addm_group_l = Options.objects.get(
-            option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(
-            ',')
+        # self.addm_group_l = Options.objects.get(
+        #     option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(
+        #     ',')
+        self.addm_group_l = ['beta']
         self.branch = 'tkn_main'
         date_from = now - datetime.timedelta(days=int(2))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
