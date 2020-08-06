@@ -106,7 +106,7 @@ class ADDMStaticOperations:
         interactive_mode = kwargs.get('interactive_mode', False)
 
         assert isinstance(addm_set,
-                          QuerySet), 'ADDM Set should be a QuerySet instance! ===> In ADDMStaticOperations.threaded_exec_cmd'
+                          QuerySet), f'ADDM Set should be a QuerySet instance! ===> In ADDMStaticOperations.threaded_exec_cmd; type {type(addm_set)}'
 
         if isinstance(operation_cmd, ADDMCommands):
             cmd_k = operation_cmd.command_key
@@ -128,7 +128,7 @@ class ADDMStaticOperations:
 
         for addm_item in addm_set:
             assert isinstance(addm_item,
-                              AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In ADDMStaticOperations.run_interactive_cmd'
+                              AddmDev), f'ADDM ITEM should be a AddmDev instance! ===> In ADDMStaticOperations.run_interactive_cmd; type {type(addm_set)}'
             ssh = ADDMOperations().ssh_c(addm_item=addm_item)
             if ssh:
                 th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item.addm_group} - {addm_item.addm_host} {addm_item.addm_ip}'
@@ -166,7 +166,7 @@ class ADDMStaticOperations:
     @staticmethod
     def run_static_cmd(out_q, addm_item, operation_cmd, ssh):
         assert isinstance(addm_item,
-                          AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In ADDMStaticOperations.run_static_cmd'
+                          AddmDev), f'ADDM ITEM should be a AddmDev instance! ===> In ADDMStaticOperations.run_static_cmd; type {type(addm_item)}'
 
         if isinstance(operation_cmd, ADDMCommands):
             cmd_k = operation_cmd.command_key
@@ -207,7 +207,7 @@ class ADDMStaticOperations:
 
     def run_interactive_cmd(self, out_q, addm_item, operation_cmd, ssh):
         assert isinstance(addm_item,
-                          AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In ADDMStaticOperations.run_interactive_cmd'
+                          AddmDev), f'ADDM ITEM should be a AddmDev instance! ===> In ADDMStaticOperations.run_interactive_cmd; type {type(addm_item)}'
         assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
 
         cmd_k = operation_cmd.command_key
@@ -567,7 +567,7 @@ class ADDMOperations:
         development = kwargs.get('development', False)
 
         assert isinstance(addm_item,
-                          AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In ADDMOperations.upload_unzip'
+                          AddmDev), f'ADDM ITEM should be a AddmDev instance! ===> In ADDMOperations.upload_unzip; type {type(addm_item)}'
 
         outputs_l = []
         tku_zip_cmd_l = []

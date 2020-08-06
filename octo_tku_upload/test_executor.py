@@ -259,7 +259,7 @@ class UploadTestExec:
         package_detail = kwargs.get('package_detail')
 
         assert isinstance(addm_item,
-                          AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In UploadTestExec.install_activate'
+                          AddmDev), f'ADDM ITEM should be a AddmDev instance! ===> In UploadTestExec.install_activate; {type(addm_item)}'
 
         if ssh and ssh.get_transport().is_active():
             log.info("<=install_activate=> PASSED: SSH Is active")

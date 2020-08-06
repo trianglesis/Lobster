@@ -22,7 +22,6 @@ from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
 from octo.octo_celery import app
 from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
-from octo.tasks import TSupport
 from octo_adm.tasks import TaskADDMService, TaskVMService
 from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer
 from octo_tku_patterns.digests import TestDigestMail
@@ -778,8 +777,8 @@ class TaskPrepare:
         :param test_item:
         :return:
         """
-        assert isinstance(test_item, TestCases), 'Test item should be a QuerySet: %s' % type(test_item)
-        assert isinstance(addm_set, QuerySet), "Addm set should be a QuerySet: %s" % type(addm_set)
+        assert isinstance(test_item, TestCases), f'Test item should be a QuerySet: {type(test_item)}'
+        assert isinstance(addm_set, QuerySet), f'Addm set should be a QuerySet: {type(addm_set)}'
 
         addm = addm_set.first()
         task_r_key = '{}.TExecTest.t_test_exec_threads.{}'.format(addm.addm_group, test_item.pattern_folder_name)
