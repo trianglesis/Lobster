@@ -466,12 +466,13 @@ class ADDMOperations:
         :return:
         """
         addm_item = kwargs.get('addm_item')
-        addm_ip = addm_item.get('addm_ip')
-        tideway_user = addm_item.get('tideway_user')
-        tideway_pdw = addm_item.get('tideway_pdw')
+        # addm_ip = addm_item.get('addm_ip')
+        # tideway_user = addm_item.get('tideway_user')
+        # tideway_pdw = addm_item.get('tideway_pdw')
 
-        addm_str = f'ADDM: "{addm_item["addm_group"]}" {addm_item["addm_name"]} - {addm_item["addm_host"]}'
-        ssh = self.addm_ssh_connect(addm_ip, tideway_user, tideway_pdw)
+        # TODO: FIX Exception: 'dict' object has no attribute 'addm_group'
+        addm_str = f'ADDM: "{addm_item.addm_group}" {addm_item.addm_name} - {addm_item.addm_host}'
+        ssh = self.addm_ssh_connect(addm_item.addm_ip, addm_item.tideway_user, addm_item.tideway_pdw)
         # If opened connection is Up and alive:
         if ssh and ssh.get_transport().is_active():
             # NOTE: Do not handle error here: later decide what to do in thread initialize or so.

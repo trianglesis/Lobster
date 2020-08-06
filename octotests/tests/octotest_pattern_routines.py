@@ -319,7 +319,7 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
             option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(
             ',')
         self.branch = 'tkn_main'
-        date_from = now - datetime.timedelta(days=int(7))
+        date_from = now - datetime.timedelta(days=int(2))
         self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
         self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
         self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)  # 3

@@ -95,7 +95,7 @@ class TestExecutor:
             if ssh:
                 args_d = dict(ssh=ssh, test_item=test_item, addm_item=addm_item, user_email=self.user_email,
                               test_function=test_function, test_output_mode=test_output_mode, test_q=test_q)
-                th_name = f"Test thread: addm {addm_item['addm_ip']} test {test_item['test_py_path']}"
+                th_name = f"Test thread: addm {addm_item.addm_ip} test {test_item['test_py_path']}"
                 try:
                     test_thread = Thread(target=self.test_exec, name=th_name, kwargs=args_d)
                     test_thread.start()
@@ -108,7 +108,7 @@ class TestExecutor:
             # When SSH is not active - skip thread for this ADDM and show log error (later could raise an exception?)
             else:
                 msg = f"<=test_run_threads=> SSH Connection could not be established, thread skipping for ADDM: " \
-                      f"{addm_item['addm_ip']} - {addm_item['addm_host']} in {addm_item['addm_group']}"
+                      f"{addm_item.addm_ip} - {addm_item.addm_host} in {addm_item.addm_group}"
                 log.error(msg)
                 test_outputs.append(msg)
                 # Raise exception? Stop Execution?
@@ -145,11 +145,11 @@ class TestExecutor:
 
         modern_addms = Options.objects.get(option_key__exact='modern_addm').option_value.replace(' ', '').split(',')
 
-        test_info = f" {test_py_t} | '{addm_item['addm_name']}' v'{addm_item['addm_v_int']}' " \
-                    f"{addm_item['addm_ip']} - {addm_item['addm_host']} {addm_item['addm_group']}"
+        test_info = f" {test_py_t} | '{addm_item.addm_name}' v'{addm_item.addm_v_int}' " \
+                    f"{addm_item.addm_ip} - {addm_item.addm_host} {addm_item.addm_group}"
 
         bin_python = '/usr/tideway/bin/python'
-        if addm_item['addm_name'] in modern_addms:
+        if addm_item.addm_name in modern_addms:
             bin_python = '/usr/tideway/bin/python3'
 
         if test_py_t:
@@ -420,11 +420,11 @@ class TestExecutor:
             tst_status=test_res.get('tst_status', ''),  # Should be empty by default!
             fail_message=test_res.get('fail_message', ''),
             # Part from addm_dev table
-            addm_name=addm_item['addm_name'],
-            addm_group=addm_item['addm_group'],
-            addm_v_int=addm_item['addm_v_int'],
-            addm_host=addm_item['addm_host'],
-            addm_ip=addm_item['addm_ip'],
+            addm_name=addm_item.addm_name,
+            addm_group=addm_item.addm_group,
+            addm_v_int=addm_item.addm_v_int,
+            addm_host=addm_item.addm_host,
+            addm_ip=addm_item.addm_ip,
             time_spent_test=test_res.get('time_spent_test', 300),  # Use default, we'll later calculate weight.
         )
         save_tst = db_model(**test_data_res)

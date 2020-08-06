@@ -276,6 +276,7 @@ class PatternTestUtils(unittest.TestCase):
                 self.all_tests_w += addm_coll.get('all_tests_weight')
                 self.routine_mail(mode='run', addm_group=addm_group)
                 # Sync test data on those addms from group:
+                #  # TODO: FIX Exception: 'dict' object has no attribute 'addm_group'
                 self.sync_test_data_addm_set(addm_group_qs)
                 # Start to fill queues with test tasks:
                 self.run_cases_router(addm_tests, addm_group, addm_item)
@@ -376,7 +377,7 @@ class PatternTestUtils(unittest.TestCase):
             r_key = '{}.TExecTest.nightly_routine_case.{}'.format(_addm_group, case_tag)
             # LIVE:
             Runner.fire_t(TPatternExecTest().t_test_exec_threads,
-                          fake_run=self.fake_run,
+                          fake_run=True,
                           to_sleep=1, to_debug=True,
                           t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[t_tag],
