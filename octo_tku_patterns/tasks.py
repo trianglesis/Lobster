@@ -604,23 +604,23 @@ class TaskPrepare:
         # Only if p4 sync correctly OR we forced it to True:
         addm = addm_set.first()
         if self.p4_synced and self.request.get('refresh'):
-            log.debug("<=TaskPrepare=> Adding task to sync addm group: '%s'", addm['addm_group'])
+            log.debug("<=TaskPrepare=> Adding task to sync addm group: '%s'", addm.addm_group)
             commands_qs = ADDMStaticOperations.select_operation([
                 'rsync.python.testutils',
                 'rsync.tideway.utils',
                 'rsync.tku.data',
             ])
             for operation_cmd in commands_qs:
-                t_tag = f'tag=t_addm_rsync_threads;addm_group={addm["addm_group"]};user_name={self.user_name};' \
+                t_tag = f'tag=t_addm_rsync_threads;addm_group={addm.addm_group};user_name={self.user_name};' \
                         f'fake={self.fake_run};start_time={self.start_time};command_k={operation_cmd.command_key};'
-                addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
+                addm_grouped_set = addm_set.filter(addm_group__exact=addm.addm_group)
                 t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
                 Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
                               fake_run=self.fake_run,
-                              t_queue=f'{addm["addm_group"]}@tentacle.dq2',
+                              t_queue=f'{addm.addm_group}@tentacle.dq2',
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
-                              t_routing_key=f'{addm["addm_group"]}.{operation_cmd.command_key}.TaskADDMService.t_addm_cmd_thread')
+                              t_routing_key=f'{addm.addm_group}.{operation_cmd.command_key}.TaskADDMService.t_addm_cmd_thread')
 
     def prep_step(self, addm_set):
         """
