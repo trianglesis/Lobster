@@ -7,19 +7,15 @@ WIll use same logic from TPL IDE Automation.
 # Python logger
 import logging
 import re
-from django.conf import settings
-
 from datetime import datetime
 from queue import Queue
 from threading import Thread
 from time import time
 
-from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_helpers import exception
-
+from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_run import Runner
 from octo_adm.tasks import TaskADDMService
-
 from octo_tku_upload.models import UploadTestsNew as UploadTests
 from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
 from run_core.models import UploadTaskPrepareLog, AddmDev
