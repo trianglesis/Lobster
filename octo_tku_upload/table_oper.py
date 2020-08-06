@@ -16,7 +16,7 @@ log = logging.getLogger("octo.octologger")
 class UploadTKUTableOper:
 
     @staticmethod
-    def select_packages_narrow(addm_item=None, tku_type=None, package_type=None):
+    def __old_select_packages_narrow(addm_item=None, tku_type=None, package_type=None):
         """
         Select package for TKU upload test:
         - main option is based on package type - arg 'tku_type'
@@ -34,7 +34,7 @@ class UploadTKUTableOper:
                 tku_type_max = TkuPackages.objects.filter(tku_type__exact=tku_type).aggregate(Max('package_type'))
                 return TkuPackages.objects.filter(
                     tku_type__exact=tku_type,
-                    addm_version__exact=addm_item['addm_v_int'],
+                    addm_version__exact=addm_item.addm_v_int,
                     package_type__exact=tku_type_max['package_type__max']).values()
 
             elif tku_type and package_type:
@@ -42,20 +42,20 @@ class UploadTKUTableOper:
                 return TkuPackages.objects.filter(
                     tku_type__exact=tku_type,
                     package_type__exact=package_type,
-                    addm_version__exact=addm_item['addm_v_int']).values()
+                    addm_version__exact=addm_item.addm_v_int).values()
 
             elif not tku_type and package_type:
                 # Select exact package type:
                 return TkuPackages.objects.filter(
                     package_type__exact=package_type,
-                    addm_version__exact=addm_item['addm_v_int']).values()
+                    addm_version__exact=addm_item.addm_v_int).values()
 
             else:
                 # Select latest GA build, by default:
                 ga_candidate_max = TkuPackages.objects.filter(tku_type__exact='ga_candidate').aggregate(Max('package_type'))
                 return TkuPackages.objects.filter(
                     tku_type__exact='ga_candidate',
-                    addm_version__exact=addm_item['addm_v_int'],
+                    addm_version__exact=addm_item.addm_v_int,
                     package_type__exact=ga_candidate_max['package_type__max']).values()
         else:
             if tku_type and not package_type:
