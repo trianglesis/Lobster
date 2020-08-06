@@ -156,7 +156,6 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         """
         package_type = self.select_latest_ga()
         # self.tku_wget = True
-        self.fake_run = True
         self.test_mode = 'fresh'
         self.revert_snapshot = True
         self.addm_set = self.addm_set.filter(
