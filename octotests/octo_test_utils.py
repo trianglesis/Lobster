@@ -224,7 +224,7 @@ class PatternTestUtils(unittest.TestCase):
         _addm_group = addm_item.first().addm_group
         log.info("Adding task power On vms!")
         Runner.fire_t(TaskVMService.t_vm_operation_thread,
-                      fake_run=True,
+                      fake_run=self.fake_run,
                       t_queue=f"{_addm_group}@tentacle.dq2",
                       t_args=[f"PatternTestUtils;task=t_vm_operation_thread;operation_k=vm_power_on"],
                       t_kwargs=dict(addm_set=addm_item, operation_k='vm_power_on', t_sleep=60 * 5),
@@ -323,7 +323,7 @@ class PatternTestUtils(unittest.TestCase):
         _addm_group = addm_item.first().addm_group
         log.info("Adding task Power off VMs")
         Runner.fire_t(TaskVMService.t_vm_operation_thread,
-                      fake_run=True,
+                      fake_run=self.fake_run,
                       t_queue=f"{_addm_group}@tentacle.dq2",
                       t_args=[f"PatternTestUtils;task=t_vm_operation_thread;operation_k=vm_power_off"],
                       t_kwargs=dict(addm_set=addm_item, operation_k='vm_power_off'),
@@ -376,7 +376,7 @@ class PatternTestUtils(unittest.TestCase):
             r_key = '{}.TExecTest.nightly_routine_case.{}'.format(_addm_group, case_tag)
             # LIVE:
             Runner.fire_t(TPatternExecTest().t_test_exec_threads,
-                          fake_run=True,
+                          fake_run=self.fake_run,
                           to_sleep=1, to_debug=True,
                           t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[t_tag],
@@ -425,8 +425,8 @@ class PatternTestUtils(unittest.TestCase):
         # Send mail
         tag = 'tag=night_routine;lvl=auto;type=send_mail'
         Runner.fire_t(MailDigests.routine_mail,
-                      fake_run=True,
-                      to_sleep=2, to_debug=True,
+                      fake_run=self.fake_run,
+                      to_sleep=1, to_debug=True,
                       t_queue=f'{addm_group}@tentacle.dq2',
                       t_args=[tag],
                       t_kwargs=mail_kwargs,

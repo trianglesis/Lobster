@@ -320,10 +320,13 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
         #     ',')
         self.addm_group_l = ['beta']
         self.branch = 'tkn_main'
-        date_from = now - datetime.timedelta(days=int(2))
-        self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
-        self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
-        self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)  # 3
+        date_from = now - datetime.timedelta(days=int(1))
+        # self.queryset = self.queryset.filter(change_time__range=[date_from, tomorrow])  # 1
+        # self.queryset = self.queryset.filter(test_type__exact='tku_patterns')
+        # self.queryset = self.queryset.filter(tkn_branch__exact=self.branch)  # 3
+        self.queryset = self.queryset.filter(tkn_branch__exact=self.branch,
+                                             pattern_folder_name__exact='10genMongoDB'
+                                             )  # 3
         # self.key_group()  # 2
         # self.excluded_group()  # 4
 

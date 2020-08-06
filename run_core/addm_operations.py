@@ -1,4 +1,3 @@
-
 import logging
 import os
 from queue import Queue
@@ -106,7 +105,8 @@ class ADDMStaticOperations:
         operation_cmd = kwargs.get('operation_cmd', None)
         interactive_mode = kwargs.get('interactive_mode', False)
 
-        assert isinstance(addm_set, QuerySet), 'ADDM Set should be a QuerySet instance! ===> In ADDMStaticOperations.threaded_exec_cmd'
+        assert isinstance(addm_set,
+                          QuerySet), 'ADDM Set should be a QuerySet instance! ===> In ADDMStaticOperations.threaded_exec_cmd'
 
         if isinstance(operation_cmd, ADDMCommands):
             cmd_k = operation_cmd.command_key
@@ -127,9 +127,11 @@ class ADDMStaticOperations:
         out_q = Queue()
 
         for addm_item in addm_set:
+            assert isinstance(addm_item,
+                              AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In ADDMStaticOperations.run_interactive_cmd'
             ssh = ADDMOperations().ssh_c(addm_item=addm_item)
             if ssh:
-                th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item["addm_group"]} - {addm_item["addm_host"]} {addm_item["addm_ip"]}'
+                th_name = f'ADDMStaticOperations.threaded_exec_cmd: {addm_item.addm_group} - {addm_item.addm_host} {addm_item.addm_ip}'
                 args_d = dict(out_q=out_q, addm_item=addm_item, operation_cmd=operation_cmd, ssh=ssh)
                 try:
                     if cmd_interactive:
@@ -145,7 +147,7 @@ class ADDMStaticOperations:
                     log.error(msg)
                     raise Exception(msg)
             else:
-                msg = f'SSH Connection died! Addm: {addm_item["addm_host"]}'
+                msg = f'SSH Connection died! Addm: {addm_item.addm_host}'
                 log.error(msg)
                 raise Exception(msg)
 
@@ -164,7 +166,7 @@ class ADDMStaticOperations:
     @staticmethod
     def run_static_cmd(out_q, addm_item, operation_cmd, ssh):
         assert isinstance(addm_item,
-                          AddmDev), 'ADDM Set should be a AddmDev instance! ===> In ADDMStaticOperations.run_static_cmd'
+                          AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In ADDMStaticOperations.run_static_cmd'
 
         if isinstance(operation_cmd, ADDMCommands):
             cmd_k = operation_cmd.command_key
@@ -204,7 +206,8 @@ class ADDMStaticOperations:
             out_q.put({cmd_k: dict(out='Skipped', msg=msg, addm=addm_instance)})
 
     def run_interactive_cmd(self, out_q, addm_item, operation_cmd, ssh):
-        assert isinstance(addm_item, AddmDev), 'ADDM Set should be a AddmDev instance! ===> In ADDMStaticOperations.run_interactive_cmd'
+        assert isinstance(addm_item,
+                          AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In ADDMStaticOperations.run_interactive_cmd'
         assert isinstance(operation_cmd, ADDMCommands), 'Should be ADDMCommands QuerySet'
 
         cmd_k = operation_cmd.command_key
@@ -213,7 +216,8 @@ class ADDMStaticOperations:
         addm_instance = f"ADDM: {addm_item.addm_name} - {addm_item.addm_host}"
         ts = time()
 
-        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operation_cmd.command_key, addm_instance, operation_cmd.command_value)
+        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operation_cmd.command_key, addm_instance,
+                  operation_cmd.command_value)
         if cmd:
             # noinspection PyBroadException
             try:
@@ -432,7 +436,7 @@ class ADDMStaticOperations:
                                   t_args=[t_tag_busy, occupy_sec],
                                   t_kwargs=addm_val_kw,
                                   t_queue=f'{addm_group}@tentacle.dq2',
-                                  t_routing_key = f'{addm_group}.t_occupy_w')
+                                  t_routing_key=f'{addm_group}.t_occupy_w')
                 return addm_group_l
 
 
@@ -563,12 +567,13 @@ class ADDMOperations:
         development = kwargs.get('development', False)
 
         assert isinstance(addm_item,
-                          AddmDev), 'ADDM Set should be a AddmDev instance! ===> In ADDMOperations.upload_unzip'
+                          AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In ADDMOperations.upload_unzip'
 
         outputs_l = []
         tku_zip_cmd_l = []
         # Prepare zip commands with paths for each addm version:
-        clean_tku_TEMP = ADDMStaticOperations.select_operation(['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']).order_by('-command_value')
+        clean_tku_TEMP = ADDMStaticOperations.select_operation(['wipe.tideway.TEMP', 'mkdir.tideway.TEMP']).order_by(
+            '-command_value')
 
         # TODO: Save release.txt output
         # catZipRelease = ADDMStaticOperations.select_operation('cat.tku_zip.release').first()
@@ -612,7 +617,8 @@ class ADDMOperations:
                 raise Exception(msg)
         test_q.put(outputs_l)
 
-    def vm_list_update(self, kwargs):
+    @staticmethod
+    def vm_list_update(kwargs):
         log.info(f'vm_list_update -> {kwargs}')
         vc = VCenterOperations()
         all_vms = vc.list_vms_update_db(model=AddmDev, vm_model=OctopusVM)
