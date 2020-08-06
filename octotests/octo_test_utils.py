@@ -10,8 +10,9 @@ from django.utils import timezone
 
 from octo.config_cred import mails
 from octo.helpers.tasks_run import Runner
+from octo.tasks import TSupport
 
-from octo_adm.tasks import TaskADDMService
+from octo_adm.tasks import TaskADDMService, TaskVMService
 from octo_tku_patterns.model_views import TestLatestDigestFailed
 from octo_tku_patterns.models import TestCases, TestCasesDetails, TestLast
 from octo_tku_patterns.night_test_balancer import BalanceNightTests
@@ -216,19 +217,6 @@ class PatternTestUtils(unittest.TestCase):
         addm_group = TaskPrepare(self).rabbit_queue_minimal(tkn_branch=self.branch)
         self.addm_set = TaskPrepare(self).addm_set_select(addm_group=addm_group)
 
-    def addm_preps_start(self):
-        """
-        Check and powerOn ADDMs
-        """
-        pass
-
-    def addm_preps_finish(self):
-        """
-        Check and powerOff ADDMs
-        :return:
-        """
-        pass
-
     def balance_tests_on_workers(self):
         """Balance tests between selected ADDM groups each group/queue will be filled
             with tests by overall (weight / groups)"""
@@ -245,8 +233,8 @@ class PatternTestUtils(unittest.TestCase):
             addm_tests = addm_coll.get('tests', [])
             if addm_tests:
                 # Prepare ADDM VMs before put tests on:
-                self.addm_preps_start()
-
+                self.addm_preps_start(addm_item)
+                # Weight tests and balance
                 self.all_tests_w += addm_coll.get('all_tests_weight')
                 self.routine_mail(mode='run', addm_group=addm_group)
                 # Sync test data on those addms from group:
@@ -257,12 +245,17 @@ class PatternTestUtils(unittest.TestCase):
                 self.routine_mail(mode='fin', addm_group=addm_group)
                 self.after_tests()
                 # Finish tasks when ADDM test queue is finish work:
-                self.addm_preps_finish()
+                self.addm_preps_finish(addm_item)
 
     def put_test_cases_short(self, test_item):
         _addm_group = self.addm_set[0]['addm_group']
         log.debug(f"<=put_test_cases=> ReRun failed tests - using addm group: {_addm_group}")
+        # Power On VMs:
+        self.addm_preps_start(self.addm_set)
+        # Put tasks on minimal worker
         self.run_cases_router(addm_tests=test_item, _addm_group=_addm_group, addm_item=self.addm_set)
+        # Power off VM when all tasks finished
+        self.addm_preps_finish(self.addm_set)
 
     def after_tests(self):
         """
@@ -294,6 +287,19 @@ class PatternTestUtils(unittest.TestCase):
         # TODO: Add here a task to save latest possible log
         return True
 
+    def addm_preps_start(self, addm_item):
+        """
+        Check and powerOn ADDMs
+        """
+        _addm_group = addm_item[0]['addm_group']
+        log.info("Adding task power On vms!")
+        Runner.fire_t(TaskVMService.t_vm_operation_thread,
+                      fake_run=self.fake_run,
+                      t_queue=f"{_addm_group}@tentacle.dq2",
+                      t_args=[f"PatternTestUtils;task=t_vm_operation_thread;operation_k=vm_power_on"],
+                      t_kwargs=dict(addm_set=addm_item, operation_k='vm_power_on', t_sleep=60 * 5),
+                      t_routing_key=f"{_addm_group}.PatternTestUtils.t_vm_operation_thread.vm_power_on")
+
     def sync_test_data_addm_set(self, addm_item):
         _addm_group = addm_item[0]['addm_group']
         log.debug(f"<=TaskPrepare=> Adding task to sync addm group: {_addm_group} at set: {addm_item}")
@@ -318,6 +324,20 @@ class PatternTestUtils(unittest.TestCase):
                           t_kwargs=t_kwargs,
                           t_routing_key=f'PatternTestUtils.{_addm_group}.{operation_cmd}.TaskADDMService.t_addm_cmd_thread')
 
+    def addm_preps_finish(self, addm_item):
+        """
+        Check and powerOff ADDMs
+        :return:
+        """
+        _addm_group = addm_item[0]['addm_group']
+        log.info("Adding task Power off VMs")
+        Runner.fire_t(TaskVMService.t_vm_operation_thread,
+                      fake_run=self.fake_run,
+                      t_queue=f"{_addm_group}@tentacle.dq2",
+                      t_args=[f"PatternTestUtils;task=t_vm_operation_thread;operation_k=vm_power_off"],
+                      t_kwargs=dict(addm_set=addm_item, operation_k='vm_power_off'),
+                      t_routing_key=f"{_addm_group}.PatternTestUtils.t_vm_operation_thread.vm_power_off")
+
     def run_cases_router(self, addm_tests, _addm_group, addm_item):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
         for test_item in addm_tests:
@@ -338,7 +358,7 @@ class PatternTestUtils(unittest.TestCase):
             # LIVE:
             Runner.fire_t(TPatternExecTest().t_test_exec_threads,
                           fake_run=self.fake_run,
-                          to_sleep=60 * 30, to_debug=True,
+                          to_sleep=1, to_debug=True,
                           t_queue=_addm_group + '@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=dict(addm_items=addm_item, test_item=test_item,
