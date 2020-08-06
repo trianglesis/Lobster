@@ -82,6 +82,9 @@ class UploadTestExec:
         addm_group = kwargs.get('addm_group', None)
         fake_run = kwargs.get('fake_run', False)
 
+        assert isinstance(addm_items,
+                          AddmDev), f'ADDM ITEMs should be a AddmDev instance! ===> In UploadTestExec.upload_preparations: {type(addm_items)}'
+
         preps = self.preparation_steps[test_mode]
         for operation in preps:
             operation_cmd = ADDMStaticOperations.select_operation(operation).first()
@@ -128,7 +131,7 @@ class UploadTestExec:
 
         for addm_item in addm_items:
             assert isinstance(addm_item,
-                              AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In UploadTestExec.upload_unzip_threads'
+                              AddmDev), f'ADDM ITEM should be a AddmDev instance! ===> In UploadTestExec.upload_unzip_threads: {type(addm_item)}'
             ssh = ADDMOperations().ssh_c(addm_item=addm_item)
             if ssh and ssh.get_transport().is_active():
                 m = f"<=upload_unzip_threads=> OK: SSH Is active - continue... ADDM: {addm_item.addm_name} {addm_item.addm_host} {addm_item.addm_group}"
@@ -189,7 +192,7 @@ class UploadTestExec:
 
         for addm_item in addm_items:
             assert isinstance(addm_item,
-                              AddmDev), 'ADDM ITEM should be a AddmDev instance! ===> In UploadTestExec.upload_unzip_threads'
+                              AddmDev), f'ADDM ITEM should be a AddmDev instance! ===> In UploadTestExec.upload_unzip_threads: {type(addm_item)}'
             addm_group = addm_item.addm_group
             msg = f"<=Upload TKU Install Thread=> {addm_item.addm_name}:{addm_item.addm_v_int} mode_key={mode_key}"
             log.debug(msg)

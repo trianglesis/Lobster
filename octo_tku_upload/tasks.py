@@ -8,7 +8,7 @@ from operator import itemgetter
 from typing import Dict, List, Any
 
 from celery.utils.log import get_task_logger
-from django.db.models import Max
+from django.db.models import Max, QuerySet
 
 from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_oper import TasksOperations
@@ -298,13 +298,10 @@ class UploadTaskPrepare:
         Otherwise we don't select anything and fail the routine.
         """
         if self.addm_group:
-            addm_set = AddmDev.objects.all()
-            self.addm_set = addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True)
+            self.addm_set = self.addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True)
         else:
             log.debug("Using addm set from test call.")
-        if self.addm_set:
-            self.addm_set = self.addm_set.order_by('addm_group')
-        else:
+        if not self.addm_set:
             msg = "Addm set has not selected. It should be selected by passing addm_group argument, " \
                   "or in octotest overriding the query" \
                   "Stop the routine now."
@@ -352,13 +349,13 @@ class UploadTaskPrepare:
                           t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
                           t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_power_on'),
                           t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
-            log.info("Adding task occupy worker, for 5 min!")
-            Runner.fire_t(TSupport.t_occupy_w,
-                          fake_run=self.fake_run,
-                          t_queue=f"{addm_group}@tentacle.dq2",
-                          t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitAfterPowerOnVMs", 60 * 5],
-                          t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
-                          t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
+            # log.info("Adding task occupy worker, for 5 min!")
+            # Runner.fire_t(TSupport.t_occupy_w,
+            #               fake_run=self.fake_run,
+            #               t_queue=f"{addm_group}@tentacle.dq2",
+            #               t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitAfterPowerOnVMs", 60 * 5],
+            #               t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
+            #               t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
         # Otherwise check if machines aren't powered off - and power On if so
         else:
             log.info(f"VM Power on tasks, no snapshots reverting = {self.revert_snapshot}")
@@ -369,13 +366,13 @@ class UploadTaskPrepare:
                           t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
                           t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_power_on'),
                           t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
-            log.info("Adding task occupy worker, for 5 min!")
-            Runner.fire_t(TSupport.t_occupy_w,
-                          fake_run=self.fake_run,
-                          t_queue=f"{addm_group}@tentacle.dq2",
-                          t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitAfterPowerOnVMs", 60 * 5],
-                          t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
-                          t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
+            # log.info("Adding task occupy worker, for 5 min!")
+            # Runner.fire_t(TSupport.t_occupy_w,
+            #               fake_run=self.fake_run,
+            #               t_queue=f"{addm_group}@tentacle.dq2",
+            #               t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitAfterPowerOnVMs", 60 * 5],
+            #               t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
+            #               t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
 
     def addm_prepare(self, step_k):
         """
@@ -405,7 +402,10 @@ class UploadTaskPrepare:
             log.debug(f"{_LH_} TKU Mode: {self.test_mode}, {step_k} - no preparations.")
 
         if options:
-            for addm_group, addm_items in groupby(self.addm_set.values(), itemgetter('addm_group')):
+            for addm_group, _ in groupby(self.addm_set.order_by('addm_group').values(), itemgetter('addm_group')):
+                addm_items = self.addm_set.filter(addm_group__exact=addm_group)
+                assert isinstance(addm_items,
+                                  QuerySet), f'ADDM Items should be a QuerySet in UploadTaskPrepare.addm_prepare; type {type(addm_items)}'
                 options.update(fake_run=self.fake_run,
                                addm_items=addm_items, addm_group=addm_group, step_k=step_k, user_email=self.user_email)
                 UploadTaskPrepareLog(
@@ -424,7 +424,10 @@ class UploadTaskPrepare:
         :param packages_from_step:
         :return:
         """
-        for addm_group, addm_items in groupby(self.addm_set.values(), itemgetter('addm_group')):
+        for addm_group, _ in groupby(self.addm_set.order_by('addm_group').values(), itemgetter('addm_group')):
+            addm_items = self.addm_set.filter(addm_group__exact=addm_group)
+            assert isinstance(addm_items,
+                              QuerySet), f'ADDM Items should be a QuerySet in UploadTaskPrepare.package_unzip; type {type(addm_items)}'
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path')
             UploadTaskPrepareLog(
                 subject=f"UploadTaskPrepare | t_upload_unzip | {self.test_mode} | {addm_group} | {step_k}",
@@ -446,7 +449,10 @@ class UploadTaskPrepare:
         self.tku_type = packages_from_step.first().tku_type
         # addm_set = self.addm_set.order_by('addm_group').values()
         # log.info(f"<=tku_install=> addm_set: {addm_set}")
-        for addm_group, addm_items in groupby(self.addm_set.values(), itemgetter('addm_group')):
+        for addm_group, _ in groupby(self.addm_set.order_by('addm_group').values(), itemgetter('addm_group')):
+            addm_items = self.addm_set.filter(addm_group__exact=addm_group)
+            assert isinstance(addm_items,
+                              QuerySet), f'ADDM Items should be a QuerySet in UploadTaskPrepare.tku_install; type {type(addm_items)}'
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path', 'release',
                                               'zip_file_md5_digest')
             UploadTaskPrepareLog(
