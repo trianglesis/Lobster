@@ -159,3 +159,4 @@ z_DEV/test_999_local_debug.sql
 /static/admin/*
 /z_DEV/services/*
 /z_DEV/lib_examples/*
+/static/rest_framework/*
