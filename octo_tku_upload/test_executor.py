@@ -12,6 +12,8 @@ from queue import Queue
 from threading import Thread
 from time import time
 
+from django.db.models import QuerySet
+
 from octo.helpers.tasks_helpers import exception
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_run import Runner
@@ -83,7 +85,7 @@ class UploadTestExec:
         fake_run = kwargs.get('fake_run', False)
 
         assert isinstance(addm_items,
-                          AddmDev), f'ADDM ITEMs should be a AddmDev instance! ===> In UploadTestExec.upload_preparations: {type(addm_items)}'
+                          QuerySet), f'ADDM ITEMs should be a AddmDev instance! ===> In UploadTestExec.upload_preparations: {type(addm_items)}'
 
         preps = self.preparation_steps[test_mode]
         for operation in preps:
