@@ -22,7 +22,8 @@ from octo.helpers.tasks_oper import TasksOperations
 from octo.helpers.tasks_run import Runner
 from octo.octo_celery import app
 from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
-from octo_adm.tasks import TaskADDMService
+from octo.tasks import TSupport
+from octo_adm.tasks import TaskADDMService, TaskVMService
 from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer
 from octo_tku_patterns.digests import TestDigestMail
 from octo_tku_patterns.model_views import TestLatestDigestAll
@@ -495,7 +496,9 @@ class TaskPrepare:
                 # 5. Assign free worker for test cases run
                 addm_group = self.rabbit_queue_minimal(tkn_branch=branch_k)
                 addm_set = self.addm_set_select(addm_group=addm_group)
-                # 6. Sync current ADDM set with actual data from Octopus, after p4 sync finished it's work:
+                # 6 Check and powerOn VM if powered Off
+                self.addm_vm_power_on(addm_group=addm_group, addm_set=addm_set)
+                # 6.1 Sync current ADDM set with actual data from Octopus, after p4 sync finished it's work:
                 self.addm_rsync(addm_set)
                 # 6.1 Something like prep step? Maybe delete/wipe/kill other tests or ensure ADDM on OK state and so on.
                 self.prep_step(addm_set)
@@ -572,13 +575,22 @@ class TaskPrepare:
             log.info("<=TaskPrepare=> ADDM_GROUP from request params: '%s'", self.options.get('addm_group'))
             addm_set = queryset.filter(
                 addm_group__exact=self.options.get('addm_group'),
-                disables__isnull=True).values()
+                disables__isnull=True)  #.values()
         else:
             addm_set = queryset.filter(
                 addm_group__exact=addm_group,
                 disables__isnull=True
-            ).values()
+            )  #.values()
         return addm_set
+
+    def addm_vm_power_on(self, addm_group, addm_set):
+        log.info("Adding task power On vms!")
+        Runner.fire_t(TaskVMService.t_vm_operation_thread,
+                      fake_run=self.fake_run,
+                      t_queue=f"{addm_group}@tentacle.dq2",
+                      t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
+                      t_kwargs=dict(addm_set=addm_set, operation_k='vm_power_on', t_sleep=60*5),
+                      t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
 
     def addm_rsync(self, addm_set):
         """
@@ -625,16 +637,16 @@ class TaskPrepare:
             'wipe.tpl.files',
         ])
         for operation_cmd in commands_qs:
-            t_tag = f'tag=t_addm_cmd_thread;addm_group={addm["addm_group"]};user_name={self.user_name};' \
+            t_tag = f'tag=t_addm_cmd_thread;addm_group={addm.addm_group};user_name={self.user_name};' \
                     f'fake={self.fake_run};start_time={self.start_time};command_k={operation_cmd.command_key};'
-            addm_grouped_set = addm_set.filter(addm_group__exact=addm["addm_group"])
+            addm_grouped_set = addm_set.filter(addm_group__exact=addm.addm_group)
             t_kwargs = dict(addm_set=addm_grouped_set, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
                           fake_run=self.fake_run,
-                          t_queue=f'{addm["addm_group"]}@tentacle.dq2',
+                          t_queue=f'{addm.addm_group}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
-                          t_routing_key=f'{addm["addm_group"]}.{operation_cmd.command_key}.TaskADDMService.t_addm_cmd_thread')
+                          t_routing_key=f'{addm.addm_group}.{operation_cmd.command_key}.TaskADDMService.t_addm_cmd_thread')
 
     def user_test_mail(self, mode, **kwargs):
         """
@@ -662,7 +674,8 @@ class TaskPrepare:
             addm = addm_set.first()
             isinstance(addm, dict), "First element from QuerySet should be a dict type!"
             isinstance(test_item, TestCases), "Test item should be TestCases object!"
-            addm_group = addm.get('addm_group', None)
+            if hasattr(addm, 'addm_group'):
+                addm_group = addm.addm_group
             subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
             subject = f'[{SITE_SHORT_NAME}] User test started: {subject_str}'
             mail_html = test_added.render(
@@ -672,7 +685,8 @@ class TaskPrepare:
             addm = addm_set.first()
             isinstance(addm, dict), "First element from QuerySet should be a dict type!"
             isinstance(test_item, TestCases), "Test item should be TestCases object!"
-            addm_group = addm.get('addm_group', None)
+            if hasattr(addm, 'addm_group'):
+                addm_group = addm.addm_group
             subject_str = f'{test_item.tkn_branch} | {test_item.pattern_library} | {test_item.pattern_folder_name}'
             subject = f'[{SITE_SHORT_NAME}] User test finished: {subject_str}'
             mail_html = None  # Later fill in task, when start or finish - with test digest!
@@ -767,9 +781,9 @@ class TaskPrepare:
         assert isinstance(addm_set, QuerySet), "Addm set should be a QuerySet: %s" % type(addm_set)
 
         addm = addm_set.first()
-        task_r_key = '{}.TExecTest.t_test_exec_threads.{}'.format(addm['addm_group'], test_item.pattern_folder_name)
+        task_r_key = '{}.TExecTest.t_test_exec_threads.{}'.format(addm.addm_group, test_item.pattern_folder_name)
         t_tag = f'tag=t_test_exec_threads;type=user_routine;branch={test_item.tkn_branch};' \
-                f'addm_group={addm["addm_group"]};user_name={self.user_name};' \
+                f'addm_group={addm.addm_group};user_name={self.user_name};' \
                 f'refresh={self.refresh};t_ETA={test_item.test_time_weight};test_case_path={test_item.test_case_depot_path}'
         if test_item.test_time_weight:
             test_t_w = round(float(test_item.test_time_weight)) + 60 * 30
@@ -779,7 +793,7 @@ class TaskPrepare:
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
                       fake_run=self.fake_run,
-                      t_queue=addm['addm_group'] + '@tentacle.dq2', t_args=[t_tag],
+                      t_queue=addm.addm_group + '@tentacle.dq2', t_args=[t_tag],
                       t_kwargs=dict(user_email=self.user_email,
                                     user_name=self.user_name,
                                     addm_items=addm_set,

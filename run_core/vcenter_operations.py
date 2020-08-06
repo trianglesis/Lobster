@@ -99,6 +99,7 @@ class VCenterOperations:
         from threading import Thread
         addm_set = kwargs.get('addm_set', 'vm_power_on')
         operation_k = kwargs.get('operation_k', None)
+        t_sleep = kwargs.get('t_sleep', None)
 
         th_list = []
         th_out = []
@@ -133,6 +134,18 @@ class VCenterOperations:
             thread_out = out_q.get()
             th_out.append(thread_out)
             txt_out += f'\n\t{thread_out}'
+
+        # Some times we need to sleep not occupying worker.
+        # [{'vl-aus-tkudev-19': 'poweredOn'}, ]
+        # [{'vl-aus-tkudev-39': 'skipped'}, ]
+        if any('poweredOn' in vm.values() for vm in th_out):
+            log.info('Any VM was powered On, will wait for 5 min for services to start.')
+            if t_sleep:
+                sleep(t_sleep)
+
+        if all('skipped' in vm.values() for vm in th_out):
+            log.info('All VMs are skipping power ON! No sleep required.')
+
         output = {operation_k: th_out, 'time': time() - ts}
         # Do not show CMD out with too big data in it:
         txt_output = f'CMD:{operation_k}\nOutput:{txt_out}\nEST: {time() - ts}'

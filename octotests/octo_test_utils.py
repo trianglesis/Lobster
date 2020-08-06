@@ -216,6 +216,19 @@ class PatternTestUtils(unittest.TestCase):
         addm_group = TaskPrepare(self).rabbit_queue_minimal(tkn_branch=self.branch)
         self.addm_set = TaskPrepare(self).addm_set_select(addm_group=addm_group)
 
+    def addm_preps_start(self):
+        """
+        Check and powerOn ADDMs
+        """
+        pass
+
+    def addm_preps_finish(self):
+        """
+        Check and powerOff ADDMs
+        :return:
+        """
+        pass
+
     def balance_tests_on_workers(self):
         """Balance tests between selected ADDM groups each group/queue will be filled
             with tests by overall (weight / groups)"""
@@ -231,6 +244,9 @@ class PatternTestUtils(unittest.TestCase):
             addm_coll = self.addm_tests_balanced.get(addm_group)
             addm_tests = addm_coll.get('tests', [])
             if addm_tests:
+                # Prepare ADDM VMs before put tests on:
+                self.addm_preps_start()
+
                 self.all_tests_w += addm_coll.get('all_tests_weight')
                 self.routine_mail(mode='run', addm_group=addm_group)
                 # Sync test data on those addms from group:
@@ -240,6 +256,8 @@ class PatternTestUtils(unittest.TestCase):
                 # End tasks when tests are finished:
                 self.routine_mail(mode='fin', addm_group=addm_group)
                 self.after_tests()
+                # Finish tasks when ADDM test queue is finish work:
+                self.addm_preps_finish()
 
     def put_test_cases_short(self, test_item):
         _addm_group = self.addm_set[0]['addm_group']
