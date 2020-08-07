@@ -495,39 +495,39 @@ class UploadTaskPrepare:
                               ),
                               t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
 
-            elif self.tku_type == 'tkn_main_continuous' or self.tku_type == 'tkn_ship_continuous':
-                log.info(f"Send email of upload result for {self.tku_type}")
-                # digests.TKUEmailDigest.upload_daily_fails_warnings
-                Runner.fire_t(TUploadExec.t_upload_digest,
-                              fake_run=self.fake_run,
-                              t_queue=f"{addm_group}@tentacle.dq2",
-                              t_args=[
-                                  f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
-                                  f"addm_group={addm_group};user={self.user_name}"],
-                              t_kwargs=dict(
-                                  tku_type=self.tku_type,
-                                  fake_run=self.fake_run
-                              ),
-                              t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
-
-            """
-            Power Off ADDM VMs after latest step reached: ga tku and fresh test mode should be always the last step!
-            """
-            if self.tku_type == 'ga_candidate' and self.test_mode == 'fresh':
-                log.info("Adding task occupy worker, for 15 min! before power Off vms!")
-                Runner.fire_t(TSupport.t_occupy_w,
-                              fake_run=self.fake_run,
-                              t_queue=f"{addm_group}@tentacle.dq2",
-                              t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitBeforePowerOffVMs", 60 * 15],
-                              t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
-                              t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
-                log.info("Adding task Power off VMs")
-                Runner.fire_t(TaskVMService.t_vm_operation_thread,
-                              fake_run=self.fake_run,
-                              t_queue=f"{addm_group}@tentacle.dq2",
-                              t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_off"],
-                              t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_power_off'),
-                              t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_off")
+            # elif self.tku_type == 'tkn_main_continuous' or self.tku_type == 'tkn_ship_continuous':
+            #     log.info(f"Send email of upload result for {self.tku_type}")
+            #     # digests.TKUEmailDigest.upload_daily_fails_warnings
+            #     Runner.fire_t(TUploadExec.t_upload_digest,
+            #                   fake_run=self.fake_run,
+            #                   t_queue=f"{addm_group}@tentacle.dq2",
+            #                   t_args=[
+            #                       f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
+            #                       f"addm_group={addm_group};user={self.user_name}"],
+            #                   t_kwargs=dict(
+            #                       tku_type=self.tku_type,
+            #                       fake_run=self.fake_run
+            #                   ),
+            #                   t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
+            #
+            # """
+            # Power Off ADDM VMs after latest step reached: ga tku and fresh test mode should be always the last step!
+            # """
+            # if self.tku_type == 'ga_candidate' and self.test_mode == 'fresh':
+            #     log.info("Adding task occupy worker, for 15 min! before power Off vms!")
+            #     Runner.fire_t(TSupport.t_occupy_w,
+            #                   fake_run=self.fake_run,
+            #                   t_queue=f"{addm_group}@tentacle.dq2",
+            #                   t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitBeforePowerOffVMs", 60 * 15],
+            #                   t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
+            #                   t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
+            #     log.info("Adding task Power off VMs")
+            #     Runner.fire_t(TaskVMService.t_vm_operation_thread,
+            #                   fake_run=self.fake_run,
+            #                   t_queue=f"{addm_group}@tentacle.dq2",
+            #                   t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_off"],
+            #                   t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_power_off'),
+            #                   t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_off")
 
     @staticmethod
     def _debug_unpack_qs(packages):

@@ -619,7 +619,7 @@ class TaskPrepare:
                               t_queue=f'{addm.addm_group}@tentacle.dq2',
                               t_args=[t_tag],
                               t_kwargs=t_kwargs,
-                              t_routing_key=f'{addm.addm_group}.{operation_cmd.command_key}.TaskADDMService.t_addm_cmd_thread')
+                              t_routing_key=f'TaskPrepare.TaskADDMService.t_addm_cmd_thread.{addm.addm_group}.{operation_cmd.command_key}')
 
     def prep_step(self, addm_set):
         """
@@ -646,7 +646,7 @@ class TaskPrepare:
                           t_queue=f'{addm.addm_group}@tentacle.dq2',
                           t_args=[t_tag],
                           t_kwargs=t_kwargs,
-                          t_routing_key=f'{addm.addm_group}.{operation_cmd.command_key}.TaskADDMService.t_addm_cmd_thread')
+                          t_routing_key=f'TaskPrepare.TaskADDMService.t_addm_cmd_thread.{addm.addm_group}.{operation_cmd.command_key}')
 
     def user_test_mail(self, mode, **kwargs):
         """
