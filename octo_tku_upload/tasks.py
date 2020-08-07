@@ -504,19 +504,25 @@ class UploadTaskPrepare:
                               t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
 
             elif self.tku_type == 'tkn_main_continuous' or self.tku_type == 'tkn_ship_continuous':
-                log.info(f"Send email of upload result for {self.tku_type}")
-                # digests.TKUEmailDigest.upload_daily_fails_warnings
-                Runner.fire_t(TUploadExec.t_upload_digest,
-                              fake_run=self.fake_run,
-                              t_queue=f"{addm_group}@tentacle.dq2",
-                              t_args=[
-                                  f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
-                                  f"addm_group={addm_group};user={self.user_name}"],
-                              t_kwargs=dict(
-                                  tku_type=self.tku_type,
-                                  fake_run=self.fake_run
-                              ),
-                              t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
+                # Do not send email during small install of prod cont or devices
+                if not self.package_detail:
+                    log.info(f"Send email of upload result for {self.tku_type}")
+                    # digests.TKUEmailDigest.upload_daily_fails_warnings`
+                    Runner.fire_t(TUploadExec.t_upload_digest,
+                                  fake_run=self.fake_run,
+                                  t_queue=f"{addm_group}@tentacle.dq2",
+                                  t_args=[
+                                      f"MailDigests.t_upload_digest;task=t_tku_install;test_mode={self.test_mode};"
+                                      f"addm_group={addm_group};user={self.user_name}"],
+                                  t_kwargs=dict(
+                                      tku_type=self.tku_type,
+                                      fake_run=self.fake_run
+                                  ),
+                                  t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.MailDigests.t_upload_digest")
+                else:
+                    log.info("<=UploadTaskPrepare=> Do not send test result email during package/device install")
+            else:
+                log.info(f"<=UploadTaskPrepare=> Do not send test result email tku_type {self.tku_type} package_detail {self.package_detail}")
 
             """
             Power Off ADDM VMs after latest step reached: ga tku and fresh test mode should be always the last step!
@@ -536,6 +542,8 @@ class UploadTaskPrepare:
                               t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_off"],
                               t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_power_off'),
                               t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_off")
+            else:
+                log.info(f"<=UploadTaskPrepare=> Do not power Off VMs, when it's not a GA install.")
 
     @staticmethod
     def _debug_unpack_qs(packages):
