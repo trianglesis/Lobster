@@ -185,7 +185,7 @@ class ADDMStaticOperations:
         addm_instance = f"ADDM: {addm_item.addm_name} - {addm_item.addm_host}"
         ts = time()
 
-        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", cmd_k, addm_instance, cmd)
+        log.debug("<=CMD=> Run static cmd %s on %s CMD: '%s'", cmd_k, addm_instance, cmd)
         if cmd:
             # noinspection PyBroadException
             try:
@@ -216,7 +216,7 @@ class ADDMStaticOperations:
         addm_instance = f"ADDM: {addm_item.addm_name} - {addm_item.addm_host}"
         ts = time()
 
-        log.debug("<=CMD=> Run cmd %s on %s CMD: '%s'", operation_cmd.command_key, addm_instance,
+        log.debug("<=CMD=> Run interactive cmd %s on %s CMD: '%s'", operation_cmd.command_key, addm_instance,
                   operation_cmd.command_value)
         if cmd:
             # noinspection PyBroadException
@@ -274,6 +274,12 @@ class ADDMStaticOperations:
 
             elif buff.find(b'ERROR: Failed to start services') > 0:
                 msg = f'Failed to restart services: {addm_instance} Out: {resp.decode("utf-8")}'
+                log.error(msg)
+                resp_l.append(f"ERROR: '{msg}' buffer: '{buff}'")
+                return resp_l
+
+            elif buff.find(b'Waiting for other service operations to complete') > 0:
+                msg = f'Failed to restart services: {addm_instance} Out: {resp.decode("utf-8")} Run manually, or reboot?'
                 log.error(msg)
                 resp_l.append(f"ERROR: '{msg}' buffer: '{buff}'")
                 return resp_l
