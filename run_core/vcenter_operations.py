@@ -99,7 +99,7 @@ class VCenterOperations:
         from threading import Thread
         addm_set = kwargs.get('addm_set')
         operation_k = kwargs.get('operation_k', None)
-        t_sleep = kwargs.get('t_sleep', None)
+        t_sleep = kwargs.get('t_sleep', 60 * 10)
 
         th_list = []
         th_out = []
@@ -141,6 +141,11 @@ class VCenterOperations:
         # [{'vl-aus-tkudev-39': 'skipped'}, ]
         if any('poweredOn' in vm.values() for vm in th_out):
             log.info('Any VM was powered On, will wait for 5 min for services to start.')
+            if t_sleep:
+                sleep(t_sleep)
+
+        if any('rebooted' in vm.values() for vm in th_out):
+            log.info('Any VM was rebooted, will wait for 5 min for services to start.')
             if t_sleep:
                 sleep(t_sleep)
 
