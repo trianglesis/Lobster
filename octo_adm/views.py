@@ -89,7 +89,6 @@ class TaskOperationsREST(APIView):
         self.user_name = ''
         self.user_email = ''
         self.admin_users = ''
-        self.power_users = ''
         # options:
         self.task_id = ''
         self.workers = ''
@@ -150,9 +149,8 @@ class TaskOperationsREST(APIView):
         self.user_email = self.request.user.email
 
         self.admin_users = self.request.user.groups.filter(name='admin_users').exists()
-        self.power_users = self.request.user.groups.filter(name='power_users').exists()
 
-        user_status = f'{self.user_name} {self.user_email} admin_users={self.admin_users} power_users={self.power_users}'
+        user_status = f'{self.user_name} {self.user_email} admin_users={self.admin_users}'
         log.info("<=TaskOperationsREST=> Request: %s", user_status)
         request_options = f'operation_key:{self.operation_key} fake_run:{self.fake_run} task_id:{self.task_id} workers:{self.workers}'
         log.debug("<=TaskOperationsREST=> request_options: %s", request_options)
@@ -431,7 +429,6 @@ class AdminOperationsREST(APIView):
         self.user_name = ''
         self.user_email = ''
         self.admin_users = ''
-        self.power_users = ''
         # options:
         self.command_key = ''
         self.subject = ''
@@ -490,10 +487,10 @@ class AdminOperationsREST(APIView):
         self.user_name = self.request.user.get_username()
         self.user_email = self.request.user.email
 
-        self.admin_users = self.request.user.groups.filter(name='admin_users').exists()
-        self.power_users = self.request.user.groups.filter(name='power_users').exists()
+        self.admin_users = self.request.user.groups.filter(name='manager').exists()
+        log.debug(f"User groups {self.request.user.groups}")
 
-        user_status = f'{self.user_name} {self.user_email} admin_users={self.admin_users} power_users={self.power_users}'
+        user_status = f'{self.user_name} {self.user_email} admin_users={self.admin_users}'
         log.info("<=AdminOperations=> Request: %s", user_status)
         request_options = f'operation_key:{self.operation_key} fake_run:{self.fake_run} command_key:{self.command_key} addm_group:{self.addm_group}'
         log.debug("<=AdminOperations=> request_options: %s", request_options)
@@ -650,7 +647,6 @@ class AdminOperationsREST(APIView):
         if not UserCheck.is_power(self.request.user):
             return {'error': 'User has no admin rights!'}
         command_key = self.command_key.split(',')
-        # TODO: I can fill the variables of CMD string right here, if neded, using user input or extra input (like: upload_unzip)?
         commands_set = ADDMStaticOperations.select_operation(command_key)
         t_tag = f'tag=t_addm_cmd_routine.{self.command_key};user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_kwargs = dict(

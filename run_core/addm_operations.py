@@ -263,7 +263,7 @@ class ADDMStaticOperations:
             msg = f"STEP 2 Iter: {iter_n} response: {resp.decode('utf-8').replace(chr(27), ';').replace('[0G', '#').replace('[K', '|').replace('  ', ' ')}"
             log.debug(msg)
             resp_l.append(msg)
-            sleep(30)  # Most operations will run longer that 30 sec.
+            sleep(120)  # Most operations will run longer that 30 sec.
 
             # Check:
             if b'Finished interactive CMD' in buff:
@@ -279,7 +279,7 @@ class ADDMStaticOperations:
                 return resp_l
 
             elif buff.find(b'Waiting for other service operations to complete') > 0:
-                msg = f'Failed to restart services: {addm_instance} Out: {resp.decode("utf-8")} Run manually, or reboot?'
+                msg = f'Failed to restart services WAIT LOCK!: {addm_instance} Out: {resp.decode("utf-8")} Run manually, or reboot?'
                 log.error(msg)
                 resp_l.append(f"ERROR: '{msg}' buffer: '{buff}'")
                 return resp_l
