@@ -363,7 +363,7 @@ class PatternTestUtils(unittest.TestCase):
             if test_item.test_time_weight:
                 test_t_w = round(float(test_item.test_time_weight))  # TODO: If NoneType - use 0
             else:
-                test_t_w = 60 * 30
+                test_t_w = 60 * 60  # 1 hour is more than enough
 
             if test_item.pattern_folder_name:
                 case_tag = test_item.pattern_folder_name
@@ -383,8 +383,9 @@ class PatternTestUtils(unittest.TestCase):
                           t_kwargs=dict(addm_items=addm_item, test_item=test_item,
                                         test_output_mode=self.test_output_mode),
                           t_routing_key=r_key,
-                          t_soft_time_limit=test_t_w + 60 * 20,
-                          t_task_time_limit=test_t_w + 60 * 30)
+                          t_soft_time_limit=test_t_w + 60 * 20,  # Additional 20 min
+                          t_task_time_limit=test_t_w + 60 * 30,  # Additional 30 min
+                          )
         return True
 
     def routine_mail(self, **mail_kwargs):

@@ -352,13 +352,6 @@ class UploadTaskPrepare:
                               t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
                               t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60*5),
                               t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
-                # log.info("Adding task occupy worker, for 5 min!")
-                # Runner.fire_t(TSupport.t_occupy_w,
-                #               fake_run=self.fake_run,
-                #               t_queue=f"{addm_group}@tentacle.dq2",
-                #               t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitAfterPowerOnVMs", 60 * 5],
-                #               t_kwargs=dict(addm_set=addm_items, addm_group=addm_group),
-                #               t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
             # Otherwise check if machines aren't powered off - and power On if so
             else:
                 log.info(f"VM Power on tasks, no snapshots reverting = {self.revert_snapshot}")
@@ -369,13 +362,6 @@ class UploadTaskPrepare:
                               t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
                               t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60*5),
                               t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
-                # log.info("Adding task occupy worker, for 5 min!")
-                # Runner.fire_t(TSupport.t_occupy_w,
-                #               fake_run=self.fake_run,
-                #               t_queue=f"{addm_group}@tentacle.dq2",
-                #               t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitAfterPowerOnVMs", 60 * 5],
-                #               t_kwargs=dict(addm_set=addm_items, addm_group=addm_group),
-                #               t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
 
     def addm_prepare(self, step_k):
         """
