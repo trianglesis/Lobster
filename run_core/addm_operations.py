@@ -12,6 +12,7 @@ from paramiko import SSHClient
 from django.conf import settings
 from octo.helpers.tasks_mail_send import Mails
 from octo.helpers.tasks_run import Runner
+
 from run_core.models import AddmDev, ADDMCommands, OctopusVM
 from run_core.vcenter_operations import VCenterOperations
 
@@ -305,7 +306,8 @@ class ADDMStaticOperations:
         Run one of more operation cmd
         :return:
         """
-        from octo_adm.tasks import TaskADDMService
+        # NOTE: Recursive import error
+        from octo_adm.tasks import TaskADDMService, TaskVMService
 
         command_key = kwargs.get('command_key', [])
         commands_set = kwargs.get('commands_set', [])
@@ -320,6 +322,17 @@ class ADDMStaticOperations:
 
         if not commands_set:
             commands_set = self.select_operation(command_key)
+
+        for addm_group in addm_group_l:
+            addm_grouped_set = addm_set.filter(addm_group__exact=addm_group)
+            log.info(f"Adding task power On vms! Group {addm_group}; Using ADDMs: {addm_grouped_set}")
+            Runner.fire_t(TaskVMService.t_vm_operation_thread,
+                          fake_run=fake_run,
+                          t_queue=f"{addm_group}@tentacle.dq2",
+                          t_args=[f"ADDMStaticOperations.run_operation_cmd;task=t_vm_operation_thread;operation_k=vm_power_on"],
+                          t_kwargs=dict(addm_set=addm_grouped_set, operation_k='vm_power_on', t_sleep=60 * 5),
+                          t_routing_key=f"{addm_group}.ADDMStaticOperations.t_vm_operation_thread.vm_power_on")
+
         # Run new instance of task+threaded for each command:
         for operation_cmd in commands_set:
             # Assign each task on related worker based on ADDM group name:FAKE_RUN:
