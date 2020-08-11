@@ -140,12 +140,12 @@ class VCenterOperations:
         # [{'vl-aus-tkudev-19': 'poweredOn'}, ]
         # [{'vl-aus-tkudev-39': 'skipped'}, ]
         if any('poweredOn' in vm.values() for vm in th_out):
-            log.info('Any VM was powered On, will wait for 5 min for services to start.')
+            log.info(f'Any VM was powered On, will wait for {t_sleep} for services to start.')
             if t_sleep:
                 sleep(t_sleep)
 
         if any('rebooted' in vm.values() for vm in th_out):
-            log.info('Any VM was rebooted, will wait for 5 min for services to start.')
+            log.info(f'Any VM was rebooted, will wait for {t_sleep} for services to start.')
             if t_sleep:
                 sleep(t_sleep)
 
