@@ -76,7 +76,9 @@ class TaskVMService:
         return VCenterOperations().threaded_operations(**kwargs)
 
     @staticmethod
-    @app.task(soft_time_limit=MIN_40, task_time_limit=HOURS_1)
+    @app.task(queue='w_routines@tentacle.dq2',
+              routing_key='routines.TaskVMService.t_vm_operation_addm_groups',
+              soft_time_limit=MIN_40, task_time_limit=HOURS_1)
     @exception
     def t_vm_operation_addm_groups(t_tag, **kwargs):
         fake_run = kwargs.get('fake_run', False)
