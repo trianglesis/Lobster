@@ -786,7 +786,11 @@ class TaskPrepare:
                 f'addm_group={addm.addm_group};user_name={self.user_name};' \
                 f'refresh={self.refresh};t_ETA={test_item.test_time_weight};test_case_path={test_item.test_case_depot_path}'
         if test_item.test_time_weight:
-            test_t_w = round(float(test_item.test_time_weight)) + 60 * 30  # Additional 30 min!
+            test_t_w = round(float(test_item.test_time_weight))
+            if not test_t_w > 0:
+                test_t_w = 60 * 60 * 2  # Two hours for task where time limit is not available!
+            else:
+                test_t_w = 60 * 30  # Additional 30 min
         else:
             test_t_w = 60 * 60 * 2 # Two hours for task where time limit is not available!
 
