@@ -227,7 +227,7 @@ class PatternTestUtils(unittest.TestCase):
                       fake_run=self.fake_run,
                       t_queue=f"{_addm_group}@tentacle.dq2",
                       t_args=[f"PatternTestUtils;task=t_vm_operation_thread;operation_k=vm_power_on"],
-                      t_kwargs=dict(addm_set=addm_item, operation_k='vm_power_on', t_sleep=60 * 5),
+                      t_kwargs=dict(addm_set=addm_item, operation_k='vm_power_on', t_sleep=60 * 10),
                       t_routing_key=f"{_addm_group}.PatternTestUtils.t_vm_operation_thread.vm_power_on")
 
     def sync_test_data_addm_set(self, addm_item):

@@ -350,7 +350,7 @@ class UploadTaskPrepare:
                               fake_run=self.fake_run,
                               t_queue=f"{addm_group}@tentacle.dq2",
                               t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
-                              t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60*5),
+                              t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60*10),
                               t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
             # Otherwise check if machines aren't powered off - and power On if so
             else:
@@ -360,7 +360,7 @@ class UploadTaskPrepare:
                               fake_run=self.fake_run,
                               t_queue=f"{addm_group}@tentacle.dq2",
                               t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
-                              t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60*5),
+                              t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60*10),
                               t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
 
     def addm_prepare(self, step_k):
