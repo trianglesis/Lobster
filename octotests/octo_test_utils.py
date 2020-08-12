@@ -361,9 +361,13 @@ class PatternTestUtils(unittest.TestCase):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
         for test_item in addm_tests:
             if test_item.test_time_weight:
-                test_t_w = round(float(test_item.test_time_weight))  # TODO: If NoneType - use 0
+                test_t_w = round(float(test_item.test_time_weight))
+                if not test_t_w > 0:
+                    test_t_w = 60 * 60 * 2  # Two hours for task where time limit is not available!
+                else:
+                    test_t_w = 60 * 60  # Additional 60 min
             else:
-                test_t_w = 60 * 60  # 1 hour is more than enough
+                test_t_w = 60 * 60 * 2 # Two hours for task where time limit is not available!
 
             if test_item.pattern_folder_name:
                 case_tag = test_item.pattern_folder_name

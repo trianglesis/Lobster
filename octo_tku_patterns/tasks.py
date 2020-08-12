@@ -86,8 +86,8 @@ class TPatternRoutine:
 class TPatternExecTest:
 
     @staticmethod
-    @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2,
-              routing_key='addm_group.TExecTest.t_test_exec_threads.pattern_folder',
+    @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2 + 60*30,
+              routing_key='TPatternExecTest.t_test_exec_threads.TestExecutor().test_run_threads',
               max_retries=1, autoretry_for=(AttributeError,))
     @exception
     def t_test_exec_threads(t_tag, **kwargs):
@@ -786,14 +786,6 @@ class TaskPrepare:
         t_tag = f'tag=t_test_exec_threads;type=user_routine;branch={test_item.tkn_branch};' \
                 f'addm_group={addm.addm_group};user_name={self.user_name};' \
                 f'refresh={self.refresh};t_ETA={test_item.test_time_weight};test_case_path={test_item.test_case_depot_path}'
-        if test_item.test_time_weight:
-            test_t_w = round(float(test_item.test_time_weight))
-            if not test_t_w > 0:
-                test_t_w = 60 * 60 * 2  # Two hours for task where time limit is not available!
-            else:
-                test_t_w = 60 * 30  # Additional 30 min
-        else:
-            test_t_w = 60 * 60 * 2 # Two hours for task where time limit is not available!
 
         # Test task exec:
         Runner.fire_t(TPatternExecTest.t_test_exec_threads,
@@ -805,8 +797,7 @@ class TaskPrepare:
                                     test_item=test_item,
                                     test_function=self.test_function),
                       t_routing_key=task_r_key,
-                      t_soft_time_limit=test_t_w,
-                      t_task_time_limit=test_t_w + 60 * 40)
+                      )
 
     def task_tag_generate(self):
         """Just make a task tag for this routine"""
