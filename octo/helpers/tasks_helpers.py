@@ -92,6 +92,44 @@ def exception(function):
     return wrapper
 
 
+def f_exception(function):
+    """
+    A decorator that wraps the passed in function and logs exceptions should one occur
+    """
+
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+
+        try:
+            return function(*args, **kwargs)
+
+        except Exception as e:
+            log.error(f"Unusual function exception! Check mail or logs for more info. {e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            sam = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exc_more = f'{e} Func catches the unusual exception. Please check logs or run debug. \n\t - Traceback: {sam}'
+            TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
+            error_d = dict(
+                function=function,
+                error=sam,
+                args=args,
+                kwargs=kwargs,
+            )
+            log.error(f"Func Exception: {error_d}")
+            try:
+                item_sort = json.dumps(error_d, indent=2, ensure_ascii=False, default=pformat)
+                log.error(f"Func Exception: {e} {item_sort}")
+            except TypeError:
+                log.error(f"Func Exception: {error_d}")
+            if settings.DEV:
+                log.info(
+                    f'Exceptions into DEV mode {settings.DEV}: do not send mail log on task fail! {function} {exc_more} {args} {kwargs}')
+                TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
+            raise Exception(e)
+
+    return wrapper
+
+
 class TMail:
 
     def __init__(self):
