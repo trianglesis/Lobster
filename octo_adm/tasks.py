@@ -100,5 +100,5 @@ class TaskVMService:
                           fake_run=fake_run,
                           t_queue=f"{addm_group}@tentacle.dq2",
                           t_args=[f"TaskVMService;task=t_vm_power_off_addm_groups;operation_k={operation_k}"],
-                          t_kwargs=dict(addm_set=addm_set, operation_k=operation_k),
+                          t_kwargs=dict(addm_set=addm_set, operation_k=operation_k, vm_kwargs=kwargs),
                           t_routing_key=f"{addm_group}.TaskVMService.t_vm_operation_thread.{operation_k}")
