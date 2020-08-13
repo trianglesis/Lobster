@@ -343,19 +343,21 @@ class PatternTestUtils(unittest.TestCase):
         _addm_group = addm_set.first().addm_group
         log.debug(f"<=put_test_cases=> ReRun failed tests - using addm group: {_addm_group}")
         # Power On VMs:
-        log.info(f'Powering on ADDM VM: {self.addm_set}')
+        log.info(f'Powering on ADDM VM: {addm_set}')
         self.addm_preps_start(addm_set)
         # Sync test data on those addms from group:
-        log.info(f'Sync data on ADDM VM: {self.addm_set}')
+        log.info(f'Sync data on ADDM VM: {addm_set}')
         self.sync_test_data_addm_set(addm_item=addm_set)
+
         log.info(f"Wipe last logs for {test_item[0].test_py_path}")
         self.wipe_case_logs(test_item[0].test_py_path)
+
         # Put tasks on minimal worker
-        self.run_cases_router(addm_tests=test_item, _addm_group=_addm_group, addm_item=self.addm_set)
+        self.run_cases_router(addm_tests=test_item, _addm_group=_addm_group, addm_item=addm_set)
         """ When power Off here it could be executed by each test adding to queue! """
         # Power off VM when all tasks finished
         # log.info(f'Add task for powerOff (end of queue) ADDM VM: {self.addm_set}')
-        # self.addm_preps_finish(self.addm_set)
+        # self.addm_preps_finish(addm_set)
 
     def run_cases_router(self, addm_tests, _addm_group, addm_item):
         """ TEST EXECUTION: Init loop for test execution. Each test for each ADDM item. """
@@ -379,6 +381,7 @@ class PatternTestUtils(unittest.TestCase):
                     f't:{test_t_w} on: "{_addm_group}" by: {self.user_name}'
             r_key = '{}.TExecTest.nightly_routine_case.{}'.format(_addm_group, case_tag)
             # LIVE:
+            # log.info(f"Firing task {t_tag}")
             Runner.fire_t(TPatternExecTest().t_test_exec_threads,
                           fake_run=self.fake_run,
                           to_sleep=1, to_debug=True,
