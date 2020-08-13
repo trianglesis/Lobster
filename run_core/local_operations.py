@@ -352,7 +352,8 @@ class LocalPatternsP4Parse:
             if int(latest_change.get('change', 0)) > int(test_case.change if test_case.change else 0):
                 self.parse_and_save_changes(test_case, latest_change, sync_force, p4_conn=p4_conn)
                 log.debug("%s Change update in db", th_name)
-                msg = 'Updated: {} -> {} -> {}'.format(latest_change.get('change', 0), test_case.test_case_depot_path, test_case.change)
+                msg = 'Updated: {} -> {} -> {}'.format(latest_change.get('change', 0), test_case.test_case_depot_path,
+                                                       test_case.change)
         test_q.put(msg)  # Mark finished parsing
         conn_q.put(p4_conn)  # Put active P4 connection back
 
@@ -711,6 +712,8 @@ class LocalDownloads:
             main_continuous='{}hub/main-continuous/publish/tkn/'.format(hub_path),
             # /hub/main_latest-156/publish/tkn/11.3/tku
             main_latest='{}hub/main-latest/publish/tkn/'.format(hub_path),
+            # ADDM DEV PATHS:
+            scope_latest='{}hub/scope-latest/publish/VAs/unpacked/'.format(hub_path),
             # /hub/tkn_main_continuous/publish/tkn/11.3/tku
         )
         # log.debug("<=BUILDHUB_PATHS=> buildhub_paths: %s", buildhub_paths)
@@ -729,6 +732,8 @@ class LocalDownloads:
             main_continuous="{}HUB/main_continuous".format(place),
             # /hub/main_latest-156/publish/tkn/11.3/tku
             main_latest="{}HUB/main_latest".format(place),
+            # ADDM DEV PATHS:
+            scope_latest="{}HUB/scope_latest".format(place),
         )
         # log.debug("<=DOWNLOAD_PATHS=> download_paths: %s", download_paths)
 
@@ -807,6 +812,11 @@ class LocalDownloads:
                    "--exclude-directories='{excl}';" \
                    "--cut-dirs={cut};{ftp};" \
                    "--directory-prefix={dir}"
+
+        # ADDM DEV:
+        wget_scope_latest = wget_rec.format(cut=4, ftp=buildhub_paths_d['scope_latest'], excl=exclude_dirs_main,
+                                            dir=download_paths_d['scope_latest'])
+        wget_cmd_d.update(scope_latest=wget_scope_latest)
 
         # DEV: For addm dev code - it is not needed fot TKU.
         # Compose download wget cmd for CONTINUOUS:
