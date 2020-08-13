@@ -258,12 +258,9 @@ class TestLastDigestListView(ListView):
             tests_digest_json='',
         )
 
-        context['tests_digest'] = OctoCache().cache_query(
-            context['object_list'])
-        context['tests_digest_json'] = OctoCache().cache_item(
-            JSONRenderer().render(
-                TestLatestDigestAllSerializer(context['object_list'], many=True).data).decode('utf-8'),
-            hkey='TestLastDigestListView_tests_digest_json', key='TestLast')
+        context['tests_digest'] = context['object_list']
+        context['tests_digest_json'] = JSONRenderer().render(
+                TestLatestDigestAllSerializer(context['object_list'], many=True).data).decode('utf-8')
         return context
 
     def get_queryset(self):
@@ -313,10 +310,8 @@ class TestLastSingleDetailedListView(ListView):
             )
             context['test_detail'] = OctoCache().cache_query(
                 context['test_detail'])
-            context['tests_digest_json'] = OctoCache().cache_item(
-                JSONRenderer().render(
-                    TestLastSerializer(context['test_detail'], many=True).data).decode('utf-8'),
-                hkey='TestLastSingleDetailedListView_tests_digest_json', key='TestLast')
+            context['tests_digest_json'] = JSONRenderer().render(
+                    TestLastSerializer(context['test_detail'], many=True).data).decode('utf-8')
             return context
 
     def get_queryset(self):
@@ -359,10 +354,8 @@ class TestItemSingleHistoryListView(ListView):
             )
             context['test_detail'] = OctoCache().cache_query(
                 context['test_detail'])
-            context['tests_digest_json'] = OctoCache().cache_item(
-                JSONRenderer().render(
-                    TestHistorySerializer(context['test_detail'], many=True).data).decode('utf-8'),
-                hkey='TestItemSingleHistoryListView_digest_json', key='TestHistory')
+            context['tests_digest_json'] = JSONRenderer().render(
+                    TestHistorySerializer(context['test_detail'], many=True).data).decode('utf-8')
             return context
 
     def get_queryset(self):
@@ -535,12 +528,8 @@ class TestHistoryDigestTodayView(TodayArchiveView):
                 tests_digest_json='',
             )
             # NOTE: This should be auto-cache-able, so apache do not kill request on timeout
-            context['tests_digest'] = OctoCache().cache_query(
-                context['tests_digest'])
-            context['tests_digest_json'] = OctoCache().cache_item(
-                TestHistoryDigestDailySerializer(
-                    context["object_list"], many=True).data,
-                hkey='TestHistoryDigestTodayView_tests_digest_json', key='TestHistory')
+            context['tests_digest'] = context['tests_digest']
+            context['tests_digest_json'] = TestHistoryDigestDailySerializer(context["object_list"], many=True).data
             return context
 
     def get_queryset(self):
@@ -588,12 +577,9 @@ class TestHistoryDigestDailyView(DayArchiveView):
                 tests_digest_json='',
             )
             # log.debug(f"Test digest history day query: {context['object_list'].query}")
-            context['tests_digest'] = OctoCache().cache_query(
-                context['tests_digest'])
-            context['tests_digest_json'] = OctoCache().cache_item(
-                JSONRenderer().render(
-                    TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8'),
-                hkey='TestHistoryDigestDailyView_tests_digest_json', key='TestHistory')
+            context['tests_digest'] = context['tests_digest']
+            context['tests_digest_json'] = JSONRenderer().render(
+                    TestLatestDigestAllSerializer(context['tests_digest'], many=True).data).decode('utf-8')
             return context
 
     def get_queryset(self):
