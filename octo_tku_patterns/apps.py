@@ -3,9 +3,6 @@ from django.db.models.signals import post_save, post_delete, pre_delete
 
 import logging
 
-from octo.helpers.tasks_run import Runner
-from octo_tku_patterns.tasks import TPatternRoutine
-
 log = logging.getLogger("octo.octologger")
 
 class TkuPatternsConfig(AppConfig):
@@ -35,6 +32,8 @@ class TkuPatternsConfig(AppConfig):
     @staticmethod
     def test_cases_save(sender, instance, created, **kwargs):
         from run_core.models import UserAdprod
+        from octo.helpers.tasks_run import Runner
+        from octo_tku_patterns.tasks import TPatternRoutine
         if kwargs.get('update_fields'):
             log.info(f"<=Signal=> TestCases Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
             update_fields = kwargs.get('update_fields')
