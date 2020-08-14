@@ -249,7 +249,11 @@ class OctoSignals:
     @staticmethod
     @receiver(post_save, sender=TestCases)
     def test_cases_save(sender, instance, created, **kwargs):
-        log.info(f"<=Signal Cache=> TestCases Save: {sender} {instance} {kwargs}")
+        #  <=Signal Cache=> TestCases Save: <class 'octo_tku_patterns.models.TestCases'>
+        #  id:2932-//addm/gargoyle/tku_patterns/CORE/Microsoft_ProClarity_Server
+        #  {'signal': <django.db.models.signals.ModelSignal object at 0x7f62b9be53a0>, 'update_fields': None, 'raw': False, 'using': 'default'}
+        if kwargs.get('update_fields'):
+            log.info(f"<=Signal Cache=> TestCases Save: {sender} {instance} {kwargs}")
         # OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
 
     @staticmethod
