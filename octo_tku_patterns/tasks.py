@@ -32,7 +32,7 @@ from octo_tku_patterns.test_executor import TestExecutor
 from octotests.tests_discover_run import TestRunnerLoc
 from run_core.addm_operations import ADDMStaticOperations
 from run_core.local_operations import LocalPatternsP4Parse
-from run_core.models import AddmDev, TaskPrepareLog, Options
+from run_core.models import AddmDev, TaskPrepareLog, Options, UserAdprod
 from run_core.p4_operations import PerforceOperations
 from run_core.rabbitmq_operations import RabbitCheck
 
@@ -179,6 +179,33 @@ class PatternTestExecCases:
         patterns_weight = LocalDB.history_weight(last_days=last_days, addm_name=addm_name)
         # Insert sorted in TKU Patterns table:
         LocalDB.insert_patt_weight(patterns_weight)
+
+
+    @staticmethod
+    def test_exec_on_change(sender, instance, created, **kwargs):
+        if kwargs.get('update_fields'):
+            log.info(f"<=Signal=> TestCases Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
+            update_fields = kwargs.get('update_fields')
+            if 'change_ticket' in update_fields:
+
+                user = UserAdprod.objects.get(adprod_username__exact=instance.change_user)
+                user_email = user.user.email
+
+                log.info(f"<=Signal=> TestCases => Change updated ===> "
+                         f"User: {instance.change_user}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")
+
+                obj = dict(
+                    context=dict(selector=dict(cases_ids=str(instance.id))),
+                    request=dict(refresh=True, wipe=True, cases_ids=str(instance.id)),
+                    user_name=instance.change_user,
+                    user_email=user_email,
+                )
+                Runner.fire_t(TPatternRoutine.t_test_prep,
+                    t_args=[f'tag=t_test_prep;user_name={instance.change_user};'],
+                    t_kwargs=dict(obj=obj),
+                    t_queue='w_routines@tentacle.dq2',
+                    t_routing_key='signals.routines.TRoutine.t_test_prep',
+                )
 
 
 class TaskPrepare:

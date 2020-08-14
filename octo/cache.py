@@ -234,7 +234,6 @@ class OctoSignals:
     @receiver(post_save, sender=TestLast)
     def test_last_save(sender, instance, created, **kwargs):
         if kwargs.get('update_fields'):
-            # log.debug(f'<=test_last_save=> Args: {sender} {instance}  kwargs: {kwargs}')
             test_last_t = ['test001_main_page', 'test001_addm_digest']
             if hasattr(instance, 'tkn_branch'):
                 if instance.tkn_branch == 'tkn_main':
@@ -247,15 +246,12 @@ class OctoSignals:
                     log.error('No branch in deleted item?! OctoSignals')
             OctoCache().cache_operation(keys=test_last, methods=test_last_t)
 
-    @staticmethod
-    @receiver(post_save, sender=TestCases)
-    def test_cases_save(sender, instance, created, **kwargs):
-        #  <=Signal Cache=> TestCases Save: <class 'octo_tku_patterns.models.TestCases'>
-        #  id:2932-//addm/gargoyle/tku_patterns/CORE/Microsoft_ProClarity_Server
-        #  {'signal': <django.db.models.signals.ModelSignal object at 0x7f62b9be53a0>, 'update_fields': None, 'raw': False, 'using': 'default'}
-        if kwargs.get('update_fields'):
-            log.info(f"<=Signal Cache=> TestCases Save: {sender} {instance} {kwargs}")
-        # OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
+    # @staticmethod
+    # @receiver(post_save, sender=TestCases)
+    # def test_cases_save(sender, instance, created, **kwargs):
+    #     if kwargs.get('update_fields'):
+    #         log.info(f"<=Signal Cache=> TestCases Save: {sender} {instance} {kwargs}")
+    #         OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
 
     @staticmethod
     @receiver(post_save, sender=UploadTestsNew)
