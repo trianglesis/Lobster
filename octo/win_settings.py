@@ -62,9 +62,11 @@ INSTALLED_APPS = [
     'octo',
     'octo_adm',
     'run_core',
-    'octo_tku_upload',
-    'octo_tku_patterns',
     'dev_site',
+    # 'octo_tku_patterns',
+    'octo_tku_patterns.apps.TkuPatternsConfig',
+    # 'octo_tku_upload',
+    'octo_tku_upload.apps.TkuUploadConfig',
     'django_ftpserver',
     'debug_toolbar',
 ]
