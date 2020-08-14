@@ -814,7 +814,7 @@ class LocalDownloads:
                    "--directory-prefix={dir}"
 
         # ADDM DEV:
-        wget_scope_latest = wget_rec.format(cut=4, ftp=buildhub_paths_d['scope_latest'], excl=exclude_dirs_main,
+        wget_scope_latest = wget_rec.format(cut=5, ftp=buildhub_paths_d['scope_latest'], excl=exclude_dirs_main,
                                             dir=download_paths_d['scope_latest'])
         wget_cmd_d.update(scope_latest=wget_scope_latest)
 
