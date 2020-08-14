@@ -233,18 +233,19 @@ class OctoSignals:
     @staticmethod
     @receiver(post_save, sender=TestLast)
     def test_last_save(sender, instance, created, **kwargs):
-        # log.debug(f'<=test_last_save=> Args: {sender} {instance}  kwargs: {kwargs}')
-        test_last_t = ['test001_main_page', 'test001_addm_digest']
-        if hasattr(instance, 'tkn_branch'):
-            if instance.tkn_branch == 'tkn_main':
-                test_last_t.extend(('test002_tests_last_tkn_main', 'test003_test_details_tkn_main'))
-            elif instance.tkn_branch == 'tkn_ship':
-                test_last_t.extend(('test002_tests_last_tkn_ship', 'test003_test_details_tkn_ship'))
-            elif instance.tkn_branch == 'gargoyle':
-                test_last_t.extend(('test002_tests_last_gargoyle', 'test003_test_details_gargoyle'))
-            else:
-                log.error('No branch in deleted item?! OctoSignals')
-        OctoCache().cache_operation(keys=test_last, methods=test_last_t)
+        if kwargs.get('update_fields'):
+            # log.debug(f'<=test_last_save=> Args: {sender} {instance}  kwargs: {kwargs}')
+            test_last_t = ['test001_main_page', 'test001_addm_digest']
+            if hasattr(instance, 'tkn_branch'):
+                if instance.tkn_branch == 'tkn_main':
+                    test_last_t.extend(('test002_tests_last_tkn_main', 'test003_test_details_tkn_main'))
+                elif instance.tkn_branch == 'tkn_ship':
+                    test_last_t.extend(('test002_tests_last_tkn_ship', 'test003_test_details_tkn_ship'))
+                elif instance.tkn_branch == 'gargoyle':
+                    test_last_t.extend(('test002_tests_last_gargoyle', 'test003_test_details_gargoyle'))
+                else:
+                    log.error('No branch in deleted item?! OctoSignals')
+            OctoCache().cache_operation(keys=test_last, methods=test_last_t)
 
     @staticmethod
     @receiver(post_save, sender=TestCases)
@@ -259,7 +260,8 @@ class OctoSignals:
     @staticmethod
     @receiver(post_save, sender=UploadTestsNew)
     def tku_upload_test_save(sender, instance, created, **kwargs):
-        OctoCache().cache_operation(keys=upload_tests, methods=upload_tests_t)
+        if kwargs.get('update_fields'):
+            OctoCache().cache_operation(keys=upload_tests, methods=upload_tests_t)
 
     # DELETE
     @staticmethod

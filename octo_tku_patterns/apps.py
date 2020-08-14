@@ -31,6 +31,8 @@ class TkuPatternsConfig(AppConfig):
     @staticmethod
     def test_cases_save(sender, instance, created, **kwargs):
         if kwargs.get('update_fields'):
-            log.info(f"<=Signal TestCases Save: {sender} {instance} {kwargs}")
             log.info(f"<=Signal=> TestCases Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
-            log.info(f"TestCas => User: {instance.change_user}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")
+            update_fields = kwargs.get('update_fields')
+            if 'change_ticket' in update_fields:
+                log.info(f"<=Signal=> TestCases => Change updated ===> "
+                         f"User: {instance.change_user}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")
