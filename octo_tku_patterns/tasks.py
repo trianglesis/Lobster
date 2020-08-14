@@ -10,6 +10,7 @@ from __future__ import absolute_import, unicode_literals
 import datetime
 import logging
 
+from billiard.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.db.models.query import QuerySet
 from django.template import loader
@@ -86,9 +87,9 @@ class TPatternRoutine:
 class TPatternExecTest:
 
     @staticmethod
-    @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2 + 60*30,
+    @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2 + 60 * 30,
               routing_key='TPatternExecTest.t_test_exec_threads.TestExecutor().test_run_threads',
-              max_retries=1, autoretry_for=(AttributeError,))
+              max_retries=1, autoretry_for=(AttributeError, SoftTimeLimitExceeded))
     @exception
     def t_test_exec_threads(t_tag, **kwargs):
         log.debug("t_tag: %s", t_tag)
@@ -576,12 +577,12 @@ class TaskPrepare:
             log.info("<=TaskPrepare=> ADDM_GROUP from request params: '%s'", self.options.get('addm_group'))
             addm_set = queryset.filter(
                 addm_group__exact=self.options.get('addm_group'),
-                disables__isnull=True)  #.values()
+                disables__isnull=True)  # .values()
         else:
             addm_set = queryset.filter(
                 addm_group__exact=addm_group,
                 disables__isnull=True
-            )  #.values()
+            )  # .values()
         return addm_set
 
     def addm_vm_power_on(self, addm_group, addm_set):
@@ -590,7 +591,7 @@ class TaskPrepare:
                       fake_run=self.fake_run,
                       t_queue=f"{addm_group}@tentacle.dq2",
                       t_args=[f"TaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
-                      t_kwargs=dict(addm_set=addm_set, operation_k='vm_power_on', t_sleep=60*5),
+                      t_kwargs=dict(addm_set=addm_set, operation_k='vm_power_on', t_sleep=60 * 5),
                       t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
 
     def addm_rsync(self, addm_set):
