@@ -246,10 +246,11 @@ class OctoSignals:
                 log.error('No branch in deleted item?! OctoSignals')
         OctoCache().cache_operation(keys=test_last, methods=test_last_t)
 
-    # @staticmethod
-    # @receiver(post_save, sender=TestCases)
-    # def test_cases_save(sender, instance, created, **kwargs):
-    #     OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
+    @staticmethod
+    @receiver(post_save, sender=TestCases)
+    def test_cases_save(sender, instance, created, **kwargs):
+        log.info(f"<=Signal Cache=> TestCases Save: {sender} {instance} {kwargs}")
+        # OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
 
     @staticmethod
     @receiver(post_save, sender=UploadTestsNew)
@@ -276,6 +277,7 @@ class OctoSignals:
     @staticmethod
     @receiver(post_delete, sender=TestCases)
     def test_cases_delete(sender, instance, **kwargs):
+        log.info(f"<=Signal Cache=> TestCases Del: {sender} {instance} {kwargs}")
         OctoCache().cache_operation(keys=test_cases, methods=test_cases_t)
 
     @staticmethod
