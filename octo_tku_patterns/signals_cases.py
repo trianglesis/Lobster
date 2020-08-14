@@ -1,7 +1,7 @@
 # Python logger
 import logging
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from octo.helpers.tasks_run import Runner
@@ -9,6 +9,11 @@ from octo_tku_patterns.models import TestCases
 from octo_tku_patterns.tasks import TPatternRoutine
 
 log = logging.getLogger("octo.octologger")
+
+
+@receiver(post_delete, sender=TestCases)
+def test_cases_delete(sender, instance, **kwargs):
+    log.info(f"<=Signal=> TestCases Delete: {sender} {instance} {kwargs}")
 
 
 @receiver(post_save, sender=TestCases)
