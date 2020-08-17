@@ -358,6 +358,7 @@ class TaskPrepare:
                 self.wipe = True
                 self.refresh = True
                 self.p4_synced = True  # We suppose that P4 have been synced before
+                return True
             else:
                 self.p4_synced = True  # Let's think we already synced everything:
                 return True

@@ -118,7 +118,9 @@ class TKUSignalExecCases:
         # self.m_upload = m_upload.option_value.replace(' ', '').split(',')
         log.info(f"<=Signal=> TKU Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
         # Only run ONCE for single TKU Package as trigger:
-        if instance.tku_name == 'Extended-Data-Pack' and instance.zip_type == 'edp':
+
+        if instance.tku_name == 'Extended-Data-Pack' and instance.zip_type == 'edp' and instance.addm_version == '12.0':
+            log.info(f"<=Signal=> TKU Trigger for build: {instance.tku_name} and {instance.zip_type} and {instance.addm_version} ")
             if instance.tku_type == 'ga_candidate':
                 # If GA - run test009_release_ga_upgrade_and_fresh
                 test_method = 'test009_release_ga_upgrade_and_fresh'
