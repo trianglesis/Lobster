@@ -202,7 +202,7 @@ class PatternTestExecCases:
 
                     obj = dict(
                         context=dict(selector=dict(cases_ids=str(instance.id))),
-                        request=dict(refresh=True, wipe=True, cases_ids=str(instance.id)),
+                        request=dict(addm_sync=True, wipe=True, cases_ids=str(instance.id)),
                         user_name=instance.change_user,
                         user_email=user_email,
                     )
@@ -354,6 +354,10 @@ class TaskPrepare:
                 self.refresh = True
                 self.p4_synced = False  # To be synced
                 log.debug("<=TaskPrepare=> Will execute p4 sync before run tests")
+            elif self.request.get('addm_sync'):
+                self.wipe = True
+                self.refresh = True
+                self.p4_synced = True  # We suppose that P4 have been synced before
             else:
                 self.p4_synced = True  # Let's think we already synced everything:
                 return True
@@ -639,7 +643,7 @@ class TaskPrepare:
         """
         # Only if p4 sync correctly OR we forced it to True:
         addm = addm_set.first()
-        if self.p4_synced and self.request.get('refresh'):
+        if self.p4_synced and self.request.get('refresh') or self.request.get('addm_sync'):
             log.debug("<=TaskPrepare=> Adding task to sync addm group: '%s'", addm.addm_group)
             commands_qs = ADDMStaticOperations.select_operation([
                 'rsync.python.testutils',
