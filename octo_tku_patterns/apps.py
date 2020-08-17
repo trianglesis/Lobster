@@ -5,6 +5,7 @@ import logging
 
 log = logging.getLogger("octo.octologger")
 
+
 class TkuPatternsConfig(AppConfig):
     name = 'octo_tku_patterns'
     verbose_name = "TKU Test Cases"
@@ -21,9 +22,10 @@ class TkuPatternsConfig(AppConfig):
         log.info(f"<=Signal=> TestCases Delete => sender: {sender}; instance: {instance}; kwargs: {kwargs};")
         user = UserAdprod.objects.get(adprod_username__exact=instance.change_user)
         user_email = user.user.email
-        log.info(f"TestCas => User: {instance.change_user} - {user_email}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")
+        log.info(
+            f"TestCas => User: {instance.change_user} - {user_email}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")
 
     @staticmethod
     def test_cases_save(sender, instance, created, **kwargs):
-        from  octo_tku_patterns.tasks import PatternTestExecCases
+        from octo_tku_patterns.tasks import PatternTestExecCases
         PatternTestExecCases.test_exec_on_change(sender, instance, created, **kwargs)

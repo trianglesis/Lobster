@@ -1,7 +1,9 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_save, post_delete, pre_delete
 import logging
+
 log = logging.getLogger("octo.octologger")
+
 
 class TkuUploadConfig(AppConfig):
     name = 'octo_tku_upload'
