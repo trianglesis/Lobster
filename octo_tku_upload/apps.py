@@ -28,5 +28,4 @@ class TkuUploadConfig(AppConfig):
     def tku_package_save(sender, instance, created, **kwargs):
         from octo_tku_upload.tasks import TKUSignalExecCases
         log.info(f"<=Signal=> TKU Save: {sender} {instance} {created} {kwargs}")
-
         TKUSignalExecCases.test_exec_on_change(sender, instance, created, **kwargs)

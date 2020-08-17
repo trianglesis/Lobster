@@ -12,6 +12,7 @@ import logging
 
 from billiard.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.template import loader
 from django.utils import timezone
@@ -189,8 +190,12 @@ class PatternTestExecCases:
                 update_fields = kwargs.get('update_fields')
                 if 'change_ticket' in update_fields:
 
-                    user = UserAdprod.objects.get(adprod_username__exact=instance.change_user)
-                    user_email = user.user.email
+                    log.info(f"Getting ADPROD user: {instance.change_user}")
+                    try:
+                        user = UserAdprod.objects.get(adprod_username__exact=instance.change_user)
+                        user_email = user.user.email
+                    except ObjectDoesNotExist:
+                        user_email = 'oleksandr_danylchenko_cw@bmc.com'
 
                     log.info(f"<=Signal=> TestCases => Change updated ===> "
                              f"User: {instance.change_user}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")

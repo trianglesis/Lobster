@@ -116,21 +116,24 @@ class TKUSignalExecCases:
     def test_exec_on_change(sender, instance, created, **kwargs):
         # m_upload = Options.objects.get(option_key__exact='mail_recipients.upload_test')
         # self.m_upload = m_upload.option_value.replace(' ', '').split(',')
-        log.info(f"<=Signal=> TestCases Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
+        log.info(f"<=Signal=> TKU Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
         # Only run ONCE for single TKU Package as trigger:
         if instance.tku_name == 'Extended-Data-Pack' and instance.zip_type == 'edp':
             if instance.tku_type == 'ga_candidate':
                 # If GA - run test009_release_ga_upgrade_and_fresh
                 test_method = 'test009_release_ga_upgrade_and_fresh'
+                log.info(f"<=Signal=> Running TKU Upload test {test_method} for {instance.tku_type}")
             elif instance.tku_type == 'tkn_main_continuous':
                 # If main continuous: run test007_tkn_main_continuous_fresh
                 test_method = 'test007_tkn_main_continuous_fresh'
+                log.info(f"<=Signal=> Running TKU Upload test {test_method} for {instance.tku_type}")
             elif instance.tku_type == 'tkn_ship_continuous':
                 # If ship continuous: run test008_tkn_ship_continuous_fresh
                 test_method = 'test008_tkn_ship_continuous_fresh'
+                log.info(f"<=Signal=> Running TKU Upload test {test_method} for {instance.tku_type}")
             else:
                 test_method = None
-                log.debug(f'No Automatic Upload tests for {instance.tku_type}')
+                log.debug(f'<=Signal=> No Automatic Upload tests for {instance.tku_type}')
                 return f'No Automatic Upload tests for {instance.tku_type}'
 
             if instance.tku_type:
