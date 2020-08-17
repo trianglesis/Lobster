@@ -18,12 +18,15 @@ class TkuUploadConfig(AppConfig):
 
     @staticmethod
     def tku_package_pre_delete(sender, instance, **kwargs):
-        log.info(f"<=Signal=> TestCases Pre-Delete: {sender} {instance} {kwargs}")
+        log.info(f"<=Signal=> TKU Pre-Delete: {sender} {instance} {kwargs}")
 
     @staticmethod
     def tku_package_delete(sender, instance, **kwargs):
-        log.info(f"<=Signal=> TestCases Delete: {sender} {instance} {kwargs}")
+        log.info(f"<=Signal=> TKU Delete: {sender} {instance} {kwargs}")
 
     @staticmethod
     def tku_package_save(sender, instance, created, **kwargs):
-        log.info(f"<=Signal=> TestCases Save: {sender} {instance} {created} {kwargs}")
+        from octo_tku_upload.tasks import TKUSignalExecCases
+        log.info(f"<=Signal=> TKU Save: {sender} {instance} {created} {kwargs}")
+
+        TKUSignalExecCases.test_exec_on_change(sender, instance, created, **kwargs)

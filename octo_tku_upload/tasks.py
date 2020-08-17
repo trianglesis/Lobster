@@ -110,6 +110,49 @@ class TUploadExec:
         return TKUEmailDigest.upload_daily_fails_warnings(**kwargs)
 
 
+class TKUSignalExecCases:
+
+    @staticmethod
+    def test_exec_on_change(sender, instance, created, **kwargs):
+        # m_upload = Options.objects.get(option_key__exact='mail_recipients.upload_test')
+        # self.m_upload = m_upload.option_value.replace(' ', '').split(',')
+        log.info(f"<=Signal=> TestCases Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
+        # Only run ONCE for single TKU Package as trigger:
+        if instance.tku_name == 'Extended-Data-Pack' and instance.zip_type == 'edp':
+            if instance.tku_type == 'ga_candidate':
+                # If GA - run test009_release_ga_upgrade_and_fresh
+                test_method = 'test009_release_ga_upgrade_and_fresh'
+            elif instance.tku_type == 'tkn_main_continuous':
+                # If main continuous: run test007_tkn_main_continuous_fresh
+                test_method = 'test007_tkn_main_continuous_fresh'
+            elif instance.tku_type == 'tkn_ship_continuous':
+                # If ship continuous: run test008_tkn_ship_continuous_fresh
+                test_method = 'test008_tkn_ship_continuous_fresh'
+            else:
+                test_method = None
+                log.debug(f'No Automatic Upload tests for {instance.tku_type}')
+                return f'No Automatic Upload tests for {instance.tku_type}'
+
+            if instance.tku_type:
+                kw_options = dict(
+                    test_method=test_method,
+                    test_class='OctoTestCaseUpload',
+                    test_module='octotests.tests.octotest_upload_tku',
+                )
+                t_tag = f'tag=t_upload_test;user_name=Cron;test_method={test_method}'
+                t_queue = 'w_routines@tentacle.dq2'
+                t_routing_key = 'TKUSignalExecCases.tku_install_test.TUploadExec.t_upload_routines'
+                Runner.fire_t(TUploadExec.t_upload_routines,
+                              fake_run=True,
+                              # fake_run=kwargs.get('fake_run', False),
+                              args=[t_tag],
+                              t_kwargs=kw_options,
+                              t_queue=t_queue,
+                              t_routing_key=t_routing_key)
+            else:
+                log.debug(f"<=Signal=> TKU Save - Not an : {instance}")
+
+
 class UploadTaskPrepare:
 
     def __init__(self, **kwargs):
@@ -349,8 +392,9 @@ class UploadTaskPrepare:
                 Runner.fire_t(TaskVMService.t_vm_operation_thread,
                               fake_run=self.fake_run,
                               t_queue=f"{addm_group}@tentacle.dq2",
-                              t_args=[f"UploadTaskPrepare.afterSnapshot;task=t_vm_operation_thread;operation_k=vm_power_on"],
-                              t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60*10),
+                              t_args=[
+                                  f"UploadTaskPrepare.afterSnapshot;task=t_vm_operation_thread;operation_k=vm_power_on"],
+                              t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60 * 10),
                               t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
             # Otherwise check if machines aren't powered off - and power On if so
             else:
@@ -360,7 +404,7 @@ class UploadTaskPrepare:
                               fake_run=self.fake_run,
                               t_queue=f"{addm_group}@tentacle.dq2",
                               t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
-                              t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60*10),
+                              t_kwargs=dict(addm_set=addm_items, operation_k='vm_power_on', t_sleep=60 * 10),
                               t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
 
     def addm_prepare(self, step_k):
@@ -508,7 +552,8 @@ class UploadTaskPrepare:
                 else:
                     log.info("<=UploadTaskPrepare=> Do not send test result email during package/device install")
             else:
-                log.info(f"<=UploadTaskPrepare=> Do not send test result email tku_type {self.tku_type} package_detail {self.package_detail}")
+                log.info(
+                    f"<=UploadTaskPrepare=> Do not send test result email tku_type {self.tku_type} package_detail {self.package_detail}")
 
             """
             Power Off ADDM VMs after latest step reached: ga tku and fresh test mode should be always the last step!
