@@ -185,27 +185,30 @@ class PatternTestExecCases:
     def test_exec_on_change(sender, instance, created, **kwargs):
         if kwargs.get('update_fields'):
             log.info(f"<=Signal=> TestCases Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
-            update_fields = kwargs.get('update_fields')
-            if 'change_ticket' in update_fields:
+            if instance.test_type == 'tku_patterns':
+                update_fields = kwargs.get('update_fields')
+                if 'change_ticket' in update_fields:
 
-                user = UserAdprod.objects.get(adprod_username__exact=instance.change_user)
-                user_email = user.user.email
+                    user = UserAdprod.objects.get(adprod_username__exact=instance.change_user)
+                    user_email = user.user.email
 
-                log.info(f"<=Signal=> TestCases => Change updated ===> "
-                         f"User: {instance.change_user}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")
+                    log.info(f"<=Signal=> TestCases => Change updated ===> "
+                             f"User: {instance.change_user}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")
 
-                obj = dict(
-                    context=dict(selector=dict(cases_ids=str(instance.id))),
-                    request=dict(refresh=True, wipe=True, cases_ids=str(instance.id)),
-                    user_name=instance.change_user,
-                    user_email=user_email,
-                )
-                Runner.fire_t(TPatternRoutine.t_test_prep,
-                    t_args=[f'tag=t_test_prep;user_name={instance.change_user};'],
-                    t_kwargs=dict(obj=obj),
-                    t_queue='w_routines@tentacle.dq2',
-                    t_routing_key='signals.routines.TRoutine.t_test_prep',
-                )
+                    obj = dict(
+                        context=dict(selector=dict(cases_ids=str(instance.id))),
+                        request=dict(refresh=True, wipe=True, cases_ids=str(instance.id)),
+                        user_name=instance.change_user,
+                        user_email=user_email,
+                    )
+                    Runner.fire_t(TPatternRoutine.t_test_prep,
+                        t_args=[f'tag=t_test_prep;user_name={instance.change_user};'],
+                        t_kwargs=dict(obj=obj),
+                        t_queue='w_routines@tentacle.dq2',
+                        t_routing_key='signals.routines.TRoutine.t_test_prep',
+                    )
+            else:
+                log.debug(f"<=Signal=> TestCases Save - Not a pattern test: {instance}")
 
 
 class TaskPrepare:
