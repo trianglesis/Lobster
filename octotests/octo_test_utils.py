@@ -367,7 +367,7 @@ class PatternTestUtils(unittest.TestCase):
                 if not test_t_w > 0:
                     test_t_w = 60 * 60 * 2  # Two hours for task where time limit is not available!
                 else:
-                    test_t_w = 60 * 60  # Additional 60 min
+                    test_t_w = test_t_w + 60 * 60  # Additional 60 min
             else:
                 test_t_w = 60 * 60 * 2 # Two hours for task where time limit is not available!
 
