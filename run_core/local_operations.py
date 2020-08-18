@@ -985,7 +985,7 @@ class LocalDownloads:
                 # /home/user/TH_Octopus/UPLOAD/HUB/main_latest/12.0/tku/Technology-Knowledge-Update-2020-04-2-ADDM-12.0+.zip
                 tku_content = os.listdir(path_v)
                 for dir_item in tku_content:
-                    log.debug("dir_item %s", dir_item)
+                    # log.debug("dir_item %s", dir_item)  # dir_item 12.0
                     # /home/user/TH_Octopus/UPLOAD/HUB/main_latest/12.0
                     path_to_dir_item = os.path.join(path_v, dir_item)
                     if os.path.isdir(path_to_dir_item):

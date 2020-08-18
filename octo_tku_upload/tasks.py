@@ -148,8 +148,7 @@ class TKUSignalExecCases:
                 t_queue = 'w_routines@tentacle.dq2'
                 t_routing_key = 'TKUSignalExecCases.tku_install_test.TUploadExec.t_upload_routines'
                 Runner.fire_t(TUploadExec.t_upload_routines,
-                              fake_run=True,
-                              # fake_run=kwargs.get('fake_run', False),
+                              fake_run=kwargs.get('fake_run', False),
                               args=[t_tag],
                               t_kwargs=kw_options,
                               t_queue=t_queue,
