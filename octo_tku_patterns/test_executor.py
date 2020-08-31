@@ -13,7 +13,7 @@ from time import time
 
 from django.conf import settings
 
-from octo.helpers.tasks_helpers import f_exception
+from octo.helpers.tasks_helpers import f_exception, exception
 from octo_tku_patterns.api.serializers import TestCasesSerializer
 from octo_tku_patterns.models import TestLast, TestHistory
 from run_core.addm_operations import ADDMOperations
@@ -62,7 +62,7 @@ class TestExecutor:
             self.stopword = None
             log.error(f'Stop word cannot be evaluated! \n\t{e}')
 
-    @f_exception
+    @exception
     def test_run_threads(self, **kwargs):
         """
         Run each test in pair of connected ADDM instance separately from each other.
@@ -122,7 +122,7 @@ class TestExecutor:
         # return 'All tests took {}'.format(time() - ts)
         return 'All tests Took {} Out {}'.format(time() - ts, test_outputs)
 
-    @f_exception
+    @exception
     def test_exec(self, **args_d):
         """
         This function execute tests for patterns.
@@ -244,7 +244,7 @@ class TestExecutor:
 
         return dict(std_output=std_output, stderr_output=stderr_output)
 
-    @f_exception
+    @exception
     def parse_test_result(self, **test_out):
         # noinspection SpellCheckingInspection,PyPep8
         """
@@ -362,7 +362,7 @@ class TestExecutor:
         else:
             return parsed_debug
 
-    @f_exception
+    @exception
     def stop_words(self, stderr_output, time_spent_test, test_item, addm_item):
         """
         Check if test STDERR output has any of stop-words, and if so - save a RAW output.
@@ -389,7 +389,7 @@ class TestExecutor:
                     print(f'saved_h: {saved_h}')
 
     @staticmethod
-    @f_exception
+    @exception
     def model_save_insert(**kwargs):
         """
         Here compose dict of test results and addm+test item values to save them
