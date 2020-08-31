@@ -31,7 +31,6 @@ if __name__ == "__main__":
         One mail per user will all failed tests log.
         :return:
         """
-        fake_run = False
 
         mail_body = loader.get_template('digests/user_nonpass_digest_email.html')
         test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
@@ -99,7 +98,6 @@ if __name__ == "__main__":
         Daily digest of overall pattern tests status, same as ADDM Digest.
         :return:
         """
-        fake_run = False
         mail_body = loader.get_template('digests/library_nonpass_digest_email.html')
         # test_log_html = loader.get_template('digests/tables_details/test_details_table_email.html')
 
