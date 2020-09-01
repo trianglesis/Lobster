@@ -365,11 +365,11 @@ class PatternTestUtils(unittest.TestCase):
             if test_item.test_time_weight:
                 test_t_w = round(float(test_item.test_time_weight))
                 if not test_t_w > 0:
-                    test_t_w = 60 * 60 * 2  # Two hours for task where time limit is not available!
+                    test_t_w = 60 * 60 + 30  # 1,5 hours for task where time limit is not available!
                 else:
-                    test_t_w = test_t_w + 60 * 60  # Additional 60 min
+                    test_t_w = test_t_w + 60 * 30  # Additional 30 min
             else:
-                test_t_w = 60 * 60 * 2 # Two hours for task where time limit is not available!
+                test_t_w = 60 * 60 + 30  # 1,5 hours for task where time limit is not available!
 
             if test_item.pattern_folder_name:
                 case_tag = test_item.pattern_folder_name
@@ -390,8 +390,8 @@ class PatternTestUtils(unittest.TestCase):
                           t_kwargs=dict(addm_items=addm_item, test_item=test_item,
                                         test_output_mode=self.test_output_mode),
                           t_routing_key=r_key,
-                          t_soft_time_limit=test_t_w + 60 * 20,  # Additional 20 min
-                          t_task_time_limit=test_t_w + 60 * 30,  # Additional 30 min
+                          t_soft_time_limit=test_t_w,
+                          t_task_time_limit=test_t_w,
                           )
         return True
 
