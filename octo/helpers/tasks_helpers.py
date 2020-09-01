@@ -41,8 +41,8 @@ def exception(function):
         try:
             return function(*args, **kwargs)
         except SoftTimeLimitExceeded as e:
-            log.warning("Firing SoftTimeLimitExceeded exception. Test should run for additional 500 seconds before die")
-            exc_more = f'{e} Task has reached soft time limit. Task will be cancelled in 500 seconds.'
+            log.warning("Firing SoftTimeLimitExceeded exception.")
+            exc_more = f'{e} Task has reached soft time limit.'
             TMail().mail_log(function, exc_more, _args=args, _kwargs=kwargs)
             # Do not rise when soft time limit, just inform:
             # raise SoftTimeLimitExceeded(msg)
@@ -132,26 +132,18 @@ def f_exception(function):
 
 class TMail:
 
-    def __init__(self):
-
-        m_night = Options.objects.get(option_key__exact='mail_recipients.night_test_routines')
-        self.m_night = m_night.option_value.replace(' ', '').split(',')
-
+    def get_recipients_m_service(self):
         m_service = Options.objects.get(option_key__exact='mail_recipients.service')
-        self.m_service = m_service.option_value.replace(' ', '').split(',')
-
-        m_upload = Options.objects.get(option_key__exact='mail_recipients.upload_test')
-        self.m_upload = m_upload.option_value.replace(' ', '').split(',')
-
-        m_user_test = Options.objects.get(option_key__exact='mail_recipients.user_test_cc')
-        self.m_user_test = m_user_test.option_value.replace(' ', '').split(',')
+        return m_service.option_value.replace(' ', '').split(',')
 
     def mail_log(self, function, e, _args, _kwargs):
         user_email = _kwargs.get('user_email', False)
         send_to = []
         if user_email:
             send_to.append(user_email)
-        send_to.extend(self.m_service)
+        send_to.extend(self.get_recipients_m_service)
+
+
         # When something bad happened - use selected text object to fill mail subject and body:
         log.error(f'<=TASK Exception mail_log=> Selecting mail txt for: "{function.__module__}.{function.__name__}"')
         try:
@@ -172,7 +164,7 @@ class TMail:
         log.error("<=Task helpers=> %s", '({}) : ({}) Task failed!'.format(curr_hostname, function.__name__))
         task_limit = loader.get_template('service/emails/statuses/task_details.html')
         # Try to get user email if present:
-        user_email = kwargs.get('user_email', self.m_service)
+        user_email = kwargs.get('user_email', self.get_recipients_m_service)
 
         subj_txt = '{} - Task Failed - {}'.format(curr_hostname, function.__name__)
 
