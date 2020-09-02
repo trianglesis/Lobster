@@ -134,15 +134,16 @@ class TMail:
 
     def get_recipients_m_service(self):
         m_service = Options.objects.get(option_key__exact='mail_recipients.service')
-        return m_service.option_value.replace(' ', '').split(',')
+        m_service.option_value.replace(' ', '').split(',')
+        return m_service
 
     def mail_log(self, function, e, _args, _kwargs):
         user_email = _kwargs.get('user_email', False)
         send_to = []
+        m_service = self.get_recipients_m_service
         if user_email:
             send_to.append(user_email)
-        send_to.extend(self.get_recipients_m_service)
-
+        send_to.extend(m_service)
 
         # When something bad happened - use selected text object to fill mail subject and body:
         log.error(f'<=TASK Exception mail_log=> Selecting mail txt for: "{function.__module__}.{function.__name__}"')
@@ -162,9 +163,10 @@ class TMail:
 
     def t_fail(self, function, err, *args, **kwargs):
         log.error("<=Task helpers=> %s", '({}) : ({}) Task failed!'.format(curr_hostname, function.__name__))
+        m_service = self.get_recipients_m_service
         task_limit = loader.get_template('service/emails/statuses/task_details.html')
         # Try to get user email if present:
-        user_email = kwargs.get('user_email', self.get_recipients_m_service)
+        user_email = kwargs.get('user_email', m_service)
 
         subj_txt = '{} - Task Failed - {}'.format(curr_hostname, function.__name__)
 
