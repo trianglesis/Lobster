@@ -23,6 +23,8 @@ from django.template import loader
 from django.utils import timezone
 from run_core.models import TaskExceptionLog
 
+from octo.config_cred import mails
+
 from octo.helpers.tasks_mail_send import Mails
 from run_core.models import Options, MailsTexts
 
@@ -140,7 +142,7 @@ class TMail:
     def mail_log(self, function, e, _args, _kwargs):
         user_email = _kwargs.get('user_email', False)
         send_to = []
-        m_service = self.get_recipients_m_service()
+        m_service = mails['admin']
         if user_email:
             send_to.append(user_email)
         send_to.extend(m_service)
@@ -163,7 +165,7 @@ class TMail:
 
     def t_fail(self, function, err, *args, **kwargs):
         log.error("<=Task helpers=> %s", '({}) : ({}) Task failed!'.format(curr_hostname, function.__name__))
-        m_service = self.get_recipients_m_service()
+        m_service = mails['admin']
         task_limit = loader.get_template('service/emails/statuses/task_details.html')
         # Try to get user email if present:
         user_email = kwargs.get('user_email', m_service)
