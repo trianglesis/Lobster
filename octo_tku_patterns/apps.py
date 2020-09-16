@@ -18,12 +18,11 @@ class TkuPatternsConfig(AppConfig):
 
     @staticmethod
     def test_cases_delete(sender, instance, **kwargs):
-        from run_core.models import UserAdprod
+        # from run_core.models import UserAdprod
         log.info(f"<=Signal=> TestCases Delete => sender: {sender}; instance: {instance}; kwargs: {kwargs};")
-        user = UserAdprod.objects.get(adprod_username__exact=instance.change_user)
-        user_email = user.user.email
-        log.info(
-            f"TestCas => User: {instance.change_user} - {user_email}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")
+        # user = UserAdprod.objects.get(adprod_username__exact=instance.change_user)
+        # user_email = user.user.email
+        # log.info(f"TestCas => User: {instance.change_user} - {user_email}; branch: {instance.tkn_branch}; test_py: {instance.test_py_path}")
 
     @staticmethod
     def test_cases_save(sender, instance, created, **kwargs):
