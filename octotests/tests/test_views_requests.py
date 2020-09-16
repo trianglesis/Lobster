@@ -35,9 +35,9 @@ class SimpleTest(unittest.TestCase):
             'skip',
         ]
         self.addm_names = [
-            'custard_cream',
             'double_decker',
             'fish_finger',
+            'gargoyle',
         ]
         self.pattern_libraries = [
             'BLADE_ENCLOSURE',
@@ -201,9 +201,9 @@ class AdvancedViews(TestCase):
             'skip',
         ]
         self.addm_names = [
-            'custard_cream',
             'double_decker',
             'fish_finger',
+            'gargoyle',
         ]
         self.pattern_libraries = [
             'BLADE_ENCLOSURE',
