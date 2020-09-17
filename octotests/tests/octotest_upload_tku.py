@@ -39,11 +39,8 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
     def setUp(self):
         octo_tests.OctoTestCase.setUp(self)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
-        # TODO: Use ADDM groups from Options value?
-        # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
-        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
-        # self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
-        self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf']
+        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        self.tkn_ship_addm_group_l = ['echo','foxtrot','golf','kilo']
 
     def test001_product_content_update_tkn_main(self):
         """
