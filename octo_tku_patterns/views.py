@@ -161,27 +161,27 @@ class SearchCasesAndLogs(ListView):
             | Q(tst_name__icontains=query)
             | Q(tst_class__icontains=query)
         )
-        queryset_last_digest = TestLatestDigestAll.objects.filter(
-            Q(pattern_folder_name__icontains=query)
-            | Q(test_py_path__icontains=query)
-            | Q(change__icontains=query)
-            | Q(change_desc__icontains=query)
-            | Q(change_user__icontains=query)
-            | Q(change_review__icontains=query)
-            | Q(change_ticket__icontains=query)
-        )
-        queryset_history_digest = TestHistory.objects.filter(
-            Q(pattern_folder_name__icontains=query)
-            | Q(test_py_path__icontains=query)
-            | Q(tst_name__icontains=query)
-            | Q(tst_class__icontains=query)
-        )[:500]
+        # queryset_last_digest = TestLatestDigestAll.objects.filter(
+        #     Q(pattern_folder_name__icontains=query)
+        #     | Q(test_py_path__icontains=query)
+        #     | Q(change__icontains=query)
+        #     | Q(change_desc__icontains=query)
+        #     | Q(change_user__icontains=query)
+        #     | Q(change_review__icontains=query)
+        #     | Q(change_ticket__icontains=query)
+        # )
+        # queryset_history_digest = TestHistory.objects.filter(
+        #     Q(pattern_folder_name__icontains=query)
+        #     | Q(test_py_path__icontains=query)
+        #     | Q(tst_name__icontains=query)
+        #     | Q(tst_class__icontains=query)
+        # )[:500]
 
         queryset = dict(
             cases=queryset_cases,
             tests_last=queryset_last,
-            tests_history=queryset_history_digest,
-            tests_last_digest=queryset_last_digest,
+            # tests_history=queryset_history_digest,
+            # tests_last_digest=queryset_last_digest,
         )
         return queryset
 
@@ -892,13 +892,23 @@ class TestCaseRunTestREST(APIView):
 
 ## View for teams:
 class AddmDigestListViewTeams(ListView):
-    __url_path = '/octo_tku_patterns/addm_digest/'
+    __url_path = '/octo_tku_patterns/addm_digest_short/'
     model = AddmDigest
     template_name = 'digests/addm_digest_short.html'
     context_object_name = 'addm_digest'
 
 
 class TestLastDigestListViewShort(TestLastDigestListView):
-    __url_path = '/octo_tku_patterns/tests_last_short/'
+    __url_path = '/octo_tku_patterns/patterns_digest_short/'
     template_name = 'digests/tests_last_short.html'
+    context_object_name = 'tests_digest'
+
+
+class TestLastDigestListViewBoxes(TestLastDigestListView):
+    """
+    Grouped by library - view for general reposting for external purposes.
+
+    """
+    __url_path = '/octo_tku_patterns/patterns_digest_boxes/'
+    template_name = 'digests/tests_last_boxes.html'
     context_object_name = 'tests_digest'

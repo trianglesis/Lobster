@@ -207,7 +207,7 @@
             <span>No test digests for current query</span>
         {% endif %}
         </div>
-        <div class="found-test-items">
+{% comment %}        <div class="found-test-items">
             {% if search_results.tests_last %}
             {% with search_results.tests_last as test_details %}
                 <span class="badge badge-primary badge-pill">Test items found</span>
@@ -280,7 +280,7 @@
         {% else %}
             <span>No tests in history for current query</span>
         {% endif %}
-        </div>
+        </div>{% endcomment %}
     </div>
     <!-- Navbar bottom fixed -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">

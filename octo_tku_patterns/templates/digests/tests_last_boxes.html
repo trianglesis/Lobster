@@ -1,0 +1,69 @@
+{% extends "main/main_short.html" %}
+{% block page_title %}
+    {% if not SUBJECT %}
+        Last tests short
+    {% else %}
+        {{ SUBJECT }}
+    {% endif %}
+{% endblock %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load humanize %}
+{% load template_simplify %}
+{% load intro_selections %}
+{% load user_groups %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
+    {% dynamical_selector_compose '' 'selector_str' %}
+    {% dynamical_selector_compose 'tkn_branch' 'selector_tkn_branch' %}
+    {% dynamical_selector_compose 'tst_status' 'selector_tst_status' %}
+    {% dynamical_selector_compose 'addm_name' 'selector_addm_name' %}
+    <!-- Workbench navbar -->
+    <nav class="navbar navbar-light test-report-navbar">
+        {% spaceless %}
+            <!-- Navbar content -->
+            <!-- Navbar left part content -->
+            <!-- Navbar right part content -->
+            <div class="nav-reports-right digest-test-log-levels">
+                <div>Octopus - made for humans by TKU team.</div>
+            </div>
+        {% endspaceless %}
+    </nav>
+    {% comment %}Test reports{% endcomment %}
+    <div class="report-content">
+        {% regroup tests_digest|dictsort:'pattern_library' by pattern_library as test_digest_libs %}
+        <div class="card-columns">
+            {% for group in test_digest_libs %}
+                <div class="card">
+                    <div class="card-header">{{ group.grouper }}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                        <p>Tests: {{ group.list|length }}</p>
+                        {% for test in group.list %}
+                            {% if test.fails %}
+                                Fails: {{test.fails}}
+                            {% endif %}
+                            {% if test.error %}
+                                Errors: {{test.error}}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% comment %}
+        Make ADDM tabs dynamical
+    {% endcomment %}
+    {#    {% if not selector.addm_name %}<script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>{% endif %}#}
+    {% comment %}
+        Draw test table rows with colored statuses:
+    {% endcomment %}
+    {#    <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>#}
+    <!-- Load test JSON -->
+    {#    <script type="text/javascript">#}
+    {#        let tests_digest_json = {{ tests_digest|tku_patterns_json:'TestLatestDigestAll'|safe }};#}
+    {#    </script>#}
+{% endblock %}

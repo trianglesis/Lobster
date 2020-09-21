@@ -424,6 +424,15 @@ if __name__ == "__main__":
             """
 
 
+    class DevVmSetup:
+
+        def __init__(self):
+            self.content, self.session_manager, self.service_instance = VCenterOper().make_connection(
+                host=host_vc,
+                user=VC_USER,
+                pwd=VC_PWD,
+            )
+
     # RUNNING:
 
     # VCenterOper().vconnect(

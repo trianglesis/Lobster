@@ -109,16 +109,6 @@ class TSupport:
     @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport._t_power_off_addm',
               soft_time_limit=HOURS_2, task_time_limit=HOURS_2 + 900)
     @exception
-    def _t_power_off_addm(tag, **kwargs):
-        log.info(f'Powering OFF addm group: {tag} - {kwargs}')
-        # Circular import!
-        from run_core.addm_operations import ADDMOperations
-        ADDMOperations().power_off_addm_group(kwargs)
-
-    @staticmethod
-    @app.task(queue='w_routines@tentacle.dq2', routing_key='TSupport._t_power_off_addm',
-              soft_time_limit=HOURS_2, task_time_limit=HOURS_2 + 900)
-    @exception
     def _t_list_vms(tag, **kwargs):
         log.info(f'_t_list_vms: {tag} - {kwargs}')
         # Circular import!
@@ -157,3 +147,11 @@ class TInternal:
     def t_clean_history(t_tag, **kwargs):
         log.info(f"<=t_clean_history=> {t_tag}, {kwargs}")
         DBServicing().history_clean(**kwargs)
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_test_task',
+              soft_time_limit=SEC_1, task_time_limit=SEC_1)
+    @exception
+    def t_test_task(t_tag, **kwargs):
+        log.info(f"<=t_test_task=> {t_tag}, {kwargs}")
+        sleep(3)

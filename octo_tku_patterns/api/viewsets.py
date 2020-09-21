@@ -1,4 +1,3 @@
-
 import logging
 
 from django.utils.decorators import method_decorator
@@ -19,11 +18,12 @@ from octo_tku_patterns.views import compose_selector
 
 log = logging.getLogger("octo.octologger")
 
+
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class AddmDigestViewSet(viewsets.ModelViewSet):
     queryset = AddmDigest.objects.all()
     serializer_class = AddmDigestSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -32,11 +32,12 @@ class AddmDigestViewSet(viewsets.ModelViewSet):
         queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
         return queryset
 
+
 @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestDigestAllViewSet(viewsets.ModelViewSet):
     queryset = TestLatestDigestAll.objects.all().order_by('test_date_time')
     serializer_class = TestLatestDigestAllSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -49,6 +50,8 @@ class TestDigestAllViewSet(viewsets.ModelViewSet):
 """
 Add alternate view, but with pattern LIBRARY grouping!
 """
+
+
 # @method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 # class TestDigestAllLibraryViewSet(viewsets.ModelViewSet):
 #     queryset = TestLatestDigestAll.objects.all().order_by('test_date_time')
@@ -66,7 +69,7 @@ Add alternate view, but with pattern LIBRARY grouping!
 class TestLastViewSet(viewsets.ModelViewSet):
     queryset = TestLast.objects.all().order_by('test_date_time')
     serializer_class = TestLastSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -80,7 +83,7 @@ class TestLastViewSet(viewsets.ModelViewSet):
 class TestHistoryViewSet(viewsets.ModelViewSet):
     queryset = TestHistory.objects.all().order_by('test_date_time')
     serializer_class = TestHistorySerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -91,11 +94,12 @@ class TestHistoryViewSet(viewsets.ModelViewSet):
         queryset = OctoCache().cache_query(queryset, ttl=60 * 5)
         return queryset.order_by('test_date_time')
 
-@method_decorator(cache_control(max_age=60 *5), name='dispatch')
+
+@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestCasesSerializerViewSet(viewsets.ModelViewSet):
     queryset = TestCases.objects.all().order_by('change_time')
     serializer_class = TestCasesSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -111,7 +115,5 @@ class TestCasesSerializerViewSet(viewsets.ModelViewSet):
 class TestCasesDetailsSerializerViewSet(viewsets.ModelViewSet):
     queryset = TestCasesDetails.objects.all().order_by('changed_date')
     serializer_class = TestCasesDetailsSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = StandardResultsSetPagination
-
-
