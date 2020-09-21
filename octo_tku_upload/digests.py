@@ -47,11 +47,21 @@ class TKUEmailDigest:
         else:
             day_sel = datetime.date.today()
 
+        # Last hour:
+        current_hr = datetime.datetime.now()
+        last_hr = current_hr - datetime.timedelta(hours=1)
+
         queryset = UploadTestsNew.objects.all()
         queryset = queryset.filter(Q(
             test_date_time__year=day_sel.year,
             test_date_time__month=day_sel.month,
             test_date_time__day=day_sel.day))
+
+        if day_select == 'today':
+            log.debug(f"Selecting last hour only: {current_hr.hour} - {last_hr.hour}")
+            queryset = queryset.filter(
+                Q(test_date_time__hour=current_hr.hour) | Q(test_date_time__hour=last_hr.hour)
+            )
 
         if status == 'error':
             # Error integers could be Null when we not parse STD ERR for known errors
@@ -74,7 +84,8 @@ class TKUEmailDigest:
             queryset = queryset.filter(tku_type__exact=tku_type)
 
         if queryset:
-            log.debug(f'Sending email with TKU fail upload statuses for {day_sel.strftime("%Y-%m-%d")}!')
+            log.debug(f'<=TKUEmailDigest=> Sending email with TKU fail upload statuses for {day_sel.strftime("%Y-%m-%d")}!')
+            log.debug(f'<=TKUEmailDigest=> queryset {queryset.query}')
             subject = f'TKU Upload Test Reports – {day_sel.strftime("%Y-%m-%d")}: Status: "{status}" type: "{tku_type if tku_type else "all"}"'
 
             mail_html = mail_body.render(
