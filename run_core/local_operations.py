@@ -335,6 +335,8 @@ class LocalPatternsP4Parse:
         Compare local changes # with remote p4 depot change. Then parse if remote > local and save new.
         This run with one case item at once.
 
+        NOTE: Somehow it update Tripwire and TripwireEnterprise as same P4 details...
+
         :param test_case:
         :param sync_force:
         :param th_name:

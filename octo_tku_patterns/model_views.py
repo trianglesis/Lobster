@@ -53,6 +53,23 @@ class TestLatestDigestAll(models.Model):
         return '{0} - {1}: t{2}'.format(self.tkn_branch, self.test_py_path, self.time_spent_test)
 
 
+class TestLatestDigestLibShort(models.Model):
+    tkn_branch           = models.CharField(max_length=255)
+    pattern_library      = models.CharField(max_length=255)
+    pattern_folder_name  = models.CharField(max_length=255)
+    test_items_prepared  = models.IntegerField()
+    fails                = models.IntegerField()
+    error                = models.IntegerField()
+    passed               = models.IntegerField()
+    skipped              = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = "test_latest_digest_lib_short"
+
+    def __str__(self):
+        return '{0} - {1}'.format(self.tkn_branch, self.pattern_library)
+
 class TestHistoryDigestDaily(models.Model):
     test_type            = models.CharField(max_length=255)
     tkn_branch           = models.CharField(max_length=255)

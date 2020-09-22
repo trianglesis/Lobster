@@ -54,13 +54,13 @@ class TaskADDMService:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2',
               routing_key='routines.TaskADDMService.t_addm_cmd_routine',
-              soft_time_limit=MIN_40, task_time_limit=MIN_90)
+              soft_time_limit=HOURS_2, task_time_limit=HOURS_2)
     @exception
     def t_addm_cmd_routine(t_tag, **kwargs):
         return ADDMStaticOperations().run_operation_cmd(**kwargs)
 
     @staticmethod
-    @app.task(soft_time_limit=HOURS_1, task_time_limit=MIN_90)
+    @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2)
     @exception
     def t_addm_cmd_thread(t_tag, **kwargs):
         return ADDMStaticOperations().threaded_exec_cmd(**kwargs)

@@ -15,10 +15,6 @@
 {% load user_groups %}
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/tests_reports.css' %}"/>
-    {% dynamical_selector_compose '' 'selector_str' %}
-    {% dynamical_selector_compose 'tkn_branch' 'selector_tkn_branch' %}
-    {% dynamical_selector_compose 'tst_status' 'selector_tst_status' %}
-    {% dynamical_selector_compose 'addm_name' 'selector_addm_name' %}
     <!-- Workbench navbar -->
     <nav class="navbar navbar-light test-report-navbar">
         {% spaceless %}
@@ -32,7 +28,7 @@
     </nav>
     {% comment %}Test reports{% endcomment %}
     <div class="report-content">
-        {% regroup tests_digest|dictsort:'pattern_library' by pattern_library as test_digest_libs %}
+        {% regroup tests_digest by pattern_library as test_digest_libs %}
         <div class="card-columns">
             {% for group in test_digest_libs %}
                 <div class="card">
@@ -41,14 +37,34 @@
                     <div class="card-body">
                         <h5 class="card-title"></h5>
                         <p>Tests: {{ group.list|length }}</p>
+
+{#                        {% regroup group.list|dictsort:'fails' by fails as fails_grouped %}#}
+{#                        {% for item in fails_grouped %}#}
+{#                            {% if item.grouper %}#}
+{#                                Fails {{ item.grouper }}#}
+{#                            {% endif %}#}
+{#                        {% endfor %}#}
+{##}
+{#                        {% regroup group.list|dictsort:'error' by error as error_grouped %}#}
+{#                        {% for item in error_grouped %}#}
+{#                            {% if item.grouper %}#}
+{#                                Errors {{ item.grouper }}#}
+{#                            {% endif %}#}
+{#                        {% endfor %}#}
+                        {% with 0 as fails_n %}
+                        {% with 0 as error_n %}
                         {% for test in group.list %}
                             {% if test.fails %}
-                                Fails: {{test.fails}}
+                                {{fails_n|add:test.fails}}
                             {% endif %}
                             {% if test.error %}
-                                Errors: {{test.error}}
+                                {{error_n|add:test.error}}
                             {% endif %}
                         {% endfor %}
+                        Fails {{ fails_n }}
+                        Error {{ error_n }}
+                        {% endwith %}
+                        {% endwith %}
                     </div>
                 </div>
             {% endfor %}
