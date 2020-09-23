@@ -56,8 +56,9 @@ class TestLatestDigestAll(models.Model):
 class TestLatestDigestLibShort(models.Model):
     tkn_branch           = models.CharField(max_length=255)
     pattern_library      = models.CharField(max_length=255)
-    pattern_folder_name  = models.CharField(max_length=255)
-    test_items_prepared  = models.IntegerField()
+    test_date_time       = models.DateTimeField()
+    tests_count          = models.IntegerField()
+    patterns_count       = models.IntegerField()
     fails                = models.IntegerField()
     error                = models.IntegerField()
     passed               = models.IntegerField()

@@ -902,18 +902,3 @@ class TestLastDigestListViewShort(TestLastDigestListView):
     __url_path = '/octo_tku_patterns/patterns_digest_short/'
     template_name = 'digests/tests_last_short.html'
     context_object_name = 'tests_digest'
-
-
-class TestLastDigestListViewBoxes(ListView):
-    """
-    Grouped by library - view for general reposting for external purposes.
-
-    """
-    __url_path = '/octo_tku_patterns/patterns_digest_boxes/'
-    template_name = 'digests/tests_last_boxes.html'
-    context_object_name = 'tests_digest'
-
-    def get_queryset(self):
-        queryset = TestLatestDigestLibShort.objects.all()
-        queryset = queryset.filter(pattern_library__isnull=False).order_by('pattern_library')
-        return queryset

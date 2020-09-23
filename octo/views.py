@@ -13,7 +13,7 @@ from django.template import loader
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 from django.views.decorators.vary import vary_on_headers
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -22,7 +22,7 @@ from rest_framework.views import APIView
 from octo.cache import OctoCache
 from octo.helpers.tasks_oper import TasksOperations
 from octo_adm.user_operations import UserCheck
-from octo_tku_patterns.model_views import AddmDigest
+from octo_tku_patterns.model_views import AddmDigest, TestLatestDigestLibShort
 from octo_tku_patterns.models import TestLast
 from octo_tku_patterns.views import TestLastDigestListView, TestCasesListView
 from octo_tku_upload.views import TKUUpdateWorkbenchView
@@ -141,3 +141,18 @@ class CeleryWorkersStatusREST(APIView):
         inspected = TasksOperations().check_active_reserved_short(workers_list, tasks_body)
         log.debug(f"inspected Celery queues: {inspected}")
         return Response(inspected)
+
+
+class TestLastDigestListViewBoxes(ListView):
+    """
+    Grouped by library - view for general reposting for external purposes.
+
+    """
+    __url_path = '/octo_tku_patterns/patterns_digest_boxes/'
+    template_name = 'digests/tests_last_boxes.html'
+    context_object_name = 'tests_digest'
+
+    def get_queryset(self):
+        queryset = TestLatestDigestLibShort.objects.all()
+        queryset = queryset.filter(pattern_library__isnull=False).order_by('pattern_library')
+        return queryset

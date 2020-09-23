@@ -60,6 +60,8 @@ urlpatterns = [
     url(r'^accounts/', include('django_registration.backends.activation.urls')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
 
+    url(r'^Discovery-Content/', TestLastDigestListViewBoxes.as_view(), name='patterns_digest_boxes'),
+
     # DEV SITE
     url(r'^octo_dev_admin/', include('dev_site.urls')),
 

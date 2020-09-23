@@ -22,64 +22,45 @@
             <!-- Navbar left part content -->
             <!-- Navbar right part content -->
             <div class="nav-reports-right digest-test-log-levels">
-                <div>Octopus - made for humans by TKU team.</div>
+                <div>Octopus - made for humans by Discovery Content team.</div>
             </div>
         {% endspaceless %}
     </nav>
     {% comment %}Test reports{% endcomment %}
     <div class="report-content">
-        {% regroup tests_digest by pattern_library as test_digest_libs %}
         <div class="card-columns">
-            {% for group in test_digest_libs %}
-                <div class="card">
-                    <div class="card-header">{{ group.grouper }}
+            {% for lib in tests_digest %}
+                <div class="card {% if lib.fails > 0 or lib.error > 0 %}border-danger{% else %}border-success{% endif %}">
+                    <div class="card-header">{{ lib.pattern_library }}
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title"></h5>
-                        <p>Tests: {{ group.list|length }}</p>
-
-{#                        {% regroup group.list|dictsort:'fails' by fails as fails_grouped %}#}
-{#                        {% for item in fails_grouped %}#}
-{#                            {% if item.grouper %}#}
-{#                                Fails {{ item.grouper }}#}
-{#                            {% endif %}#}
-{#                        {% endfor %}#}
-{##}
-{#                        {% regroup group.list|dictsort:'error' by error as error_grouped %}#}
-{#                        {% for item in error_grouped %}#}
-{#                            {% if item.grouper %}#}
-{#                                Errors {{ item.grouper }}#}
-{#                            {% endif %}#}
-{#                        {% endfor %}#}
-                        {% with 0 as fails_n %}
-                        {% with 0 as error_n %}
-                        {% for test in group.list %}
-                            {% if test.fails %}
-                                {{fails_n|add:test.fails}}
-                            {% endif %}
-                            {% if test.error %}
-                                {{error_n|add:test.error}}
-                            {% endif %}
-                        {% endfor %}
-                        Fails {{ fails_n }}
-                        Error {{ error_n }}
-                        {% endwith %}
-                        {% endwith %}
+                        <h5 class="card-title">{{ lib.tkn_branch }}</h5>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Patterns</th>
+                                <th>Tests</th>
+                                <th>Fail</th>
+                                <th>Error</th>
+                                <th>Skip</th>
+                                <th>Pass</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{{ lib.patterns_count }}</td>
+                                <td>{{ lib.tests_count }}</td>
+                                <td>{{ lib.fails }}</td>
+                                <td>{{ lib.error }}</td>
+                                <td>{{ lib.skipped }}</td>
+                                <td>{{ lib.passed }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
+                    <div class="card-footer text-muted">{{ lib.test_date_time|timezone:"Europe/London"|naturaltime }}</div>
                 </div>
             {% endfor %}
         </div>
     </div>
-    {% comment %}
-        Make ADDM tabs dynamical
-    {% endcomment %}
-    {#    {% if not selector.addm_name %}<script src="{% static 'octopus/js/tabs-addm-dynamical.js' %}"></script>{% endif %}#}
-    {% comment %}
-        Draw test table rows with colored statuses:
-    {% endcomment %}
-    {#    <script src="{% static 'octopus/js/test_table_row_color.js' %}"></script>#}
-    <!-- Load test JSON -->
-    {#    <script type="text/javascript">#}
-    {#        let tests_digest_json = {{ tests_digest|tku_patterns_json:'TestLatestDigestAll'|safe }};#}
-    {#    </script>#}
 {% endblock %}
