@@ -1,40 +1,50 @@
-{% extends "main/main_short.html" %}
-{% block page_title %}
-    {% if not SUBJECT %}
-        Last tests short
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title id="page_title">
+        {% block page_title %}BMC Discovery Content{% endblock %}
+    </title>
+    <!-- Load scripts: -->
+    {% load i18n static %}
+    {% load template_simplify %}
+    {% load_host_names as hostnames %}
+    {% if hostnames.LOBSTER_SITE_DOMAIN in request.get_host %}
+        <link rel="icon" type="image/png" href="{% static 'octopus/icons/lobster.png' %}"/>
+    {% elif hostnames.OCTOPUS_SITE_DOMAIN in request.get_host %}
+        <link rel="icon" type="image/png" href="{% static 'octopus/icons/octopus.png' %}"/>
     {% else %}
-        {{ SUBJECT }}
+        <link rel="icon" type="image/png" href="{% static 'octopus/icons/crab.png' %}"/>
     {% endif %}
-{% endblock %}
-{% load static %}
-{% load i18n %}
-{% load tz %}
-{% load humanize %}
-{% load template_simplify %}
-{% block content %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/main.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/main-site.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'octopus/css/workbench-mainpage.css' %}"/>
-    <div class="alert alert-primary" role="alert">
-        <div>Octopus - made for humans by Discovery Content team.</div>
-    </div>
-    <div class="report-content">
-        <div class="card-columns">
-            {% for lib in tests_digest %}
-                <div class="col">
-                    <div class="card text-white {% if lib.fails > 0 or lib.error > 0 %}bg-danger{% else %}bg-success{% endif %}" style="margin-bottom: 1em;">
-                        <div class="card-header card-header-shrink text-center"><h4>{{ lib.pattern_library }}</h4></div>
-                        <div class="card-body card-body-sm">
-                            <p class="card-title text-sm-center">{{ lib.tkn_branch }}</p>
-                            <p class="text-sm-center">Tests: {{ lib.tests_count }} Failed: {{ lib.fails }} Error: {{ lib.error }} Skipped: {{ lib.skipped }} Passed: {{ lib.passed }} Pass: {% percent_pass_test lib.passed lib.skipped lib.tests_count %}%</p>
-                        </div>
-                        <div class="card-footer card-footer-shrink text-sm-right text-white">{{ lib.test_date_time|timezone:"Europe/London"|naturaltime }}</div>
+    {% load i18n %}
+    {% load tz %}
+    {% load humanize %}
+    {% load template_simplify %}
+</head>
+<body>
+<div class="report-content" style="background: darkgrey;">
+    <div class="card-columns" style="padding: 25px 5px 5px 5px">
+        {% for lib in tests_digest %}
+            <div class="col">
+                <div class="card text-white {% if lib.fails > 0 or lib.error > 0 %}bg-danger{% else %}bg-success{% endif %}"
+                     style="margin-bottom: 1em;">
+                    <div class="card-header card-header-shrink text-center"><h4>{{ lib.pattern_library }}</h4></div>
+                    <div class="card-body card-body-sm">
+                        {#                            <p class="card-title text-sm-center">{{ lib.tkn_branch }}</p>#}
+                        <p class="text-sm-center">Tests: {{ lib.tests_count }} Failed: {{ lib.fails }}
+                            Error: {{ lib.error }} Skipped: {{ lib.skipped }} Passed: {{ lib.passed }} Pass
+                            %: {% percent_pass_test lib.passed lib.skipped lib.tests_count %}</p>
                     </div>
+                    <div class="card-footer card-footer-shrink text-sm-right text-white">{{ lib.test_date_time|timezone:"Europe/London"|naturaltime }}</div>
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+        {% endfor %}
     </div>
-
-    <div>
-
-    </div>
-
-{% endblock %}
+</div>
+</body>
+</html>

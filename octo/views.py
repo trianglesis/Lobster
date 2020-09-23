@@ -154,5 +154,5 @@ class TestLastDigestListViewBoxes(ListView):
 
     def get_queryset(self):
         queryset = TestLatestDigestLibShort.objects.all()
-        queryset = queryset.filter(pattern_library__isnull=False).order_by('pattern_library')
+        queryset = queryset.filter(pattern_library__isnull=False, tkn_branch__exact='tkn_main').order_by('pattern_library')
         return queryset
