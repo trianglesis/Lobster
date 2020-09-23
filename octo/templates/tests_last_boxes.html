@@ -34,11 +34,12 @@
                 <div class="card text-white {% if lib.fails > 0 or lib.error > 0 %}bg-danger{% else %}bg-success{% endif %}"
                      style="margin-bottom: 1em;">
                     <div class="card-header card-header-shrink text-center"><h4>{{ lib.pattern_library }}</h4></div>
-                    <div class="card-body card-body-sm">
+                    <div class="card-body card-body-sm text-center">
                         {#                            <p class="card-title text-sm-center">{{ lib.tkn_branch }}</p>#}
                         <p class="text-sm-center">Tests: {{ lib.tests_count }} Failed: {{ lib.fails }}
                             Error: {{ lib.error }} Skipped: {{ lib.skipped }} Passed: {{ lib.passed }} Pass
                             %: {% percent_pass_test lib.passed lib.skipped lib.tests_count %}</p>
+                        <a class="badge badge-secondary " href="{% url 'tests_last' %}?pattern_library={{ lib.pattern_library }};tkn_branch=tkn_ship">Logs</a>
                     </div>
                     <div class="card-footer card-footer-shrink text-sm-right text-white">{{ lib.test_date_time|timezone:"Europe/London"|naturaltime }}</div>
                 </div>
