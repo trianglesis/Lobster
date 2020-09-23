@@ -2,10 +2,12 @@
 .table-shrink {
     margin-bottom: .2em !important;
 }
+
 .table-shrink td th {
     padding: .1rem !important;
     vertical-align: middle;
 }
+
 .table-info {
     text-align: center;
     font-size: .875em;
@@ -13,24 +15,27 @@
     /*font-family: '', sans-serif!important;*/
     /*font-family: 'Jaldi', sans-serif!important;*/
     /*font-family: 'BenchNine', sans-serif!important;*/
-    font-family: 'Assistant', sans-serif!important;
+    font-family: 'Assistant', sans-serif !important;
 }
 
 h2 {
     text-align: center;
-    font-family: 'Maven Pro', sans-serif!important;
+    font-family: 'Maven Pro', sans-serif !important;
 }
 
 .col-shrink {
     padding-right: .2em;
     padding-left: .2em;
 }
+
 .card-header-shrink {
     padding: .2em;
 }
+
 .card-footer-shrink {
     padding: .2em;
 }
+
 .card-body-sm {
     padding: .4em;
 }
@@ -58,47 +63,58 @@ h2 {
     /* 30% Saturation */
     background-color: rgb(237, 222, 222) !important;
 }
+
 .tst-fail {
     /* 30% Saturation */
     background-color: rgb(237, 222, 222) !important;
 }
+
 .tst-error {
     /* 30% Saturation */
     background-color: rgb(237, 237, 222) !important;
 }
+
 .tst-skip {
     /* 30% Saturation */
     background-color: rgb(222, 222, 237) !important;
 }
+
 .tst-pass {
     /* 30% Saturation */
     background-color: rgb(222, 237, 222) !important;
 }
+
 .tst-None {
     /* 30% Saturation */
     background-color: rgb(226, 222, 237) !important;
 }
+
 /* Hovers */
 .tst-notpass:hover {
     /* 100% Saturation */
     background-color: rgb(255, 204, 204) !important;
 }
+
 .tst-fail:hover {
     /* 100% Saturation */
     background-color: rgb(255, 204, 204) !important;
 }
+
 .tst-error:hover {
     /* 100% Saturation */
     background-color: rgb(255, 255, 204) !important;
 }
+
 .tst-skip:hover {
     /* 100% Saturation */
     background-color: rgb(204, 204, 255) !important;
 }
+
 .tst-pass:hover {
     /* 100% Saturation */
     background-color: rgb(204, 255, 204) !important;
 }
+
 .tst-None:hover {
     /* 100% Saturation */
     background-color: rgb(217, 204, 255) !important;
@@ -117,20 +133,24 @@ h2 {
     grid-auto-rows: minmax(min-content, max-content);
     height: 100px;
 }
+
 .grid-col-1 {
     grid-area: a;
     grid-row: auto;
     margin-bottom: 0.5em;
 }
+
 .grid-col-2 {
     grid-area: b;
     grid-row: auto;
     margin-bottom: 0.5em;
 }
+
 .grid-col-3 {
     grid-column-start: a;
     grid-column-end: b;
 }
+
 .foot-space {
     padding-top: 50px;
 }
@@ -139,11 +159,13 @@ h2 {
     grid-area: a;
     padding-bottom: 1em;
 }
-.main-page-upload-cont-digest{
+
+.main-page-upload-cont-digest {
     grid-area: b;
     padding-bottom: 1em;
 }
-.main-page-upload-ga-digest{
+
+.main-page-upload-ga-digest {
     grid-area: c;
     padding-bottom: 1em;
 }
@@ -316,4 +338,9 @@ h2 {
     background-image: url(/static/Font-Awesome/svgs/solid/file-archive.svg);
     background-repeat: no-repeat;
     background-size: 1.2em;
+}
+
+
+.card-columns {
+    column-count: 2;!important;
 }

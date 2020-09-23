@@ -149,7 +149,7 @@ class TestLastDigestListViewBoxes(ListView):
 
     """
     __url_path = '/octo_tku_patterns/patterns_digest_boxes/'
-    template_name = 'digests/tests_last_boxes.html'
+    template_name = 'tests_last_boxes.html'
     context_object_name = 'tests_digest'
 
     def get_queryset(self):
