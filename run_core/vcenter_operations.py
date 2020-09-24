@@ -47,6 +47,7 @@ class VCenterOperations:
             vm_revert_snapshot=self.vm_revert_snapshot,
             vm_power_on=self.vm_power_on,
             vm_power_off=self.vm_power_off,
+            vm_shutdown_guest=self.vm_shutdown_guest,
             vm_soft_reboot=self.vm_soft_reboot,
             vm_reset=self.vm_reset,
             vm_config=self.vm_config,
@@ -304,6 +305,27 @@ class VCenterOperations:
             log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
             out_q.put({vm_obj.vm_name: None})
 
+    def vm_shutdown_guest(self, vm_obj, out_q, **vm_kwargs):
+        """
+        Shutdown VM OS. If not powered on state - skip
+        :param vm_obj:
+        :return:
+        """
+        log.info(f"Graceful shutdown VM: {vm_obj.vm_name}")
+        vm = self.search_vm(vm_obj.instanceUuid)
+        if vm:
+            if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
+                task = vm.ShutdownGuest()
+                log.info(f"Shut down OS task: {task}")
+                WaitForTask(task)
+                out_q.put({vm_obj.vm_name: 'poweredOff'})
+            else:
+                log.info(f'This machine is poweredOff already - skipping task! {vm_obj.vm_name}')
+                out_q.put({vm_obj.vm_name: 'skipped'})
+        else:
+            log.info(f"there is no such vm: {vm_obj.vm_name} id: {vm_obj.instanceUuid}")
+            out_q.put({vm_obj.vm_name: None})
+
     def vm_soft_reboot(self, vm_obj, out_q, **vm_kwargs):
         log.info(f"Soft REBOOT VM: {vm_obj.vm_name}")
         vm = self.search_vm(vm_obj.instanceUuid)
@@ -365,4 +387,3 @@ class VCenterOperations:
             out_q.put({f'Reconfigure: {vm_obj.vm_name}': f'Options set:{vm_conf}'})
         else:
             out_q.put({f'Not found VM: {vm_obj.vm_name}': f'Options unset:{vm_conf}'})
-
