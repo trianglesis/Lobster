@@ -231,21 +231,16 @@ class TestLastDigestListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(TestLastDigestListView, self).get_context_data(**kwargs)
         # Get unique addm names based on table latest run:
-        addm_names = OctoCache().cache_query(
-            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
+        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
         # TODO: Use regroup for this on page, or move to JS work:
-        branch_qs = OctoCache().cache_query(
-            TestLatestDigestAll.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
-                total=Count('tkn_branch')).order_by('tkn_branch'))
-        test_type_qs = OctoCache().cache_query(
-            TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(
-                total=Count('test_type')).order_by('test_type'))
-        pattern_library_qs = OctoCache().cache_query(
-            TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
-                total=Count('pattern_library')).order_by('pattern_library'))
-        change_user_qs = OctoCache().cache_query(
-            TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(
-                total=Count('change_user')).order_by('change_user'))
+        branch_qs = TestLatestDigestAll.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch')
+        test_type_qs = TestLatestDigestAll.objects.filter(test_type__isnull=False).values('test_type').annotate(
+                total=Count('test_type')).order_by('test_type')
+        pattern_library_qs = TestLatestDigestAll.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
+                total=Count('pattern_library')).order_by('pattern_library')
+        change_user_qs = TestLatestDigestAll.objects.filter(change_user__isnull=False).values('change_user').annotate(
+                total=Count('change_user')).order_by('change_user')
 
         context.update(
             selector=compose_selector(self.request.GET),
@@ -614,15 +609,12 @@ class TestCasesListView(ListView):
         context = super(TestCasesListView, self).get_context_data(**kwargs)
         debug = self.request.GET.get('debug', False)
 
-        branch_qs = OctoCache().cache_query(
-            TestCases.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
-                total=Count('tkn_branch')).order_by('tkn_branch'))
-        test_type_qs = OctoCache().cache_query(
-            TestCases.objects.filter(test_type__isnull=False).values('test_type').annotate(
-                total=Count('test_type')).order_by('test_type'))
-        pattern_library_qs = OctoCache().cache_query(
-            TestCases.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
-                total=Count('pattern_library')).order_by('pattern_library'))
+        branch_qs = TestCases.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch')
+        test_type_qs = TestCases.objects.filter(test_type__isnull=False).values('test_type').annotate(
+                total=Count('test_type')).order_by('test_type')
+        pattern_library_qs = TestCases.objects.filter(pattern_library__isnull=False).values('pattern_library').annotate(
+                total=Count('pattern_library')).order_by('pattern_library')
 
         # TODO: Get test cases groups by REST
         context.update(
@@ -636,11 +628,8 @@ class TestCasesListView(ListView):
         )
         # NOTE: This check may be resolving the query. It's fast, but check later.
         if context['test_cases']:
-            context['test_cases'] = OctoCache().cache_query(
-                context['test_cases'])
-            context['test_cases_json'] = OctoCache().cache_item(
-                JSONRenderer().render(TestCasesSerializer(context["test_cases"], many=True).data).decode('utf-8'),
-                hkey='TestCasesListView_tests_test_cases_json', key='TestCases')
+            context['test_cases'] = context['test_cases']
+            context['test_cases_json'] = JSONRenderer().render(TestCasesSerializer(context["test_cases"], many=True).data).decode('utf-8')
         return context
 
     def get_queryset(self):
