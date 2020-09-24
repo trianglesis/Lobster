@@ -102,7 +102,7 @@
                 </div>
                 <div class="card-body card-body-sm">
                     <div class="last-upload-test">
-                        {% regroup objects.upload_tests.upload_cont_main|dictsortreversed:'addm_name' by tku_type as upload_cont_main %}
+                        {% regroup objects.upload_tests.upload_cont_main|dictsortreversed:'release' by tku_type as upload_cont_main %}
                         {% for test_type in upload_cont_main %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
@@ -119,7 +119,7 @@
                 </div>
                 <div class="card-body card-body-sm">
                     <div class="last-upload-test">
-                        {% regroup objects.upload_tests.upload_cont_ship|dictsortreversed:'addm_name' by tku_type as upload_cont_ship %}
+                        {% regroup objects.upload_tests.upload_cont_ship|dictsortreversed:'release' by tku_type as upload_cont_ship %}
                         {% for test_type in upload_cont_ship %}
                             {% include 'digests/tables_details/today_table.html' with object_list=test_type.list %}
                         {% endfor %}
