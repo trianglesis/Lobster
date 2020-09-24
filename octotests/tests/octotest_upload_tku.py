@@ -39,7 +39,8 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
     def setUp(self):
         octo_tests.OctoTestCase.setUp(self)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
-        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel']
         self.tkn_ship_addm_group_l = ['echo','foxtrot','golf','kilo']
 
     def test001_product_content_update_tkn_main(self):
@@ -57,7 +58,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=self.tkn_main_addm_group_l,
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -77,7 +78,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=self.tkn_ship_addm_group_l,
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -97,7 +98,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=self.tkn_main_addm_group_l,
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -117,7 +118,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=self.tkn_ship_addm_group_l,
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -139,7 +140,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         # package_types=[previous, current_ga],
         self.addm_set = self.addm_set.filter(
             addm_group__in=['alpha'],
-            # addm_v_int__in=['11.2','11.3', '12.0'],
+            # addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -157,7 +158,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.revert_snapshot = True
         self.addm_set = self.addm_set.filter(
             addm_group__in=['alpha'],
-            # addm_v_int__in=['11.2','11.3', '12.0'],
+            # addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.package_types = [package_type]
@@ -179,7 +180,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=['beta'],
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -200,7 +201,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=['echo'],
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -224,7 +225,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=['beta'],
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -243,7 +244,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=['echo'],
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -335,7 +336,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=['beta'],
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['fish_finger'],
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -352,7 +353,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=['beta'],
-            addm_v_int__in=['11.2','11.3', '12.0'],
+            addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['fish_finger'],
             disables__isnull=True).order_by('addm_group')
         self.run_case()
@@ -367,7 +368,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
             addm_group__in=['alpha'],
-            # addm_v_int__in=['11.2','11.3', '12.0'],
+            # addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['bobblehat'],
             disables__isnull=True).order_by('addm_group')
         self.run_case()
