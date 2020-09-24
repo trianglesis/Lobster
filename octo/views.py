@@ -44,7 +44,7 @@ class MainPage(TemplateView):
         return context
 
     def get_queryset(self):
-        addm_digest = OctoCache().cache_query(AddmDigest.objects.all())
+        addm_digest = AddmDigest.objects.all()
         # Test lasts more than 40 minutes.
         test_last_q = TestLast.objects.filter(time_spent_test__isnull=False, time_spent_test__gte=60 * 40)
         tests_top_main = test_last_q.filter(tkn_branch__exact='tkn_main').order_by('-time_spent_test')

@@ -1,5 +1,5 @@
 {% extends "main/main.html" %}
-{% load cache %}
+{#{% load cache %}#}
 {% load template_simplify %}
 {% block page_title %}
     {% load_host_names as hostnames %}
@@ -21,7 +21,7 @@
                 <h2>Pattern tests</h2>
             </div>
         </div>
-        {% cache 60 tests_top_main objects.addm_digest %}
+{#        {% cache 60 tests_top_main objects.addm_digest %}#}
         {% with objects.addm_digest as addm_digest %}
             <div class="grid-col-1">
                 <div class="card bg-light border-light">
@@ -44,8 +44,8 @@
                 </div>
             </div>
         {% endwith %}
-        {% endcache %}
-        {% cache 60 * 30 tests_top_main objects.tests_top_main %}
+{#        {% endcache %}#}
+{#        {% cache 60 * 30 tests_top_main objects.tests_top_main %}#}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
                 <div class="card-body card-body-sm">
@@ -66,8 +66,8 @@
                 <div class="card-footer card-header-shrink txt-nice">"TKN Main" longest tests</div>
             </div>
         </div>
-        {% endcache %}
-        {% cache 60 * 30 tests_top_ship objects.tests_top_ship %}
+{#        {% endcache %}#}
+{#        {% cache 60 * 30 tests_top_ship objects.tests_top_ship %}#}
         <div class="grid-col-2">
             <div class="card bg-light border-light">
                 <div class="card-body card-body-sm">
@@ -88,13 +88,13 @@
                 <div class="card-footer card-header-shrink txt-nice">"TKN Ship" longest tests</div>
             </div>
         </div>
-        {% endcache %}
+{#        {% endcache %}#}
         <div class="grid-col-3">
             <div class="alert alert-light" role="alert">
                 <h2>TKU tests</h2>
             </div>
         </div>
-        {% cache 300 upload_cont_main objects.upload_tests.upload_cont_main %}
+{#        {% cache 300 upload_cont_main objects.upload_tests.upload_cont_main %}#}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
                 <div class="card-header card-footer-shrink txt-nice">
@@ -110,8 +110,8 @@
                 </div>
             </div>
         </div>
-        {% endcache %}
-        {% cache 300 upload_cont_ship objects.upload_tests.upload_cont_ship %}
+{#        {% endcache %}#}
+{#        {% cache 300 upload_cont_ship objects.upload_tests.upload_cont_ship %}#}
         <div class="grid-col-2">
             <div class="card bg-light border-light">
                 <div class="card-header card-footer-shrink txt-nice">
@@ -127,8 +127,8 @@
                 </div>
             </div>
         </div>
-        {% endcache %}
-        {% cache 300 upload_ga_upgrade objects.upload_tests.upload_ga_upgrade %}
+{#        {% endcache %}#}
+{#        {% cache 300 upload_ga_upgrade objects.upload_tests.upload_ga_upgrade %}#}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
                 <div class="card-header card-footer-shrink txt-nice">
@@ -147,8 +147,8 @@
                 </div>
             </div>
         </div>
-        {% endcache %}
-        {% cache 300 upload_ga_fresh objects.upload_tests.upload_ga_fresh %}
+{#        {% endcache %}#}
+{#        {% cache 300 upload_ga_fresh objects.upload_tests.upload_ga_fresh %}#}
         <div class="grid-col-2">
             <div class="card bg-light border-light">
                 <div class="card-header card-footer-shrink txt-nice">
@@ -167,8 +167,8 @@
                 </div>
             </div>
         </div>
-        {% endcache %}
-        {% cache 300 upload_ga_prep objects.upload_tests.upload_ga_prep %}
+{#        {% endcache %}#}
+{#        {% cache 300 upload_ga_prep objects.upload_tests.upload_ga_prep %}#}
         <div class="grid-col-1">
             <div class="card bg-light border-light">
                 <div class="card-body card-body-sm">
@@ -187,7 +187,7 @@
                 </div>
             </div>
         </div>
-        {% endcache %}
+{#        {% endcache %}#}
         <div class="grid-col-3">
             <div class="alert alert-light" role="alert">
                 <h2>Octopus jobs</h2>
