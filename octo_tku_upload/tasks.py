@@ -567,7 +567,7 @@ class UploadTaskPrepare:
                 Runner.fire_t(TSupport.t_occupy_w,
                               fake_run=self.fake_run,
                               t_queue=f"{addm_group}@tentacle.dq2",
-                              t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitBeforePowerOffVMs", 60 * 15],
+                              t_args=[f"UploadTaskPrepare;task=t_occupy_w;WaitBeforePowerOffVMs", 60 * 30],
                               t_kwargs=dict(addm_set=self.addm_set, addm_group=addm_group),
                               t_routing_key=f"{addm_group}.TUploadExec.t_tku_install.TUploadExec.t_tku_install")
                 log.info("Adding task Power off VMs")
