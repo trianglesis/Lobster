@@ -330,7 +330,7 @@ class ADDMStaticOperations:
                           fake_run=fake_run,
                           t_queue=f"{addm_group}@tentacle.dq2",
                           t_args=[f"ADDMStaticOperations.run_operation_cmd;task=t_vm_operation_thread;operation_k=vm_power_on"],
-                          t_kwargs=dict(addm_set=addm_grouped_set, operation_k='vm_power_on', t_sleep=60 * 5),
+                          t_kwargs=dict(addm_set=addm_grouped_set, operation_k='vm_power_on', t_sleep=60 * 15),
                           t_routing_key=f"{addm_group}.ADDMStaticOperations.t_vm_operation_thread.vm_power_on")
 
         # Run new instance of task+threaded for each command:
