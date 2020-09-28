@@ -44,7 +44,7 @@
             font-size: 10pt;
             text-align: left;
             font-family: monospace;
-            word-wrap: break-spaces
+            word-wrap: break-spaces;
         }
     </style>
     {% regroup test_detail by addm_name as test_details_addm_sort %}
@@ -95,6 +95,7 @@
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th></th>
                     </thead>
                     <tbody>
                     <!-- ADDM table rows in cycle: -->
@@ -125,6 +126,7 @@
                                 style="min-width:200px;">{{ test.tst_status }} {{ test.tst_message }}</td>
                             <td class="txt-extra-sm-center"
                                 style="min-width:200px;white-space: pre-wrap;">{{ test.fail_message|safe }}</td>
+                            <td id="addm_host">{{ test.addm_host }}</td>
                             <td id="test_id" style="display:none">{{ test.id }}</td>
                             <td id="tkn_branch" style="display:none">{{ test.tkn_branch }}</td>
                             <td id="pattern_library" style="display:none">{{ test.pattern_library }}</td>
@@ -136,7 +138,6 @@
                             <td id="tst_module" style="display:none">{{ test.tst_module }}</td>
                             <td id="addm_group" style="display:none">{{ test.addm_group }}</td>
                             <td id="addm_v_int" style="display:none">{{ test.addm_v_int }}</td>
-                            <td id="addm_host" style="display:none">{{ test.addm_host }}</td>
                             <td id="addm_ip" style="display:none">{{ test.addm_ip }}</td>
                             <td id="pattern_file_path" style="display:none">{{ test.pattern_file_path }}</td>
                             <td id="test_py_path" style="display:none">{{ test.test_py_path }}</td>
