@@ -319,6 +319,7 @@ class VCenterOperations:
                 log.info(f"Shut down OS task: {task}")
                 # Cannot wait for this: 'NoneType' object has no attribute '_stub'
                 # WaitForTask(task)
+                sleep(60*5)
                 out_q.put({vm_obj.vm_name: 'poweredOff'})
             else:
                 log.info(f'This machine is poweredOff already - skipping task! {vm_obj.vm_name}')
