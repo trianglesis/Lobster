@@ -367,7 +367,7 @@ class VCenterOperations:
         vm = self.search_vm(vm_obj.instanceUuid)
         # PowerOff VM before run reconfigure task
         if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
-            self.vm_power_off(vm_obj, out_q)
+            self.vm_shutdown_guest(vm_obj, out_q)
 
         cspec = vim.vm.ConfigSpec()
 

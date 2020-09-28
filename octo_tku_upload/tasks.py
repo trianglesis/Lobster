@@ -574,9 +574,9 @@ class UploadTaskPrepare:
                 Runner.fire_t(TaskVMService.t_vm_operation_thread,
                               fake_run=self.fake_run,
                               t_queue=f"{addm_group}@tentacle.dq2",
-                              t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_off"],
-                              t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_power_off'),
-                              t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_off")
+                              t_args=[f"UploadTaskPrepare;task=t_vm_operation_thread;operation_k=vm_shutdown_guest"],
+                              t_kwargs=dict(addm_set=self.addm_set, operation_k='vm_shutdown_guest'),
+                              t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_shutdown_guest")
             else:
                 log.info(f"<=UploadTaskPrepare=> Do not power Off VMs, when it's not a GA install.")
 

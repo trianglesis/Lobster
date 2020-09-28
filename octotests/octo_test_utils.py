@@ -325,9 +325,9 @@ class PatternTestUtils(unittest.TestCase):
         Runner.fire_t(TaskVMService.t_vm_operation_thread,
                       fake_run=self.fake_run,
                       t_queue=f"{_addm_group}@tentacle.dq2",
-                      t_args=[f"PatternTestUtils;task=t_vm_operation_thread;operation_k=vm_power_off"],
-                      t_kwargs=dict(addm_set=addm_item, operation_k='vm_power_off'),
-                      t_routing_key=f"{_addm_group}.PatternTestUtils.t_vm_operation_thread.vm_power_off")
+                      t_args=[f"PatternTestUtils;task=t_vm_operation_thread;operation_k=vm_shutdown_guest"],
+                      t_kwargs=dict(addm_set=addm_item, operation_k='vm_shutdown_guest'),
+                      t_routing_key=f"{_addm_group}.PatternTestUtils.t_vm_operation_thread.vm_shutdown_guest")
 
     # Short routine for re-testing
     def addm_group_qs_short(self):

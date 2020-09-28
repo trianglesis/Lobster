@@ -83,7 +83,7 @@ class TaskVMService:
     def t_vm_operation_addm_groups(t_tag, **kwargs):
         fake_run = kwargs.get('fake_run', False)
         addm_groups = kwargs.get('addm_groups', '')
-        operation_k = kwargs.get('operation_k', 'vm_power_off')
+        operation_k = kwargs.get('operation_k', 'vm_shutdown_guest')
         log.info(f'Running {t_tag}')
 
         if isinstance(addm_groups, str):
@@ -99,6 +99,6 @@ class TaskVMService:
             Runner.fire_t(TaskVMService.t_vm_operation_thread,
                           fake_run=fake_run,
                           t_queue=f"{addm_group}@tentacle.dq2",
-                          t_args=[f"TaskVMService;task=t_vm_power_off_addm_groups;operation_k={operation_k}"],
+                          t_args=[f"TaskVMService;task=vm_shutdown_guest_addm_groups;operation_k={operation_k}"],
                           t_kwargs=dict(addm_set=addm_set, operation_k=operation_k, vm_kwargs=kwargs),
                           t_routing_key=f"{addm_group}.TaskVMService.t_vm_operation_thread.{operation_k}")
