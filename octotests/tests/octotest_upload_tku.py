@@ -40,7 +40,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         octo_tests.OctoTestCase.setUp(self)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
         # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
-        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel']
+        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
         self.tkn_ship_addm_group_l = ['echo','foxtrot','golf', 'kilo']
 
     def test001_product_content_update_tkn_main(self):

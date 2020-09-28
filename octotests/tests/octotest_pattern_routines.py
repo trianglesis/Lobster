@@ -39,16 +39,16 @@ class NightTestCase(octo_tests.OctoPatternsTestCase):
             '787059',
         ]
         # Wide set:
-        # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
-        # self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
+        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
+        self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf', 'kilo']
 
         # PatternTestUtils balance the load automatically
         # self.tkn_main_addm_group_l = Options.objects.get(option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(',')
         # self.tkn_ship_addm_group_l = Options.objects.get(option_key__exact='night_workers.tkn_ship').option_value.replace(' ', '').split(',')
 
         # Short set:
-        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
-        self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf']
+        # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta']
+        # self.tkn_ship_addm_group_l = ['echo', 'foxtrot', 'golf']
 
     def test_001_night_routine_main(self):
         """
