@@ -515,7 +515,6 @@ class TaskPrepare:
             tku_patterns=dict(
                 tkn_main=to_test_queryset.filter(tkn_branch__exact='tkn_main'),  # .values()
                 tkn_ship=to_test_queryset.filter(tkn_branch__exact='tkn_ship'),  # .values()
-                gargoyle=to_test_queryset.filter(tkn_branch__exact='gargoyle'),  # .values()
             ),
             main_python=to_test_queryset.filter(test_type__exact='main_python'),  # .values()
             octo_tests=to_test_queryset.filter(test_type__exact='octo_tests'),  # .values()

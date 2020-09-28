@@ -101,8 +101,6 @@ if __name__ == "__main__":
                             tkn_branch = 'tkn_main'
                         elif 'tkn_ship' in root:
                             tkn_branch = 'tkn_ship'
-                        elif 'gargoyle' in root:
-                            tkn_branch = 'gargoyle'
                         else:
                             tkn_branch = 'not_set'
 

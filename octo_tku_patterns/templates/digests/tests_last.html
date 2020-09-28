@@ -87,8 +87,6 @@
                             {% select_icon 'git-branch' 16 'right' 0.4 %} tkn main
                         {% elif selector.tkn_branch == 'tkn_ship' %}
                             {% select_icon 'git-merge' 16 'right' 0.4 %} tkn ship
-                        {% elif selector.tkn_branch == 'gargoyle' %}
-                            {% select_icon 'repo-forked' 16 'right' 0.4 %} gargoyle
                         {% else %}
                             {% select_icon 'git-commit' 16 'right' 0.4 %} all branches
                         {% endif %}

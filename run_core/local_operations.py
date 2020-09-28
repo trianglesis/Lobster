@@ -102,10 +102,13 @@ class LocalPatternsParse:
                         tkn_branch = 'tkn_main'
                     elif 'tkn_ship' in root:
                         tkn_branch = 'tkn_ship'
-                    elif 'gargoyle' in root:
-                        tkn_branch = 'gargoyle'
                     else:
                         tkn_branch = 'not_set'
+
+                    """
+                    TODO: Add //addm/tkn_main/edp/SUPPORTDETAILS/Patterns/RuntimeEnvironmentSupportDetails/tests/test.py
+                    And rethink of make it more plugable.
+                    """
 
                     if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
                         split_root = root.split(os.sep)[
