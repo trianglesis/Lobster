@@ -630,7 +630,7 @@ class TaskPrepare:
                       fake_run=self.fake_run,
                       t_queue=f"{addm_group}@tentacle.dq2",
                       t_args=[f"TaskPrepare;task=t_vm_operation_thread;operation_k=vm_power_on"],
-                      t_kwargs=dict(addm_set=addm_set, operation_k='vm_power_on', t_sleep=60 * 15),
+                      t_kwargs=dict(addm_set=addm_set, operation_k='vm_power_on', t_sleep=60 * 5),
                       t_routing_key=f"{addm_group}.UploadTaskPrepare.t_vm_operation_thread.vm_power_on")
 
     def addm_rsync(self, addm_set):
