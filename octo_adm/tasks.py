@@ -84,6 +84,7 @@ class TaskVMService:
         fake_run = kwargs.get('fake_run', False)
         addm_groups = kwargs.get('addm_groups', '')
         operation_k = kwargs.get('operation_k', 'vm_shutdown_guest')
+        t_sleep = kwargs.get('t_sleep', 60 * 5)
         log.info(f'Running {t_tag}')
 
         if isinstance(addm_groups, str):

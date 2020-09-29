@@ -149,6 +149,11 @@ class VCenterOperations:
             if t_sleep:
                 sleep(t_sleep)
 
+        if any('PoweredOff' in vm.values() for vm in th_out):
+            log.info(f'Any VM was PoweredOff, will wait for {t_sleep}, do not interrupt VM state.')
+            if t_sleep:
+                sleep(t_sleep)
+
         if any('rebooted' in vm.values() for vm in th_out):
             log.info(f'Any VM was rebooted, will wait for {t_sleep} for services to start.')
             if t_sleep:
@@ -308,6 +313,8 @@ class VCenterOperations:
     def vm_shutdown_guest(self, vm_obj, out_q, **vm_kwargs):
         """
         Shutdown VM OS. If not powered on state - skip
+        https://gist.github.com/gdelgado/54cd8f5462554a254665ab80ffae663f
+
         :param vm_obj:
         :return:
         """
@@ -315,11 +322,9 @@ class VCenterOperations:
         vm = self.search_vm(vm_obj.instanceUuid)
         if vm:
             if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
-                task = vm.ShutdownGuest()
-                log.info(f"Shut down OS task: {task}")
+                vm.ShutdownGuest()
+                log.info(f"ShutdownGuest OS, no task to wait.")
                 # Cannot wait for this: 'NoneType' object has no attribute '_stub'
-                # WaitForTask(task)
-                sleep(60*5)
                 out_q.put({vm_obj.vm_name: 'poweredOff'})
             else:
                 log.info(f'This machine is poweredOff already - skipping task! {vm_obj.vm_name}')
