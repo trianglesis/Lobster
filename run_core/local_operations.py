@@ -930,7 +930,8 @@ class LocalDownloads:
         import subprocess
         run_cmd = []
         all_last_sprints = []
-        last_tkn_r = re.compile(r"(TKN_release_\d+-\d+-\d+-\d+)")
+        # last_tkn_r = re.compile(r"(TKN_release_\d+-\d+-\d+-\d+)")
+        last_tkn_r = re.compile(r"(TKN_NEW_release-73-\d+)")
 
         log.debug("<=LocalDownloads=> Parsing index.html for %s to get sprint builds.", released_tkn)
         try:
