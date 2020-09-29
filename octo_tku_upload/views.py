@@ -147,7 +147,8 @@ class TKUUpdateWorkbenchView(TemplateView):
         max_released = max_released.latest('tku_type', 'updated_at')
 
         max_ga = packages_qs.filter(tku_type__exact='ga_candidate')
-        max_ga = max_ga.latest('tku_type', 'updated_at')
+        if max_ga:
+            max_ga = max_ga.latest('tku_type', 'updated_at')
 
         max_cont_main = packages_qs.filter(tku_type__exact='tkn_main_continuous')
         max_cont_main = max_cont_main.latest('tku_type', 'updated_at')
