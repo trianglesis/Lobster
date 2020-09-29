@@ -247,11 +247,11 @@ class TKUUpdateWorkbenchView(TemplateView):
             latest_ga_upgrade=latest_ga_upgrade,
             latest_ga_prep=latest_ga_prep,
             # Latest upload test logs for selected dates
-            upload_cont_ship=upload_cont_ship,
-            upload_cont_main=upload_cont_main,
-            upload_ga_fresh=upload_ga_fresh,
-            upload_ga_upgrade=upload_ga_upgrade,
-            upload_ga_prep=upload_ga_prep,
+            upload_cont_ship=upload_cont_ship.order_by('-addm_version'),
+            upload_cont_main=upload_cont_main.order_by('-addm_version'),
+            upload_ga_fresh=upload_ga_fresh.order_by('-addm_version'),
+            upload_ga_upgrade=upload_ga_upgrade.order_by('-addm_version'),
+            upload_ga_prep=upload_ga_prep.order_by('-addm_version'),
             # Test logs for product content update:
             upload_product_content_ship=upload_product_content_ship,
             upload_product_content_main=upload_product_content_main,
