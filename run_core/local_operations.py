@@ -950,6 +950,8 @@ class LocalDownloads:
             read_file = open_file.read()
             latest_tkn = last_tkn_r.findall(read_file)
             open_file.close()
+            # Delete index file from /upload/HUB/GA_CANDIDATE/ folder
+            os.remove(index_file)
             for found in latest_tkn:
                 tkn_release_link = release_sprints + found + '/'
                 if tkn_release_link not in all_last_sprints:
