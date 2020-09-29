@@ -149,7 +149,7 @@ class VCenterOperations:
             if t_sleep:
                 sleep(t_sleep)
 
-        if any('PoweredOff' in vm.values() for vm in th_out):
+        if any('poweredOff' in vm.values() for vm in th_out):
             log.info(f'Any VM was PoweredOff, will wait for {t_sleep}, do not interrupt VM state.')
             if t_sleep:
                 sleep(t_sleep)
