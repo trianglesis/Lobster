@@ -931,7 +931,7 @@ class LocalDownloads:
         run_cmd = []
         all_last_sprints = []
         # last_tkn_r = re.compile(r"(TKN_release_\d+-\d+-\d+-\d+)")
-        last_tkn_r = re.compile(r"(TKN_NEW_release-\d+)")
+        last_tkn_r = re.compile(r"(TKN-Release-\d+)")
 
         log.debug("<=LocalDownloads=> Parsing index.html for %s to get sprint builds.", released_tkn)
         try:
