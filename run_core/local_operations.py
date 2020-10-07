@@ -572,10 +572,6 @@ class LocalPatternsP4Parse:
             log.debug("DEBUG: P4 Sync initial!")
             """ Run parse local """
             results = self.parse_local_test()
-
-            for test in results:
-                log.debug(f"walked_test_data: {test}")
-
             log.debug("Local files has been parsed!")
             """ Insert parted data in table """
             self.insert_parsed_test(results)
