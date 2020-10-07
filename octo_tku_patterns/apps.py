@@ -1,9 +1,11 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_save, post_delete, pre_delete
+from django.conf import settings
 
 import logging
 
 log = logging.getLogger("octo.octologger")
+curr_hostname = getattr(settings, 'CURR_HOSTNAME', None)
 
 
 class TkuPatternsConfig(AppConfig):
@@ -27,4 +29,8 @@ class TkuPatternsConfig(AppConfig):
     @staticmethod
     def test_cases_save(sender, instance, created, **kwargs):
         from octo_tku_patterns.tasks import PatternTestExecCases
-        PatternTestExecCases.test_exec_on_change(sender, instance, created, **kwargs)
+        if settings.DEV or settings.DEBUG:
+            log.info("This is a dev or debug server - do not run signal actions!")
+            pass
+        else:
+            PatternTestExecCases.test_exec_on_change(sender, instance, created, **kwargs)
