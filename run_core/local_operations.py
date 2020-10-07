@@ -44,10 +44,6 @@ class LocalPatternsParse:
     def is_test(pattern, text):
         return pattern.search(text) is not None
 
-    """
-    New parsing methods with walk fs
-    """
-
     def walk_fs_tests(self, local_depot_path):
         """
         Use os.filewalk to build all paths to test.py and attributes such as:
@@ -105,11 +101,6 @@ class LocalPatternsParse:
                     else:
                         tkn_branch = 'not_set'
 
-                    """
-                    TODO: Add //addm/tkn_main/edp/SUPPORTDETAILS/Patterns/RuntimeEnvironmentSupportDetails/tests/test.py
-                    And rethink of make it more plugable.
-                    """
-
                     if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
                         split_root = root.split(os.sep)[
                                      6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
@@ -123,10 +114,13 @@ class LocalPatternsParse:
                             test_case_dir='/'.join(split_root),
                             pattern_library_path=os.path.dirname(os.path.dirname(root)),
                         )
+                    # Temporary fix fot cases when CLOUD lib have two different dir hierarchy levels
+                    if 'CLOUD' in root:
+                        test_dict['pattern_library'] = 'CLOUD'
+
                     elif 'main/code/python' in root:
                         log.info(root.split(os.sep))
                         split_root = root.split(os.sep)[5:]  # Cut n dirs until //addm/main/code/python
-                        # log.info(f"code -  case dir: {split_root} path: {root}")
                         test_dict.update(
                             test_type='main_python',
                             tkn_branch=tkn_branch,
@@ -147,9 +141,17 @@ class LocalPatternsParse:
                     elif 'product_content' in root:
                         # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/product_content
                         split_root = root.split(os.sep)[6:]
-                        # log.info(f"product_content - case dir: {split_root} path: {root} ")
                         test_dict.update(
                             test_type='product_content',
+                            tkn_branch=tkn_branch,
+                            test_case_dir='/'.join(split_root),
+                            test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
+                        )
+                    elif 'edp' in root:
+                        # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/edp
+                        split_root = root.split(os.sep)[6:]
+                        test_dict.update(
+                            test_type='epd',
                             tkn_branch=tkn_branch,
                             test_case_dir='/'.join(split_root),
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
@@ -165,7 +167,6 @@ class LocalPatternsParse:
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
                         )
                     walked_test_data.append(test_dict)
-
         return walked_test_data
 
     @staticmethod
