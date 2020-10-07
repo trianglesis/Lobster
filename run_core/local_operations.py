@@ -102,21 +102,20 @@ class LocalPatternsParse:
                         tkn_branch = 'not_set'
 
                     if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
-                        split_root = root.split(os.sep)[
-                                     6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
+                        # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
+                        split_root = root.split(os.sep)[6:]
                         test_dict.update(
                             test_type='tku_patterns',
                             tkn_branch=tkn_branch,
-                            pattern_library=os.path.basename(os.path.dirname(os.path.dirname(root))),
                             pattern_folder_name=os.path.basename(os.path.dirname(root)),
                             pattern_folder_path=os.path.dirname(root),
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
                             test_case_dir='/'.join(split_root),
                             pattern_library_path=os.path.dirname(os.path.dirname(root)),
                         )
-                    # Temporary fix fot cases when CLOUD lib have two different dir hierarchy levels
-                    if 'CLOUD' in root:
-                        test_dict['pattern_library'] = 'CLOUD'
+                        # Temporary fix fot cases when CLOUD lib have two different dir hierarchy levels
+                        if 'CLOUD' in root:
+                            test_dict['pattern_library'] = 'CLOUD'
 
                     elif 'main/code/python' in root:
                         log.info(root.split(os.sep))
@@ -147,6 +146,7 @@ class LocalPatternsParse:
                             test_case_dir='/'.join(split_root),
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
                         )
+                        print(f"product_content test_dict: {test_dict}")
                     elif 'edp' in root:
                         # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/edp
                         split_root = root.split(os.sep)[6:]
@@ -167,7 +167,7 @@ class LocalPatternsParse:
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
                         )
                     walked_test_data.append(test_dict)
-        return walked_test_data
+                return walked_test_data
 
     @staticmethod
     def ins_or_upd_test_case(dict_test_case):

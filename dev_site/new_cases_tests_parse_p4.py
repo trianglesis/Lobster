@@ -83,7 +83,6 @@ if __name__ == "__main__":
                 iters += 1
                 for name in files:  # Iter over all files in path:
                     if self.is_test(pattern, name):  # Check only test.py files
-
                         test_py_path = os.path.join(root, name)  # Compose full path to test.py path
                         test_dict = dict(
                             test_py_path=test_py_path,
@@ -100,8 +99,8 @@ if __name__ == "__main__":
                             tkn_branch = 'not_set'
 
                         if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
-                            split_root = root.split(os.sep)[
-                                         6:]  # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
+                            # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
+                            split_root = root.split(os.sep)[6:]
                             test_dict.update(
                                 test_type='tku_patterns',
                                 tkn_branch=tkn_branch,
@@ -813,8 +812,8 @@ if __name__ == "__main__":
     # 11-06-2020 Adding test.py from path like perforce\addm\tkn_main\product_content\r1_0\code\data\installed\tests
     # walked_test_data = TestsParseLocal().walk_fs_tests(local_depot_path='/mnt/g/perforce/')
 
-    # results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/")
-    results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/addm/tkn_main/edp")
+    results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/")
+    # results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/addm/tkn_main/edp")
     # results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/addm/tkn_main/tku_patterns/CLOUD")
     # results = TestsParseLocal().walk_fs_tests(local_depot_path='/home/user/TH_Octopus/perforce')
     for test in results:
