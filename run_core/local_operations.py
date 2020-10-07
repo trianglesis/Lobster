@@ -147,7 +147,6 @@ class LocalPatternsParse:
                             test_case_dir='/'.join(split_root),
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/'),
                         )
-                        print(f"product_content test_dict: {test_dict}")
                     elif 'edp' in root:
                         # Cut n dirs until product_content in  /home/user/TH_Octopus/perforce/addm/tkn_ship/edp
                         split_root = root.split(os.sep)[6:]
