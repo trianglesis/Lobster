@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 
 class TestLast(models.Model):
     # Pattern details:
+    test_type = models.CharField(max_length=120)
     tkn_branch = models.CharField(max_length=10)
 
     pattern_library = models.CharField(max_length=100, blank=True, null=True)
@@ -61,6 +62,7 @@ class TestLast(models.Model):
 
 class TestHistory(models.Model):
     # Pattern details:
+    test_type = models.CharField(max_length=120)
     tkn_branch = models.CharField(max_length=10)
 
     pattern_library = models.CharField(max_length=100, blank=True, null=True)
