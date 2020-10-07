@@ -80,6 +80,7 @@ class LocalPatternsParse:
 
         octo_workspace = p4_workspace
         iters = 0
+        log.info(f"Parsing local FS: {octo_workspace} depot: {local_depot_path}")
 
         walked_test_data = []
         for root, dirs, files in os.walk(local_depot_path, topdown=False):
