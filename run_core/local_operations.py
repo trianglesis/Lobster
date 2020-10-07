@@ -168,7 +168,8 @@ class LocalPatternsParse:
                             test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
                         )
                     walked_test_data.append(test_dict)
-                return walked_test_data
+        return walked_test_data
+
 
     @staticmethod
     def ins_or_upd_test_case(dict_test_case):
@@ -572,6 +573,10 @@ class LocalPatternsP4Parse:
             log.debug("DEBUG: P4 Sync initial!")
             """ Run parse local """
             results = self.parse_local_test()
+
+            for test in results:
+                log.debug(f"walked_test_data: {test}")
+
             log.debug("Local files has been parsed!")
             """ Insert parted data in table """
             self.insert_parsed_test(results)
