@@ -433,6 +433,7 @@ class TestLastAdmin(admin.ModelAdmin):
     readonly_fields = ('test_date_time',)
 
     list_display = (
+        'test_type',
         'tkn_branch',
         'pattern_library',
         'pattern_folder_name',
@@ -445,7 +446,7 @@ class TestLastAdmin(admin.ModelAdmin):
         'test_date_time'
     )
 
-    list_filter = ('tkn_branch', 'pattern_library', 'addm_name', 'addm_group', 'tst_status')
+    list_filter = ('test_type', 'tkn_branch', 'pattern_library', 'addm_name', 'addm_group', 'tst_status')
 
     search_fields = ('pattern_library', 'pattern_folder_name', 'test_py_path',
                      'tst_name', 'tst_status')
@@ -488,6 +489,7 @@ class TestLatestDigestAllAdmin(admin.ModelAdmin):
     readonly_fields = ('test_date_time',)
 
     list_display = (
+        'test_type',
         'tkn_branch',
         'pattern_library',
         'pattern_folder_name',
@@ -532,6 +534,7 @@ class TestHistoryAdmin(admin.ModelAdmin):
     readonly_fields = ('test_date_time',)
 
     list_display = (
+        'test_type',
         'tkn_branch',
         'pattern_library',
         'pattern_folder_name',
@@ -544,7 +547,7 @@ class TestHistoryAdmin(admin.ModelAdmin):
         'test_date_time'
     )
 
-    list_filter = ('tkn_branch', 'pattern_library', 'addm_name', 'tst_status')
+    list_filter = ('test_type', 'tkn_branch', 'pattern_library', 'addm_name', 'tst_status')
     search_fields = ('pattern_library', 'pattern_folder_name', 'test_py_path',
                      'tst_name', 'tst_status')
 
