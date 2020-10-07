@@ -407,6 +407,7 @@ class TestExecutor:
 
         test_data_res = dict(
             # Part from tku_patterns table
+            test_type=test_item.get('test_type', 'Unknown'),
             tkn_branch=test_item.get('tkn_branch', 'Unknown'),
             pattern_library=test_item.get('pattern_library', 'Unknown'),
             pattern_folder_name=test_item.get('pattern_folder_name', 'Unknown'),
