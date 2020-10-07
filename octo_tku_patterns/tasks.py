@@ -126,6 +126,14 @@ class TPatternParse:
         return PerforceOperations().sync_force(depot_path)
 
     @staticmethod
+    @app.task(queue='w_parsing@tentacle.dq2', routing_key='parsing.perforce.TExecTest.t_parse_full',
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
+    @exception
+    def t_p4_parse_and_changes_routine(t_tag, **kwargs):
+        log.debug("t_p4_parse_and_changes_routine t_tag: %s", t_tag)
+        return LocalPatternsP4Parse().parse_and_changes_routine(**kwargs)
+
+    @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.t_pattern_weight_index',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
     @exception
