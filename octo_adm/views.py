@@ -546,11 +546,11 @@ class AdminOperationsREST(APIView):
         Run internal FS parse and P4 changes refresh procedure
         :return: success message
         """
-        self.p4_conn = PerforceOperations().p4_initialize(debug=True)
+        # self.p4_conn = PerforceOperations().p4_initialize(debug=True)
         t_tag = f'tag=t_pattern_weight_index;user_name={self.user_name};fake={self.fake_run};start_time={self.start_time}'
         t_p4_sync_force = Runner.fire_t(
             TPatternParse.t_p4_parse_and_changes_routine, fake_run=self.fake_run, t_args=[t_tag],
-            t_kwargs=dict(sync_force=False, full=True, p4_conn=self.p4_conn))
+            t_kwargs=dict(sync_force=False, full=True, p4_conn=None))
         return {'task_id': t_p4_sync_force.id, 'msg': t_tag}
 
     def cases_weight(self):
