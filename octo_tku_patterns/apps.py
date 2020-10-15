@@ -31,6 +31,5 @@ class TkuPatternsConfig(AppConfig):
         from octo_tku_patterns.tasks import PatternTestExecCases
         if settings.DEV or settings.DEBUG:
             log.info("This is a dev or debug server - do not run signal actions!")
-            pass
         else:
             PatternTestExecCases.test_exec_on_change(sender, instance, created, **kwargs)

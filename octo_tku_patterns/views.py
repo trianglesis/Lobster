@@ -287,11 +287,9 @@ class TestLastSingleDetailedListView(ListView):
     allow_empty = True
 
     def get_context_data(self, **kwargs):
-        addm_names = OctoCache().cache_query(
-            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
-        branch_qs = OctoCache().cache_query(
-            TestLatestDigestAll.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
-                total=Count('tkn_branch')).order_by('tkn_branch'))
+        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
+        branch_qs = TestLatestDigestAll.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch')
 
         if self.request.method == 'GET':
             context = super(TestLastSingleDetailedListView, self).get_context_data(**kwargs)
@@ -303,8 +301,7 @@ class TestLastSingleDetailedListView(ListView):
                 # HERE: Adding JSON for JS operations
                 tests_digest_json='',
             )
-            context['test_detail'] = OctoCache().cache_query(
-                context['test_detail'])
+            context['test_detail'] = context['test_detail']
             context['tests_digest_json'] = JSONRenderer().render(
                     TestLastSerializer(context['test_detail'], many=True).data).decode('utf-8')
             return context
@@ -312,6 +309,7 @@ class TestLastSingleDetailedListView(ListView):
     def get_queryset(self):
         sel_opts = compose_selector(self.request.GET)
         queryset = PatternsDjangoTableOper.sel_dynamical(TestLast, sel_opts=sel_opts)
+        log.debug(f"Query test details: {queryset.query}")
         return queryset
 
 

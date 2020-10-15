@@ -32,6 +32,7 @@
     {% dynamical_selector_compose 'addm_name' 'selector_addm_name' %}
     {% dynamical_selector_compose 'pattern_library' 'selector_pattern_library' %}
     {% dynamical_selector_compose 'change_user' 'selector_change_user' %}
+    {% dynamical_selector_compose 'test_type' 'selector_test_type' %}
     <!-- Toast draw here -->
     <div id="toastStack" aria-live="assertive" aria-atomic="true" style="position: absolute;z-index: 1">
         <!-- Position it -->
@@ -134,6 +135,26 @@
                                 {% elif lib_item.pattern_library == 'SYSTEM' %}<i class="fab fa-centos"></i>
                                 {% else %}<i class="fas fa-file"></i>
                                 {% endif %}{{ lib_item.pattern_library }} ({{ lib_item.total }})
+                            </a>
+                        {% endfor %}
+                    </div>
+                </nav>
+            </div>
+            <!-- test_type_qs here: -->
+            <div class="digest-test_type">
+                <nav class="nav-item dropdown">
+                    <a class="btn btn-sm btn-outline-info dropdown-toggle" href="#" id="navbarDropdownTestType" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if selector.test_type %}{{ selector.test_type }}
+                        {% else %}All
+                        {% endif %}
+                    </a>
+                    <!-- Choose log level -->
+                    <div class="dropdown-menu dropdown-menu-right dropdown-test_type" aria-labelledby="navbarDropdownTestType">
+                        <a class="nav-link text-dark nav-test_type" href="{{tests_digest_url}}?{{ selector_test_type }}"><i class="fas fa-undo"></i> Show all</a>
+                        {% for test_t_item in test_type_qs %}
+                            <a class="nav-link text-dark nav-test_type {% is_active 'test_type' test_t_item.test_type 'badge-light' 'badge-secondary' %}"
+                               href="{{tests_digest_url}}?test_type={{ test_t_item.test_type }};{{ selector_test_type }}">
+                                {{ test_t_item.test_type }} ({{ test_t_item.total }})
                             </a>
                         {% endfor %}
                     </div>

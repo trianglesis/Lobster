@@ -32,6 +32,5 @@ class TkuUploadConfig(AppConfig):
         log.info(f"<=Signal=> TKU Save: {sender} {instance} {created} {kwargs}")
         if settings.DEV or settings.DEBUG:
             log.info("This is a dev or debug server - do not run signal actions!")
-            pass
         else:
             TKUSignalExecCases.test_exec_on_change(sender, instance, created, **kwargs)

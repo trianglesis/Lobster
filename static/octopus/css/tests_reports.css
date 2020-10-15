@@ -155,17 +155,17 @@ th     { background:#eee; }
     font-size: 0.8em;
 }
 
-.digest-pattern_library {
+.digest-pattern_library, .digest-test_type {
     padding-left: 10px;
     font-family: 'Maven Pro', sans-serif;
     font-size: 0.8em;
 }
-.nav-pattern_library{
+.nav-pattern_library, .nav-test_type{
     font-family: 'Maven Pro', sans-serif;
     font-size: 0.8em;
 }
 
-.dropdown-pattern_library{
+.dropdown-pattern_library, .dropdown-test_type{
     min-width: 18rem!important;
 }
 
