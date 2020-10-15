@@ -14,8 +14,12 @@
         <th></th>
         {% endif %}
         <th>Branch</th>
-        <th>Library</th>
-        <th>Folder name</th>
+        {% if selector.test_type == 'product_content' or selector.test_type == 'epd' %}
+            <th>Path</th>
+        {% else %}
+            <th>Library</th>
+            <th>Folder name</th>
+        {% endif %}
         <th>Addm name</th>
         <th>Addm v</th>
         <th>User</th>
@@ -41,8 +45,12 @@
                                id="testId-{{ test.id }}"></td>
                     {% endif %}
                     <td id="tkn_branch">{{ test.tkn_branch }}</td>
-                    <td id="pattern_library" class="txt-center-nowrap table-shrink"><span>{{ test.pattern_library }}</span></td>
-                    <td id="pattern_folder_name" class="txt-center-nowrap"><span>{{ test.pattern_folder_name }}</span></td>
+                    {% if selector.test_type == 'product_content' or selector.test_type == 'epd' %}
+                        <td id="test_case_depot_path" class="txt-center-nowrap table-shrink">{{ test.test_case_depot_path }}</td>
+                    {% else %}
+                        <td id="pattern_library" class="txt-center-nowrap table-shrink"><span>{{ test.pattern_library }}</span></td>
+                        <td id="pattern_folder_name" class="txt-center-nowrap"><span>{{ test.pattern_folder_name }}</span></td>
+                    {% endif %}
                     <td id="addm_name"><span>{{ test.addm_name }}</span></td>
                     <td id="addm_v_int">{{ test.addm_v_int }}</td>
                     <td id="change_user">{{ test.change_user }}</td>
@@ -98,8 +106,12 @@
         <th></th>
         {% endif %}
         <th>Branch</th>
-        <th>Library</th>
-        <th>Folder name</th>
+        {% if selector.test_type == 'product_content' or selector.test_type == 'epd' %}
+            <th>Path</th>
+        {% else %}
+            <th>Library</th>
+            <th>Folder name</th>
+        {% endif %}
         <th>Addm name</th>
         <th>Addm v</th>
         <th>User</th>
