@@ -60,19 +60,19 @@
                     </td>
                     <td id="fails" class="{% popover 'hover' 'top' None 'Show failed/errors' %}">
                         <a style="color: black"
-                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }}{% if test.pattern_library %};pattern_library={{ test.pattern_library }}{% endif %}{% if test.pattern_folder_name %};pattern_folder_name={{ test.pattern_folder_name }}{% endif %}{% if test.test_type %};test_type={{ test.test_type }}{% endif %}tst_status=notpass#{{ test.addm_name }}">{{ test.fails }}</a>
+                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }}{% if test.pattern_library %};pattern_library={{ test.pattern_library }}{% endif %}{% if test.pattern_folder_name %};pattern_folder_name={{ test.pattern_folder_name }}{% endif %}{% if test.test_type %};test_type={{ test.test_type }}{% endif %};tst_status=notpass#{{ test.addm_name }}">{{ test.fails }}</a>
                     </td>
                     <td id="error" class="{% popover 'hover' 'top' None 'Show errors' %}">
                         <a style="color: black"
-                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }}{% if test.pattern_library %};pattern_library={{ test.pattern_library }}{% endif %}{% if test.pattern_folder_name %};pattern_folder_name={{ test.pattern_folder_name }}{% endif %}{% if test.test_type %};test_type={{ test.test_type }}{% endif %}tst_status=error#{{ test.addm_name }}">{{ test.error }}</a>
+                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }}{% if test.pattern_library %};pattern_library={{ test.pattern_library }}{% endif %}{% if test.pattern_folder_name %};pattern_folder_name={{ test.pattern_folder_name }}{% endif %}{% if test.test_type %};test_type={{ test.test_type }}{% endif %};tst_status=error#{{ test.addm_name }}">{{ test.error }}</a>
                     </td>
                     <td id="passed" class="{% popover 'hover' 'top' None 'Show passed' %}">
                         <a style="color: black"
-                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }}{% if test.pattern_library %};pattern_library={{ test.pattern_library }}{% endif %}{% if test.pattern_folder_name %};pattern_folder_name={{ test.pattern_folder_name }}{% endif %}{% if test.test_type %};test_type={{ test.test_type }}{% endif %}tst_status=pass#{{ test.addm_name }}">{{ test.passed }}</a>
+                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }}{% if test.pattern_library %};pattern_library={{ test.pattern_library }}{% endif %}{% if test.pattern_folder_name %};pattern_folder_name={{ test.pattern_folder_name }}{% endif %}{% if test.test_type %};test_type={{ test.test_type }}{% endif %};tst_status=pass#{{ test.addm_name }}">{{ test.passed }}</a>
                     </td>
                     <td id="skipped" class="{% popover 'hover' 'top' None 'Show skipped' %}">
                         <a style="color: black"
-                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }}{% if test.pattern_library %};pattern_library={{ test.pattern_library }}{% endif %}{% if test.pattern_folder_name %};pattern_folder_name={{ test.pattern_folder_name }}{% endif %}{% if test.test_type %};test_type={{ test.test_type }}{% endif %}tst_status=skip#{{ test.addm_name }}">{{ test.skipped }}</a>
+                           href="{% url "test_details" %}?tkn_branch={{ test.tkn_branch }}{% if test.pattern_library %};pattern_library={{ test.pattern_library }}{% endif %}{% if test.pattern_folder_name %};pattern_folder_name={{ test.pattern_folder_name }}{% endif %}{% if test.test_type %};test_type={{ test.test_type }}{% endif %};tst_status=skip#{{ test.addm_name }}">{{ test.skipped }}</a>
                     </td>
                     <td id="test_date_time" class="txt-center-prewrap {% popover 'hover' 'top' None test.test_date_time|timezone:"Europe/London" %}">{{ test.test_date_time|timezone:"Europe/London"|naturaltime }}</td>
                     <td id="action" class="actions_button">
