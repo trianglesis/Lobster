@@ -928,15 +928,15 @@ class LocalDownloads:
     def parse_released_tkn_html(release_sprints, released_tkn):
         """
         Parse HTML in RELEASED/TKN/index.html to get all located sprint builds in there.
-        Pompose links ready to download.
+        Compose links ready to download.
 
         :return:
         """
         import subprocess
         run_cmd = []
         all_last_sprints = []
-        # last_tkn_r = re.compile(r"(TKN_release_\d+-\d+-\d+-\d+)")
         last_tkn_r = re.compile(r"(TKN-Release-\d+)")
+        last_tkn_old_r = re.compile(r"(TKN_release_\d+-\d+-\d+-\d+)")
 
         log.debug("<=LocalDownloads=> Parsing index.html for %s to get sprint builds.", released_tkn)
         try:
@@ -954,6 +954,9 @@ class LocalDownloads:
             open_file = open(index_file, "r")
             read_file = open_file.read()
             latest_tkn = last_tkn_r.findall(read_file)
+            # Overhack to get old formats?
+            if not latest_tkn:
+                latest_tkn = last_tkn_old_r.findall(read_file)
             open_file.close()
             # Delete index file from /upload/HUB/GA_CANDIDATE/ folder
             os.remove(index_file)
@@ -1456,125 +1459,125 @@ class LocalDownloads:
             """
         return release
 
-    def _wget_tku_build_hub(self):
-        """
-        WGET TKU zips for upload tests
-
-        CMD EXAMPLES:
-
-        wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
-            --cut-dirs=5,ftp://buildhub.tideway.com/hub/main-continuous/publish/tkn//tku/,
-                --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/main_continuous
-
-        wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
-            --cut-dirs=5,ftp://buildhub.tideway.com/hub/main-latest/publish/tkn/11.3/tku/,
-                --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/main_latest
-
-        wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
-            --cut-dirs=3,ftp://buildhub.tideway.com/hub/RELEASED/TKN/TKN_release_2018-01-1-76/,
-                --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN
-
-        wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
-            --cut-dirs=5,{'11_2_0_2': 'ftp://buildhub.tideway.com/hub/RELEASED/11_2_0_2/publish/tkn/11.2/tku/'},
-                --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN
-
-        wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
-            --cut-dirs=5,{'11_3': 'ftp://buildhub.tideway.com/hub/RELEASED/11_3/publish/tkn/11.3/tku/'},
-                --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN
-
-        ftp://buildhub.tideway.com/hub/TKN_release_2018-04-1-91
-
-
-        :return:
-        """
-        import subprocess
-        wget_cmd_list = []
-        outputs_l = []
-
-        # Get usual paths to all TKNs AND:
-        buildhub_paths_d, download_paths_d = self.tku_local_paths()
-        # Get all parsed paths to release_sprints:
-        release_sprints = self.parse_released_tkn_html(buildhub_paths_d['release_sprints'],
-                                                       download_paths_d['released_tkn'])
-
-        # Get all parsed paths to ga_candidate:
-        ga_candidates = self.parse_released_tkn_html(buildhub_paths_d['ga_candidate_path'],
-                                                     download_paths_d['ga_candidate'])
-
-        # WGET options need to be filled with args:
-        #            "--timestamping;" \
-        wget_rec = "wget;" \
-                   "--no-verbose;" \
-                   "--timestamping;" \
-                   "--recursive;" \
-                   "--no-host-directories;" \
-                   "--read-timeout=120;" \
-                   "--reject='*.log,*log,*com_tkn.log';" \
-                   "--exclude-directories='*/*/*/*/*/kickstarts/,*/*/*/*/kickstarts/,*/*/*/kickstarts/,*/*/kickstarts/,*/kickstarts/';" \
-                   "--cut-dirs={cut};{ftp};" \
-                   "--directory-prefix={dir}"
-
-        # DEV: For addm dev code - it is not needed fot TKU.
-        # Compose download wget cmd for CONTINUOUS:
-        # wget_continuous = wget_rec.format(5, buildhub_paths_d['main_continuous'], download_paths_d['continuous'])
-        # wget_cmd_list.append(wget_continuous)
-
-        # DEV: For addm dev code - it is not needed fot TKU.
-        # Compose download wget cmd for NIGHTLY
-        # wget_nightly = wget_rec.format(5, buildhub_paths_d['main_latest'], download_paths_d['nightly'])
-        # wget_cmd_list.append(wget_nightly)
-
-        # Compose download wget cmd for tkn_main_continuous
-        # 4 - do not cut addm version folders
-        tkn_main_cont_wget = wget_rec.format(cut=4, ftp=buildhub_paths_d['tkn_main_cont_path'],
-                                             dir=download_paths_d['tkn_main_continuous'])
-        wget_cmd_list.append(tkn_main_cont_wget)
-
-        # Compose download wget cmd for each sprint TKN
-        for sprint in release_sprints:
-            wget_sprints_html = wget_rec.format(cut=3, ftp=sprint, dir=download_paths_d['released_tkn'])
-
-            if wget_sprints_html not in wget_cmd_list:
-                wget_cmd_list.append(wget_sprints_html)
-
-        # GA Candidate -  Compose download wget cmd for each sprint TKN
-        for ga_candidate in ga_candidates:
-            ga_candidate_html = wget_rec.format(cut=1, ftp=ga_candidate, dir=download_paths_d['ga_candidate'])
-
-            if ga_candidate_html not in wget_cmd_list:
-                wget_cmd_list.append(ga_candidate_html)
-
-        # Compose paths to download separately released packages for ADDM VA:
-        for addm_va_d_item in buildhub_paths_d['addm_tkn_paths']:
-            for va_k, va_v in addm_va_d_item.items():
-                # local_path_to_zip = download_paths_d['addm_released']+va_k
-
-                wget_addm_va = wget_rec.format(cut=2, ftp=va_v, dir=download_paths_d['addm_released'])
-
-                if wget_addm_va not in wget_cmd_list:
-                    # log.debug("<=LocalDownloads=> Download ADDM VA: %s %s", va_k, wget_addm_va)
-                    wget_cmd_list.append(wget_addm_va)
-
-        log.debug("<=LocalDownloads=> START WGET commands exec!")
-        # noinspection PyBroadException
-        for cmd_item in wget_cmd_list:
-            try:
-                log.debug("<=LocalDownloads=> RUN cmd_item: '%s'", cmd_item.replace(';', ' '))
-                run_cmd = subprocess.Popen(cmd_item.split(';'), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = run_cmd.communicate()
-                stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
-                run_cmd.wait()  # wait until command finished
-                outputs_l.append([stdout, stderr])
-                log.debug("<=LocalDownloads=>  WGET stdout/stderr: \n\tstdout: %s \n\tstderr %s", stdout, stderr)
-            except Exception as e:
-                log.error("<=LocalDownloads=> Error during operation for: %s %s", cmd_item, e)
-        log.debug("<=LocalDownloads=> FINISH WGET commands exec!")
-
-        self.tku_packages_parse(download_paths_d)
-
-        # Do not return outputs, because we don't care of saving them to database instead of read logs!
-        # return outputs_l
-        return True
+    # def _wget_tku_build_hub(self):
+    #     """
+    #     WGET TKU zips for upload tests
+    #
+    #     CMD EXAMPLES:
+    #
+    #     wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
+    #         --cut-dirs=5,ftp://buildhub.tideway.com/hub/main-continuous/publish/tkn//tku/,
+    #             --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/main_continuous
+    #
+    #     wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
+    #         --cut-dirs=5,ftp://buildhub.tideway.com/hub/main-latest/publish/tkn/11.3/tku/,
+    #             --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/main_latest
+    #
+    #     wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
+    #         --cut-dirs=3,ftp://buildhub.tideway.com/hub/RELEASED/TKN/TKN_release_2018-01-1-76/,
+    #             --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN
+    #
+    #     wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
+    #         --cut-dirs=5,{'11_2_0_2': 'ftp://buildhub.tideway.com/hub/RELEASED/11_2_0_2/publish/tkn/11.2/tku/'},
+    #             --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN
+    #
+    #     wget,--no-verbose,--timestamping,--recursive,--continue,--no-host-directories,--reject,'*.log',
+    #         --cut-dirs=5,{'11_3': 'ftp://buildhub.tideway.com/hub/RELEASED/11_3/publish/tkn/11.3/tku/'},
+    #             --directory-prefix=/home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN
+    #
+    #     ftp://buildhub.tideway.com/hub/TKN_release_2018-04-1-91
+    #
+    #
+    #     :return:
+    #     """
+    #     import subprocess
+    #     wget_cmd_list = []
+    #     outputs_l = []
+    #
+    #     # Get usual paths to all TKNs AND:
+    #     buildhub_paths_d, download_paths_d = self.tku_local_paths()
+    #     # Get all parsed paths to release_sprints:
+    #     release_sprints = self.parse_released_tkn_html(buildhub_paths_d['release_sprints'],
+    #                                                    download_paths_d['released_tkn'])
+    #
+    #     # Get all parsed paths to ga_candidate:
+    #     ga_candidates = self.parse_released_tkn_html(buildhub_paths_d['ga_candidate_path'],
+    #                                                  download_paths_d['ga_candidate'])
+    #
+    #     # WGET options need to be filled with args:
+    #     #            "--timestamping;" \
+    #     wget_rec = "wget;" \
+    #                "--no-verbose;" \
+    #                "--timestamping;" \
+    #                "--recursive;" \
+    #                "--no-host-directories;" \
+    #                "--read-timeout=120;" \
+    #                "--reject='*.log,*log,*com_tkn.log';" \
+    #                "--exclude-directories='*/*/*/*/*/kickstarts/,*/*/*/*/kickstarts/,*/*/*/kickstarts/,*/*/kickstarts/,*/kickstarts/';" \
+    #                "--cut-dirs={cut};{ftp};" \
+    #                "--directory-prefix={dir}"
+    #
+    #     # DEV: For addm dev code - it is not needed fot TKU.
+    #     # Compose download wget cmd for CONTINUOUS:
+    #     # wget_continuous = wget_rec.format(5, buildhub_paths_d['main_continuous'], download_paths_d['continuous'])
+    #     # wget_cmd_list.append(wget_continuous)
+    #
+    #     # DEV: For addm dev code - it is not needed fot TKU.
+    #     # Compose download wget cmd for NIGHTLY
+    #     # wget_nightly = wget_rec.format(5, buildhub_paths_d['main_latest'], download_paths_d['nightly'])
+    #     # wget_cmd_list.append(wget_nightly)
+    #
+    #     # Compose download wget cmd for tkn_main_continuous
+    #     # 4 - do not cut addm version folders
+    #     tkn_main_cont_wget = wget_rec.format(cut=4, ftp=buildhub_paths_d['tkn_main_cont_path'],
+    #                                          dir=download_paths_d['tkn_main_continuous'])
+    #     wget_cmd_list.append(tkn_main_cont_wget)
+    #
+    #     # Compose download wget cmd for each sprint TKN
+    #     for sprint in release_sprints:
+    #         wget_sprints_html = wget_rec.format(cut=3, ftp=sprint, dir=download_paths_d['released_tkn'])
+    #
+    #         if wget_sprints_html not in wget_cmd_list:
+    #             wget_cmd_list.append(wget_sprints_html)
+    #
+    #     # GA Candidate -  Compose download wget cmd for each sprint TKN
+    #     for ga_candidate in ga_candidates:
+    #         ga_candidate_html = wget_rec.format(cut=1, ftp=ga_candidate, dir=download_paths_d['ga_candidate'])
+    #
+    #         if ga_candidate_html not in wget_cmd_list:
+    #             wget_cmd_list.append(ga_candidate_html)
+    #
+    #     # Compose paths to download separately released packages for ADDM VA:
+    #     for addm_va_d_item in buildhub_paths_d['addm_tkn_paths']:
+    #         for va_k, va_v in addm_va_d_item.items():
+    #             # local_path_to_zip = download_paths_d['addm_released']+va_k
+    #
+    #             wget_addm_va = wget_rec.format(cut=2, ftp=va_v, dir=download_paths_d['addm_released'])
+    #
+    #             if wget_addm_va not in wget_cmd_list:
+    #                 # log.debug("<=LocalDownloads=> Download ADDM VA: %s %s", va_k, wget_addm_va)
+    #                 wget_cmd_list.append(wget_addm_va)
+    #
+    #     log.debug("<=LocalDownloads=> START WGET commands exec!")
+    #     # noinspection PyBroadException
+    #     for cmd_item in wget_cmd_list:
+    #         try:
+    #             log.debug("<=LocalDownloads=> RUN cmd_item: '%s'", cmd_item.replace(';', ' '))
+    #             run_cmd = subprocess.Popen(cmd_item.split(';'), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    #             stdout, stderr = run_cmd.communicate()
+    #             stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
+    #             run_cmd.wait()  # wait until command finished
+    #             outputs_l.append([stdout, stderr])
+    #             log.debug("<=LocalDownloads=>  WGET stdout/stderr: \n\tstdout: %s \n\tstderr %s", stdout, stderr)
+    #         except Exception as e:
+    #             log.error("<=LocalDownloads=> Error during operation for: %s %s", cmd_item, e)
+    #     log.debug("<=LocalDownloads=> FINISH WGET commands exec!")
+    #
+    #     self.tku_packages_parse(download_paths_d)
+    #
+    #     # Do not return outputs, because we don't care of saving them to database instead of read logs!
+    #     # return outputs_l
+    #     return True
 
 
 class LocalDB:

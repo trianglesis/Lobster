@@ -525,7 +525,7 @@ class TKUOperationsREST(APIView):
     def tku_sync_packages(self):
         """
         Run internal routine to get latest tku packages from buildhub server via WGET. Parse downloaded content
-        and update packages table with new or re-built packages. Can sync only one TKU by tku_type:(tkn_ship_continuous, ga_candidate, tkn_main_continuous)
+        and update packages table with new or re-built packages. Can sync only one TKU by tku_type:(tkn_ship_continuous, ga_candidate, released_tkn, tkn_main_continuous)
         :return:
         """
         task = Runner.fire_t(TUploadExec.t_tku_sync,
