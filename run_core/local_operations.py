@@ -930,13 +930,16 @@ class LocalDownloads:
         Parse HTML in RELEASED/TKN/index.html to get all located sprint builds in there.
         Compose links ready to download.
 
+          2020 Oct 12 08:30  Directory   <a href="ftp://buildhub.tideway.com:21/hub/RELEASED/TKN/TKN-Release-2020-10-1-5/">TKN-Release-2020-10-1-5/</a>
+
+
         :return:
         """
         import subprocess
         run_cmd = []
         all_last_sprints = []
         last_tkn_r = re.compile(r"(TKN-Release-\d+)")
-        last_tkn_old_r = re.compile(r"(TKN_release_\d+-\d+-\d+-\d+)")
+        last_tkn_released_r = re.compile(r"(TKN-Release-\d+-\d+-\d+-\d+)")
 
         log.debug("<=LocalDownloads=> Parsing index.html for %s to get sprint builds.", released_tkn)
         try:
@@ -956,7 +959,7 @@ class LocalDownloads:
             latest_tkn = last_tkn_r.findall(read_file)
             # Overhack to get old formats?
             if not latest_tkn:
-                latest_tkn = last_tkn_old_r.findall(read_file)
+                latest_tkn = last_tkn_released_r.findall(read_file)
             open_file.close()
             # Delete index file from /upload/HUB/GA_CANDIDATE/ folder
             os.remove(index_file)
