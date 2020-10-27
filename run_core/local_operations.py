@@ -938,8 +938,8 @@ class LocalDownloads:
         import subprocess
         run_cmd = []
         all_last_sprints = []
-        last_tkn_r = re.compile(r"(TKN-Release-\d+)")
-        last_tkn_released_r = re.compile(r"(TKN-Release-\d+-\d+-\d+-\d+)")
+        last_tkn_r = re.compile(r"(TKN-Release-\d+-\d+-\d+-\d+)")
+        # last_tkn_released_r = re.compile(r"(TKN-Release-\d+-\d+-\d+-\d+)")
 
         log.debug("<=LocalDownloads=> Parsing index.html for %s to get sprint builds.", released_tkn)
         try:
@@ -957,9 +957,6 @@ class LocalDownloads:
             open_file = open(index_file, "r")
             read_file = open_file.read()
             latest_tkn = last_tkn_r.findall(read_file)
-            # Overhack to get old formats?
-            if not latest_tkn:
-                latest_tkn = last_tkn_released_r.findall(read_file)
             open_file.close()
             # Delete index file from /upload/HUB/GA_CANDIDATE/ folder
             os.remove(index_file)
