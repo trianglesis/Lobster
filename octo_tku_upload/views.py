@@ -144,7 +144,8 @@ class TKUUpdateWorkbenchView(TemplateView):
         packages_qs = TkuPackagesNew.objects.all()
 
         max_released = packages_qs.filter(tku_type__exact='released_tkn')
-        max_released = max_released.latest('tku_type', 'updated_at')
+        if max_released:
+            max_released = max_released.latest('tku_type', 'updated_at')
 
         max_ga = packages_qs.filter(tku_type__exact='ga_candidate')
         if max_ga:
