@@ -330,11 +330,9 @@ class TestItemSingleHistoryListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(TestItemSingleHistoryListView, self).get_context_data(**kwargs)
-        addm_names = OctoCache().cache_query(
-            AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct())
-        branch_qs = OctoCache().cache_query(
-            TestHistory.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
-                total=Count('tkn_branch')).order_by('tkn_branch'))
+        addm_names = AddmDigest.objects.values('addm_name').order_by('-addm_name').distinct()
+        branch_qs = TestHistory.objects.filter(tkn_branch__isnull=False).values('tkn_branch').annotate(
+                total=Count('tkn_branch')).order_by('tkn_branch')
         if self.request.method == 'GET':
             context.update(
                 selector=compose_selector(self.request.GET),
@@ -343,8 +341,6 @@ class TestItemSingleHistoryListView(ListView):
                 addm_names=addm_names,
                 tests_digest_json='',
             )
-            context['test_detail'] = OctoCache().cache_query(
-                context['test_detail'])
             context['tests_digest_json'] = JSONRenderer().render(
                     TestHistorySerializer(context['test_detail'], many=True).data).decode('utf-8')
             return context
