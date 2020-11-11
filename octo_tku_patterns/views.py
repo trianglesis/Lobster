@@ -278,7 +278,6 @@ class TestLastDigestListView(ListView):
 
 
 # Test last table - show single(or all with status) test results for test.py
-@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestLastSingleDetailedListView(ListView):
     __url_path = '/octo_tku_patterns/test_details/'
     template_name = 'digests/test_details.html'
@@ -314,7 +313,6 @@ class TestLastSingleDetailedListView(ListView):
 
 
 # Test history table - show single test.py unit historical runs.
-@method_decorator(cache_control(max_age=60 * 5), name='dispatch')
 class TestItemSingleHistoryListView(ListView):
     __url_path = '/octo_tku_patterns/test_item_history/'
     """
