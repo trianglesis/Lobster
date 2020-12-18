@@ -49,7 +49,7 @@ class TUploadExec:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_upload_routines',
-              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+              soft_time_limit=HOURS_2, task_time_limit=HOURS_2)
     @exception
     def t_upload_routines(t_tag, **kwargs):
         """
@@ -64,7 +64,7 @@ class TUploadExec:
 
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.TRoutine.t_routine_tku_upload_test_new',
-              soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+              soft_time_limit=HOURS_2, task_time_limit=HOURS_2)
     @exception
     def t_upload_test(t_tag, **kwargs):
         """General task for upload test"""
@@ -72,7 +72,7 @@ class TUploadExec:
 
     @staticmethod
     @app.task(queue='w_parsing@tentacle.dq2',
-              soft_time_limit=MIN_40, task_time_limit=MIN_90)
+              soft_time_limit=HOURS_2, task_time_limit=HOURS_2)
     @exception
     def t_tku_sync(t_tag, **kwargs):
         """Sync TKU Packages with WGET"""
@@ -95,7 +95,7 @@ class TUploadExec:
         return UploadTestExec().upload_unzip_threads(**kwargs)
 
     @staticmethod
-    @app.task(soft_time_limit=MIN_90, task_time_limit=HOURS_2)
+    @app.task(soft_time_limit=HOURS_2, task_time_limit=HOURS_2)
     @exception
     def t_tku_install(t_tag, **kwargs):
         """ Execute TKU install command after TKU packages were unzipped in TEMP folder."""

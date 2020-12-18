@@ -8,6 +8,7 @@ Everything which run on MNG VM
 """
 
 import collections
+import itertools
 import hashlib
 import logging
 import os
@@ -171,7 +172,6 @@ class LocalPatternsParse:
                     walked_test_data.append(test_dict)
 
         return walked_test_data
-
 
     @staticmethod
     def ins_or_upd_test_case(dict_test_case):
@@ -671,6 +671,9 @@ class LocalDownloads:
         Set paths to TKU packages on remote hub and local FS
         Use dev ADDM versions to compose paths for only current addm versions.
 
+        TODO: Plan to change this:
+          - Use octopus database table: hub_path, download_path pairs and value for CMD
+          - Try to download upgrade packages for ADDM
 
         :return:
         """
@@ -712,18 +715,19 @@ class LocalDownloads:
         buildhub_paths = dict(
             # Continuous:
             tkn_main_cont_path='{}hub/tkn_main-continuous/publish/tkn/'.format(hub_path),  # MAIN
-            tkn_ship_cont_path='{}hub/tkn_ship-nightly-latest/publish/tkn/'.format(hub_path),  # SHIP
+            # tkn_ship_cont_path='{}hub/tkn_ship-nightly-latest/publish/tkn/'.format(hub_path),  # SHIP
+            tkn_ship_cont_path='{}hub/'.format(hub_path),  # New SHIP
             # Other
             release_sprints='{}TKN/'.format(released),
             addm_tkn_paths=addm_tkn_paths,
             ga_candidate_path='{}hub/'.format(hub_path),
             # DEV: For addm dev code - it is not needed fot TKU.
             # /hub/main-continuous/publish/tkn//tku
-            main_continuous='{}hub/main-continuous/publish/tkn/'.format(hub_path),
+            # main_continuous='{}hub/main-continuous/publish/tkn/'.format(hub_path),
             # /hub/main_latest-156/publish/tkn/11.3/tku
-            main_latest='{}hub/main-latest/publish/tkn/'.format(hub_path),
+            # main_latest='{}hub/main-latest/publish/tkn/'.format(hub_path),
             # ADDM DEV PATHS:
-            scope_latest='{}hub/scope-latest/publish/VAs/unpacked/'.format(hub_path),
+            # scope_latest='{}hub/scope-latest/publish/VAs/unpacked/'.format(hub_path),
             # /hub/tkn_main_continuous/publish/tkn/11.3/tku
         )
         # log.debug("<=BUILDHUB_PATHS=> buildhub_paths: %s", buildhub_paths)
@@ -734,16 +738,16 @@ class LocalDownloads:
             addm_released="{}HUB/RELEASED".format(place),
             # /hub/tkn_main_continuous/publish/tkn/11.3/tku
             tkn_main_continuous="{}HUB/tkn_main_continuous".format(place),
-            tkn_ship_continuous="{}HUB/tkn_ship-nightly-latest".format(place),
+            tkn_ship_continuous="{}HUB/TKN_SHIP_CONT".format(place),
             # sftp://user@172.25.144.117/home/user/TH_Octopus/UPLOAD/HUB/GA_CANDIDATE
             ga_candidate="{}HUB/GA_CANDIDATE".format(place),
             # DEV: For addm dev code - it is not needed fot TKU.
             # /hub/main-continuous/publish/tkn//tku
-            main_continuous="{}HUB/main_continuous".format(place),
+            # main_continuous="{}HUB/main_continuous".format(place),
             # /hub/main_latest-156/publish/tkn/11.3/tku
-            main_latest="{}HUB/main_latest".format(place),
+            # main_latest="{}HUB/main_latest".format(place),
             # ADDM DEV PATHS:
-            scope_latest="{}HUB/scope_latest".format(place),
+            # scope_latest="{}HUB/scope_latest".format(place),
         )
         # log.debug("<=DOWNLOAD_PATHS=> download_paths: %s", download_paths)
 
@@ -796,17 +800,9 @@ class LocalDownloads:
         :return:
         """
         wget_cmd_d = dict()
-        # TODO: Add main_cont tku
 
         # Get usual paths to all TKNs AND:
         buildhub_paths_d, download_paths_d = self.tku_local_paths()
-        # Get all parsed paths to release_sprints:
-        release_sprints = self.parse_released_tkn_html(buildhub_paths_d['release_sprints'],
-                                                       download_paths_d['released_tkn'])
-
-        # Get all parsed paths to ga_candidate:
-        ga_candidates = self.parse_released_tkn_html(buildhub_paths_d['ga_candidate_path'],
-                                                     download_paths_d['ga_candidate'])
 
         # WGET options need to be filled with args:
         #            "--timestamping;" \
@@ -823,61 +819,68 @@ class LocalDownloads:
                    "--cut-dirs={cut};{ftp};" \
                    "--directory-prefix={dir}"
 
-        # ADDM DEV:
-        wget_scope_latest = wget_rec.format(cut=5, ftp=buildhub_paths_d['scope_latest'], excl=exclude_dirs_main,
-                                            dir=download_paths_d['scope_latest'])
-        wget_cmd_d.update(scope_latest=wget_scope_latest)
+        wget_scope_latest = wget_rec.format(
+            cut=5, ftp=buildhub_paths_d['scope_latest'], excl=exclude_dirs_main,
+            dir=download_paths_d['scope_latest'])
+        wget_cmd_d.update(scope_latest=[wget_scope_latest])
 
-        # DEV: For addm dev code - it is not needed fot TKU.
-        # Compose download wget cmd for CONTINUOUS:
-        wget_main_continuous = wget_rec.format(cut=4, ftp=buildhub_paths_d['main_continuous'], excl=exclude_dirs_main,
-                                               dir=download_paths_d['main_continuous'])
-        wget_cmd_d.update(main_continuous=wget_main_continuous)
+        wget_main_continuous = wget_rec.format(
+            cut=4, ftp=buildhub_paths_d['main_continuous'], excl=exclude_dirs_main,
+            dir=download_paths_d['main_continuous'])
+        wget_cmd_d.update(main_continuous=[wget_main_continuous])
 
-        # DEV: For addm dev code - it is not needed fot TKU.
-        # Compose download wget cmd for NIGHTLY
-        wget_main_latest = wget_rec.format(cut=4, ftp=buildhub_paths_d['main_latest'], excl=exclude_dirs_main,
-                                           dir=download_paths_d['main_latest'])
-        wget_cmd_d.update(main_latest=wget_main_latest)
+        wget_main_latest = wget_rec.format(
+            cut=4, ftp=buildhub_paths_d['main_latest'], excl=exclude_dirs_main,
+            dir=download_paths_d['main_latest'])
+        wget_cmd_d.update(main_latest=[wget_main_latest])
 
-        # Compose download wget cmd for tkn_main_continuous
-        # 4 - do not cut addm version folders
-        tkn_main_cont_wget = wget_rec.format(cut=4, ftp=buildhub_paths_d['tkn_main_cont_path'], excl=exclude_dirs,
-                                             dir=download_paths_d['tkn_main_continuous'])
-        # For TKN_SHIP:
-        tkn_ship_cont_wget = wget_rec.format(cut=4, ftp=buildhub_paths_d['tkn_ship_cont_path'], excl=exclude_dirs,
-                                             dir=download_paths_d['tkn_ship_continuous'])
+        tkn_main_cont_wget = wget_rec.format(
+            cut=4, ftp=buildhub_paths_d['tkn_main_cont_path'], excl=exclude_dirs,
+            dir=download_paths_d['tkn_main_continuous'])
+        wget_cmd_d.update(tkn_main_continuous=[tkn_main_cont_wget])
 
-        wget_cmd_d.update(
-            tkn_main_continuous=tkn_main_cont_wget,
-            tkn_ship_continuous=tkn_ship_cont_wget,
-        )
+        # For TKN_SHIP CONTINUOUS:
+        ship_cont_cmd_l = []
+        _, ship_cont_urls = self.parse_released_tkn_html(buildhub_paths_d['tkn_ship_cont_path'],
+                                                         download_paths_d['tkn_ship_continuous'])
+        for _url in ship_cont_urls:
+            ship_cont_cmd = wget_rec.format(cut=1, ftp=_url, dir=download_paths_d['tkn_ship_continuous'],
+                                            excl=exclude_dirs)
+            if ship_cont_cmd not in ship_cont_cmd_l:
+                ship_cont_cmd_l.append(ship_cont_cmd)
+        wget_cmd_d.update(tkn_ship_continuous=ship_cont_cmd_l)
+
+        # GA Candidate -  Compose download wget cmd for each sprint TKN Get all parsed paths to ga_candidate:
+        ga_cmd_l = []
+        ga_urls, _ = self.parse_released_tkn_html(buildhub_paths_d['ga_candidate_path'],
+                                                  download_paths_d['ga_candidate'])
+        for _url in ga_urls:
+            ga_cmd = wget_rec.format(cut=1, ftp=_url, dir=download_paths_d['ga_candidate'],
+                                     excl=exclude_dirs)
+            if ga_cmd not in ga_cmd_l:
+                ga_cmd_l.append(ga_cmd)
+        wget_cmd_d.update(ga_candidate=ga_cmd_l)
 
         # Compose download wget cmd for each sprint TKN
-        for sprint in release_sprints:
-            wget_sprints_html = wget_rec.format(cut=3, ftp=sprint, dir=download_paths_d['released_tkn'],
-                                                excl=exclude_dirs)
-            if wget_sprints_html not in wget_cmd_d:
-                wget_cmd_d.update(released_tkn=wget_sprints_html)
-
-        # GA Candidate -  Compose download wget cmd for each sprint TKN
-        for ga_candidate in ga_candidates:
-            ga_candidate_html = wget_rec.format(cut=1, ftp=ga_candidate, dir=download_paths_d['ga_candidate'],
-                                                excl=exclude_dirs)
-            if ga_candidate_html not in wget_cmd_d:
-                wget_cmd_d.update(ga_candidate=ga_candidate_html)
+        released_cmd_l = []
+        released_urls, _ = self.parse_released_tkn_html(buildhub_paths_d['release_sprints'],
+                                                        download_paths_d['released_tkn'])
+        for _url in released_urls:
+            released_cmd = wget_rec.format(cut=3, ftp=_url, dir=download_paths_d['released_tkn'],
+                                           excl=exclude_dirs)
+            if released_cmd not in released_cmd_l:
+                released_cmd_l.append(released_cmd)
+        wget_cmd_d.update(released_tkn=released_cmd_l)
 
         # Compose paths to download separately released packages for ADDM VA:
+        addm_va_cmd_l = []
         for addm_va_d_item in buildhub_paths_d['addm_tkn_paths']:
             for va_k, va_v in addm_va_d_item.items():
-                # local_path_to_zip = download_paths_d['addm_released']+va_k
                 wget_addm_va = wget_rec.format(cut=2, ftp=va_v, dir=download_paths_d['addm_released'],
                                                excl=exclude_dirs)
                 if wget_addm_va not in wget_cmd_d:
-                    # log.debug("<=LocalDownloads=> Download ADDM VA: %s %s", va_k, wget_addm_va)
-                    wget_cmd_d.update(addm_released=wget_addm_va)
-
-        log.debug("<=LocalDownloads=> Compose commands! %s", wget_cmd_d)
+                    addm_va_cmd_l.append(wget_addm_va)
+        wget_cmd_d.update(addm_released=addm_va_cmd_l)
         return wget_cmd_d
 
     def wget_tku_build_hub_option(self, **kwargs):
@@ -895,13 +898,20 @@ class LocalDownloads:
         import subprocess
         tku_key = kwargs.get('tku_type', None)
         outputs_l = []
-        command_list = []
+        cmd_l_nested = []
         wget_cmd_d = self.tku_wget_cmd_compose()
+
+        log.debug(f"All CMDs: {wget_cmd_d}")
+
         if tku_key:
-            command_list = [wget_cmd_d[tku_key]]  # tkn_main_continuous
+            cmd_l_nested.append(wget_cmd_d[tku_key])  # tkn_main_continuous, GA and SHIP cont
         else:
-            for k, v in wget_cmd_d.items():
-                command_list.append(v)
+            for v in wget_cmd_d.values():
+                cmd_l_nested.append(v)
+
+        log.debug(f"WGET Nested CMD list: {cmd_l_nested}")
+        command_list = list(itertools.chain(*cmd_l_nested))
+        log.debug(f"WGET Flatten CMD list: {command_list}")
 
         for command in command_list:
             try:
@@ -918,6 +928,8 @@ class LocalDownloads:
 
         # Get usual paths to all TKNs AND:
         _, download_paths_d = self.tku_local_paths()
+
+        # return "DEBUG: Finish, do not parse!"
         self.tku_packages_parse(download_paths_d)
 
         # Do not return outputs, because we don't care of saving them to database instead of read logs!
@@ -925,26 +937,32 @@ class LocalDownloads:
         # return f"Finished WGET, commands run: {command_list}, stderr: {outputs_l[1]}"
 
     @staticmethod
-    def parse_released_tkn_html(release_sprints, released_tkn):
+    def parse_released_tkn_html(buildhub_path, download_path):
         """
         Parse HTML in RELEASED/TKN/index.html to get all located sprint builds in there.
         Compose links ready to download.
-
           2020 Oct 12 08:30  Directory   <a href="ftp://buildhub.tideway.com:21/hub/RELEASED/TKN/TKN-Release-2020-10-1-5/">TKN-Release-2020-10-1-5/</a>
+          ftp://buildhub.tideway.com/hub/TKN-Release-0000-00-0-150
 
+        If TKN-Release-0000-00-0-5 - it's not release.
+        If TKN-Release-2020-10-1-5 - it's a release.
 
         :return:
         """
         import subprocess
         run_cmd = []
         all_last_sprints = []
+        ship_ga_builds = []
+
         last_tkn_r = re.compile(r"(TKN-Release-\d+-\d+-\d+-\d+)")
+        ship_ga_r = re.compile(r"(TKN-Release-0{4}-0{2}-\d+-\d+)")
+        # Old
         # last_tkn_released_r = re.compile(r"(TKN-Release-\d+-\d+-\d+-\d+)")
 
-        log.debug("<=LocalDownloads=> Parsing index.html for %s to get sprint builds.", released_tkn)
+        log.debug("<=LocalDownloads=> Parsing index.html for %s to get sprint builds.", download_path)
         try:
             # sftp://user@172.25.144.117/home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN/index.html
-            run_cmd = subprocess.Popen(['wget', '--timestamping', release_sprints, '--directory-prefix', released_tkn],
+            run_cmd = subprocess.Popen(['wget', '--timestamping', buildhub_path, '--directory-prefix', download_path],
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
             run_cmd.communicate()
@@ -952,20 +970,34 @@ class LocalDownloads:
         except Exception as e:
             log.error("<=LocalDownloads=> Error during operation for: %s %s", run_cmd, e)
 
-        index_file = released_tkn + "/index.html"
+        index_file = download_path + "/index.html"
         if os.path.isfile(index_file):
             open_file = open(index_file, "r")
             read_file = open_file.read()
+
+            ship_ga = ship_ga_r.findall(read_file)
             latest_tkn = last_tkn_r.findall(read_file)
             open_file.close()
-            # Delete index file from /upload/HUB/GA_CANDIDATE/ folder
-            os.remove(index_file)
-            for found in latest_tkn:
-                tkn_release_link = release_sprints + found + '/'
-                if tkn_release_link not in all_last_sprints:
-                    all_last_sprints.append(tkn_release_link)
 
-        return all_last_sprints
+            # Released TKN-Release-2020-10-1-5 sort
+            if not ship_ga:
+                for found in latest_tkn:
+                    tkn_release_link = buildhub_path + found + '/'
+                    if tkn_release_link not in all_last_sprints:
+                        all_last_sprints.append(tkn_release_link)
+            else:
+                # SHIP GA TKN-Release-0000-00-0-5 sort
+                for found in ship_ga:
+                    ship_ga_link = buildhub_path + found + '/'
+                    if ship_ga_link not in ship_ga_builds:
+                        ship_ga_builds.append(ship_ga_link)
+
+        # Delete index file from /upload/HUB/GA_CANDIDATE/ folder
+        log.debug(f"Removing index_file: {index_file}")
+        os.remove(index_file)
+
+        # log.debug(f"all_last_sprints = {all_last_sprints}, ship_ga_builds = {ship_ga_builds}")
+        return all_last_sprints, ship_ga_builds
 
     def tku_packages_parse(self, download_paths_d):
         """
@@ -1088,36 +1120,64 @@ class LocalDownloads:
                             self.insert_tku_package(addm_edp_zip_list)
 
             elif key == 'tkn_ship_continuous':
-                # /home/user/TH_Octopus/UPLOAD/HUB/tkn_main_continuous
+                # /home/user/TH_Octopus/UPLOAD/HUB/tkn_ship_continuous
                 tku_content = os.listdir(path_v)
                 for dir_item in tku_content:
-                    # log.debug("dir_item %s", dir_item)
-
-                    # /home/user/TH_Octopus/UPLOAD/HUB/tkn_main_continuous/11.3
+                    # /home/user/TH_Octopus/UPLOAD//HUB/TKN_SHIP_CONT/TKN-Release-0000-00-0-166/publish/tkn/12.1
                     path_to_dir_item = os.path.join(path_v, dir_item)
                     if os.path.isdir(path_to_dir_item):
+                        ship_cont_publish = os.path.join(path_to_dir_item, 'publish', 'tkn')
+                        # tkn_release_kickstarts = os.path.join(path_to_dir_item, 'kickstarts', 'tkn')
+                        # GO in ADDM ver folder:
+                        if os.path.isdir(ship_cont_publish):
+                            addm_ver_dirs = os.listdir(ship_cont_publish)
+                            # Each ADDM ver folder step in:
+                            for addm_ver_folder in addm_ver_dirs:
+                                # List all ZIPs in tku folder
+                                tku_zips = os.path.join(ship_cont_publish, addm_ver_folder, 'tku')
+                                if os.path.isdir(tku_zips):
+                                    tku_content = os.listdir(tku_zips)
+                                    addm_tku_zip_list = self.compose_tku_args(dir_content=tku_content,
+                                                                              tku_zips=tku_zips,
+                                                                              dir_key=key,
+                                                                              pkg=dir_item,
+                                                                              zip_type='tku')
+                                    # log.debug("<=LocalDownloads=> Insert TKU ga_candidate package details in db.")
+                                    self.insert_tku_package(addm_tku_zip_list)
 
+                                # List all ZIPs in edp folder
+                                edp_zips = os.path.join(ship_cont_publish, addm_ver_folder, 'edp')
+                                if os.path.isdir(edp_zips):
+                                    edp_content = os.listdir(edp_zips)
+                                    addm_edp_zip_list = self.compose_tku_args(dir_content=edp_content,
+                                                                              tku_zips=edp_zips,
+                                                                              dir_key=key,
+                                                                              pkg=dir_item,
+                                                                              zip_type='edp')
+                                    # log.debug("<=LocalDownloads=> Insert TKU ga_candidate package details in db.")
+                                    self.insert_tku_package(addm_edp_zip_list)
+                        # OLD tkn_ship_continuous:
                         # /home/user/TH_Octopus/UPLOAD/HUB/tkn_main_continuous/11.3/tku/
-                        tku_zips = os.path.join(path_to_dir_item, 'tku')
-                        if os.path.isdir(tku_zips):
-                            tku_content = os.listdir(tku_zips)
-                            addm_tku_zip_list = self.compose_tku_args(dir_content=tku_content,
-                                                                      tku_zips=tku_zips,
-                                                                      dir_key=key,
-                                                                      zip_type='tku')
-                            # log.debug("<=LocalDownloads=> Insert TKU tkn_main_continuous package details in db.")
-                            self.insert_tku_package(addm_tku_zip_list)
-
-                        # List all ZIPs in edp folder
-                        edp_zips = os.path.join(path_to_dir_item, 'edp')
-                        if os.path.isdir(edp_zips):
-                            edp_content = os.listdir(edp_zips)
-                            addm_edp_zip_list = self.compose_tku_args(dir_content=edp_content,
-                                                                      tku_zips=edp_zips,
-                                                                      dir_key=key,
-                                                                      zip_type='edp')
-                            # log.debug("<=LocalDownloads=> Insert TKU tkn_main_continuous package details in db.")
-                            self.insert_tku_package(addm_edp_zip_list)
+                        # tku_zips = os.path.join(path_to_dir_item, 'tku')
+                        # if os.path.isdir(tku_zips):
+                        #     tku_content = os.listdir(tku_zips)
+                        #     addm_tku_zip_list = self.compose_tku_args(dir_content=tku_content,
+                        #                                               tku_zips=tku_zips,
+                        #                                               dir_key=key,
+                        #                                               zip_type='tku')
+                        #     # log.debug("<=LocalDownloads=> Insert TKU tkn_main_continuous package details in db.")
+                        #     self.insert_tku_package(addm_tku_zip_list)
+                        #
+                        # # List all ZIPs in edp folder
+                        # edp_zips = os.path.join(path_to_dir_item, 'edp')
+                        # if os.path.isdir(edp_zips):
+                        #     edp_content = os.listdir(edp_zips)
+                        #     addm_edp_zip_list = self.compose_tku_args(dir_content=edp_content,
+                        #                                               tku_zips=edp_zips,
+                        #                                               dir_key=key,
+                        #                                               zip_type='edp')
+                        #     # log.debug("<=LocalDownloads=> Insert TKU tkn_main_continuous package details in db.")
+                        #     self.insert_tku_package(addm_edp_zip_list)
 
             elif key == 'ga_candidate':
                 # /home/user/TH_Octopus/UPLOAD/HUB/RELEASED/TKN/TKN_release_2018-01-1-76/publish/tkn/11.3/tku/
@@ -1137,7 +1197,6 @@ class LocalDownloads:
                                 tku_zips = os.path.join(tkn_release_publish, addm_ver_folder, 'tku')
                                 if os.path.isdir(tku_zips):
                                     tku_content = os.listdir(tku_zips)
-
                                     addm_tku_zip_list = self.compose_tku_args(dir_content=tku_content,
                                                                               tku_zips=tku_zips,
                                                                               dir_key=key,
