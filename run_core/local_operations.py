@@ -819,20 +819,19 @@ class LocalDownloads:
                    "--cut-dirs={cut};{ftp};" \
                    "--directory-prefix={dir}"
 
-        wget_scope_latest = wget_rec.format(
-            cut=5, ftp=buildhub_paths_d['scope_latest'], excl=exclude_dirs_main,
-            dir=download_paths_d['scope_latest'])
-        wget_cmd_d.update(scope_latest=[wget_scope_latest])
-
-        wget_main_continuous = wget_rec.format(
-            cut=4, ftp=buildhub_paths_d['main_continuous'], excl=exclude_dirs_main,
-            dir=download_paths_d['main_continuous'])
-        wget_cmd_d.update(main_continuous=[wget_main_continuous])
-
-        wget_main_latest = wget_rec.format(
-            cut=4, ftp=buildhub_paths_d['main_latest'], excl=exclude_dirs_main,
-            dir=download_paths_d['main_latest'])
-        wget_cmd_d.update(main_latest=[wget_main_latest])
+        # Disable some DEV:
+        # wget_scope_latest = wget_rec.format(
+        #     cut=5, ftp=buildhub_paths_d['scope_latest'], excl=exclude_dirs_main,
+        #     dir=download_paths_d['scope_latest'])
+        # wget_cmd_d.update(scope_latest=[wget_scope_latest])
+        # wget_main_continuous = wget_rec.format(
+        #     cut=4, ftp=buildhub_paths_d['main_continuous'], excl=exclude_dirs_main,
+        #     dir=download_paths_d['main_continuous'])
+        # wget_cmd_d.update(main_continuous=[wget_main_continuous])
+        # wget_main_latest = wget_rec.format(
+        #     cut=4, ftp=buildhub_paths_d['main_latest'], excl=exclude_dirs_main,
+        #     dir=download_paths_d['main_latest'])
+        # wget_cmd_d.update(main_latest=[wget_main_latest])
 
         tkn_main_cont_wget = wget_rec.format(
             cut=4, ftp=buildhub_paths_d['tkn_main_cont_path'], excl=exclude_dirs,
