@@ -39,9 +39,6 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
     def setUp(self):
         octo_tests.OctoTestCase.setUp(self)
         # self.user_and_mail('Danylcha', "Dan@bmc.com")
-        # self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
-        self.tkn_main_addm_group_l = ['beta', 'charlie', 'delta', 'hotel', 'india', 'juliett']
-        self.tkn_ship_addm_group_l = ['echo','foxtrot','golf', 'kilo']
 
     def test001_product_content_update_tkn_main(self):
         """
@@ -57,7 +54,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=self.tkn_main_addm_group_l,
+            addm_group__in=self.addm_group_l,
             addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
@@ -77,7 +74,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=self.tkn_ship_addm_group_l,
+            addm_group__in=self.addm_group_l,
             addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
@@ -89,6 +86,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         Update tideway devices rpm for branch main, for all listed ADDMs: ['beta']
         :return:
         """
+        self.addm_group_l = Options.objects.get(option_key__exact='night_workers.tkn_main').option_value.replace(' ', '').split(',')
         self.silent = True
         self.tku_wget = False
         self.fake_run = False
@@ -97,7 +95,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=self.tkn_main_addm_group_l,
+            addm_group__in=self.addm_group_l,
             addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
@@ -109,6 +107,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         Update tideway devices RPMs for branch ship, for all listed ADDMs: ['echo']
         :return:
         """
+        self.addm_group_l = Options.objects.get(option_key__exact='night_workers.tkn_ship').option_value.replace(' ', '').split(',')
         self.silent = True
         self.tku_wget = False
         self.fake_run = False
@@ -117,7 +116,7 @@ class OctoTestCaseUpload(octo_tests.OctoTestCase):
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=self.tkn_ship_addm_group_l,
+            addm_group__in=self.addm_group_l,
             addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['bobblehat', 'custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
