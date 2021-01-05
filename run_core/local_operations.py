@@ -974,30 +974,27 @@ class LocalDownloads:
             open_file = open(index_file, "r")
             read_file = open_file.read()
 
-            ship_ga = ship_ga_r.findall(read_file)
-            log.info(f"ship_ga: {ship_ga}")
             latest_tkn = last_tkn_r.findall(read_file)
-            log.info(f"latest_tkn: {latest_tkn}")
-            open_file.close()
-
             # Released TKN-Release-2020-10-1-5 sort
-            if not ship_ga:
-                for found in latest_tkn:
-                    tkn_release_link = buildhub_path + found + '/'
-                    if tkn_release_link not in all_last_sprints:
-                        all_last_sprints.append(tkn_release_link)
-            else:
-                # SHIP GA TKN-Release-0000-00-0-5 sort
-                for found in ship_ga:
-                    ship_ga_link = buildhub_path + found + '/'
-                    if ship_ga_link not in ship_ga_builds:
-                        ship_ga_builds.append(ship_ga_link)
+            for found in latest_tkn:
+                tkn_release_link = buildhub_path + found + '/'
+                if tkn_release_link not in all_last_sprints:
+                    all_last_sprints.append(tkn_release_link)
+
+            ship_ga = ship_ga_r.findall(read_file)
+            # SHIP GA TKN-Release-0000-00-0-5 sort
+            for found in ship_ga:
+                ship_ga_link = buildhub_path + found + '/'
+                if ship_ga_link not in ship_ga_builds:
+                    ship_ga_builds.append(ship_ga_link)
+
+            open_file.close()
 
         # Delete index file from /upload/HUB/GA_CANDIDATE/ folder
         log.debug(f"Removing index_file: {index_file}")
         os.remove(index_file)
 
-        log.debug(f"all_last_sprints = {all_last_sprints}, ship_ga_builds = {ship_ga_builds}")
+        # log.debug(f"all_last_sprints = {all_last_sprints}, ship_ga_builds = {ship_ga_builds}")
         return all_last_sprints, ship_ga_builds
 
     def tku_packages_parse(self, download_paths_d):
