@@ -953,7 +953,7 @@ class LocalDownloads:
         all_last_sprints = []
         ship_ga_builds = []
 
-        last_tkn_r = re.compile(r"(TKN-Release-\d+-\d+-\d+-\d+)")
+        last_tkn_r = re.compile(r"(TKN-Release-(?!0{4})\d+-\d+-\d+-\d+)")
         ship_ga_r = re.compile(r"(TKN-Release-0{4}-0{2}-\d+-\d+)")
         # Old
         # last_tkn_released_r = re.compile(r"(TKN-Release-\d+-\d+-\d+-\d+)")
@@ -975,7 +975,9 @@ class LocalDownloads:
             read_file = open_file.read()
 
             ship_ga = ship_ga_r.findall(read_file)
+            log.info(f"ship_ga: {ship_ga}")
             latest_tkn = last_tkn_r.findall(read_file)
+            log.info(f"latest_tkn: {latest_tkn}")
             open_file.close()
 
             # Released TKN-Release-2020-10-1-5 sort
@@ -995,7 +997,7 @@ class LocalDownloads:
         log.debug(f"Removing index_file: {index_file}")
         os.remove(index_file)
 
-        # log.debug(f"all_last_sprints = {all_last_sprints}, ship_ga_builds = {ship_ga_builds}")
+        log.debug(f"all_last_sprints = {all_last_sprints}, ship_ga_builds = {ship_ga_builds}")
         return all_last_sprints, ship_ga_builds
 
     def tku_packages_parse(self, download_paths_d):
