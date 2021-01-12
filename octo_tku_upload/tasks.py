@@ -121,28 +121,28 @@ class TKUSignalExecCases:
             log.info(f"<=Signal=> TKU Trigger for build: {instance.tku_name} and {instance.zip_type} and {instance.addm_version} ")
             if instance.tku_type == 'ga_candidate':
                 # If GA - run test009_release_ga_upgrade_and_fresh
-                test_method = 'test009_release_ga_upgrade_and_fresh'
-                log.info(f"<=Signal=> Running TKU Upload test {test_method} for {instance.tku_type}")
+                test_key = 'release_ga_upgrade_and_fresh'
+                log.info(f"<=Signal=> Running TKU Upload test {test_key} for {instance.tku_type}")
             elif instance.tku_type == 'tkn_main_continuous':
                 # If main continuous: run test007_tkn_main_continuous_fresh
-                test_method = 'test007_tkn_main_continuous_fresh'
-                log.info(f"<=Signal=> Running TKU Upload test {test_method} for {instance.tku_type}")
+                test_key = 'continuous_tkn_main_fresh'
+                log.info(f"<=Signal=> Running TKU Upload test {test_key} for {instance.tku_type}")
+
+            # TODO: Add ship_upgrade_and_fresh
             elif instance.tku_type == 'tkn_ship_continuous':
                 # If ship continuous: run test008_tkn_ship_continuous_fresh
-                test_method = 'test008_tkn_ship_continuous_fresh'
-                log.info(f"<=Signal=> Running TKU Upload test {test_method} for {instance.tku_type}")
+                test_key = 'continuous_tkn_ship_fresh'
+                log.info(f"<=Signal=> Running TKU Upload test {test_key} for {instance.tku_type}")
             else:
-                test_method = None
+                test_key = None
                 log.debug(f'<=Signal=> No Automatic Upload tests for {instance.tku_type}')
                 return f'No Automatic Upload tests for {instance.tku_type}'
 
             if instance.tku_type:
                 kw_options = dict(
-                    test_method=test_method,
-                    test_class='OctoTestCaseUpload',
-                    test_module='octotests.tests.octotest_upload_tku',
+                    test_key=test_key,
                 )
-                t_tag = f'tag=t_upload_test;user_name=Cron;test_method={test_method}'
+                t_tag = f'tag=t_upload_test;user_name=Cron;test_method={test_key}'
                 t_queue = 'w_routines@tentacle.dq2'
                 t_routing_key = 'TKUSignalExecCases.tku_install_test.TUploadExec.t_upload_routines'
                 Runner.fire_t(TUploadExec.t_upload_routines,
@@ -282,6 +282,11 @@ class UploadTaskPrepare:
         return package_type['package_type__max']
 
     @staticmethod
+    def select_latest_ship():
+        package_type = TkuPackages.objects.filter(tku_type__exact='tkn_ship_continuous').aggregate(Max('package_type'))
+        return package_type['package_type__max']
+
+    @staticmethod
     def select_latest_released():
         package_type = TkuPackages.objects.filter(tku_type__exact='released_tkn').aggregate(Max('package_type'))
         return package_type['package_type__max']
@@ -316,6 +321,7 @@ class UploadTaskPrepare:
         # Mode to install Released TKU and then GA over it:
         if self.test_mode == 'update':
             log.info(f"'<=UploadTaskPrepare=>' Will install TKU in UPDATE mode.")
+
             # 1st step - use previously released package:
             released_tkn = TkuPackages.objects.filter(
                 tku_type__exact='released_tkn').aggregate(Max('package_type'))
@@ -323,13 +329,23 @@ class UploadTaskPrepare:
                 tku_type__exact='released_tkn',
                 package_type__exact=released_tkn['package_type__max'])
             packages.update(step_1=package)
+
+            # TODO: Add get logic for same as GA but for SHIP build
             # 2nd step - use GA candidate package:
-            ga_candidate = TkuPackages.objects.filter(
-                tku_type__exact='ga_candidate').aggregate(Max('package_type'))
-            package = TkuPackages.objects.filter(
-                tku_type__exact='ga_candidate',
-                package_type__exact=ga_candidate['package_type__max'])
-            packages.update(step_2=package)
+            if self.tku_type == 'tkn_ship_continuous':
+                ga_candidate = TkuPackages.objects.filter(
+                    tku_type__exact='tkn_ship_continuous').aggregate(Max('package_type'))
+                package = TkuPackages.objects.filter(
+                    tku_type__exact='tkn_ship_continuous',
+                    package_type__exact=ga_candidate['package_type__max'])
+                packages.update(step_2=package)
+            else:
+                ga_candidate = TkuPackages.objects.filter(
+                    tku_type__exact='ga_candidate').aggregate(Max('package_type'))
+                package = TkuPackages.objects.filter(
+                    tku_type__exact='ga_candidate',
+                    package_type__exact=ga_candidate['package_type__max'])
+                packages.update(step_2=package)
         # Mode to install any TKU as fresh or step, one by one.
         elif self.test_mode == 'step' or self.test_mode == 'fresh':
             log.info(f"'<=UploadTaskPrepare=>'Install TKU in {self.test_mode} mode - {self.package_types}")
@@ -645,19 +661,28 @@ class TestCases(UploadTaskPrepare):
             product_content_tkn_ship_update=self.test002_product_content_update_tkn_ship,
             tideway_devices_tkn_main_update=self.test003_tideway_devices_update_tkn_main,
             tideway_devices_tkn_ship_update=self.test004_tideway_devices_update_tkn_ship,
+
+            release_ga_upgrade_and_fresh=self.test009_release_ga_upgrade_and_fresh,
             release_ga_upgrade=self.test005_release_ga_upgrade,
             release_ga_fresh=self.test006_release_ga_fresh,
+
+            ship_upgrade_and_fresh=self.test020_ship_upgrade_and_fresh,
+            ship_upgrade=self.test018_ship_cont_upgrade,
+            ship_fresh=self.test019_ship_cont_fresh,
+
             continuous_tkn_main_fresh=self.test007_tkn_main_continuous_fresh,
             continuous_tkn_ship_fresh=self.test008_tkn_ship_continuous_fresh,
-            release_ga_upgrade_and_fresh=self.test009_release_ga_upgrade_and_fresh,
+
             product_content_tkn_main_update_beta=self.test010_product_content_update_tkn_main_beta,
             product_content_tkn_ship_update_echo=self.test011_product_content_update_tkn_ship_echo,
             product_content_main_options_addm_update=self.test012_product_content_update_main_options_addm,
             product_content_ship_options_addm_update=self.test013_product_content_update_ship_options_addm,
             product_content_main_continuous_update=self.test014_product_content_update_main_continuous,
             product_content_main_latest_update=self.test015_product_content_update_main_latest,
+
             tku_install_main_continuous=self.test016_tku_install_main_continuous,
             tku_install_main_latest=self.test017_tku_install_main_latest,
+
             TEST_tkn_main_continuous_fresh=self.test999_tkn_main_continuous_fresh,
             jenkins_ship_cont=self.test1000_jenkins_tkn_ship_cont,
         )
@@ -994,6 +1019,37 @@ class TestCases(UploadTaskPrepare):
             # addm_name__in=['fish_finger'],
             disables__isnull=True).order_by('addm_group')
         self.run_case()
+
+    def test018_ship_cont_upgrade(self):
+        """
+        Ship Upgrade mode
+        :return:
+        """
+        self.tku_type = 'tkn_ship_continuous'
+        self.test_mode = 'update'
+        self.revert_snapshot = True
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['alpha'],
+            disables__isnull=True).order_by('addm_group')
+        self.run_case()
+
+    def test019_ship_cont_fresh(self):
+        """
+        SHIP Fresh mode
+        :return:
+        """
+        package_type = self.select_latest_ship()
+        self.test_mode = 'fresh'
+        self.revert_snapshot = True
+        self.addm_set = self.addm_set.filter(
+            addm_group__in=['alpha'],
+            disables__isnull=True).order_by('addm_group')
+        self.package_types = [package_type]
+        self.run_case()
+
+    def test020_ship_upgrade_and_fresh(self):
+        self.test018_ship_cont_upgrade()
+        self.test019_ship_cont_fresh()
 
     def test999_tkn_main_continuous_fresh(self):
         """
