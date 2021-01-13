@@ -127,6 +127,8 @@ run_core/old_migrations/__pycache__/
 run_core/old_migrations/0024_auto_20180921_0949.py
 run_core/old_migrations/0025_auto_20180921_0953.py
 run_core/old_migrations/0023_merge_20180921_0946.py
+octo_tku_patterns/migrations/*
+run_core/migrations/*
 
 git_commit.sh
 git_pull.sh
@@ -160,3 +162,5 @@ z_DEV/test_999_local_debug.sql
 /z_DEV/services/*
 /z_DEV/lib_examples/*
 /static/rest_framework/*
+*.pyc
+

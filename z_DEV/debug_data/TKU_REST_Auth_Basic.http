@@ -12,7 +12,6 @@ Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
 POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/
 Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
 
-
 ### Simple token
 POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/
 Content-Type: application/json
