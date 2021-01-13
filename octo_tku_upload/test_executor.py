@@ -103,7 +103,7 @@ class UploadTestExec:
                           t_routing_key=f'{addm_group}.upload_preparations.TaskADDMService.t_addm_cmd_thread')
         # Log save:
         UploadTaskPrepareLog(
-            subject=f"ADDM Prepare Finish | {step_k} | {addm_group}",
+            subject=f"ADDM Prepare task Finish | {step_k} | {addm_group}",
             details=f"ADDM group: {addm_group}\ntest_mode: {test_mode}\nstep_k: {step_k}\npreps: {preps}").save()
 
         return True
@@ -162,7 +162,7 @@ class UploadTestExec:
                f"\n\ttku_type: {pack.tku_type}, \n\tpackage_type: {pack.package_type}, \n\tstart_time: {start_time}, " \
                f"\n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
         UploadTaskPrepareLog(
-            subject=f"TKU Unzip Finish| {step_k} |  {addm_group} | Finished!",
+            subject=f"TKU Unzip task Finish| {step_k} |  {addm_group} | Finished!",
             details=body
         ).save()
 
@@ -232,7 +232,7 @@ class UploadTestExec:
             self.model_save_insert(th_out=th_out, test_mode=test_mode, mode_key=mode_key, packages=packages, ts=ts)
 
         # Email confirmation when execution was finished:
-        subject = f"TKU Install Finish | {test_mode} | {step_k} | {addm_group} | Finished!"
+        subject = f"TKU Install task Finish | {test_mode} | {step_k} | {addm_group} | Finished!"
         log.info(subject)
         body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, tku_type: {pack.tku_type}, " \
                f"package_type: {pack.package_type}, package_detail: {package_detail}, " \

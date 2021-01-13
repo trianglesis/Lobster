@@ -931,7 +931,7 @@ class LocalDownloads:
         self.tku_packages_parse(download_paths_d)
 
         # return f"Finished WGET, commands run: {command_list}, stderr: {outputs_l[1]}"
-        UploadTaskPrepareLog(subject=f"WGet finish! | For {tku_key if tku_key else 'all tku types'}",
+        UploadTaskPrepareLog(subject=f"WGet task finish! | For {tku_key if tku_key else 'all tku types'}",
                              details=f"WGET Finished. \nCMD {command_list}\n OUT: {outputs_l[1]}").save()
         return True
 

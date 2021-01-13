@@ -220,7 +220,7 @@ class UploadTaskPrepare:
 
     def run_tku_upload(self):
         # 0. Init test mail?
-        UploadTaskPrepareLog(subject=f"<=START=> | {self.test_mode} {self.test_key if self.test_key else ''}",
+        UploadTaskPrepareLog(subject=f"<=START=> Init routine | {self.test_mode} {self.test_key if self.test_key else ''}",
                              details=f"Upload test routine started! test_key: {self.test_key}, test mode: {self.test_mode}, tku_type: {self.tku_type}, user: {self.user_name}").save()
         # 1. Select ADDMs for test:
         self.select_addm()
@@ -235,7 +235,7 @@ class UploadTaskPrepare:
 
     def wget_run(self):
         if self.tku_wget:
-            UploadTaskPrepareLog(subject=f"WGet | {self.test_mode} {self.tku_type if self.tku_type else ''}",
+            UploadTaskPrepareLog(subject=f"WGet init task | {self.test_mode} {self.tku_type if self.tku_type else ''}",
                                  details=f"WGET Run! test mode: {self.test_mode}, tku_type: {self.tku_type}, user: {self.user_name}").save()
             task = Runner.fire_t(TUploadExec.t_tku_sync,
                                  fake_run=self.fake_run,
@@ -397,7 +397,7 @@ class UploadTaskPrepare:
                   "or in octotest overriding the query" \
                   "Stop the routine now."
             log.critical(msg)
-            UploadTaskPrepareLog(subject=f"ADDM Assigning | Fail!",
+            UploadTaskPrepareLog(subject=f"ADDM Assigning init| Fail!",
                                  details=f"ADDM group: {self.addm_group}, test mode: {self.test_mode}, user: {self.user_name}, {msg}").save()
             raise Exception(msg)
 
@@ -494,7 +494,7 @@ class UploadTaskPrepare:
                     user_email=self.user_email
                 )
                 UploadTaskPrepareLog(
-                    subject=f"ADDM Prepare Start| {self.test_mode} | {addm_group} | {step_k}",
+                    subject=f"ADDM Prepare init task | {self.test_mode} | {addm_group} | {step_k}",
                     details=f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k}, ").save()
                 # New approach: not task, because it produce other tasks for each operation:
                 UploadTestExec().upload_preparations(**options)
@@ -515,7 +515,7 @@ class UploadTaskPrepare:
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path')
 
             UploadTaskPrepareLog(
-                subject=f"TKU Unzip start| {self.test_mode} | {addm_group} | {step_k}",
+                subject=f"TKU Unzip init task | {self.test_mode} | {addm_group} | {step_k}",
                 details=f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, step_k: {step_k} packages: {list(packs)}").save()
             Runner.fire_t(TUploadExec.t_upload_unzip,
                           fake_run=self.fake_run,
@@ -539,7 +539,7 @@ class UploadTaskPrepare:
             packs = packages_from_step.values('tku_type', 'package_type', 'zip_file_name', 'zip_file_path', 'release',
                                               'zip_file_md5_digest')
             UploadTaskPrepareLog(
-                subject=f"TKU Install start| {self.test_mode} | {addm_group} | {step_k}",
+                subject=f"TKU Install init task | {self.test_mode} | {addm_group} | {step_k}",
                 details=f"ADDM group: {addm_group}, test mode: {self.test_mode}, user: {self.user_name}, "
                         f"tku_type: {self.tku_type} step_k: {step_k} packages: {list(packs)}, "
                         f"package_detail: {self.package_detail}").save()
