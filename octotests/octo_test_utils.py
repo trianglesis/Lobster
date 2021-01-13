@@ -10,7 +10,6 @@ from django.utils import timezone
 
 from octo.config_cred import mails
 from octo.helpers.tasks_run import Runner
-from octo.tasks import TSupport
 
 from octo_adm.tasks import TaskADDMService, TaskVMService
 from octo_tku_patterns.model_views import TestLatestDigestFailed
@@ -19,9 +18,7 @@ from octo_tku_patterns.night_test_balancer import BalanceNightTests
 from octo_tku_patterns.table_oper import PatternsDjangoTableOper
 from octo_tku_patterns.tasks import TPatternExecTest, MailDigests
 from octo_tku_patterns.tasks import TaskPrepare
-from octo_tku_upload.models import TkuPackagesNew as TkuPackages
-from octo_tku_upload.tasks import UploadTaskPrepare
-from run_core.addm_operations import ADDMOperations, ADDMStaticOperations
+from run_core.addm_operations import ADDMStaticOperations
 from run_core.models import AddmDev, PatternTestUtilsLog
 
 log = logging.getLogger("octo.octologger")
@@ -440,103 +437,3 @@ class PatternTestUtils(unittest.TestCase):
                       t_kwargs=mail_kwargs,
                       t_routing_key=f'z_{addm_group}.night_routine_mail.{mode}', )
         return True
-
-
-class UploadTaskUtils(unittest.TestCase, UploadTaskPrepare):
-
-    def __init__(self, *args, **kwargs):
-        super(UploadTaskUtils, self).__init__(*args, **kwargs)
-        self.user_name = 'OctoTests'
-        self.user_email = 'OctoTests'
-
-        self.silent = False
-        self.fake_run = False
-        self.tku_wget = False
-        self.test_mode = ''
-        self.tku_type = None
-        self.addm_group = None
-        self.package_types = None
-        self.package_detail = None
-        # To ignore filter packages by ADDM version during unzip func
-        self.development = False
-
-        # ADDM VM Snapshot:
-        self.revert_snapshot = False
-
-        self.packages = TkuPackages.objects.all()
-        if not self.addm_group:
-            self.addm_set = AddmDev.objects.all()
-
-        self.data = dict()
-        self.tasks_added = []
-
-    def setUp(self) -> None:
-        self.user_and_mail()
-        log.debug("<=UploadTaskUtils=> SetUp data %s", self.data)
-
-    def run_case(self):
-        log.info("<=UploadTaskUtils=> Running case!")
-        tasks = self.run_tku_upload()
-        log.info(f"tasks: {tasks}")
-
-    def tearDown(self) -> None:
-        log.debug("<=UploadTaskUtils=> Test finished, data: %s", self.data)
-
-    def check_tasks(self, tasks):
-        tasks_res = dict()
-        if not tasks:
-            msg = 'No tasks returned from case execution!'
-            raise Exception(msg)
-        for task in tasks:
-            res = AsyncResult(task.id)
-            # tasks_res.update({task.id: dict(status=res.status, result=res.result, state=res.state, args=res.args, kwargs=res.kwargs)})
-            tasks_res.update({task.id: dict(status=res.status, result=res.result, state=res.state)})
-            if res.status == 'FAILURE' or res.state == 'FAILURE':
-                msg = f'Task execution finished with failure status: \n\t{task.id}\n\t"{res.result}"'
-                raise Exception(msg)
-        self.debug_output(tasks_res)
-        return tasks_res
-
-    def debug_output(self, tasks_res):
-        if self.data.get('debug') or self.debug:
-            tasks_json = json.dumps(tasks_res, indent=2, ensure_ascii=False, default=pformat)
-            print(tasks_json)
-
-    def user_and_mail(self, user_name=None, user_email=None):
-        """
-        Allow Octopus to send confirmation and status emails for developer of the test.
-        Username and email should always be set up as default to indicate cron-automated tasks.
-        :param user_name: str
-        :param user_email: str
-        :return:
-        """
-        if user_name and user_email:
-            self.user_name = user_name
-            self.user_email = user_email
-
-    def select_addm(self):
-        if self.addm_group:
-            addm_set = AddmDev.objects.all()
-            self.addm_set = addm_set.filter(addm_group__exact=self.addm_group, disables__isnull=True).values()
-        else:
-            log.debug("Using addm set from test call.")
-
-    @staticmethod
-    def select_latest_continuous(tkn_branch):
-        pass
-
-    @staticmethod
-    def select_latest_ga():
-        pass
-
-    @staticmethod
-    def select_latest_released():
-        pass
-
-    @staticmethod
-    def select_any_amount_of_packages():
-        pass
-
-    @staticmethod
-    def preparation_step():
-        pass

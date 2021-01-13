@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.views.generic import TemplateView, ListView
 from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -28,6 +28,8 @@ from octo_tku_upload.api.serializers import TkuPackagesNewSerializer
 from octo_tku_upload.models import *
 from octo_tku_upload.table_oper import UploadTKUTableOper
 from octo_tku_upload.tasks import TUploadExec
+
+from octo_tku_upload.tasks import UploadTaskPrepare, TestCases
 
 log = logging.getLogger("octo.octologger")
 curr_hostname = getattr(settings, 'SITE_DOMAIN', None)
@@ -361,7 +363,7 @@ class UploadTestTodayArchiveView(TodayArchiveView):
 
 # Usual tasks for Upload
 class TKUOperationsREST(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def __init__(self, **kwargs):
@@ -372,8 +374,8 @@ class TKUOperationsREST(APIView):
         # metadata:
         self.user_name = ''
         self.user_email = ''
-        self.admin_users = ''
-        self.power_users = ''
+        self.manager_user = ''
+        self.executer_user = ''
         self.task_id = ''
         #  options:
         self.addm_version = ''
@@ -381,15 +383,14 @@ class TKUOperationsREST(APIView):
         self.test_mode = ''
         self.tku_type = ''
         self.tku_wget = ''
-        self.addm_group = ''
         self.package_type = ''
-        self.package_detail = ''
-        self.test_method = ''
-        self.test_class = ''
-        self.test_module = ''
+        self.test_key = ''
 
         self.fake_run = False
         self.goto_ = 'http://' + curr_hostname + '/octo_tku_upload/tku_operations/?operation_key='
+
+        self.data = kwargs
+        self.jenkins_said = ''
 
     def task_operations(self):
         """
@@ -399,11 +400,12 @@ class TKUOperationsREST(APIView):
         :return:
         """
         operations = dict(
-            tku_install_test=self.tku_install_test,
             tku_sync_packages=self.tku_sync_packages,
             tku_parse_packages=self.tku_parse_packages,
             show_latest_tku_type=self.show_latest_tku_type,
             select_latest_tku_type=self.select_latest_tku_type,
+            upload_test=self.upload_test,
+            jenkins_operations=self.jenkins_operations,
         )
         if self.operation_key:
             actions = operations.get(self.operation_key, 'No such operation key')
@@ -422,10 +424,9 @@ class TKUOperationsREST(APIView):
             self.test_mode = self.request.POST.get('test_mode', None)
             self.tku_type = self.request.POST.get('tku_type', None)
             self.package_type = self.request.POST.get('package_type', None)
+            self.test_key = self.request.POST.get('test_key', None)
 
-            self.test_method = self.request.POST.get('test_method', None)
-            self.test_class = self.request.POST.get('test_class', None)
-            self.test_module = self.request.POST.get('test_module', None)
+            self.jenkins_said = self.request.POST.get('jenkins_said', None)
 
         elif self.request.GET:
             log.debug(f"self.request.GET: {self.request.GET}")
@@ -437,20 +438,20 @@ class TKUOperationsREST(APIView):
             self.test_mode = self.request.GET.get('test_mode', None)
             self.tku_type = self.request.GET.get('tku_type', None)
             self.package_type = self.request.GET.get('package_type', None)
+            self.test_key = self.request.GET.get('test_key', None)
 
-            self.test_method = self.request.GET.get('test_method', None)
-            self.test_class = self.request.GET.get('test_class', None)
-            self.test_module = self.request.GET.get('test_module', None)
+            self.jenkins_said = self.request.GET.get('jenkins_said', None)
 
         self.is_authenticated = self.request.user.is_authenticated
         self.user_name = self.request.user.get_username()
         self.user_email = self.request.user.email
 
-        self.admin_users = self.request.user.groups.filter(name='admin_users').exists()
-        self.power_users = self.request.user.groups.filter(name='power_users').exists()
+        self.manager_user = self.request.user.groups.filter(name='manager').exists()
+        self.executer_user = self.request.user.groups.filter(name='executer').exists()
 
-        user_status = f'{self.user_name} {self.user_email} admin_users={self.admin_users} power_users={self.power_users}'
+        user_status = f'{self.user_name} {self.user_email} manager_user={self.manager_user} executer={self.executer_user}'
         log.info("<=TKUOperationsREST=> Request: %s", user_status)
+
         request_options = f'operation_key:{self.operation_key} tku_type:{self.tku_type} task_id:{self.task_id}'
         log.debug("<=TKUOperationsREST=> request_options: %s", request_options)
 
@@ -488,39 +489,35 @@ class TKUOperationsREST(APIView):
         """
         self.metadata_options_set()
         if self.operation_key:
-            run = self.task_operations()
-            result = run()
-            return Response(result)
+            operation = self.task_operations()
+            if callable(operation):
+                result = operation()
+                return Response(result)
+            else:
+                return Response(dict(error=f'Incorrect params, cannot select routine by provided operation_key!'))
         else:
+            log.warning(f"No operation key were provided! data: {self.data}")
             return Response(dict(error='No operation_key were specified!'))
 
-    def tku_install_test(self):
+    def upload_test(self):
         """
-        Run test of TKU Upload with selected 'tku_packages' or 'test_mode'. If test_mode selected - will run
-        predefined internal logic, of 'tku_package' selected - will install TKU as usual knowledge update without
-        additional steps or preparations.
-        operation_key=tku_install_test;test_method=test009_release_ga_upgrade_and_fresh;test_class=OctoTestCaseUpload;test_module=octotests.tests.octotest_upload_tku
-
+        Run selected upload test by it's name
         :return:
         """
-
-        kw_options = dict(
-            test_method=self.test_method,
-            test_class=self.test_class,
-            test_module=self.test_module,
-            user_name=self.request.user.username,
-            user_email=self.request.user.email,
+        kwargs = dict(
+            tku_wget=self.tku_wget,
+            test_mode=self.test_mode,
+            tku_type=self.tku_type,
+            user_name=self.user_name,
+            user_email=self.user_email,
+            test_key=self.test_key
         )
-        t_tag = f'tag=t_upload_test;user_name={self.request.user.username};test_method={self.test_method}'
-        t_queue = 'w_routines@tentacle.dq2'
-        t_routing_key = 'TKUOperationsREST.tku_install_test.TUploadExec.t_upload_routines'
+        log.debug(f"Send kwargs to TestCases ->  {kwargs}")
         task = Runner.fire_t(TUploadExec.t_upload_routines,
                              fake_run=self.fake_run,
-                             args=[t_tag],
-                             t_kwargs=kw_options,
-                             t_queue=t_queue,
-                             t_routing_key=t_routing_key)
-        return {'task_id': task.id}
+                             t_kwargs=kwargs,
+                             t_args=[str(kwargs)])
+        return {'task_id': task.id, 'added': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'routine_kwargs': kwargs}
 
     def tku_sync_packages(self):
         """
@@ -584,6 +581,64 @@ class TKUOperationsREST(APIView):
         packages = packages_qs.filter(package_type__exact=max_package.package_type)
         serializer = TkuPackagesNewSerializer(packages, many=True)
         return serializer.data
+
+    def jenkins_operations(self):
+        """
+        Give a signal for Octopus, when build is finished - to start download zip files and initiate a TKU Upload test.
+        | Uses two arguments:
+        | tku_type - this arg run WGET from Octopus for selected type of packages. This arg is also run different Upload approaches:
+        |    tku_type=addm_released, OR ga_candidate, released_tkn, tkn_main_continuous, tkn_ship_continuous
+        |    ga_candidate: will run upload upgrade and upload fresh routines by default;
+        |    tkn_main_continuous: will run simple tku fresh install, and will run product_content update for all ADDM machines for TKN_MAIN branch
+        |    tkn_ship_continuous: same as previous, but for ship;
+        |    tkn_ship_continuous with test_mode=upgrade - will run TKU Upgrade routine with SHIP continuous same as GA_CANDIDATE
+        | test_mode - OPTIONAL, this arg is used only for forced run of UPGRADE routine with tkn_ship_continuous package.
+        |    test_mode=update, OR other, but not yet implemented here (fresh, tideway_content, tideway_devices, step)
+        | package_type - OPTIONAL, this arg will indicate a package which will be installed.
+        |    package_type=TKN-Release-0000-00-0-227, OR TKN_release_2020-08-2-505, tkn_main_continuous_2071-01-1-000, etc.
+        | Example request:
+        | /octo_tku_upload/tku_operations/?operation_key=jenkins_operations&tku_type=tkn_ship_continuous&package_type=TKN-Release-0000-00-0-227&jenkins_said=IHaveFinished
+        - this will run usual fresh upload routine, and product_content update for other machines.
+        | /octo_tku_upload/tku_operations/?operation_key=jenkins_operations&tku_type=tkn_ship_continuous&package_type=TKN-Release-0000-00-0-227&test_mode=update
+        - this will run UPGRADE upload routine for ship build.
+        | Use token auth: curl -X GET /octo_tku_upload/tku_operations/ -H 'Authorization: Token HERE_YOUR_TOKEN'
+        | Help: https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication
+        :return:
+        """
+        kwargs_d = dict(
+            user_name=self.user_name,
+            user_email=self.user_email,
+
+            test_mode=self.test_mode,
+            tku_type=self.tku_type,
+            package_type=self.package_type,
+
+            jenkins_said=self.jenkins_said,
+        )
+        response = {
+            'routine_kwargs': kwargs_d,
+            'executed': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'message': 'Octopus will execute WGET operation for selected tku_type, then it will select latest package_type or provided by request as TKU Upload test',
+            'help': self.jenkins_operations.__doc__.replace('\n', '')
+        }
+
+        # TODO: Here run external decider, which will execute predefined routines, based on provided Jenkins params
+        if self.tku_type == 'tkn_ship_continuous':
+            kwargs_d.update(test_key='jenkins_ship_cont')
+        else:
+            msg = "I do not know this option yet, please use documented only!"
+            response.update(message=msg, error='ERROR - please read the message!')
+            return response
+
+        log.debug(f"Send kwargs to TestCases ->  {kwargs_d}")
+        task = Runner.fire_t(TUploadExec.t_upload_routines,
+                             fake_run=self.fake_run,
+                             t_kwargs=kwargs_d,
+                             t_args=[str(kwargs_d)])
+
+        log.info(f"<=JenkinsOperations=> Run TKU Upload test by Jenkins request: {kwargs_d}")
+        response.update(task_id=task.id, success="Task has been executed!")
+        return response
 
 
 ## Short views:

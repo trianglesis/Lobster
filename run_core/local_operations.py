@@ -26,7 +26,7 @@ from django.db.models.query import QuerySet
 from octo_tku_patterns.models import TestCases
 from octo_tku_patterns.table_oper import PatternsDjangoModelRaw
 from octo_tku_upload.models import TkuPackagesNew as TkuPackages
-from run_core.models import AddmDev, ADDMCommands
+from run_core.models import AddmDev, ADDMCommands, UploadTaskPrepareLog
 from run_core.p4_operations import PerforceOperations
 
 # Python logger
@@ -927,13 +927,13 @@ class LocalDownloads:
 
         # Get usual paths to all TKNs AND:
         _, download_paths_d = self.tku_local_paths()
-
-        # return "DEBUG: Finish, do not parse!"
+        # Start parsing packages
         self.tku_packages_parse(download_paths_d)
 
-        # Do not return outputs, because we don't care of saving them to database instead of read logs!
-        # return outputs_l
         # return f"Finished WGET, commands run: {command_list}, stderr: {outputs_l[1]}"
+        UploadTaskPrepareLog(subject=f"WGet finish! | For {tku_key if tku_key else 'all tku types'}",
+                             details=f"WGET Finished. \nCMD {command_list}\n OUT: {outputs_l[1]}").save()
+        return True
 
     @staticmethod
     def parse_released_tkn_html(buildhub_path, download_path):

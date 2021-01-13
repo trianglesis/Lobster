@@ -97,17 +97,16 @@ class UploadTestExec:
                     f'command_k={operation_cmd.command_key};'
             t_kwargs = dict(addm_set=addm_items, operation_cmd=operation_cmd)
             Runner.fire_t(TaskADDMService.t_addm_cmd_thread,
-                          fake_run=fake_run,
-                          to_sleep=2,
-                          to_debug=True,
+                          fake_run=fake_run, to_sleep=2, to_debug=True,
+                          t_args=[t_tag], t_kwargs=t_kwargs,
                           t_queue=f'{addm_group}@tentacle.dq2',
-                          t_args=[t_tag],
-                          t_kwargs=t_kwargs,
                           t_routing_key=f'{addm_group}.upload_preparations.TaskADDMService.t_addm_cmd_thread')
+        # Log save:
         UploadTaskPrepareLog(
-            subject=f"TKU_Upload_routines | upload_preparations | {step_k} |  {addm_group} | Executed!",
+            subject=f"ADDM Prepare Finish | {step_k} | {addm_group}",
             details=f"ADDM group: {addm_group}\ntest_mode: {test_mode}\nstep_k: {step_k}\npreps: {preps}").save()
-        return f'upload_preparations CMD: {preps}'
+
+        return True
 
     @exception
     def upload_unzip_threads(self, **kwargs):
@@ -158,12 +157,18 @@ class UploadTestExec:
             th_out = test_q.get()
             thread_outputs.append(th_out)
 
+        # Log save:
         body = f"ADDM group: {addm_group}, \n\ttest_mode: {test_mode}, \n\tstep_k: {step_k}, " \
                f"\n\ttku_type: {pack.tku_type}, \n\tpackage_type: {pack.package_type}, \n\tstart_time: {start_time}, " \
                f"\n\ttime spent: {time() - ts}, \n\tout: {thread_outputs}"
-        UploadTaskPrepareLog(subject=f"TKU_Upload_routines | upload_unzip_threads | {step_k} |  {addm_group} | Finished!",
-                             details=body).save()
-        return f'upload_unzip_threads Took {time() - ts} {body}'
+        UploadTaskPrepareLog(
+            subject=f"TKU Unzip Finish| {step_k} |  {addm_group} | Finished!",
+            details=body
+        ).save()
+
+        log.debug(f'upload_unzip_threads Took {time() - ts} {body}')
+
+        return True
 
     @exception
     def install_tku_threads(self, **kwargs):
@@ -171,6 +176,7 @@ class UploadTestExec:
             Return Outputs which need to be saved into DB!
             NOTE: Better not to simplify this as threaded_exec_cmd, because we require more detailed run and output.
         """
+        silent = kwargs.get('silent', False)
         user_email = kwargs.get('user_email', None)
         addm_items = kwargs.get('addm_items', None)
         packages = kwargs.get('packages', None)
@@ -226,15 +232,23 @@ class UploadTestExec:
             self.model_save_insert(th_out=th_out, test_mode=test_mode, mode_key=mode_key, packages=packages, ts=ts)
 
         # Email confirmation when execution was finished:
-        subject = f"TKU_Upload_routines | install_tku_threads | {test_mode} | {step_k} | {addm_group} | Finished!"
+        subject = f"TKU Install Finish | {test_mode} | {step_k} | {addm_group} | Finished!"
         log.info(subject)
         body = f"ADDM group: {addm_group}, test_mode: {test_mode}, step_k: {step_k}, tku_type: {pack.tku_type}, " \
                f"package_type: {pack.package_type}, package_detail: {package_detail}, " \
                f"start_time: {start_time}, time spent: {time() - ts} mode_key={mode_key} "
-        UploadTaskPrepareLog(subject=subject,
-                             details=body).save()
-        Mails.short(subject=subject, body=body, send_to=[user_email])
-        return f'install_tku_threads Took {time() - ts} {body}'
+        # Log save:
+        UploadTaskPrepareLog(
+            subject=subject,
+            details=body
+        ).save()
+
+        if not silent:
+            Mails.short(subject=subject, body=body, send_to=[user_email])
+
+        log.debug(f'install_tku_threads Took {time() - ts} {body}')
+
+        return True
 
     @exception
     def install_activate(self, **kwargs):

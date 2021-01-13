@@ -1,0 +1,21 @@
+### Authorization by token, part 1. Retrieve and save token.
+POST http://127.0.0.1:8000/rest-auth/login/
+Content-Type: application/json
+
+{
+  "username": "jenkins",
+  "email": "",
+  "password": "rVXoFQSfWZ8er6HdfviT"
+}
+
+> {% client.global.set("auth_token", response.body.json.token); %}
+
+### Authorization by token, part 2. Use token to authorize. 8142deac287696259f6e21e4d96012eedf165d5f
+GET http://127.0.0.1:8000/rest-auth/user/
+Authorization: Token {{auth_token}}
+
+### Authorization by token, part 2. Use token to authorize. 8142deac287696259f6e21e4d96012eedf165d5f
+GET http://127.0.0.1:8000/rest-auth/user/
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
+
+

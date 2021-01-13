@@ -7,21 +7,21 @@ import pytz
 import sqlparse
 
 try:
-    from octotests import octo_tests
+    from octotests import octo_test_utils
     from django.conf import settings
     from run_core.models import Options
     from django.db.models.query_utils import Q
 except ModuleNotFoundError:
-    import octotests.octo_tests
+    import octotests.octo_test_utils
 
 now = datetime.datetime.now(tz=pytz.utc)
 tomorrow = now + datetime.timedelta(days=1)
 
 
-class NightTestCase(octo_tests.OctoPatternsTestCase):
+class NightTestCase(octo_test_utils.PatternTestUtils):
 
     def setUp(self):
-        octo_tests.PatternTestUtils.setUp(self)
+        octo_test_utils.PatternTestUtils.setUp(self)
         self.debug_on(True)
         # self.fake_run_on(True)
         # self.silent_on(True)

@@ -21,7 +21,7 @@ class TestRunnerLoc:
     """
 
     def run_subprocess(self, **kwargs):
-        test_py_path = kwargs.get('test_py_path', None)  # full path to octotest_upload_tku.py
+        test_py_path = kwargs.get('test_py_path', None)  # full path to
         test_method = kwargs.get('test_method', None)  # test001_product_content_update_tkn_main
         test_class = kwargs.get('test_class', None)  # OctoTestCaseUpload
         test_module = kwargs.get('test_module', None)  # run_core.tests.octotest_upload_tku
@@ -87,90 +87,3 @@ class TestRunnerLoc:
         log.debug("<=run_subprocess=> run_results: %s", run_results)
         return run_results
 
-
-class DiscoverLocalTests:
-    """
-    Use this class with methods to discover new test methods from internal 'octotests' and save it to table
-    or show on UI part of Octopus where they could be used as executable (only by TestRunnerLoc) tasks and routines.
-    But do not use test suites to run tests, because without prorer restart celery tasks wouldn't run any of them
-    and could not reflect any changes.
-
-    NOTE: DO not run this as task! Task wouldn't reflect local-external changes from test files!
-
-    """
-
-    def get_all_tests_dev(self, **kwargs):
-        test_method = kwargs.get('test_method', None)
-        test_class = kwargs.get('test_class', None)
-        test_module = kwargs.get('test_module', None)
-
-        runner = unittest.TextTestRunner(verbosity=3)
-        test_suite = TestSuite()
-
-        tst_class = ''
-        tst_module = ''
-        if test_module:
-            tst_module = importlib.import_module(test_module)
-        if test_class and tst_module:
-            tst_class = getattr(tst_module, test_class)
-
-        log.info("Test class id: %s, module id: %s", id(tst_module), id(tst_class))
-        log.info("Test test_suite id: %s", id(test_suite))
-
-        tests_from_discover = self.unittests_discover(test_dir=None)
-        log.debug("<=tests_from_discover=> %s", tests_from_discover)
-
-        tests_names_from_mod = self.unittests_name_from_module_names(names=test_method, tst_module=tst_module)
-        log.debug("<=tests_names_from_mod=> %s", tests_names_from_mod)
-
-        tests_from_case = self.unittests_from_case(tst_class)
-        log.debug("<=tests_from_case=> %s", tests_from_case)
-
-        tests_from_mod = self.unittests_from_module(tst_module=tst_module, pattern=None)
-        log.debug("<=tests_from_mod=> %s", tests_from_mod)
-
-        test_names = self.get_unittest_names(tst_class)
-        log.debug("<=test_names=> %s", test_names)
-
-        # self.suite.addTests(tests_from_discover)
-        # Or customize:
-        test_suite.addTest(tst_class(test_method))
-        log.info("Test suite: %s", test_suite)
-        # runner.run(test_suite)
-
-    @staticmethod
-    def unittests_discover(test_dir=None, pattern=None):
-        if not test_dir:
-            test_dir = BASE_DIR
-            log.info("Getting all tests from dir: %s", test_dir)
-        if not pattern:
-            pattern = 'octotest_*.py'
-        tests = unittest.TestLoader().discover(test_dir, pattern=pattern)
-        return tests
-
-    @staticmethod
-    def unittests_name_from_module_names(names, tst_module):
-        if isinstance(names, str):
-            tests = unittest.TestLoader().loadTestsFromName(names, module=tst_module)
-        elif isinstance(names, list):
-            tests = unittest.TestLoader().loadTestsFromNames(names, module=tst_module)
-        else:
-            raise Exception('Test cases names is not a list or str')
-        return tests
-
-    @staticmethod
-    def unittests_from_case(tst_class):
-        tests = unittest.TestLoader().loadTestsFromTestCase(tst_class)
-        return tests
-
-    @staticmethod
-    def unittests_from_module(tst_module, pattern=None):
-        if not pattern:
-            pattern = 'octotest_*.py'
-        tests = unittest.TestLoader().loadTestsFromModule(module=tst_module, pattern=pattern)
-        return tests
-
-    @staticmethod
-    def get_unittest_names(tst_class):
-        names = unittest.TestLoader().getTestCaseNames(tst_class)
-        return names
