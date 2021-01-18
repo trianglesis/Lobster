@@ -673,10 +673,12 @@ class TestCases(UploadTaskPrepare):
             continuous_tkn_main_fresh=self.test007_tkn_main_continuous_fresh,
             continuous_tkn_ship_fresh=self.test008_tkn_ship_continuous_fresh,
 
-            product_content_tkn_main_update_beta=self.test010_product_content_update_tkn_main_beta,
-            product_content_tkn_ship_update_echo=self.test011_product_content_update_tkn_ship_echo,
+            product_content_tkn_main_update_juliett=self.test010_product_content_update_tkn_main,
+            product_content_tkn_ship_update_echo=self.test011_product_content_update_tkn_ship,
+
             product_content_main_options_addm_update=self.test012_product_content_update_main_options_addm,
             product_content_ship_options_addm_update=self.test013_product_content_update_ship_options_addm,
+
             product_content_main_continuous_update=self.test014_product_content_update_main_continuous,
             product_content_main_latest_update=self.test015_product_content_update_main_latest,
 
@@ -873,7 +875,7 @@ class TestCases(UploadTaskPrepare):
         self.test005_release_ga_upgrade()
         self.test006_release_ga_fresh()
 
-    def test010_product_content_update_tkn_main_beta(self):
+    def test010_product_content_update_tkn_main(self):
         """
         Product Content Update tkn_main
         Install tideway_content, except ADDM where continuous build installs
@@ -886,13 +888,13 @@ class TestCases(UploadTaskPrepare):
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
         self.package_types = [package_type]
         self.addm_set = self.addm_set.filter(
-            addm_group__in=['beta'],
+            addm_group__in=['juliett'],
             addm_v_int__in=['11.3', '12.0', '12.1'],
             # addm_name__in=['custard_cream', 'double_decker'],  # Skip FF till tpl 12
             disables__isnull=True).order_by('addm_group')
         self.run_case()
 
-    def test011_product_content_update_tkn_ship_echo(self):
+    def test011_product_content_update_tkn_ship(self):
         """
         Product Content Update tkn_ship
         Install tideway_content, except ADDM where continuous build installs

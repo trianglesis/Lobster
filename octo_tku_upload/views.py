@@ -501,7 +501,8 @@ class TKUOperationsREST(APIView):
 
     def upload_test(self):
         """
-        Run selected upload test by it's name
+        Run selected upload test by it's name:
+        'test_key=release_ga_upgrade_and_fresh'
         :return:
         """
         kwargs = dict(

@@ -1,0 +1,34 @@
+### Simple token
+GET http://127.0.0.1:8000/octo_tku_upload/tku_operations/
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
+
+### Jenkins want to run SHIP
+POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=jenkins_operations&tku_type=tkn_ship_continuous&package_type=TKN-Release-0000-00-0-227&jenkins_said=IHaveFinished
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
+
+### Jenking want to run wrong tku_type
+POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=jenkins_operations&tku_type=tkn_ship_csdafontinuous&package_type=TKN-Release-0000-00-0-227&jenkins_said=IHaveFinished
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
+
+### Simple token
+POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=upload_test&test_key=TEST_tkn_main_continuous_fresh
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
+
+
+
+### upload_test
+GET http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=upload_test
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
+
+### test013_product_content_update_ship_options_addm
+POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=upload_test&test_key=product_content_ship_options_addm_update
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
+### test012_product_content_update_main_options_addm
+POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=upload_test&test_key=product_content_main_options_addm_update
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
+### test004_tideway_devices_update_tkn_ship
+POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=upload_test&test_key=test004_tideway_devices_update_tkn_ship
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
+### test003_tideway_devices_update_tkn_main
+POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=upload_test&test_key=test003_tideway_devices_update_tkn_main
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
