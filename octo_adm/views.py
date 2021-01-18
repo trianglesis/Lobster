@@ -12,8 +12,8 @@ from django.http import HttpResponse
 from django.template import loader
 from django.views.generic import TemplateView, ListView
 from rest_framework import viewsets
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -77,7 +77,7 @@ class CeleryInspect(TemplateView):
 
 
 class TaskOperationsREST(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def __init__(self, **kwargs):
@@ -415,7 +415,7 @@ class TaskOperationsREST(APIView):
 
 
 class AdminOperationsREST(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def __init__(self, **kwargs):
@@ -723,8 +723,8 @@ class AdminOperationsREST(APIView):
 
 class ListAllAddmVmREST(viewsets.ModelViewSet):
     queryset = AddmDev.objects.all().order_by('addm_group')
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsAuthenticatedOrReadOnly]
     serializer_class = AddmDevSerializer
     pagination_class = StandardResultsSetPagination
 

@@ -25,7 +25,7 @@ from django.views.decorators.cache import cache_control
 
 from django.utils.decorators import method_decorator
 
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -216,8 +216,7 @@ class AddmDigestListView(ListView):
     context_object_name = 'addm_digest'
 
     def get_queryset(self):
-        queryset = OctoCache().cache_query(AddmDigest.objects.all())
-        return queryset
+        return AddmDigest.objects.all()
 
 
 # Pattern Digest or Cases Digest summary:
@@ -810,7 +809,7 @@ class TestCasesDetailsCreateView(CreateView):
 class TestCaseRunTestREST(APIView):
     __url_path = '/octo_tku_patterns/test_execute_web/'
     __url_path_alt = '/octo_tku_patterns/user_test_add/'
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request=None):

@@ -12,7 +12,7 @@ from django.template import loader
 from django.views.generic import TemplateView, ListView
 from django.views.generic.dates import ArchiveIndexView, DayArchiveView, TodayArchiveView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -364,7 +364,7 @@ class UploadTestTodayArchiveView(TodayArchiveView):
 # Usual tasks for Upload
 class TKUOperationsREST(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAuthenticatedOrReadOnly]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
