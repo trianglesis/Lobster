@@ -12,14 +12,11 @@ from django.http import HttpResponse
 from django.template import loader
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
-from django.views.decorators.vary import vary_on_headers
 from django.views.generic import TemplateView, ListView
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from octo.cache import OctoCache
 from octo.helpers.tasks_oper import TasksOperations
 from octo_adm.user_operations import UserCheck
 from octo_tku_patterns.model_views import AddmDigest, TestLatestDigestLibShort
@@ -108,8 +105,7 @@ def request_access(request):
 
 
 class RabbitMQQueuesREST(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request=None):
         workers_list = self.request.GET.get('workers_list', [])
@@ -123,8 +119,7 @@ class RabbitMQQueuesREST(APIView):
 
 
 class CeleryWorkersStatusREST(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request=None):
         workers_list = self.request.GET.get('workers_list', [])

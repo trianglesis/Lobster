@@ -219,8 +219,8 @@
                                     <tbody id="worker-table"></tbody>
                                 </table>
                             </div>
-                            <div class="card-footer card-footer-shrink txt-nice">
-                                Workers status
+                            <div class="card-footer card-footer-shrink txt-nice txt-center-nowrap">
+                                <a href="{% url 'inspect_celery_workers' %}">Celery</a> | <a href="{% url 'inspect_rabbitmq_queues' %}">RabbitMQ</a>
                             </div>
                         </div>
                     </div>

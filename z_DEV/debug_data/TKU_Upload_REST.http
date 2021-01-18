@@ -20,6 +20,9 @@ Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
 GET http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=upload_test
 Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
 
+### TEST_tkn_main_continuous_fresh
+POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=upload_test&test_key=TEST_tkn_main_continuous_fresh
+Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
 ### test013_product_content_update_ship_options_addm
 POST http://127.0.0.1:8000/octo_tku_upload/tku_operations/?operation_key=upload_test&test_key=product_content_ship_options_addm_update
 Authorization: Token 8142deac287696259f6e21e4d96012eedf165d5f
