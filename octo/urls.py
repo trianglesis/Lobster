@@ -18,6 +18,8 @@ from django.conf.urls import include, url
 from django.urls import path
 
 from django.contrib import admin
+
+from octo.api.viewsets import CeleryTaskmetaViewSet
 from octo.views import *
 
 from django.conf import settings
@@ -28,6 +30,7 @@ urlpatterns = [
     url(r'^$', MainPage.as_view(), name='home'),
     url(r'^inspect_rabbitmq_queues/', RabbitMQQueuesREST.as_view(), name='inspect_rabbitmq_queues'),
     url(r'^inspect_celery_workers/', CeleryWorkersStatusREST.as_view(), name='inspect_celery_workers'),
+    url(r'^celery_results/', CeleryTaskmetaViewSet.as_view({'get': 'list'}), name='celery_results'),
 
     url(r'^admin/', admin.site.urls),
 

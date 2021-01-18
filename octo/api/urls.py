@@ -9,5 +9,5 @@ router = DefaultRouter()
 router.register(r'celery_task_meta', CeleryTaskmetaViewSet)
 router.register(r'periodic_task', PeriodicTaskViewSet)
 urlpatterns = [
-    url(r'^', include(router.urls)),
+    url(r'^', include((router.urls, 'octo'), namespace='celery')),
 ]

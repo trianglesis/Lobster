@@ -11,12 +11,21 @@ log = logging.getLogger("octo.octologger")
 
 
 class CeleryTaskmetaViewSet(viewsets.ModelViewSet):
-    queryset = CeleryTaskmeta.objects.all().order_by('-date_done')
     serializer_class = CeleryTaskmetaSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
+    queryset = CeleryTaskmeta.objects.all()
+
+    def get_queryset(self):
+        status = self.request.GET.get("status", None)
+
+        queryset = CeleryTaskmeta.objects.all()
+        if status:
+            queryset = self.queryset.filter(status__exact=status)
+        return queryset.order_by('-date_done')
+
 
 
 class PeriodicTaskViewSet(viewsets.ModelViewSet):
-    queryset = PeriodicTask.objects.all().order_by('-date_changed')
     serializer_class = PeriodicTaskSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
+    queryset = PeriodicTask.objects.all().order_by('-date_changed')
