@@ -70,6 +70,7 @@ if __name__ == "__main__":
             """
 
             pattern = re.compile(r'^test[\w]*\.py')
+            tpl_pattern = re.compile(r'^[\w]*\.tplpre')
             if settings.DEV:
                 p4_workspace = "/mnt/g/perforce"
             else:
@@ -82,6 +83,7 @@ if __name__ == "__main__":
             for root, dirs, files in os.walk(local_depot_path, topdown=False):
                 iters += 1
                 for name in files:  # Iter over all files in path:
+                    # Check test.py files
                     if self.is_test(pattern, name):  # Check only test.py files
                         test_py_path = os.path.join(root, name)  # Compose full path to test.py path
                         test_dict = dict(
@@ -97,7 +99,7 @@ if __name__ == "__main__":
                             tkn_branch = 'tkn_ship'
                         else:
                             tkn_branch = 'not_set'
-
+                        # Sorting
                         if 'tku_patterns' in root:  # Check if current path is related to tku_patterns:
                             # Cut first n dirs until 'tkn_main' /home/user/TH_Octopus/perforce/addm/tkn_main
                             split_root = root.split(os.sep)[6:]
@@ -113,7 +115,6 @@ if __name__ == "__main__":
                             # Temporary fix fot cases when CLOUD lib have two different dir hierarchy levels
                             if 'CLOUD' in root:
                                 test_dict['pattern_library'] = 'CLOUD'
-
                         elif 'main/code/python' in root:
                             log.info(root.split(os.sep))
                             split_root = root.split(os.sep)[5:]  # Cut n dirs until //addm/main/code/python
@@ -164,6 +165,21 @@ if __name__ == "__main__":
                                 test_case_depot_path=os.path.dirname(root).replace(octo_workspace, '/')
                             )
                         walked_test_data.append(test_dict)
+                    # Check tplpre files
+                    elif self.is_test(tpl_pattern, name):
+                        pattern_path = os.path.join(root, name)
+                        # log.debug(f"This is TPLPRE path {root}")
+                        # log.debug(f"This is TPLPRE file {pattern_path}")
+                        # If test is there:
+                        test_dir = os.path.join(root, 'tests')
+                        if os.path.exists(test_dir):
+                            # log.debug(f"There is test: {name}")
+                            pass
+                        else:
+                            print(f"There is no test: {pattern_path}")
+                    else:
+                        pass
+
             return walked_test_data
 
         @staticmethod
@@ -812,13 +828,14 @@ if __name__ == "__main__":
     # 11-06-2020 Adding test.py from path like perforce\addm\tkn_main\product_content\r1_0\code\data\installed\tests
     # walked_test_data = TestsParseLocal().walk_fs_tests(local_depot_path='/mnt/g/perforce/')
 
-    results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/")
+    # results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/")
+    results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/addm/tkn_main/")
     # results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/addm/tkn_main/edp")
     # results = TestsParseLocal().walk_fs_tests(local_depot_path="/mnt/g/perforce/addm/tkn_main/tku_patterns/CLOUD")
     # results = TestsParseLocal().walk_fs_tests(local_depot_path='/home/user/TH_Octopus/perforce')
     for test in results:
         print(f"walked_test_data: {test}")
-        # break
+        break
 
     # Check live:
     # results = LocalPatternsParse().walk_fs_tests(local_depot_path="/mnt/g/perforce/addm/gargoyle/tku_patterns")
