@@ -690,6 +690,7 @@ class UploadTestsNewAdmin(admin.ModelAdmin):
 
 @admin.register(CeleryTaskmeta)
 class CeleryTaskmetaAdmin(admin.ModelAdmin):
+
     readonly_fields = ('result', 'traceback', 'args', 'kwargs')
     list_display = (
         'task_id',
@@ -708,17 +709,19 @@ class CeleryTaskmetaAdmin(admin.ModelAdmin):
 
     fields = (
         'task_id',
-        'status',
-        'result',
-        'date_done',
-        'traceback',
         'name',
         'args',
         'kwargs',
+        'kwargs',
         'worker',
-        'retries',
         'queue',
+        'date_done',
+        'retries',
+        'traceback',
+        'status',
+        'result',
     )
+
 
 
 @admin.register(DjangoContentType)

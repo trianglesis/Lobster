@@ -7,6 +7,8 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from __future__ import unicode_literals
 
+import pickle
+
 from django.db import models
 
 """THOSE ARE ONLY FOR DEBUG:"""
@@ -47,6 +49,14 @@ class CeleryTaskmeta(models.Model):
     worker = models.CharField(max_length=155, blank=True, null=True)
     retries = models.IntegerField(blank=True, null=True)
     queue = models.CharField(max_length=155, blank=True, null=True)
+
+    # def get_kwargs(self):
+    #     if self.kwargs:
+    #         kwargs_p = pickle.loads(self.kwargs)
+    #     else:
+    #         kwargs_p = ''
+    #     print(f"Kwargs{kwargs_p}")
+    #     return str(kwargs_p)
 
     class Meta:
         managed = True
