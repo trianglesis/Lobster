@@ -2,6 +2,8 @@
 https://www.django-rest-framework.org/tutorial/quickstart/
 """
 
+import pickle
+
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import serializers
 
@@ -35,20 +37,56 @@ class ShortResultsSetPagination(PageNumberPagination):
 
 
 class CeleryTaskmetaSerializer(serializers.ModelSerializer):
+    task_args = serializers.SerializerMethodField()
+    # NOTE: Object of type ADDMCommands is not JSON serializable
+    task_kwargs = serializers.SerializerMethodField()
+    task_result = serializers.SerializerMethodField()
+
     class Meta:
         model = CeleryTaskmeta
         fields = (
             'id',
             'task_id',
+            'name',
             'status',
-            'result',
+
+            # 'result',
+            'task_result',
+
             'date_done',
-            'traceback',
+
+            # 'args',
+            'task_args',
+
+            # 'kwargs',
+            'task_kwargs',
+
+            'worker',
+            'retries',
+            'queue',
+
+            # Object of type Exception is not JSON serializable
+            # 'traceback',
         )
 
     @staticmethod
     def get_task_status(obj):
         return obj.status
+
+    @staticmethod
+    def get_task_args(obj):
+        args_p = pickle.loads(obj.args)
+        return str(args_p)
+
+    @staticmethod
+    def get_task_kwargs(obj):
+        kwargs_p = pickle.loads(obj.kwargs)
+        return str(kwargs_p)
+
+    @staticmethod
+    def get_task_result(obj):
+        result_p = pickle.loads(obj.result)
+        return str(result_p)
 
 
 class PeriodicTaskSerializer(serializers.ModelSerializer):

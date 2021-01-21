@@ -9,8 +9,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-
 """THOSE ARE ONLY FOR DEBUG:"""
+
 
 class OctoCacheStore(models.Model):
     name = models.CharField(blank=True, null=True, max_length=155)
@@ -29,6 +29,7 @@ class OctoCacheStore(models.Model):
             models.Index(fields=['hashed'], name='item_hashed'),
             models.Index(fields=['key'], name='item_key'),
         ]
+
 
 class CeleryTaskmeta(models.Model):
     task_id = models.CharField(unique=True, max_length=155, blank=True, null=True)
@@ -53,7 +54,6 @@ class CeleryTaskmeta(models.Model):
 
 
 class CeleryTasksetmeta(models.Model):
-
     taskset_id = models.CharField(unique=True, max_length=155, blank=True, null=True)
     result = models.BinaryField(blank=True, null=True)
     date_done = models.DateTimeField(blank=True, null=True)

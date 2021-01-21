@@ -2,7 +2,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from octo.api.serializers import CeleryTaskmetaSerializer, PeriodicTaskSerializer
+from octo.api.serializers import CeleryTaskmetaSerializer, PeriodicTaskSerializer, StandardResultsSetPagination
 from django_celery_beat.models import PeriodicTask
 from octo.models import CeleryTaskmeta
 
@@ -11,6 +11,7 @@ log = logging.getLogger("octo.octologger")
 
 
 class CeleryTaskmetaViewSet(viewsets.ModelViewSet):
+    pagination_class = StandardResultsSetPagination
     serializer_class = CeleryTaskmetaSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     queryset = CeleryTaskmeta.objects.all()
@@ -22,7 +23,6 @@ class CeleryTaskmetaViewSet(viewsets.ModelViewSet):
         if status:
             queryset = self.queryset.filter(status__exact=status)
         return queryset.order_by('-date_done')
-
 
 
 class PeriodicTaskViewSet(viewsets.ModelViewSet):
