@@ -712,7 +712,6 @@ class CeleryTaskmetaAdmin(admin.ModelAdmin):
         'name',
         'args',
         'kwargs',
-        'kwargs',
         'worker',
         'queue',
         'date_done',
