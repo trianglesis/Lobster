@@ -746,3 +746,45 @@ class DjangoMigrationsAdmin(admin.ModelAdmin):
 # admin.site.register(CeleryTasksetmeta)
 # admin.site.register(FTPUserGroup)
 # admin.site.register(FTPUserAccount)
+
+
+# admin.site.register(AddmDigest)
+@admin.register(AddmDigest)
+class TestLatestDigestAllAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'tkn_branch',
+        'addm_host',
+        'addm_name',
+        'addm_v_int',
+        'tests_count',
+        'patterns_count',
+        'fails',
+        'error',
+        'passed',
+        'skipped',
+    )
+
+    list_filter = ('tkn_branch', 'addm_name', 'addm_v_int')
+
+# admin.site.register(TestReports)
+@admin.register(TestReports)
+class TestLatestDigestAllAdmin(admin.ModelAdmin):
+    readonly_fields = ('report_date_time',)
+
+    list_display = (
+        'test_type',
+        'tkn_branch',
+        'pattern_library',
+        'addm_host',
+        'addm_name',
+        'addm_v_int',
+        'tests_count',
+        'patterns_count',
+        'fails',
+        'error',
+        'passed',
+        'skipped',
+    )
+
+    list_filter = ('tkn_branch', 'addm_name', 'addm_v_int', 'pattern_library', 'report_date_time')

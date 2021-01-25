@@ -189,6 +189,26 @@ class TestCasesDetails(models.Model):
     #     return f'{self.test_cases.test_type}'
 
 
+class TestReports(models.Model):
+    test_type = models.CharField(max_length=255, blank=True, null=True)
+    tkn_branch = models.CharField(max_length=100, blank=True, null=True)
+    pattern_library = models.CharField(max_length=100, blank=True, null=True)
+    addm_host = models.CharField(max_length=100, blank=True, null=True)
+    addm_name = models.CharField(max_length=100, blank=True, null=True)
+    addm_v_int = models.CharField(max_length=100, blank=True, null=True)
+    tests_count = models.CharField(max_length=100, blank=True, null=True)
+    patterns_count = models.CharField(max_length=100, blank=True, null=True)
+    fails = models.CharField(max_length=100, blank=True, null=True)
+    error = models.CharField(max_length=100, blank=True, null=True)
+    passed = models.CharField(max_length=100, blank=True, null=True)
+    skipped = models.CharField(max_length=100, blank=True, null=True)
+
+    report_date_time = models.DateTimeField(unique=False, auto_now_add=True)
+
+    class Meta:
+        managed = True
+        db_table = 'octo_test_report'
+
 # For reference.
 class TestCasesDetailsForm(forms.ModelForm):
     class Meta:
