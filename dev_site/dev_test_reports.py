@@ -1,3 +1,6 @@
+import datetime
+
+from django.db.models import Q
 from django.db.models.aggregates import Sum
 
 if __name__ == "__main__":
@@ -11,19 +14,44 @@ if __name__ == "__main__":
     from octo_tku_patterns.model_views import TestLatestDigestAll, TestReportsView
     from octo_tku_patterns.models import TestReports
 
+
     def get_stats(**kwargs):
-        queryset = TestReports.objects.all()
         print(f"Selecting by: {kwargs}")
-        if kwargs.get("test_type"):
-            queryset = queryset.filter(test_type__exact=kwargs.get("test_type"))
+        report_date_time = kwargs.get('report_date_time')
+
+        if not isinstance(report_date_time, datetime.date):
+            print(f"Warning: report_date_time should bw a datetime object, if not - will use today date by default!")
+            date_var = datetime.date.today()
         else:
-            queryset = queryset.filter(tkn_branch__isnull=False)
+            date_var = report_date_time
+
+        queryset = TestReports.objects.all()
+        if kwargs.get("test_type"):
+            queryset = queryset.filter(
+                test_type__exact=kwargs.get("test_type")
+            )
+        else:
+            queryset = queryset.filter(
+                tkn_branch__isnull=False)
         if kwargs.get('addm_name'):
-            queryset = queryset.filter(addm_name__exact=kwargs.get('addm_name'))
+            queryset = queryset.filter(
+                addm_name__exact=kwargs.get('addm_name')
+            )
         if kwargs.get('tkn_branch'):
-            queryset = queryset.filter(tkn_branch__exact=kwargs.get('tkn_branch'))
+            queryset = queryset.filter(
+                tkn_branch__exact=kwargs.get('tkn_branch')
+            )
         if kwargs.get('pattern_library'):
-            queryset = queryset.filter(pattern_library__exact=kwargs.get('pattern_library'))
+            queryset = queryset.filter(
+                pattern_library__exact=kwargs.get('pattern_library')
+            )
+        if kwargs.get('report_date_time'):
+            queryset = queryset.filter(
+            Q(report_date_time__year=date_var.year,
+              report_date_time__month=date_var.month,
+              report_date_time__day=date_var.day)
+            )
+
         return queryset
 
     def insert_digest():
@@ -47,9 +75,11 @@ if __name__ == "__main__":
             print(row)
 
     # insert_digest()
+    date_var = datetime.date.today()
     select_stats(
         tkn_branch='tkn_ship',
         test_type='tku_patterns',
         # pattern_library='CORE',
         grouping='tkn_branch',
+        report_date_time=date_var,
     )
