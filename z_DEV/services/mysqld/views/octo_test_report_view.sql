@@ -2,7 +2,6 @@ CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER V
 SELECT `octo_test_last`.`id`                                       AS `id`,
        `octo_test_last`.`test_type`                                AS `test_type`,
        `octo_test_last`.`tkn_branch`                               AS `tkn_branch`,
-       `octo_test_last`.`addm_host`                                AS `addm_host`,
        `octo_test_last`.`addm_name`                                AS `addm_name`,
        `octo_test_last`.`addm_v_int`                               AS `addm_v_int`,
        `octo_test_last`.`pattern_library`                          AS `pattern_library`,

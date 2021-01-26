@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
 
     def get_stats(**kwargs):
-        print(f"Selecting by: {kwargs}")
+        # print(f"Selecting by: {kwargs}")
         report_date_time = kwargs.get('report_date_time')
 
         if not isinstance(report_date_time, datetime.date):
@@ -55,7 +55,19 @@ if __name__ == "__main__":
         return queryset
 
     def insert_digest():
-        tests = TestReportsView.objects.all().values()
+        tests = TestReportsView.objects.all().values(
+            'test_type',
+            'tkn_branch',
+            'pattern_library',
+            'addm_name',
+            'addm_v_int',
+            'tests_count',
+            'patterns_count',
+            'fails',
+            'error',
+            'passed',
+            'skipped',
+        )
         for item in tests:
             save_tst = TestReports(**item)
             save_tst.save(force_insert=True)
@@ -74,7 +86,7 @@ if __name__ == "__main__":
         return queryset
 
     # insert_digest()
-    for day in range(3):
+    for day in range(5):
         date_var_ = datetime.datetime.now() - datetime.timedelta(days=day)
 
         # date_var_ = datetime.date.today()
@@ -85,5 +97,5 @@ if __name__ == "__main__":
             grouping='tkn_branch',
             report_date_time=date_var_,
         )
-        for row in queryset_:
+        for row in queryset_.values():
             print(row)

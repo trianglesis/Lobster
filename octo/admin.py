@@ -776,7 +776,6 @@ class TestLatestDigestAllAdmin(admin.ModelAdmin):
         'test_type',
         'tkn_branch',
         'pattern_library',
-        'addm_host',
         'addm_name',
         'addm_v_int',
         'tests_count',

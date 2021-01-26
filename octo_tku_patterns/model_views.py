@@ -194,7 +194,6 @@ class TestReportsView(models.Model):
     test_type = models.CharField(max_length=255)
     tkn_branch = models.CharField(max_length=100)
     pattern_library = models.CharField(max_length=100)
-    addm_host = models.CharField(max_length=100)
     addm_name = models.CharField(max_length=100)
     addm_v_int = models.CharField(max_length=100)
     tests_count = models.CharField(max_length=100)

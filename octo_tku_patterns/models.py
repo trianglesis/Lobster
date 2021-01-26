@@ -193,7 +193,6 @@ class TestReports(models.Model):
     test_type = models.CharField(max_length=255, blank=True, null=True)
     tkn_branch = models.CharField(max_length=100, blank=True, null=True)
     pattern_library = models.CharField(max_length=100, blank=True, null=True)
-    addm_host = models.CharField(max_length=100, blank=True, null=True)
     addm_name = models.CharField(max_length=100, blank=True, null=True)
     addm_v_int = models.CharField(max_length=100, blank=True, null=True)
     tests_count = models.CharField(max_length=100, blank=True, null=True)
