@@ -11,7 +11,7 @@ if __name__ == "__main__":
     log = logging.getLogger("octo.octologger")
     django.setup()
 
-    from octo_tku_patterns.model_views import TestLatestDigestAll, TestReportsView
+    from octo_tku_patterns.model_views import TestReportsView
     from octo_tku_patterns.models import TestReports
 
 
@@ -71,15 +71,19 @@ if __name__ == "__main__":
             total_passed=Sum('passed'),
             total_skipped=Sum('skipped'),
         )
-        for row in queryset:
-            print(row)
+        return queryset
 
     # insert_digest()
-    date_var = datetime.date.today()
-    select_stats(
-        tkn_branch='tkn_ship',
-        test_type='tku_patterns',
-        # pattern_library='CORE',
-        grouping='tkn_branch',
-        report_date_time=date_var,
-    )
+    for day in range(3):
+        date_var_ = datetime.datetime.now() - datetime.timedelta(days=day)
+
+        # date_var_ = datetime.date.today()
+        queryset_ = select_stats(
+            tkn_branch='tkn_ship',
+            test_type='tku_patterns',
+            # pattern_library='CORE',
+            grouping='tkn_branch',
+            report_date_time=date_var_,
+        )
+        for row in queryset_:
+            print(row)
