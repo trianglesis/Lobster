@@ -97,5 +97,5 @@ if __name__ == "__main__":
             grouping='tkn_branch',
             report_date_time=date_var_,
         )
-        for row in queryset_.values():
-            print(row)
+        for row in queryset_:
+            print(f"Result for day {date_var_.strftime('%Y-%m-%d')}: {row}")
