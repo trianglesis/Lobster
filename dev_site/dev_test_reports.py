@@ -97,8 +97,8 @@ if __name__ == "__main__":
         return queryset
 
 
-    def make_queries():
-        for day in range(30):
+    def make_queries(day_range=30):
+        for day in range(day_range):
             date_var_ = datetime.datetime.now() - datetime.timedelta(days=day)
             # date_var_ = datetime.date.today()
             queryset_ = select_stats(
@@ -111,6 +111,28 @@ if __name__ == "__main__":
             )
             for row in queryset_:
                 print(f"Result for day {date_var_.strftime('%Y-%m-%d')}: {row}")
+
+    def make_query(day):
+        # date_var_ = datetime.datetime.now() - datetime.timedelta(days=30)
+        # date_var_ = date_var_ + datetime.timedelta(days=day)
+        date_var_ = datetime.datetime.now()
+        date_var_ = date_var_ - datetime.timedelta(days=day)
+        print(f"Query stats for: {date_var_.strftime('%m/%d')}")
+        queryset_ = select_stats(
+                tkn_branch='tkn_ship',
+                test_type='tku_patterns',
+                grouping='tkn_branch',
+                report_date_time=date_var_,
+                # addm_name='gargoyle',
+                # pattern_library='CORE',
+        )
+        if queryset_:
+            return queryset_[0]
+        else:
+            return dict(
+                date=date_var_,
+                tests_sum=0,
+            )
 
 
     def print_col_letter(cell, p=None):
@@ -213,26 +235,55 @@ if __name__ == "__main__":
                     if _c in range(34, 36):
                         cell.border = border_t
 
+        """
+        Possible way to get all cells previously filled with style
+         and iter COLs from each 4th to the last 8th with borders.
+         While iteration over each COL - we also get its child CELLs from above C1,C2,...C8
+         We only need to fill CELLs with data starting from 4th cell from above staying in current COL.
+         Next COL D and all following CELLs will be filled accordingly.
+         
+         Iterate all COLS from ROW 4th - which is the ROW where is no merged cells!
+         
+         Firstly the list of COLs to iterate is reversed, so we start from the end - "AJ" col, 
+          which is latest one with the style applied.
+         Then we step back for 4 cols, to get as first actual COL "AF" as starting point to fill with Data.
+         During iteration - increment the i variable which is used as day timedelta from today, to minus 31 day at past.
+         Each incrementation calls a query for that day and fill table with a test stat data.
+         
+          
+        """
         i = 0
-        # Iter each cell in row 4
-        for cell_r in ws1[4]:
+        # Iter each COL in row 4
+        reversed_col_l = list(ws1[4])[::-1]
+        print(f"Col 4 list reversed {reversed_col_l[4:]}\n")
+        for cell_r in reversed_col_l[4:]:
             i += 1
-            if i in range(3,33):
+            if i in range(1,31):
+                # get queryset for last 30 days, DESC?
+                test_stats = make_query(day=i)
+
                 # Get COL literal name
                 col_lit = cell_r.column_letter
                 # Get CELL list from column with specific literal name:
                 cell_list = list(ws1[col_lit])
                 # print(f"COL: {col_lit} CELL list: {cell_list}")
+
+                if test_stats:
+                    print(test_stats)
+
+                    # Here assign required cell with some data:
+                    cell_list[3].value = test_stats['date'].strftime('%m/%d') # 'date'
+                    if test_stats['tests_sum']:
+                        cell_list[4].value = f"{round(100 * (int(test_stats['passed_sum']) + int(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 1)}%" # 'pass %'
+                        cell_list[5].value = test_stats['fails_sum'] # '# fails'
+                        cell_list[6].value = test_stats['tests_sum'] # '# executed'
+                        cell_list[7].value = 0 # '# not executed'
+
+
                 # Get each 3rd cell, iter over last active: A4:A8
-                cell_list[3].value = 'date'
-                cell_list[4].value = 'pass %'
-                cell_list[5].value = '# fails'
-                cell_list[6].value = '# executed'
-                cell_list[7].value = '# not executed'
+                # for cell in cell_list:
                 for cell in cell_list[3:]:
                     print(f'each 3rd cell: {cell} {cell.value}')
-
-
 
         ws2 = wb.create_sheet(title="Historical")
         wb.save(filename=filename)
@@ -240,4 +291,5 @@ if __name__ == "__main__":
 
     # insert_digest()
     # make_queries()
+    # make_query(day=1)
     workbook_create()
