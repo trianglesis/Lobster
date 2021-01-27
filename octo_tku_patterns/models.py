@@ -202,7 +202,9 @@ class TestReports(models.Model):
     passed = models.CharField(max_length=100, blank=True, null=True)
     skipped = models.CharField(max_length=100, blank=True, null=True)
 
-    report_date_time = models.DateTimeField(unique=False, auto_now_add=True)
+    # Make auto now
+    # report_date_time = models.DateTimeField(unique=False, auto_now_add=True)
+    report_date_time = models.DateTimeField(unique=False)
 
     class Meta:
         managed = True

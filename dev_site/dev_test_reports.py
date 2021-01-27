@@ -1,7 +1,11 @@
 import datetime
+import openpyxl
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 
 from django.db.models import Q
-from django.db.models.aggregates import Sum
+from django.db.models.aggregates import Sum, Avg, Max, Min, StdDev, Variance, Count
 
 if __name__ == "__main__":
 
@@ -47,12 +51,13 @@ if __name__ == "__main__":
             )
         if kwargs.get('report_date_time'):
             queryset = queryset.filter(
-            Q(report_date_time__year=date_var.year,
-              report_date_time__month=date_var.month,
-              report_date_time__day=date_var.day)
+                Q(report_date_time__year=date_var.year,
+                  report_date_time__month=date_var.month,
+                  report_date_time__day=date_var.day)
             )
 
         return queryset
+
 
     def insert_digest():
         tests = TestReportsView.objects.all().values(
@@ -68,34 +73,171 @@ if __name__ == "__main__":
             'passed',
             'skipped',
         )
+
+        fake_date = datetime.datetime.now() - datetime.timedelta(days=5)
         for item in tests:
-            save_tst = TestReports(**item)
+            save_tst = TestReports(**item, report_date_time=fake_date)
             save_tst.save(force_insert=True)
+
 
     def select_stats(**kwargs):
         by_value = kwargs.get('grouping')
         queryset = get_stats(**kwargs)
         queryset = queryset.values(by_value).order_by(by_value).annotate(
-            total_tests_count=Sum('tests_count'),
-            total_patterns_count=Sum('patterns_count'),
-            total_errors=Sum('error'),
-            total_fails=Sum('fails'),
-            total_passed=Sum('passed'),
-            total_skipped=Sum('skipped'),
+            date=Max('report_date_time'),
+            addm_v_int=Max('addm_v_int'),
+            tests_sum=Sum('tests_count'),
+            patterns_sum=Sum('patterns_count'),
+            errors_sum=Sum('error'),
+            fails_sum=Sum('fails'),
+            passed_sum=Sum('passed'),
+            skipped_sum=Sum('skipped'),
         )
+        # print(f"{queryset.query}")
         return queryset
 
-    # insert_digest()
-    for day in range(5):
-        date_var_ = datetime.datetime.now() - datetime.timedelta(days=day)
 
-        # date_var_ = datetime.date.today()
-        queryset_ = select_stats(
-            tkn_branch='tkn_ship',
-            test_type='tku_patterns',
-            # pattern_library='CORE',
-            grouping='tkn_branch',
-            report_date_time=date_var_,
+    def make_queries():
+        for day in range(30):
+            date_var_ = datetime.datetime.now() - datetime.timedelta(days=day)
+            # date_var_ = datetime.date.today()
+            queryset_ = select_stats(
+                tkn_branch='tkn_ship',
+                test_type='tku_patterns',
+                grouping='tkn_branch',
+                report_date_time=date_var_,
+                # addm_name='gargoyle',
+                # pattern_library='CORE',
+            )
+            for row in queryset_:
+                print(f"Result for day {date_var_.strftime('%Y-%m-%d')}: {row}")
+
+
+    def print_col_letter(cell, p=None):
+        if hasattr(cell, 'column_letter'):
+            if p:
+                print(f'{cell.column_letter}{cell.row}')
+            return True
+        else:
+            return False
+
+
+    def workbook_create(filename=None):
+        if not filename:
+            filename = 'test.xlsx'
+        else:
+            filename = f'{filename}.xlsx'
+
+        wb = Workbook()
+        ws1 = wb.active
+        ws1.title = "Last_30_days"
+        ws1.page_setup.fitToWidth = 1
+
+        font_B = Font(name='Calibri', size=9, bold=True)
+        font_N = Font(name='Calibri', size=9, bold=False)
+        border_t = Border(
+            left=Side(border_style='thin', color='FF000000'),
+            right=Side(border_style='thin', color='FF000000'),
+            top=Side(border_style='thin', color='FF000000'),
+            bottom=Side(border_style='thin', color='FF000000'),
         )
-        for row in queryset_:
-            print(f"Result for day {date_var_.strftime('%Y-%m-%d')}: {row}")
+        border_s = Border(
+            left=Side(border_style='thin', color='FF000000'),
+            right=Side(border_style='thin', color='FF000000'),
+            # top=Side(border_style='thin', color='FF000000'),
+            # bottom=Side(border_style='thin', color='FF000000'),
+        )
+
+        # Merge Cells:
+        # ws1.merge_cells('B1:AI1')
+        ws1.column_dimensions['A'].width = 2
+        ws1.column_dimensions['AG'].width = 2
+        ws1.column_dimensions['AJ'].width = 2
+        ws1.column_dimensions['B'].width = 20
+        ws1.column_dimensions['AH'].width = 20
+        # HEAD
+        ws1.merge_cells(start_row=1, start_column=2, end_row=2, end_column=36)
+        # HEADER
+        ws1["B1"] = 'Automation Status for ADE Optimize'
+        ws1["B1"].font = font_B
+        # MONTH VIEW
+        ws1["B5"] = 'Pass %'
+        ws1["B6"] = '# of Failures'
+        ws1["B7"] = '# of Tests Executed'
+        ws1["B8"] = '# of Tests Not  Executed'
+        # MONTH STATS
+        ws1["AH3"] = 'Last 30 days stats:'
+        ws1["AH3"].font = font_B
+        ws1["AH5"] = '# of Days at 100%:'
+        ws1["AH6"] = 'Avg Pass Rate:'
+        ws1["AH7"] = 'Avg # of Failures:'
+
+        """
+        C4:AF4 - Date %m-%d
+        C5:AF4 - Pass %
+        C6:AF6 - Fails #
+        C7:AF7 - Run test #
+        C8:AF8 - Not run test #
+        
+        AI5 - Days 100% Success
+        AI6 - Avg Pass Rate
+        AI7 - Avg # of Failures
+        """
+
+        # Get ROWs 4:8
+        for _r in range(4, 9):
+            # Get COLs A:AI
+            for _c in range(1, 36):
+                # Get COLs: B:AF
+                cell = ws1.cell(column=_c, row=_r)
+                # print(f"COL: {cell.column_letter}:{_r}")
+                # Make borders B:AF
+                if _c in range(2, 33):
+                    # Get COLs C:AF and not on rows 4:8
+                    if _c in range(3, 33) and not _r in [4, 8]:
+                        cell.border = border_s
+                    # Get COLs C:AF on rows 4:8
+                    else:
+                        cell.border = border_t
+                    # Make COL thinner C:AF
+                    if _c in range(3, 33) and _r == 4:
+                        ws1.column_dimensions[cell.column_letter].width = 6
+                # Make font
+                # Get COLs A:AJ
+                if _c in range(1, 36):
+                    cell.font = font_N
+                # Make summary table borders
+                # Get ROWs 4:7
+                if _r in range(4, 8):
+                    # Get COLs AH:AI
+                    if _c in range(34, 36):
+                        cell.border = border_t
+
+        i = 0
+        # Iter each cell in row 4
+        for cell_r in ws1[4]:
+            i += 1
+            if i in range(3,33):
+                # Get COL literal name
+                col_lit = cell_r.column_letter
+                # Get CELL list from column with specific literal name:
+                cell_list = list(ws1[col_lit])
+                # print(f"COL: {col_lit} CELL list: {cell_list}")
+                # Get each 3rd cell, iter over last active: A4:A8
+                cell_list[3].value = 'date'
+                cell_list[4].value = 'pass %'
+                cell_list[5].value = '# fails'
+                cell_list[6].value = '# executed'
+                cell_list[7].value = '# not executed'
+                for cell in cell_list[3:]:
+                    print(f'each 3rd cell: {cell} {cell.value}')
+
+
+
+        ws2 = wb.create_sheet(title="Historical")
+        wb.save(filename=filename)
+
+
+    # insert_digest()
+    # make_queries()
+    workbook_create()
