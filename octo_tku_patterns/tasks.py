@@ -27,6 +27,7 @@ from octo.settings import SITE_DOMAIN, SITE_SHORT_NAME
 from octo_adm.tasks import TaskADDMService, TaskVMService
 from octo_tku_patterns.api.serializers import TestLatestDigestAllSerializer
 from octo_tku_patterns.digests import TestDigestMail
+from octo_tku_patterns.external_report import Report
 from octo_tku_patterns.model_views import TestLatestDigestAll
 from octo_tku_patterns.models import TestLast, TestCases, TestCasesDetails
 from octo_tku_patterns.test_executor import TestExecutor
@@ -175,6 +176,15 @@ class MailDigests:
         TestDigestMail().all_pattern_test_team_daily_digest(**kwargs)
 
 
+class ExtDigests:
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.ExtDigests.collect_latest',
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
+    def collect_latest(tag, **kwargs):
+        """ From model view TestReportsView add to TestReports all records from TestLatest"""
+        Report.insert_digest()
+
+
 class PatternTestExecCases:
 
     @staticmethod
@@ -189,11 +199,11 @@ class PatternTestExecCases:
         # Insert sorted in TKU Patterns table:
         LocalDB.insert_patt_weight(patterns_weight)
 
-
     @staticmethod
     def test_exec_on_change(sender, instance, created, **kwargs):
         if kwargs.get('update_fields'):
-            log.info(f"<=Signal=> TestCases Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
+            log.info(
+                f"<=Signal=> TestCases Save => sender: {sender}; instance: {instance}; created: {created}; kwargs: {kwargs}")
             if instance.test_type == 'tku_patterns':
                 update_fields = kwargs.get('update_fields')
                 if 'change_ticket' in update_fields:
@@ -215,11 +225,11 @@ class PatternTestExecCases:
                         user_email=user_email,
                     )
                     Runner.fire_t(TPatternRoutine.t_test_prep,
-                        t_args=[f'tag=t_test_prep;user_name={instance.change_user};'],
-                        t_kwargs=dict(obj=obj),
-                        t_queue='w_routines@tentacle.dq2',
-                        t_routing_key='signals.routines.TRoutine.t_test_prep',
-                    )
+                                  t_args=[f'tag=t_test_prep;user_name={instance.change_user};'],
+                                  t_kwargs=dict(obj=obj),
+                                  t_queue='w_routines@tentacle.dq2',
+                                  t_routing_key='signals.routines.TRoutine.t_test_prep',
+                                  )
             else:
                 log.debug(f"<=Signal=> TestCases Save - Not a pattern test: {instance}")
 

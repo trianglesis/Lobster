@@ -136,15 +136,6 @@ if __name__ == "__main__":
             )
 
 
-    def print_col_letter(cell, p=None):
-        if hasattr(cell, 'column_letter'):
-            if p:
-                print(f'{cell.column_letter}{cell.row}')
-            return True
-        else:
-            return False
-
-
     def workbook_create(filename=None):
         if not filename:
             filename = 'test.xlsx'
@@ -283,7 +274,8 @@ if __name__ == "__main__":
                     cell_list[3].value = test_stats['date'].strftime('%m/%d')  # 'date'
                     cell_list[3].fill = fill_yellow
                     if test_stats['tests_sum']:
-                        cell_list[4].value = f"{round(100 * (int(test_stats['passed_sum']) + int(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 1)}%"  # 'pass %'
+                        cell_list[
+                            4].value = f"{round(100 * (int(test_stats['passed_sum']) + int(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 1)}%"  # 'pass %'
                         cell_list[5].value = test_stats['fails_sum']  # '# fails'
                         cell_list[6].value = test_stats['tests_sum']  # '# executed'
                         cell_list[7].value = 0  # '# not executed'
@@ -296,6 +288,7 @@ if __name__ == "__main__":
         ws2 = wb.create_sheet(title="Historical")
 
         wb.save(filename=filename)
+
 
     def workbook_create_test(filename=None):
         if not filename:
@@ -345,7 +338,7 @@ if __name__ == "__main__":
             print(f'{i} Row, _cells[0]: {_cells[0]} in {i} row.')
             # ROW of 'date'
             if i == 0:
-                for c in range(2,32):
+                for c in range(2, 32):
                     ws1.column_dimensions[_cells[c].column_letter].width = 6
                     _cells[c].value = 'Date'
                     _cells[c].font = font_N
@@ -358,8 +351,8 @@ if __name__ == "__main__":
             ROW of '# fails'
             ROW of '# executed'
             """
-            if i in range(1,4):
-                for c in range(2,32):
+            if i in range(1, 4):
+                for c in range(2, 32):
                     ws1.column_dimensions[_cells[c].column_letter].width = 6
                     _cells[c].value = '0'
                     _cells[c].font = font_N
@@ -367,7 +360,7 @@ if __name__ == "__main__":
                     _cells[c].alignment = alignment_c
             # ROW of '#not executed'
             if i == 4:
-                for c in range(2,32):
+                for c in range(2, 32):
                     ws1.column_dimensions[_cells[c].column_letter].width = 6
                     _cells[c].value = '0'
                     _cells[c].font = font_N
@@ -382,13 +375,13 @@ if __name__ == "__main__":
             print(f'{i} Col, _cells[0]: {_cells[0]} in {i} col.')
 
         # Start of table
-        ws1.column_dimensions[cols_iter[0][1].column_letter].width = 2 # A
+        ws1.column_dimensions[cols_iter[0][1].column_letter].width = 2  # A
         # Row names
-        cols_iter[1][1].border = border_t # B
-        cols_iter[1][2].value = 'Pass %' # B
-        cols_iter[1][2].font = font_N # B
-        cols_iter[1][2].border = border_t # B
-        ws1.column_dimensions[cols_iter[1][2].column_letter].width = 20 # B
+        cols_iter[1][1].border = border_t  # B
+        cols_iter[1][2].value = 'Pass %'  # B
+        cols_iter[1][2].font = font_N  # B
+        cols_iter[1][2].border = border_t  # B
+        ws1.column_dimensions[cols_iter[1][2].column_letter].width = 20  # B
         cols_iter[1][3].value = '# of Failures'
         cols_iter[1][3].font = font_N
         cols_iter[1][3].border = border_t
@@ -399,7 +392,7 @@ if __name__ == "__main__":
         cols_iter[1][5].font = font_N
         cols_iter[1][5].border = border_t
         # END of table
-        ws1.column_dimensions[cols_iter[32][1].column_letter].width = 2 # AG
+        ws1.column_dimensions[cols_iter[32][1].column_letter].width = 2  # AG
 
         """
         Here we can unpack values for each CELL in COL: 
@@ -413,9 +406,9 @@ if __name__ == "__main__":
 
         # MONTH STATS
         # Row names
-        cols_iter[33][0].value = 'Last 30 days stats:' # AH
-        cols_iter[33][0].font = font_B # AH
-        ws1.column_dimensions[cols_iter[33][1].column_letter].width = 20 # AH
+        cols_iter[33][0].value = 'Last 30 days stats:'  # AH
+        cols_iter[33][0].font = font_B  # AH
+        ws1.column_dimensions[cols_iter[33][1].column_letter].width = 20  # AH
         cols_iter[33][1].value = '# of Days at 100%:'
         cols_iter[33][1].font = font_N
         cols_iter[33][1].border = border_t
@@ -426,12 +419,12 @@ if __name__ == "__main__":
         cols_iter[33][3].font = font_N
         cols_iter[33][3].border = border_t
         # END of table
-        ws1.column_dimensions[cols_iter[35][1].column_letter].width = 2 # AG
+        ws1.column_dimensions[cols_iter[35][1].column_letter].width = 2  # AG
 
         wb.save(filename=filename)
 
 
-    # insert_digest()
+    insert_digest()
     # make_queries()
     # make_query(day=1)
     # workbook_create()
