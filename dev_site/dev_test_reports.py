@@ -118,7 +118,7 @@ if __name__ == "__main__":
         # date_var_ = date_var_ + datetime.timedelta(days=day)
         date_var_ = datetime.datetime.now()
         date_var_ = date_var_ - datetime.timedelta(days=day)
-        print(f"Query stats for: {date_var_.strftime('%m/%d')}")
+        # print(f"Query stats for: {date_var_.strftime('%m/%d')}")
         queryset_ = select_stats(
             tkn_branch='tkn_ship',
             test_type='tku_patterns',
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         # HEAD
         ws1.merge_cells(start_row=1, start_column=2, end_row=2, end_column=36)
         # HEADER
-        ws1["B1"] = 'Automation Status for ADE Optimize'
+        ws1["B1"] = 'Automation Status for BMC Discovery Content'
         ws1["B1"].font = font_B
         # MONTH VIEW
         ws1["B5"] = 'Pass %'
@@ -233,7 +233,6 @@ if __name__ == "__main__":
                     # Get COLs AH:AI
                     if _c in range(34, 36):
                         cell.border = border_t
-
         """
         Possible way to get all cells previously filled with style
          and iter COLs from each 4th to the last 8th with borders.
@@ -256,8 +255,8 @@ if __name__ == "__main__":
         reversed_col_l = list(ws1[4])[::-1]
         print(f"Col 4 list reversed {reversed_col_l[4:]}\n")
         for cell_r in reversed_col_l[4:]:
-            i += 1
-            if i in range(1, 31):
+            if i in range(0, 31):
+                print(f'Query day: {i}')
                 # get queryset for last 30 days, DESC?
                 test_stats = make_query(day=i)
 
@@ -269,13 +268,11 @@ if __name__ == "__main__":
 
                 if test_stats:
                     print(test_stats)
-
                     # Here assign required cell with some data:
                     cell_list[3].value = test_stats['date'].strftime('%m/%d')  # 'date'
                     cell_list[3].fill = fill_yellow
                     if test_stats['tests_sum']:
-                        cell_list[
-                            4].value = f"{round(100 * (int(test_stats['passed_sum']) + int(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 1)}%"  # 'pass %'
+                        cell_list[4].value = f"{round(100 * (int(test_stats['passed_sum']) + int(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 1)}%"  # 'pass %'
                         cell_list[5].value = test_stats['fails_sum']  # '# fails'
                         cell_list[6].value = test_stats['tests_sum']  # '# executed'
                         cell_list[7].value = 0  # '# not executed'
@@ -284,13 +281,22 @@ if __name__ == "__main__":
                 # for cell in cell_list:
                 for cell in cell_list[3:]:
                     print(f'each 3rd cell: {cell} {cell.value}')
+            i += 1
 
         ws2 = wb.create_sheet(title="Historical")
 
         wb.save(filename=filename)
 
 
-    def workbook_create_test(filename=None):
+    def workbook_create_test(filename=None, start_row=1, start_col=2):
+        end_row = start_row + 1  # 2nd row to merge with starting
+        end_column = 36          # End of table in col length - AJ col in table.
+
+        min_col = 1              # Always start iter COLs from A col - 1st
+        max_col = end_column     # Always end iter on the latest COL: 36th AJ col in table.
+        min_row = start_row + 2  # Where day cols are starting to count from - 3rd after two merged
+        max_row = start_row + 7  # Where day stat cols and on row  - 8th from the 1st initial
+
         if not filename:
             filename = 'test_wb.xlsx'
         else:
@@ -323,109 +329,156 @@ if __name__ == "__main__":
         fill_yellow = PatternFill("solid", fgColor="00FFFF99")
 
         # Merging cells:
-        ws1.merge_cells(start_row=1, start_column=2, end_row=2, end_column=36)
+        ws1.merge_cells(start_row=start_row, start_column=start_col, end_row=end_row, end_column=end_column)
         # HEAD
-        ws1.merge_cells(start_row=1, start_column=2, end_row=2, end_column=36)
+        ws1.merge_cells(start_row=start_row, start_column=start_col, end_row=end_row, end_column=end_column)
         # HEADER
-        ws1["B1"] = 'Automation Status for ADE Optimize'
+        ws1["B1"] = 'Automation Status for BMC Discovery Content'
         ws1["B1"].font = font_B
 
-        # # HORIZONTAL Iter ROW 4:8
-        rows_iter = ws1.iter_rows(min_col=1, max_col=36,
-                                  min_row=4, max_row=8)
+        # HORIZONTAL Iter ROW 4:8
+        rows_iter = ws1.iter_rows(min_col=min_col, max_col=max_col, min_row=min_row+1, max_row=max_row)
         rows_iter = list(rows_iter)
         for i, _cells in enumerate(rows_iter):
-            print(f'{i} Row, _cells[0]: {_cells[0]} in {i} row.')
-            # ROW of 'date'
+            # print(f'{i} ROW, _cells: {_cells} in {i} ROW.')
+            # ROW of 'date' - make formatting before.
             if i == 0:
                 for c in range(2, 32):
                     ws1.column_dimensions[_cells[c].column_letter].width = 6
-                    _cells[c].value = 'Date'
                     _cells[c].font = font_N
                     _cells[c].border = border_t
                     _cells[c].fill = fill_yellow
                     _cells[c].alignment = alignment_c
-            """
-            Here we can unpack values for each CELL in ROW: 
-            ROW of 'pass %'
-            ROW of '# fails'
-            ROW of '# executed'
-            """
+            # Row with data - make formatting before.
             if i in range(1, 4):
                 for c in range(2, 32):
                     ws1.column_dimensions[_cells[c].column_letter].width = 6
-                    _cells[c].value = '0'
                     _cells[c].font = font_N
                     _cells[c].border = border_s
                     _cells[c].alignment = alignment_c
-            # ROW of '#not executed'
+            # ROW to put test report data - make formatting before.
+            if i in range(0, 4):
+                for c in range(2, 32):
+                    ws1.column_dimensions[_cells[c].column_letter].width = 6
+                    # _cells[c].value = '0'
+                    _cells[c].font = font_N
+                    # _cells[c].border = border_s
+                    _cells[c].alignment = alignment_c
+            # ROW of '#not executed' - make formatting before and fill 0 by default, as we run 100% of tests!
             if i == 4:
                 for c in range(2, 32):
                     ws1.column_dimensions[_cells[c].column_letter].width = 6
-                    _cells[c].value = '0'
+                    _cells[c].value = '0'  # Do not change, we don't actually  "NOT RUN" the tests
                     _cells[c].font = font_N
                     _cells[c].border = border_t
                     _cells[c].alignment = alignment_c
 
-        # VERTICAL Iter COL A:AJ
-        cols_iter = ws1.iter_cols(min_col=1, max_col=36,
-                                  min_row=3, max_row=8)
-        cols_iter = list(cols_iter)
-        for i, _cells in enumerate(cols_iter):
-            print(f'{i} Col, _cells[0]: {_cells[0]} in {i} col.')
+        # FILL DATA HORIZONTALLY:
+        # NOTE: CANNOT REVERSE!
+        # for day in range(0, 30):
+        #     test_stats = make_query(day=day)
+        #     cell = day + 2
+        #     date          = rows_iter[0][cell]
+        #     pass_rate     = rows_iter[1][cell]
+        #     fail_rate     = rows_iter[2][cell]
+        #     exec_rate     = rows_iter[3][cell]
+        #     not_exec_rate = rows_iter[4][cell]
+        #
+        #     print(f"Select day {day} CELL shift by {cell}")
+        #
+        #     # date.value = 'date'
+        #     # pass_rate.value = 'pass_rate'
+        #     # fail_rate.value = 'fail_rate'
+        #     # exec_rate.value = 'exec_rate'
+        #     # not_exec_rate.value = 'not_exec_rate'
+        #
+        #     date.value = test_stats['date'].strftime('%m/%d')  # 'date'
+        #     if test_stats['tests_sum']:
+        #         pass_rate.value = f"{round(100 * (int(test_stats['passed_sum']) + int(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 1)}%"  # 'pass %'
+        #         fail_rate.value = test_stats['fails_sum']  # '# fails'
+        #         exec_rate.value = test_stats['tests_sum']  # '# executed'
+        #         not_exec_rate.value = 0  # '# not executed'
 
+
+        # VERTICAL Iter COL A:AJ
+        cols_iter = ws1.iter_cols(min_col=min_col, max_col=max_col, min_row=min_row, max_row=max_row)
+        cols_iter = list(cols_iter)
         # Start of table
         ws1.column_dimensions[cols_iter[0][1].column_letter].width = 2  # A
         # Row names
         cols_iter[1][1].border = border_t  # B
+        # PASS %
         cols_iter[1][2].value = 'Pass %'  # B
         cols_iter[1][2].font = font_N  # B
         cols_iter[1][2].border = border_t  # B
         ws1.column_dimensions[cols_iter[1][2].column_letter].width = 20  # B
+        # FAILS %
         cols_iter[1][3].value = '# of Failures'
         cols_iter[1][3].font = font_N
         cols_iter[1][3].border = border_t
+        # EXECUTED TESTS
         cols_iter[1][4].value = '# of Tests Executed'
         cols_iter[1][4].font = font_N
         cols_iter[1][4].border = border_t
+        # NOT EXECUTED TESTS
         cols_iter[1][5].value = '# of Tests Not  Executed'
         cols_iter[1][5].font = font_N
         cols_iter[1][5].border = border_t
         # END of table
         ws1.column_dimensions[cols_iter[32][1].column_letter].width = 2  # AG
 
-        """
-        Here we can unpack values for each CELL in COL: 
-        COL:
-        - 'date'
-        - 'pass %'
-        - '# fails'
-        - '# executed'
-        - '#not executed'
-        """
-
         # MONTH STATS
         # Row names
+        # Table header
         cols_iter[33][0].value = 'Last 30 days stats:'  # AH
         cols_iter[33][0].font = font_B  # AH
+        # Last 30 days stats SUM
         ws1.column_dimensions[cols_iter[33][1].column_letter].width = 20  # AH
         cols_iter[33][1].value = '# of Days at 100%:'
         cols_iter[33][1].font = font_N
         cols_iter[33][1].border = border_t
+        # Avg pass rate for 30 days
         cols_iter[33][2].value = 'Avg Pass Rate:'
         cols_iter[33][2].font = font_N
         cols_iter[33][2].border = border_t
+        # Avg COUNT of failures for 30 days
         cols_iter[33][3].value = 'Avg # of Failures:'
         cols_iter[33][3].font = font_N
         cols_iter[33][3].border = border_t
         # END of table
         ws1.column_dimensions[cols_iter[35][1].column_letter].width = 2  # AG
 
+        # FILL DATA VERTICALLY and in reverse order:
+        cols_iter.reverse()
+        for i, _cells in enumerate(cols_iter[4:]):
+            print(f'{i} COL, _cells: {_cells} in {i} COL.')
+            if i in range(0,30):
+                # print(f'{1} Col, _cells[{1}]: {_cells[1]} in {1} col. Day = i: {i}')
+                test_stats = make_query(day=i)
+                date = _cells[1]
+                pass_rate = _cells[2]
+                fail_rate = _cells[3]
+                exec_rate = _cells[4]
+                not_exec_rate = _cells[5]
+
+                # date.value = 'date'
+                # pass_rate.value = 'pass_rate'
+                # fail_rate.value = 'fail_rate'
+                # exec_rate.value = 'exec_rate'
+                # not_exec_rate.value = 'not_exec_rate'
+
+                date.value = test_stats['date'].strftime('%m/%d')  # 'date'
+                if test_stats['tests_sum']:
+                    pass_rate.value = f"{round(100 * (int(test_stats['passed_sum']) + int(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 1)}%"  # 'pass %'
+                    fail_rate.value = test_stats['fails_sum']  # '# fails'
+                    exec_rate.value = test_stats['tests_sum']  # '# executed'
+                    not_exec_rate.value = 0  # '# not executed'
+
         wb.save(filename=filename)
 
 
-    insert_digest()
+    # insert_digest()
     # make_queries()
     # make_query(day=1)
-    # workbook_create()
-    workbook_create_test()
+    # workbook_create(filename='Discovery-Content')
+    workbook_create_test(start_row=10)
