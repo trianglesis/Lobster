@@ -203,8 +203,8 @@ class TestReports(models.Model):
     skipped = models.CharField(max_length=100, blank=True, null=True)
 
     # Make auto now
-    # report_date_time = models.DateTimeField(unique=False, auto_now_add=True)
-    report_date_time = models.DateTimeField(unique=False)
+    report_date_time = models.DateTimeField(unique=False, auto_now_add=True)
+    # report_date_time = models.DateTimeField(unique=False)
 
     class Meta:
         managed = True

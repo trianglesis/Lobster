@@ -73,9 +73,8 @@ class Report:
             'skipped',
         )
 
-        fake_date = datetime.datetime.now() - datetime.timedelta(days=5)
         for item in tests:
-            save_tst = TestReports(**item, report_date_time=fake_date)
+            save_tst = TestReports(**item)
             save_tst.save(force_insert=True)
 
     def select_stats(self, **kwargs):
