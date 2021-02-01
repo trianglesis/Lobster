@@ -1,16 +1,12 @@
 import datetime
-import openpyxl
-from openpyxl import Workbook
-from openpyxl.utils import get_column_letter
-from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font, Fill
+import logging
 
 from django.db.models import Q
-from django.db.models.aggregates import Sum, Avg, Max, Min, StdDev, Variance, Count
+from django.db.models.aggregates import Sum, Max
+from django.db.utils import IntegrityError
 
 from octo_tku_patterns.model_views import TestReportsView
 from octo_tku_patterns.models import TestReports
-
-import logging
 
 log = logging.getLogger("octo.octologger")
 
@@ -60,22 +56,24 @@ class Report:
     @staticmethod
     def insert_digest():
         tests = TestReportsView.objects.all().values(
-            'test_type',
-            'tkn_branch',
-            'pattern_library',
-            'addm_name',
-            'addm_v_int',
-            'tests_count',
-            'patterns_count',
-            'fails',
-            'error',
-            'passed',
-            'skipped',
+            # 'test_type',
+            # 'tkn_branch',
+            # 'pattern_library',
+            # 'addm_name',
+            # 'addm_v_int',
+            # 'tests_count',
+            # 'patterns_count',
+            # 'fails',
+            # 'error',
+            # 'passed',
+            # 'skipped',
         )
-
         for item in tests:
-            save_tst = TestReports(**item)
-            save_tst.save(force_insert=True)
+            try:
+                save_tst = TestReports(**item)
+                save_tst.save(force_insert=True)
+            except IntegrityError as e:
+                print(f'Duplicate: {e}')
 
     def select_stats(self, **kwargs):
         by_value = kwargs.get('grouping')

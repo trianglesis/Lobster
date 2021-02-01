@@ -1,5 +1,6 @@
 import datetime
 import openpyxl
+from django.db.utils import IntegrityError
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font, Fill
@@ -61,23 +62,25 @@ if __name__ == "__main__":
 
     def insert_digest():
         tests = TestReportsView.objects.all().values(
-            'test_type',
-            'tkn_branch',
-            'pattern_library',
-            'addm_name',
-            'addm_v_int',
-            'tests_count',
-            'patterns_count',
-            'fails',
-            'error',
-            'passed',
-            'skipped',
+            # 'test_type',
+            # 'tkn_branch',
+            # 'pattern_library',
+            # 'addm_name',
+            # 'addm_v_int',
+            # 'tests_count',
+            # 'patterns_count',
+            # 'fails',
+            # 'error',
+            # 'passed',
+            # 'skipped',
         )
 
-        fake_date = datetime.datetime.now() - datetime.timedelta(days=5)
         for item in tests:
-            save_tst = TestReports(**item, report_date_time=fake_date)
-            save_tst.save(force_insert=True)
+            try:
+                save_tst = TestReports(**item)
+                save_tst.save(force_insert=True)
+            except IntegrityError as e:
+                print(f'Duplicate: {e}')
 
 
     def select_stats(**kwargs):
@@ -477,8 +480,8 @@ if __name__ == "__main__":
         wb.save(filename=filename)
 
 
-    # insert_digest()
+    insert_digest()
     # make_queries()
     # make_query(day=1)
     # workbook_create(filename='Discovery-Content')
-    workbook_create_test(start_row=10)
+    # workbook_create_test(start_row=10)

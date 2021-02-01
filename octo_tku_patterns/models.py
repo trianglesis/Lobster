@@ -204,7 +204,6 @@ class TestReports(models.Model):
 
     # Make auto now
     report_date_time = models.DateTimeField(unique=False, auto_now_add=True)
-    # report_date_time = models.DateTimeField(unique=False)
 
     class Meta:
         managed = True
