@@ -837,7 +837,7 @@ class TestCases(UploadTaskPrepare):
         """
         # TODO: Run this when WGET routine detects a new tkn_main_cont package by md5
         self.silent = True
-        self.tku_wget = False
+        self.tku_wget = True ## Additional exec of WGET to continue download or check ZIP integrity
         self.fake_run = False
         self.test_mode = 'fresh'
         package_type = self.select_latest_continuous(tkn_branch='tkn_main')
@@ -858,7 +858,7 @@ class TestCases(UploadTaskPrepare):
         :return:
         """
         self.silent = True
-        self.tku_wget = False
+        self.tku_wget = True ## Additional exec of WGET to continue download or check ZIP integrity
         self.fake_run = False
         self.test_mode = 'fresh'
         package_type = self.select_latest_continuous(tkn_branch='tkn_ship')
@@ -871,7 +871,7 @@ class TestCases(UploadTaskPrepare):
         self.run_case()
 
     def test009_release_ga_upgrade_and_fresh(self):
-        # self.tku_wget = True
+        self.tku_wget = True  ## Additional exec of WGET to continue download or check ZIP integrity
         self.test005_release_ga_upgrade()
         self.test006_release_ga_fresh()
 
