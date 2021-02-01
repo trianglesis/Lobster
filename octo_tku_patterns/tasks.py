@@ -180,9 +180,15 @@ class ExtDigests:
     @staticmethod
     @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.ExtDigests.collect_latest',
               soft_time_limit=MIN_40, task_time_limit=MIN_90)
-    def collect_latest(tag, **kwargs):
+    def t_report_collect_latest(tag, **kwargs):
         """ From model view TestReportsView add to TestReports all records from TestLatest"""
         Report.insert_digest()
+
+    @staticmethod
+    @app.task(queue='w_routines@tentacle.dq2', routing_key='routines.ExtDigests.generate_xls',
+              soft_time_limit=MIN_40, task_time_limit=MIN_90)
+    def t_report_generate_xls(tag, **kwargs):
+        Report.generate_xlxs(**kwargs)
 
 
 class PatternTestExecCases:

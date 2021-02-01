@@ -93,3 +93,6 @@ class Report:
         )
         # print(f"{queryset.query}")
         return queryset
+
+    def generate_xlxs(self, **kwargs):
+        log.debug(f"Generating XML dummy! {kwargs}")
