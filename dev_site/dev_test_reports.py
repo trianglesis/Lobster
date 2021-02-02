@@ -162,7 +162,7 @@ if __name__ == "__main__":
             )
 
 
-    def make_q_days_range(days=31, grouping='tkn_branch', tkn_branch='tkn_ship', test_type='tku_patterns',
+    def make_q_days_range(days=30, grouping='tkn_branch', tkn_branch='tkn_ship', test_type='tku_patterns',
                           addm_name=None, pattern_library=None):
         """
         Select records from today to previous 31 days date.
@@ -646,6 +646,8 @@ if __name__ == "__main__":
             else:
                 self.place = '/home/user/TH_Octopus/UPLOAD/report/'
 
+            self.now = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00, microsecond=00)
+
             self.font_N = Font(name='Calibri', size=9, bold=False)
             self.font_B = Font(name='Calibri', size=9, bold=True)
 
@@ -669,21 +671,186 @@ if __name__ == "__main__":
             # General work boor:
             self.wb = Workbook()
 
-        def last_30_days(self):
+        def get_stats(self, **kwargs):
+            queryset = TestReports.objects.all()
+
+            if kwargs.get("test_type"):
+                queryset = queryset.filter(test_type__exact=kwargs.get("test_type"))
+            else:
+                queryset = queryset.filter(tkn_branch__isnull=False)
+            if kwargs.get('addm_name'):
+                queryset = queryset.filter(addm_name__exact=kwargs.get('addm_name'))
+            if kwargs.get('tkn_branch'):
+                queryset = queryset.filter(tkn_branch__exact=kwargs.get('tkn_branch'))
+            if kwargs.get('pattern_library'):
+                queryset = queryset.filter(pattern_library__exact=kwargs.get('pattern_library'))
+
+            # Selecting by the day added:
+            report_date_time = kwargs.get('report_date_time')
+            if report_date_time:
+                if not isinstance(report_date_time, datetime.date):
+                    print(f"Warning: report_date_time should bw a datetime object, if not - will use today date by default!")
+                    date_var = self.now
+                else:
+                    date_var = report_date_time
+                if kwargs.get('date_t') == 'year':
+                    queryset = queryset.filter(Q(report_date_time__year=date_var.year))
+                elif kwargs.get('date_t') == 'month':
+                    queryset = queryset.filter(Q(report_date_time__year=date_var.year,
+                                                 report_date_time__month=date_var.month))
+                elif kwargs.get('date_t') == 'days_range':
+                    prev = date_var - datetime.timedelta(days=kwargs.get('days_range'))
+                    tomorrow = date_var + datetime.timedelta(days=1)
+                    queryset = queryset.filter(Q(report_date_time__range=[prev, tomorrow]))
+                else:
+                    queryset = queryset.filter(
+                        Q(report_date_time__year=date_var.year,
+                          report_date_time__month=date_var.month,
+                          report_date_time__day=date_var.day))
+            return queryset
+
+        def make_q_days_range(self, days=30, grouping='tkn_branch', tkn_branch='tkn_ship', test_type='tku_patterns',
+                              addm_name=None, pattern_library=None):
+            """
+            Select records from today to previous 31 days date.
+
+            :param days:
+            :param grouping:
+            :param tkn_branch:
+            :param test_type:
+            :param addm_name:
+            :param pattern_library:
+            :return:
+            """
+            queryset = self.get_stats(
+                tkn_branch=tkn_branch,
+                test_type=test_type,
+                grouping=grouping,
+                addm_name=addm_name,
+                pattern_library=pattern_library,
+                report_date_time=self.now,
+                date_t='days_range',
+                days_range=days,
+            )
+            queryset = queryset.annotate(day=TruncDay('report_date_time')).values('day').order_by('day').annotate(
+                date=Max('report_date_time'),
+                addm_v_int=Max('addm_v_int'),
+                tests_sum=Sum('tests_count'),
+                patterns_sum=Sum('patterns_count'),
+                errors_sum=Sum('error'),
+                fails_sum=Sum('fails'),
+                passed_sum=Sum('passed'),
+                skipped_sum=Sum('skipped'),
+            )
+            return queryset
+
+        def make_q_month(self, grouping='tkn_branch', tkn_branch='tkn_ship', test_type='tku_patterns', addm_name=None,
+                         pattern_library=None):
+            """
+            Select current month records from 1st day.
+
+            :param grouping:
+            :param tkn_branch:
+            :param test_type:
+            :param addm_name:
+            :param pattern_library:
+            :return:
+            """
+            start_date = datetime.datetime(self.now.year, self.now.month, 1)
+            queryset = self.get_stats(
+                tkn_branch=tkn_branch,
+                test_type=test_type,
+                grouping=grouping,
+                addm_name=addm_name,
+                pattern_library=pattern_library,
+                report_date_time=start_date,
+                date_t='month',
+            )
+            queryset = queryset.annotate(day=TruncDay('report_date_time')).values('day').order_by('day').annotate(
+                date=Max('report_date_time'),
+                addm_v_int=Max('addm_v_int'),
+                tests_sum=Sum('tests_count'),
+                patterns_sum=Sum('patterns_count'),
+                errors_sum=Sum('error'),
+                fails_sum=Sum('fails'),
+                passed_sum=Sum('passed'),
+                skipped_sum=Sum('skipped'),
+            )
+            return queryset
+
+        def make_q_year(self, grouping='tkn_branch', tkn_branch='tkn_ship', test_type='tku_patterns', addm_name=None,
+                        pattern_library=None):
+            """
+            Select current month records from 1st day of the year.
+
+            :param grouping:
+            :param tkn_branch:
+            :param test_type:
+            :param addm_name:
+            :param pattern_library:
+            :return:
+            """
+            start_date = datetime.datetime(self.now.year, 1, 1)
+            queryset = self.get_stats(
+                tkn_branch=tkn_branch,
+                test_type=test_type,
+                grouping=grouping,
+                addm_name=addm_name,
+                pattern_library=pattern_library,
+                report_date_time=start_date,
+                date_t='year',
+            )
+            queryset = queryset.annotate(day=TruncDay('report_date_time')).values('day').order_by('day').annotate(
+                date=Max('report_date_time'),
+                addm_v_int=Max('addm_v_int'),
+                tests_sum=Sum('tests_count'),
+                patterns_sum=Sum('patterns_count'),
+                errors_sum=Sum('error'),
+                fails_sum=Sum('fails'),
+                passed_sum=Sum('passed'),
+                skipped_sum=Sum('skipped'),
+            )
+            return queryset
+
+        def last_30_days(self, addm_name):
             ws1 = self.wb.active
             ws1.title = "Last_30_days"
             # HEADER
             ws1["B1"] = 'Automation Status for BMC Discovery Content'
             ws1["B1"].font = self.font_B
+            # Here make the table formatting:
             cols = self.table_scheme(ws=ws1, start_row=1, start_col=2)
-            """
-            ALT: Insert query of 31 day
-            Use the full query as enumeration object.
-            Query consists of tests stats SUM for each day in table.
-            """
-            cols = cols[2:]  # Get cells only from 3rd COL
-            days_r = make_q_days_range()  # 31 day and ship by default all ADDM SUM
-            for i, test_stats in enumerate(days_r):
+            # Get QS for days in range, 30 is default value
+            days_r = self.make_q_days_range(addm_name=addm_name)  # 31 day and ship by default all ADDM SUM
+            # Starting from 3rd COL - insert test stats for each next COL/day if any:
+            self.cell_filler(cols[2:], days_r)
+
+        def last_year_monthly(self, addm_name):
+            ws2 = self.wb.create_sheet(title="Historical")
+
+            # Get QS for current year
+            year_qs = self.make_q_year(addm_name=addm_name)
+
+            # Where to start format History page tables, usually the top of sheet
+            start_row = 1
+            for _month in range(1, 13):
+                # For 12 months make an additional filter for the YEAR query, to get only related to month by step
+                month = datetime.datetime(self.now.year, _month, 1)
+                # Make additional filter in year query:
+                month_qs = year_qs.filter(Q(report_date_time__year=month.year, report_date_time__month=month.month))
+                # If this step months have any records.
+                if month_qs:
+                    # Starting from 3rd COL - insert test stats for each next COL/day if any:
+                    cols = self.table_scheme(ws=ws2, start_row=start_row, start_col=2) # Format table and return cells
+                    cols[1][1].value = month.strftime("%b - %Y")  # 1st Cell of History with month and year
+                    cols[1][1].fill = self.fill_yellow
+                    self.cell_filler(cols[2:], month_qs)
+                # Make a step lower in the sheet for next table under the current one:
+                start_row += 7
+
+        @staticmethod
+        def cell_filler(cols, queryset):
+            for i, test_stats in enumerate(queryset):
                 _cells = cols[i]
                 date = _cells[1]
                 pass_rate = _cells[2]
@@ -697,40 +864,8 @@ if __name__ == "__main__":
                     exec_rate.value = test_stats['tests_sum']  # '# executed'
                     not_exec_rate.value = 0  # '# not executed'
 
-        def last_year_monthly(self):
-            today_y = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00, microsecond=00)
-            year_qs = make_q_year()
-            ws2 = self.wb.create_sheet(title="Historical")
-            start_row = 1
-            for _month in range(1, 13):
-                month = datetime.datetime(today_y.year, _month, 1)
-                month_qs = year_qs.filter(Q(report_date_time__year=month.year, report_date_time__month=month.month))
-                if month_qs:
-                    print(f"Sel month from qs result {month} QS: {month_qs}")
-                    cols = self.table_scheme(ws=ws2, start_row=start_row, start_col=2)
-                    # cols[1][1].value = f'{_month} Date (%b)-(%Y)'  # 1st Cell of History with month and year
-                    cols[1][1].value = month.strftime("%b - %Y")  # 1st Cell of History with month and year
-                    cols[1][1].fill = self.fill_yellow  # B
-                    cols = cols[2:]  # Get cells only from 3rd COL
-                    for i, test_stats in enumerate(month_qs):
-                        _cells = cols[i]
-                        date = _cells[1]
-                        pass_rate = _cells[2]
-                        fail_rate = _cells[3]
-                        exec_rate = _cells[4]
-                        not_exec_rate = _cells[5]
-                        date.value = test_stats['date'].strftime('%m/%d')  # 'date'
-                        if test_stats['tests_sum']:
-                            pass_rate.value = f"{round(100 * (float(test_stats['passed_sum']) + float(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 2)}%"  # 'pass %'
-                            fail_rate.value = test_stats['fails_sum']  # '# fails'
-                            exec_rate.value = test_stats['tests_sum']  # '# executed'
-                            not_exec_rate.value = 0  # '# not executed'
-                start_row += 7
-
         def table_scheme(self, ws, start_row=1, start_col=2):
-            end_row = start_row + 1  # 2nd row to merge with starting
             end_column = 36  # End of table in col length - AJ col in table.
-
             min_col = 1  # Always start iter COLs from A col - 1st
             max_col = end_column  # Always end iter on the latest COL: 36th AJ col in table.
             min_row = start_row + 2  # Where day cols are starting to count from - 3rd after two merged
@@ -743,9 +878,10 @@ if __name__ == "__main__":
             # HEADER
             ws["B1"] = 'Automation Status for BMC Discovery Content'
             ws["B1"].font = self.font_B
-
+            # Formating table:
             self.horizontal(ws, min_col, max_col, min_row, max_row)
             cols = self.vertical(ws, min_col, max_col, min_row, max_row)
+            # Return active COLs for further data insertion
             return cols
 
         def horizontal(self, ws, min_col, max_col, min_row, max_row):
@@ -773,15 +909,12 @@ if __name__ == "__main__":
                 if i in range(0, 4):
                     for c in range(2, 32):
                         ws.column_dimensions[_cells[c].column_letter].width = 6
-                        # _cells[c].value = '0'
                         _cells[c].font = self.font_N
-                        # _cells[c].border = self.border_s
                         _cells[c].alignment = self.alignment_c
                 # ROW of '#not executed' - make formatting before and fill 0 by default, as we run 100% of tests!
                 if i == 4:
                     for c in range(2, 32):
                         ws.column_dimensions[_cells[c].column_letter].width = 6
-                        _cells[c].value = '0'  # Do not change, we don't actually  "NOT RUN" the tests
                         _cells[c].font = self.font_N
                         _cells[c].border = self.border_t
                         _cells[c].alignment = self.alignment_c
@@ -837,11 +970,15 @@ if __name__ == "__main__":
             # For further fill data in cols
             return cols_iter
 
-        def main_report(self, filename):
-            self.last_30_days()
-            self.last_year_monthly()
+        def main_report(self, filename, addm_name=None):
+            self.last_30_days(addm_name=addm_name)
+            self.last_year_monthly(addm_name=addm_name)
             print(f'Saving file: {self.place + filename + ".xlsx"}')
             self.wb.save(filename=self.place + filename + '.xlsx')
 
+
     print('Manual creation!')
     GeneratorExcel().main_report(filename='Discovery-Content')
+    GeneratorExcel().main_report(filename='Discovery-Content-double_decker', addm_name='double_decker')
+    GeneratorExcel().main_report(filename='Discovery-Content-fish_finger', addm_name='fish_finger')
+    GeneratorExcel().main_report(filename='Discovery-Content-gargoyle', addm_name='gargoyle')
