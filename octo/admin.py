@@ -784,6 +784,7 @@ class TestLatestDigestAllAdmin(admin.ModelAdmin):
         'error',
         'passed',
         'skipped',
+        'report_date_time',
     )
 
     list_filter = ('tkn_branch', 'addm_name', 'addm_v_int', 'pattern_library', 'report_date_time')
