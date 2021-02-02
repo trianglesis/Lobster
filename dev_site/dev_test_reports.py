@@ -137,9 +137,9 @@ if __name__ == "__main__":
 
     def make_query(day, grouping='tkn_branch', tkn_branch='tkn_ship', test_type='tku_patterns', addm_name=None,
                    pattern_library=None):
-        date_var_ = datetime.datetime.now()
+        date_var_ = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00, microsecond=00)
         date_var_ = date_var_ - datetime.timedelta(days=day)
-        # print(f"Query stats for: {date_var_.strftime('%m/%d')}")
+        print(f"Query stats for: {date_var_}")
         sel_kw = dict(
             tkn_branch=tkn_branch,
             test_type=test_type,
@@ -175,7 +175,7 @@ if __name__ == "__main__":
         :param pattern_library:
         :return:
         """
-        now = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00)
+        now = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00, microsecond=00)
         queryset = get_stats(
             tkn_branch=tkn_branch,
             test_type=test_type,
@@ -211,7 +211,7 @@ if __name__ == "__main__":
         :param pattern_library:
         :return:
         """
-        today_y = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00)
+        today_y = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00, microsecond=00)
         start_date = datetime.datetime(today_y.year, today_y.month, 1)
         queryset = get_stats(
             tkn_branch=tkn_branch,
@@ -247,7 +247,7 @@ if __name__ == "__main__":
         :param pattern_library:
         :return:
         """
-        today_y = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00)
+        today_y = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00, microsecond=00)
         start_date = datetime.datetime(today_y.year, 1, 1)
         queryset = get_stats(
             tkn_branch=tkn_branch,
@@ -621,20 +621,22 @@ if __name__ == "__main__":
     # make_queries()
     # make_query(day=1)
 
-    yearly = make_q_year()
-    for q in yearly:
-        print(f'Daily for the year: {q["day"].strftime("%b - %Y %d")} {q}')
+    # yearly = make_q_year()
+    # print(f'yearly" {yearly}')
+    # for q in yearly:
+    #     print(f'Daily for the year: {q["day"].strftime("%b - %Y %d")} {q}')
 
-    cuur_month = make_q_month()
-    for q in cuur_month:
-        print(f'Current month: {q["day"].strftime("%b - %Y %d")} {q}')
-
-    days_range = make_q_days_range()
-    for q in days_range:
-        print(f'Days range: {q["day"].strftime("%b - %Y %d")} {q}')
+    # cuur_month = make_q_month()
+    # for q in cuur_month:
+    #     print(f'Current month: {q["day"].strftime("%b - %Y %d")} {q}')
+    #
+    # days_range = make_q_days_range()
+    # for q in days_range:
+    #     print(f'Days range: {q["day"].strftime("%b - %Y %d")} {q}')
 
     # workbook_create(filename='Discovery-Content')
     # workbook_create_test(filename='Discovery-Content')
+
 
     class GeneratorExcel:
 
@@ -674,48 +676,56 @@ if __name__ == "__main__":
             ws1["B1"] = 'Automation Status for BMC Discovery Content'
             ws1["B1"].font = self.font_B
             cols = self.table_scheme(ws=ws1, start_row=1, start_col=2)
-            # Fill that COLs with data:
-            # FILL DATA VERTICALLY and in reverse order:
-            cols.reverse()
-            for i, _cells in enumerate(cols[4:]):
-                print(f'{i} COL, _cells: {_cells} in {i} COL.')
-                # TODO: Later change to query just all 30 days?
-                if i in range(0, 30):
-                    # print(f'{1} Col, _cells[{1}]: {_cells[1]} in {1} col. Day = i: {i}')
-                    test_stats = make_query(day=i)
-                    date = _cells[1]
-                    pass_rate = _cells[2]
-                    fail_rate = _cells[3]
-                    exec_rate = _cells[4]
-                    not_exec_rate = _cells[5]
-
-                    # date.value = 'date'
-                    # pass_rate.value = 'pass_rate'
-                    # fail_rate.value = 'fail_rate'
-                    # exec_rate.value = 'exec_rate'
-                    # not_exec_rate.value = 'not_exec_rate'
-
-                    date.value = test_stats['date'].strftime('%m/%d')  # 'date'
-                    if test_stats['tests_sum']:
-                        pass_rate.value = f"{round(100 * (int(test_stats['passed_sum']) + int(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 1)}%"  # 'pass %'
-                        fail_rate.value = test_stats['fails_sum']  # '# fails'
-                        exec_rate.value = test_stats['tests_sum']  # '# executed'
-                        not_exec_rate.value = 0  # '# not executed'
+            """
+            ALT: Insert query of 31 day
+            Use the full query as enumeration object.
+            Query consists of tests stats SUM for each day in table.
+            """
+            cols = cols[2:]  # Get cells only from 3rd COL
+            days_r = make_q_days_range()  # 31 day and ship by default all ADDM SUM
+            for i, test_stats in enumerate(days_r):
+                _cells = cols[i]
+                date = _cells[1]
+                pass_rate = _cells[2]
+                fail_rate = _cells[3]
+                exec_rate = _cells[4]
+                not_exec_rate = _cells[5]
+                date.value = test_stats['date'].strftime('%m/%d')  # 'date'
+                if test_stats['tests_sum']:
+                    pass_rate.value = f"{round(100 * (float(test_stats['passed_sum']) + float(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 2)}%"  # 'pass %'
+                    fail_rate.value = test_stats['fails_sum']  # '# fails'
+                    exec_rate.value = test_stats['tests_sum']  # '# executed'
+                    not_exec_rate.value = 0  # '# not executed'
 
         def last_year_monthly(self):
+            today_y = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00, microsecond=00)
+            year_qs = make_q_year()
             ws2 = self.wb.create_sheet(title="Historical")
-            # Date - get all months for last year will all days.
-            # Query - get last year stats - monthly (then daily) and fill the second sheet
-
-            # TODO: Here run loop for this for each month, starting from upper row, and add + 7 on each iter
             start_row = 1
-            for i in range(12):
-                cols = self.table_scheme(ws=ws2, start_row=start_row, start_col=2)
+            for _month in range(1, 13):
+                month = datetime.datetime(today_y.year, _month, 1)
+                month_qs = year_qs.filter(Q(report_date_time__year=month.year, report_date_time__month=month.month))
+                if month_qs:
+                    print(f"Sel month from qs result {month} QS: {month_qs}")
+                    cols = self.table_scheme(ws=ws2, start_row=start_row, start_col=2)
+                    # cols[1][1].value = f'{_month} Date (%b)-(%Y)'  # 1st Cell of History with month and year
+                    cols[1][1].value = month.strftime("%b - %Y")  # 1st Cell of History with month and year
+                    cols[1][1].fill = self.fill_yellow  # B
+                    cols = cols[2:]  # Get cells only from 3rd COL
+                    for i, test_stats in enumerate(month_qs):
+                        _cells = cols[i]
+                        date = _cells[1]
+                        pass_rate = _cells[2]
+                        fail_rate = _cells[3]
+                        exec_rate = _cells[4]
+                        not_exec_rate = _cells[5]
+                        date.value = test_stats['date'].strftime('%m/%d')  # 'date'
+                        if test_stats['tests_sum']:
+                            pass_rate.value = f"{round(100 * (float(test_stats['passed_sum']) + float(test_stats['skipped_sum'])) / float(test_stats['tests_sum']), 2)}%"  # 'pass %'
+                            fail_rate.value = test_stats['fails_sum']  # '# fails'
+                            exec_rate.value = test_stats['tests_sum']  # '# executed'
+                            not_exec_rate.value = 0  # '# not executed'
                 start_row += 7
-                cols[1][1].value = f'{i} Date (%b)-(%Y)'  # 1st Cell of History with month and year
-                cols[1][1].fill = self.fill_yellow  # B
-            # Fill that COLs with data:
-            # TODO: Query should be effective?
 
         def table_scheme(self, ws, start_row=1, start_col=2):
             end_row = start_row + 1  # 2nd row to merge with starting
@@ -830,6 +840,8 @@ if __name__ == "__main__":
         def main_report(self, filename):
             self.last_30_days()
             self.last_year_monthly()
+            print(f'Saving file: {self.place + filename + ".xlsx"}')
             self.wb.save(filename=self.place + filename + '.xlsx')
 
-    GeneratorExcel().main_report(filename='test_wb_classed')
+    print('Manual creation!')
+    GeneratorExcel().main_report(filename='Discovery-Content')
