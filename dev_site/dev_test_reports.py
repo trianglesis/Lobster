@@ -175,7 +175,7 @@ if __name__ == "__main__":
         :param pattern_library:
         :return:
         """
-        now = datetime.datetime.now(tz=timezone.utc)
+        now = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00)
         queryset = get_stats(
             tkn_branch=tkn_branch,
             test_type=test_type,
@@ -211,7 +211,7 @@ if __name__ == "__main__":
         :param pattern_library:
         :return:
         """
-        today_y = datetime.date.today()
+        today_y = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00)
         start_date = datetime.datetime(today_y.year, today_y.month, 1)
         queryset = get_stats(
             tkn_branch=tkn_branch,
@@ -247,7 +247,7 @@ if __name__ == "__main__":
         :param pattern_library:
         :return:
         """
-        today_y = datetime.date.today()
+        today_y = datetime.datetime.now(tz=timezone.utc).replace(hour=00, minute=00, second=00)
         start_date = datetime.datetime(today_y.year, 1, 1)
         queryset = get_stats(
             tkn_branch=tkn_branch,
@@ -633,7 +633,6 @@ if __name__ == "__main__":
     for q in days_range:
         print(f'Days range: {q["day"].strftime("%b - %Y %d")} {q}')
 
-
     # workbook_create(filename='Discovery-Content')
     # workbook_create_test(filename='Discovery-Content')
 
@@ -833,4 +832,4 @@ if __name__ == "__main__":
             self.last_year_monthly()
             self.wb.save(filename=self.place + filename + '.xlsx')
 
-    # GeneratorExcel().main_report(filename='test_wb_classed')
+    GeneratorExcel().main_report(filename='test_wb_classed')
